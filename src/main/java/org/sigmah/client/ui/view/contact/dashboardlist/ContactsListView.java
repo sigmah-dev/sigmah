@@ -408,25 +408,25 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 		idColumn.setHidden(true);
 
 		// Organization
-		final ColumnConfig organizationColumn = new ColumnConfig(ContactDTO.PARENT, I18N.CONSTANTS.contactDirectMembership(), 100);
+		final ColumnConfig organizationColumn = new ColumnConfig(DashboardContact.PARENT_NAME, I18N.CONSTANTS.contactDirectMembership(), 100);
 		organizationColumn.setRenderer(new GridCellRenderer<DashboardContact>() {
 
 			@Override
 			public Object render(final DashboardContact model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
 					final ListStore<DashboardContact> store, final Grid<DashboardContact> grid) {
-				return createContactGridText(organizationName((ContactDTO)model.get(property)));
+				return createContactGridText((String)model.get(property));
 			}
 		});
 		organizationColumn.setHidden(true);
 
 		// Root organization
-		final ColumnConfig rootOrganizationColumn = new ColumnConfig(ContactDTO.ROOT, I18N.CONSTANTS.contactTopMembership(), 100);
+		final ColumnConfig rootOrganizationColumn = new ColumnConfig(DashboardContact.ROOT_NAME, I18N.CONSTANTS.contactTopMembership(), 100);
 		rootOrganizationColumn.setRenderer(new GridCellRenderer<DashboardContact>() {
 
 			@Override
 			public Object render(final DashboardContact model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
 													 final ListStore<DashboardContact> store, final Grid<DashboardContact> grid) {
-				return createContactGridText(organizationName((ContactDTO)model.get(property)));
+				return createContactGridText((String)model.get(property));
 			}
 		});
 		rootOrganizationColumn.setHidden(true);
@@ -468,16 +468,6 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 		return label;
 	}
 
-	private static String organizationName(ContactDTO organization) {
-		String organizationLabel = "";
-
-		if(organization != null) {
-			organizationLabel = organization.getOrganizationName();
-		}
-
-		return organizationLabel;
-	}
-
 	/**
 	 * Grid filters for contacts' TreeGrid.
 	 */
@@ -496,8 +486,8 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 		gridFilters.addFilter(new StringFilter(ContactHistory.FORMATTED_VALUE));
 		gridFilters.addFilter(new StringFilter(ContactDTO.EMAIL));
 		gridFilters.addFilter(new StringFilter(ContactDTO.ID));
-		gridFilters.addFilter(new StringFilter(ContactDTO.PARENT));
-		gridFilters.addFilter(new StringFilter(ContactDTO.ROOT));
+		gridFilters.addFilter(new StringFilter(DashboardContact.PARENT_NAME));
+		gridFilters.addFilter(new StringFilter(DashboardContact.ROOT_NAME));
 		gridFilters.addFilter(new DateFilter(ContactHistory.UPDATED_AT));
 		gridFilters.addFilter(new StringFilter(ContactHistory.COMMENT));
 	}
