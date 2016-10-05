@@ -11,6 +11,9 @@ public class DashboardContact extends AbstractModelDataEntityDTO<Integer> {
   private ContactDTO contact;
   private ContactHistory lastChange;
 
+  public static final String PARENT_NAME = "parentName";
+  public static final String ROOT_NAME = "rootName";
+
   public DashboardContact() {
     // serialization
   }
@@ -30,7 +33,13 @@ public class DashboardContact extends AbstractModelDataEntityDTO<Integer> {
       set(ContactDTO.EMAIL, contact.getEmail());
       set(ContactDTO.ID, contact.getId());
       set(ContactDTO.PARENT, contact.getParent());
+      if (contact.getParent() != null) {
+        set(PARENT_NAME, contact.getParent().getName());
+      }
       set(ContactDTO.ROOT, contact.getRoot());
+      if (contact.getRoot() != null) {
+        set(ROOT_NAME, contact.getRoot().getName());
+      }
     }
 
     if(lastChange != null) {

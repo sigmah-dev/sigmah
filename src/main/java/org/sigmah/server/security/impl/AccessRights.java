@@ -158,8 +158,6 @@ final class AccessRights {
 		sperm(commandToken(GetBaseMaps.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetCalendar.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetCategories.class), GrantType.AUTHENTICATED_ONLY);
-		sperm(commandToken(GetContact.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
-		sperm(commandToken(GetContacts.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
 		sperm(commandToken(GetContactDuplicatedProperties.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
 		sperm(commandToken(GetContactHistory.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
 		sperm(commandToken(GetContactModel.class), GrantType.AUTHENTICATED_ONLY);
