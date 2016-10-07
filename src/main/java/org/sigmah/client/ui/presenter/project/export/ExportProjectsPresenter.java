@@ -177,7 +177,7 @@ public class ExportProjectsPresenter extends AbstractPagePresenter<ExportProject
 	@Override
 	public void onPageRequest(PageRequest request) {
 		// view.cleanForm();
-		setPageTitle(I18N.CONSTANTS.GLOBAL_EXPORT());
+		setPageTitle(I18N.CONSTANTS.projectsExport());
 
 	}
 }
