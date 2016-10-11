@@ -118,7 +118,7 @@ public class ProjectModelsAdminView extends AbstractModelsAdminView<ProjectModel
 		defaultProfiles.initComponent();
 		defaultProfiles.addStyleName("admin__project-models__default-team-member-profiles");
 
-		final FormPanel headerForm = Forms.panel(140);
+		final FormPanel headerForm = Forms.panel(250);
 		headerForm.setAutoHeight(true);
 
 		headerForm.add(nameField);
