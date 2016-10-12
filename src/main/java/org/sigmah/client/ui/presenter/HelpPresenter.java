@@ -31,7 +31,6 @@ import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
 import org.sigmah.client.ui.view.HelpView;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.util.ClientUtils;
-import org.sigmah.client.util.SigmahOldAnchors;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.servlet.URLs;
 
@@ -83,7 +82,9 @@ public class HelpPresenter extends AbstractPagePresenter<HelpPresenter.View> {
 
 		// Retrieves the anchor.
 		final Page page = injector.getPageManager().getCurrentPage(false);
-		anchor = SigmahOldAnchors.map(page);
+        //removal of all "-"/"_" because LibreOffice writer2xhtml plugin unable to 
+        //      keep them in anchors of user guide html export
+        anchor = page.toString().replace("-", "").replace("_", ""); 
 
 		// Builds the help URL.
 		this.url = buildHelpURL(auth().getLanguage());
