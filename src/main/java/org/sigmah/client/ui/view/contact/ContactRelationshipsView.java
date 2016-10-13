@@ -113,7 +113,8 @@ public class ContactRelationshipsView extends AbstractView implements ContactRel
 
     final FormPanel panel = Forms.panel();
 
-    final CheckBox allRelationsBox = Forms.checkbox(I18N.CONSTANTS.allRelations());
+    final CheckBox allRelationsBox = Forms.checkbox(I18N.CONSTANTS.allRelations(), Boolean.TRUE);
+    allRelationsBox.setEnabled(false);
     final CheckBox frameworkRelationsBox = Forms.checkbox(I18N.CONSTANTS.frameworkRelations());
     final CheckBox relationsByElementBox = Forms.checkbox(I18N.CONSTANTS.relationsByElement());
 
