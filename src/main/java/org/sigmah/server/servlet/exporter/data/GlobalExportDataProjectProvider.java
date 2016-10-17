@@ -165,7 +165,7 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 			final Map<String, List<ExportDataCell[]>> layoutGroupsData = new LinkedHashMap<>();
 
 			// special fields for BI
-			titles.add(new ExportStringCell(i18nTranslator.t(language, "permanentId")));
+			titles.add(new ExportStringCell(i18nTranslator.t(language, "projectId")));
 			titles.add(new ExportStringCell(i18nTranslator.t(language, "projectActivePhase")));
 
 			boolean isFirstLine = true;

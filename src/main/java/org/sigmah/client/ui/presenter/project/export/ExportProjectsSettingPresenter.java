@@ -128,7 +128,7 @@ public class ExportProjectsSettingPresenter extends AbstractPagePresenter<Export
 
 		loadElement();
 
-		setPageTitle(I18N.CONSTANTS.globalExportConfiguration());
+		setPageTitle(I18N.CONSTANTS.globalProjectsExportConfiguration());
 	}
 
 	private void loadElement() {
@@ -139,7 +139,7 @@ public class ExportProjectsSettingPresenter extends AbstractPagePresenter<Export
 
 			@Override
 			public void onCommandFailure(Throwable caught) {
-				N10N.warn(I18N.CONSTANTS.globalExportConfiguration(), I18N.CONSTANTS.serverError());
+				N10N.warn(I18N.CONSTANTS.globalProjectsExportConfiguration(), I18N.CONSTANTS.serverError());
 			}
 
 			@Override
@@ -238,13 +238,13 @@ public class ExportProjectsSettingPresenter extends AbstractPagePresenter<Export
 
 					@Override
 					public void onCommandFailure(Throwable caught) {
-						N10N.warn(I18N.CONSTANTS.saveExportConfiguration(), I18N.MESSAGES.adminStandardCreationFailure(I18N.CONSTANTS.globalExportConfiguration()));
+						N10N.warn(I18N.CONSTANTS.saveExportConfiguration(), I18N.MESSAGES.adminStandardCreationFailure(I18N.CONSTANTS.globalProjectsExportConfiguration()));
 					}
 
 					@Override
 					public void onCommandSuccess(VoidResult result) {
 						view.hide();
-						N10N.infoNotif(I18N.CONSTANTS.saveExportConfiguration(), I18N.MESSAGES.adminStandardUpdateSuccess(I18N.CONSTANTS.globalExportConfiguration()));
+						N10N.infoNotif(I18N.CONSTANTS.saveExportConfiguration(), I18N.MESSAGES.adminStandardUpdateSuccess(I18N.CONSTANTS.globalProjectsExportConfiguration()));
 					}
 				});
 

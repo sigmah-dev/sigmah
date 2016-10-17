@@ -335,6 +335,11 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
                   }
                 });
               }
+
+              @Override
+              public void handleCancel() {
+                dedupeContactDialog.hide();
+              }
             });
             dedupeContactDialog.addWindowListener(new WindowListener() {
               @Override
