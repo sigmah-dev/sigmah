@@ -152,6 +152,11 @@ public class ContactListElementDTO extends FlexibleElementDTO {
                   }
                 });
               }
+
+              @Override
+              public void handleCancel() {
+                dedupeContactDialog.hide();
+              }
             });
             dedupeContactDialog.show();
           }

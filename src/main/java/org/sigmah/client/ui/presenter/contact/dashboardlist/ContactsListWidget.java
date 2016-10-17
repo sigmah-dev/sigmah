@@ -205,6 +205,11 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 									}
 								});
 							}
+
+							@Override
+							public void handleCancel() {
+								dedupeContactDialog.hide();
+							}
 						});
 						dedupeContactDialog.show();
 					}

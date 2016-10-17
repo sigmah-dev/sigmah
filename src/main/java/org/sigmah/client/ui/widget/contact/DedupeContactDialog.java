@@ -66,6 +66,7 @@ public class DedupeContactDialog extends Window {
   private Grid<ContactDuplicatedProperty> duplicatedPropertiesGrid;
   private Button firstStepMainButton;
   private Button secondStepMainButton;
+  private Button cancelSecondStepButton;
   private LayoutContainer secondStepContainer;
   private CardLayout cardLayout;
 
@@ -113,6 +114,9 @@ public class DedupeContactDialog extends Window {
     LayoutContainer secondStepButtonsContainer = Layouts.border();
     secondStepButtonsContainer.add(secondStepMainButton, Layouts.borderLayoutData(Style.LayoutRegion.EAST));
 
+    cancelSecondStepButton = generateCancelSecondStepButton();
+    secondStepButtonsContainer.add(cancelSecondStepButton, Layouts.borderLayoutData(Style.LayoutRegion.WEST));
+
     secondStepContainer = Layouts.border();
     secondStepContainer.setScrollMode(Style.Scroll.AUTOY);
 
@@ -153,6 +157,17 @@ public class DedupeContactDialog extends Window {
       @Override
       public void componentSelected(ButtonEvent ce) {
         secondStepHandler.handleDedupeContact(selectedContact.getId(), selectedProperties);
+      }
+    });
+    return button;
+  }
+
+  private Button generateCancelSecondStepButton() {
+    Button button = new Button(I18N.CONSTANTS.cancel());
+    button.addSelectionListener(new SelectionListener<ButtonEvent>() {
+      @Override
+      public void componentSelected(ButtonEvent ce) {
+        secondStepHandler.handleCancel();
       }
     });
     return button;
@@ -286,5 +301,7 @@ public class DedupeContactDialog extends Window {
     void downloadImage(String id, Image image);
 
     void handleDedupeContact(Integer targetedContactId, List<ContactDuplicatedProperty> selectedProperties);
+
+    void handleCancel();
   }
 }
