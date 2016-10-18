@@ -156,7 +156,7 @@ public class GlobalExportDataContactProvider extends GlobalExportDataProvider {
 			final Map<String, List<ExportDataCell[]>> layoutGroupsData = new LinkedHashMap<>();
 
 			// special fields for BI
-			titles.add(new ExportStringCell(i18nTranslator.t(language, "permanentId")));
+			titles.add(new ExportStringCell(i18nTranslator.t(language, "contactPermanentId")));
 
 			boolean isFirstLine = true;
 			// projects

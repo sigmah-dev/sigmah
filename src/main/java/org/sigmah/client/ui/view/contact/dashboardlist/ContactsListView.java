@@ -108,8 +108,8 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 		contactStore.setMonitorChanges(true);
 
 		// Default sort order of the contacts grid.
-		pagingLoader.setSortField(ContactDTO.NAME);
-		pagingLoader.setSortDir(Style.SortDir.ASC);
+		pagingLoader.setSortField(ContactHistory.UPDATED_AT);
+		pagingLoader.setSortDir(Style.SortDir.DESC);
 
 		// Grid.
 		contactTreeGrid = new Grid<DashboardContact>(contactStore, buildContactGridColumnModel());

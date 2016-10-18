@@ -34,8 +34,8 @@ import javax.servlet.http.HttpServletRequest;
 
 import com.google.inject.Injector;
 import org.sigmah.client.page.RequestParameter;
-import org.sigmah.server.dao.impl.GlobalExportSettingsHibernateDAO;
-import org.sigmah.server.domain.export.GlobalExportSettings;
+import org.sigmah.server.dao.impl.GlobalContactExportSettingsHibernateDAO;
+import org.sigmah.server.domain.export.GlobalContactExportSettings;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
 import org.sigmah.server.servlet.exporter.base.Exporter;
 import org.sigmah.server.servlet.exporter.data.GlobalExportData;
@@ -97,8 +97,8 @@ public class GlobalContactExportExporter extends Exporter {
 		try {
 			Integer organizationId = Integer.parseInt(requireParameter(RequestParameter.ID));
 			// data format
-			final GlobalExportSettingsHibernateDAO exportSettingDao = injector.getInstance(GlobalExportSettingsHibernateDAO.class);
-			final GlobalExportSettings settings = exportSettingDao.getGlobalExportSettingsByOrganization(organizationId);
+			final GlobalContactExportSettingsHibernateDAO exportSettingDao = injector.getInstance(GlobalContactExportSettingsHibernateDAO.class);
+			final GlobalContactExportSettings settings = exportSettingDao.getGlobalExportSettingsByOrganization(organizationId);
 
 			exportFormat = settings.getExportFormat();
 			if (exportFormat == null)
