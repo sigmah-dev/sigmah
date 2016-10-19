@@ -398,7 +398,7 @@ $$ LANGUAGE plpgsql;
 --
 -- Note: id_flexible_element and id_budget_sub_field have never the same value
 --
-CREATE OR REPLACE FUNCTION get_field_type(p_field_id integer) RETURNS character varying(20) AS $$
+CREATE OR REPLACE FUNCTION get_field_type(p_field_id bigint) RETURNS character varying(20) AS $$
 DECLARE
 	v_type character varying(20);
 BEGIN
@@ -429,6 +429,12 @@ BEGIN
 RETURN v_type;
 END;
 $$ LANGUAGE plpgsql;
+CREATE OR REPLACE FUNCTION get_field_type(p_field_id integer) RETURNS character varying(20) AS $$
+BEGIN
+	RETURN get_field_type(CAST(p_field_id as bigint));
+END;
+$$ LANGUAGE plpgsql;
+
 
 
 
@@ -622,4 +628,14 @@ BEGIN
 RETURN true;
 END;
 $$ LANGUAGE plpgsql;
+
+
+
+-- Call the budget field migration function
+START transaction;
+SELECT migrate_budget_fields();
+DROP FUNCTION migrate_budget_fields(boolean);
+COMMIT;
+
+
 	
