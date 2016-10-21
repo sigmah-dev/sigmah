@@ -363,7 +363,7 @@ enum ParserState {
 	 * <code>false</code> otherwise.
 	 */
 	private static boolean isLetter(final char c) {
-		return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z');
+		return Character.isLetter(c);
 	}
 	
 	/**
