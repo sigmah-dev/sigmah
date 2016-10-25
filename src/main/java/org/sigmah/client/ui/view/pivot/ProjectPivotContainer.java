@@ -569,16 +569,8 @@ public class ProjectPivotContainer extends ContentPanel implements Loadable {
 			setUpdated(true);
 			setDirty(true);
 			if (event.getCell() != null) {
-				if (event.getCell().getCount() > 1) {
-					N10N.confirmation(I18N.CONSTANTS.confirmUpdate(), I18N.CONSTANTS.confirmUpdateOfAggregatedCell(), new ConfirmCallback() {
-
-						@Override
-						public void onAction() {
 							event.getRecord().set(event.getProperty(), event.getCell().getValue());
 						}
-					});
-				}
-			}
 		}
 	}
 
