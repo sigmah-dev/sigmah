@@ -367,6 +367,9 @@ public class ValueService extends EntityManagerProvider {
 				historize(historyDate, element, containerId, iterationId, user, changeType.getChangeType(), String.valueOf(id), null, comment);
 			}
 		}
+
+		// Store the value.
+		em().merge(currentValue);
 	}
 
 	/**
