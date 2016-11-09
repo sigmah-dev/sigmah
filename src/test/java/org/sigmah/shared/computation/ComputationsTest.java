@@ -24,6 +24,7 @@ package org.sigmah.shared.computation;
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -314,6 +315,48 @@ public class ComputationsTest {
 		Assert.assertNull(Computations.formatRuleForServer(null, null));
 		Assert.assertNull(Computations.formatRuleForServer("  ", null));
 		Assert.assertEquals("$11 + $24", Computations.formatRuleForServer("onze + vingt_4", getAllElements()));
+	}
+	
+	/**
+	 * Test of formatRuleForServer method, of class Computations.
+	 */
+	@Test
+	public void testFormulaWithFrenchCharacters() {
+		final TextAreaElementDTO element42 = new TextAreaElementDTO();
+		element42.setId(42);
+		element42.setCode("utilisé");
+		element42.setType('N');
+		element42.setIsDecimal(Boolean.TRUE);
+		
+		final TextAreaElementDTO element60 = new TextAreaElementDTO();
+		element60.setId(60);
+		element60.setCode("reçu");
+		element60.setType('N');
+		element60.setIsDecimal(Boolean.TRUE);
+		
+		final String rule = Computations.formatRuleForServer("(utilisé / reçu) * 100", Arrays.<FlexibleElementDTO>asList(element42, element60));
+		Assert.assertEquals("($42 ÷ $60) × 100", rule);
+	}
+	
+	/**
+	 * Test of formatRuleForServer method, of class Computations.
+	 */
+	@Test
+	public void testFormulaWithJapaneseCharacters() {
+		final TextAreaElementDTO element42 = new TextAreaElementDTO();
+		element42.setId(42);
+		element42.setCode("使った予算");
+		element42.setType('N');
+		element42.setIsDecimal(Boolean.TRUE);
+		
+		final TextAreaElementDTO element60 = new TextAreaElementDTO();
+		element60.setId(60);
+		element60.setCode("頂いた予算");
+		element60.setType('N');
+		element60.setIsDecimal(Boolean.TRUE);
+		
+		final String rule = Computations.formatRuleForServer("(使った予算 / 頂いた予算) * 100", Arrays.<FlexibleElementDTO>asList(element42, element60));
+		Assert.assertEquals("($42 ÷ $60) × 100", rule);
 	}
 	
 }
