@@ -434,7 +434,7 @@ public final class Handlers {
 
 	public static boolean isGranted(List<OrgUnitProfile> userUnits, OrgUnit targetOrgUnit, GlobalPermissionEnum permission) {
 		for (OrgUnitProfile userUnit : userUnits) {
-			if (!OrgUnitUtils.areOrgUnitsEqualOrParent(userUnit.getOrgUnit(), targetOrgUnit.getId())) {
+			if (!OrgUnitUtils.areOrgUnitsEqualOrParent(targetOrgUnit, userUnit.getOrgUnit().getId())) {
 				continue;
 			}
 			if (isGranted(userUnit, permission)) {

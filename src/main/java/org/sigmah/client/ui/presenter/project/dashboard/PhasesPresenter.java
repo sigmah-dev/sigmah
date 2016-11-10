@@ -810,14 +810,16 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 
 							@Override
 							public void onRequiredValueChange(RequiredValueEvent event) {
+								
+								final Integer iterationId = tabPanel != null ? tabPanel.getCurrentIterationId() : null;
 
 								// Map the required element for the current displayed phase.
-								currentPhaseRequiredElements.putActual(tabPanel.getCurrentIterationId(), elementDTO.getId(), event.isValueOn());
+								currentPhaseRequiredElements.putActual(iterationId, elementDTO.getId(), event.isValueOn());
 
 								// If the current displayed phase is the active one,
 								// map the required element for the active phase.
 								if (isCurrentPhase(getCurrentProject().getCurrentPhase())) {
-									activePhaseRequiredElements.putActual(tabPanel.getCurrentIterationId(), elementDTO.getId(), event.isValueOn());
+									activePhaseRequiredElements.putActual(iterationId, elementDTO.getId(), event.isValueOn());
 								}
 
 								// The element is in charge of the saving of its values. The state
@@ -831,7 +833,9 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 								view.getGridRequiredElements().getStore().update(elementDTO);
 
 								// Refresh the panel's header
-								elementDTO.getTabPanel().setElementValidity(elementDTO, event.isValueOn());
+								if (iterationId != null) {
+									elementDTO.getTabPanel().setElementValidity(elementDTO, event.isValueOn());
+								}
 								refreshRequiredElementContentPanelHeader();
 							}
 						});

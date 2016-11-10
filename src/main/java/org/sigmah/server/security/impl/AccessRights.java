@@ -200,7 +200,7 @@ final class AccessRights {
 		sperm(commandToken(GetValueFromLinkedProjects.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(Synchronize.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(UpdateContact.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
-		sperm(commandToken(UpdateLayoutGroupIterations.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.CREATE_ITERATIONS);
+		sperm(commandToken(UpdateLayoutGroupIterations.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(UpdateProject.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(UpdateProjectFavorite.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(UpdateProjectTeamMembers.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.EDIT_PROJECT_TEAM_MEMBERS);
