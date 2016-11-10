@@ -833,7 +833,9 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 								view.getGridRequiredElements().getStore().update(elementDTO);
 
 								// Refresh the panel's header
-								elementDTO.getTabPanel().setElementValidity(elementDTO, event.isValueOn());
+								if (iterationId != null) {
+									elementDTO.getTabPanel().setElementValidity(elementDTO, event.isValueOn());
+								}
 								refreshRequiredElementContentPanelHeader();
 							}
 						});

@@ -174,7 +174,7 @@ public final class ExporterUtil {
 				fleName = i18nTranslator.t(language, "projectManager");
 				break;
 			case ORG_UNIT:
-				fleName = i18nTranslator.t(language, "orgUnit");
+				fleName = i18nTranslator.t(language, "orgunit");
 				break;
 			case OWNER:
 				fleName = i18nTranslator.t(language, "projectOwner");
