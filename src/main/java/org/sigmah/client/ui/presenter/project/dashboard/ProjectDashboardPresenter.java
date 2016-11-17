@@ -653,15 +653,8 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 
 			view.getFundingProjectsGrid().getStore().removeAll();
 
-			dispatch.execute(new GetLinkedProjects(getProject().getId(), LinkedProjectType.FUNDING_PROJECT, ProjectDTO.Mode._USE_PROJECT_MAPPER),
-				new CommandResultHandler<ListResult<ProjectFundingDTO>>() {
-
-					@Override
-					protected void onCommandSuccess(final ListResult<ProjectFundingDTO> result) {
-						view.getFundingProjectsGrid().getStore().add(result.getList());
-					}
-
-				}, new LoadingMask(view.getFundingProjectsGrid()));
+			// When getting linked projects using Hibernate : can't retrieve projects if not in organization due to domain filters
+			view.getFundingProjectsGrid().getStore().add(getProject().getFunding());
 		}
 
 		if (linkedProjectType == null || linkedProjectType == LinkedProjectType.FUNDED_PROJECT) {
@@ -672,15 +665,8 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 
 			view.getFundedProjectsGrid().getStore().removeAll();
 
-			dispatch.execute(new GetLinkedProjects(getProject().getId(), LinkedProjectType.FUNDED_PROJECT, ProjectDTO.Mode._USE_PROJECT_MAPPER),
-				new CommandResultHandler<ListResult<ProjectFundingDTO>>() {
-
-					@Override
-					protected void onCommandSuccess(final ListResult<ProjectFundingDTO> result) {
-						view.getFundedProjectsGrid().getStore().add(result.getList());
-					}
-
-				}, new LoadingMask(view.getFundedProjectsGrid()));
+			// When getting linked projects using Hibernate : can't retrieve projects if not in organization due to domain filters
+			view.getFundedProjectsGrid().getStore().add(getProject().getFunded());
 		}
 	}
 
