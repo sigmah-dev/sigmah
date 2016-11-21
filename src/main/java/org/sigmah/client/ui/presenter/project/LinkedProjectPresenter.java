@@ -24,6 +24,7 @@ package org.sigmah.client.ui.presenter.project;
 
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -400,12 +401,17 @@ public class LinkedProjectPresenter extends AbstractPagePresenter<LinkedProjectP
 
 		plannedBudget = null;
 		final List<ProjectModelDTO.LocalizedElement<BudgetRatioElementDTO>> budgetRatioElements = parentProject.getProjectModel().getLocalizedElements(BudgetRatioElementDTO.class);
-		
+
+		// To be modified with budget functionnalities
+		if (budgetRatioElements == null) {
+			throw new UnsupportedOperationException("No budget ratio element have been found into parent project.");
+		}
+
 		if (budgetRatioElements.size() != 1) {
 			// TODO: What should we do when 0 or more than 1 budget element ratio has been found into parent project ?
 			throw new UnsupportedOperationException(budgetRatioElements.size() + " budget ratio element(s) have been found into parent project.");
 		}
-		
+
 		final BudgetRatioElementDTO budgetRatioElement = budgetRatioElements.get(0).getElement();
 		final FlexibleElementDTO plannedBudgetField = budgetRatioElement.getPlannedBudget();
 		
@@ -436,9 +442,11 @@ public class LinkedProjectPresenter extends AbstractPagePresenter<LinkedProjectP
 	 */
 	private void loadProjects() {
 
-		final GetProjects command = new GetProjects();
+		final List<Integer> orgUnitsIdsAsList = auth().getOrgUnitIds() != null ?
+				new ArrayList<Integer>(auth().getOrgUnitIds()) : null;
+
+		final GetProjects command = new GetProjects(orgUnitsIdsAsList, ProjectDTO.Mode._USE_PROJECT_MAPPER);
 		command.setViewOwnOrManage(true);
-		command.setMappingMode(ProjectDTO.Mode._USE_PROJECT_MAPPER);
 
 		view.getProjectsField().getStore().removeAll();
 
