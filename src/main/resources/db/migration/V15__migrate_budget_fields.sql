@@ -87,7 +87,7 @@ BEGIN
 				disabled_date, code)
 			SELECT v_tmp_id, fe.amendable, 'Planned budget', fe.validates, fe.id_privacy_group,
 				fe.exportable, fe.globally_exportable, fe.creation_date, fe.is_disabled,
-				fe.disabled_date, fe.code || '_planned'
+				fe.disabled_date, COALESCE(fe.code || '_planned', 'planned_' || v_tmp_id)
 			FROM flexible_element fe
 			WHERE fe.id_flexible_element = budget_element_record.old_id_flexible_element;
 		INSERT INTO textarea_element (is_decimal, type, id_flexible_element)
@@ -109,7 +109,7 @@ BEGIN
 				disabled_date, code)
 			SELECT v_tmp_id, fe.amendable, 'Spent budget', fe.validates, fe.id_privacy_group,
 				fe.exportable, fe.globally_exportable, fe.creation_date, fe.is_disabled,
-				fe.disabled_date, fe.code || '_spent'
+				fe.disabled_date, COALESCE(fe.code || '_spent', 'spent_' || v_tmp_id)
 			FROM flexible_element fe
 			WHERE fe.id_flexible_element = budget_element_record.old_id_flexible_element;
 		INSERT INTO textarea_element (is_decimal, type, id_flexible_element)
@@ -131,7 +131,7 @@ BEGIN
 				disabled_date, code)
 			SELECT v_tmp_id, fe.amendable, 'Received budget', fe.validates, fe.id_privacy_group,
 				fe.exportable, fe.globally_exportable, fe.creation_date, fe.is_disabled,
-				fe.disabled_date, fe.code || '_received'
+				fe.disabled_date, COALESCE(fe.code || '_received', 'received_' || v_tmp_id)
 			FROM flexible_element fe
 			WHERE fe.id_flexible_element = budget_element_record.old_id_flexible_element;
 		INSERT INTO textarea_element (is_decimal, type, id_flexible_element)
