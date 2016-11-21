@@ -172,6 +172,29 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 	 */
 	private List<ValueEvent> valueChanges;
 
+
+	/**
+	 * Counter used to keep track of loading values :
+	 * refreshActionsToolbar must be called after the loading of the last value.
+	 */
+	private int loadCurrentPhaseCounter;
+
+	private void initCurrentPhaseCounter() {
+		loadCurrentPhaseCounter = 0;
+	}
+
+	private void addPhaseCounter() {
+		loadCurrentPhaseCounter++;
+	}
+
+	private void removePhaseCounter() {
+		loadCurrentPhaseCounter--;
+
+		if (loadCurrentPhaseCounter == 0) {
+			refreshActionsToolbar();
+		}
+	}
+
 	private final Map<Integer, IterationChange> iterationChanges = new HashMap<Integer, IterationChange>();
 
 	private final Map<Integer, IterableGroupItem> newIterationsTabItems = new HashMap<Integer, IterableGroupItem>();
@@ -516,6 +539,8 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 	 */
 	private void loadPhaseOnTab(final PhaseDTO phaseDTO) {
 
+		initCurrentPhaseCounter();
+
 		// If the element are read only.
 		final boolean phaseIsEnded = isEndedPhase(phaseDTO);
 
@@ -716,10 +741,14 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 
 			getValue = new GetValue(project.getId(), elementDTO.getId(), elementDTO.getEntityName(), amendmentId, iterationId);
 
+			addPhaseCounter();
+
 			queue.add(getValue, new CommandResultHandler<ValueResult>() {
 
 						@Override
 						public void onCommandFailure(final Throwable throwable) {
+							removePhaseCounter();
+
 							if (Log.isErrorEnabled()) {
 								Log.error("Error, element value not loaded.", throwable);
 							}
@@ -873,6 +902,8 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 							activePhaseRequiredElements.putSaved(iterationId, elementDTO.getId(), elementDTO.isFilledIn());
 								}
 							}
+
+							removePhaseCounter();
 			}
 			}, new LoadingMask(view.getTabPanelPhases()));
 		}
