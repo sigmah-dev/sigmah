@@ -175,7 +175,7 @@ public class ModelUtil {
 		final FlexibleElementDTO budgetPlanned = changes.get(AdminUtil.PROP_BUDGET_PLANNED);
 
 		Number contactListLimit = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_LIMIT);
-		boolean contactListIsMember = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_IS_MEMBER);
+		Boolean contactListIsMember = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_IS_MEMBER);
 		ContactModelType contactListType = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_ALLOWED_TYPE);
 		Set<Integer> contactListAllowedModelIds = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_ALLOWED_MODEL_IDS);
 
