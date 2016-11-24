@@ -240,7 +240,7 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 
 			final List<ListableValue> serializablesList = new ArrayList<>();
 			for (Object o : objectsList) {
-				serializablesList.add(mapper().map(o, dto));
+				serializablesList.add(mapper().map(o, dto.getClass()));
 			}
 			
 			if(elementClassName.equals(FilesListElementDTO.ENTITY_NAME)) {
