@@ -39,6 +39,7 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.widget.HasGrid.GridEventHandler;
 import org.sigmah.client.util.ColumnProviders;
 import org.sigmah.shared.dto.ContactModelDTO;
+import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 /**
@@ -90,7 +91,7 @@ abstract class ContactModelsColumnsProvider {
 		// Status column.
 		// --
 
-		column = new ColumnConfig(ContactModelDTO.STATUS, I18N.CONSTANTS.adminProjectModelsStatus(), 200);
+		column = new ColumnConfig(ContactModelDTO.STATUS, I18N.CONSTANTS.adminProjectModelsStatus(), 100);
 		column.setRenderer(new GridCellRenderer<ContactModelDTO>() {
 
 			@Override
@@ -101,6 +102,30 @@ abstract class ContactModelsColumnsProvider {
 					model.getStatus() : ProjectModelStatus.UNDER_MAINTENANCE;
 				
 				return status != null ? ProjectModelStatus.getName(status) : "";
+			}
+		});
+		configs.add(column);
+
+		// --
+		// Contact type column.
+		// --
+
+		column = new ColumnConfig(ContactModelDTO.TYPE, I18N.CONSTANTS.adminContactModelType(), 100);
+		column.setRenderer(new GridCellRenderer<ContactModelDTO>() {
+
+			@Override
+			public Object render(final ContactModelDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
+													 final ListStore<ContactModelDTO> store, final Grid<ContactModelDTO> grid) {
+
+				ContactModelType type = model.get(property);
+
+				String typeLabel = I18N.CONSTANTS.contactTypeIndividualLabel();
+
+				if(type == ContactModelType.ORGANIZATION) {
+					typeLabel = I18N.CONSTANTS.contactTypeOrganizationLabel();
+				}
+
+				return typeLabel;
 			}
 		});
 		configs.add(column);

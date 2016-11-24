@@ -306,7 +306,7 @@ public class ProjectModelsAdminPresenter extends AbstractModelsAdminPresenter<Pr
 			@Override
 			public void onCommandFailure(final Throwable caught) {
 				N10N.error(I18N.CONSTANTS.adminProjectModelUpdateBox(),
-					I18N.MESSAGES.adminStandardCreationFailure(I18N.CONSTANTS.adminProjectModelStandard() + " '" + name + "'"));
+					I18N.MESSAGES.adminStandardCreationFailure(I18N.CONSTANTS.adminProjectModelStandard() + " '" + name + "' :<br>" + caught.getMessage()));
 				callback.onFailure(caught);
 			}
 

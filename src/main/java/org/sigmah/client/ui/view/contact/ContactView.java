@@ -50,7 +50,7 @@ import org.sigmah.shared.dto.referential.ContactModelType;
 public class ContactView extends AbstractView implements ContactPresenter.View {
   private static final int AVATAR_WIDTH = 128;
   private static final int AVATAR_HEIGHT = 128;
-  private static final int CARD_WIDTH = 600;
+  private static final int CARD_WIDTH = 350;
   private static final int LABEL_HEIGHT = 30;
   private static final int PADDING = 15;
 
