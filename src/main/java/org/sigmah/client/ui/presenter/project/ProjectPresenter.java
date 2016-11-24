@@ -747,6 +747,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 					final DefaultFlexibleElementDTO defaultElement = (DefaultFlexibleElementDTO) element;
 					defaultElement.setService(dispatch);
 					defaultElement.setAuthenticationProvider(injector.getAuthenticationProvider());
+					defaultElement.setEventBus(eventBus);
 					defaultElement.setCache(injector.getClientCache());
 					defaultElement.setCurrentContainerDTO(project);
 
