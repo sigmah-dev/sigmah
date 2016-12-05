@@ -25,6 +25,7 @@ package org.sigmah.server.servlet.exporter.data.columns;
 import java.util.List;
 import java.util.Map;
 import org.sigmah.server.domain.element.BudgetElement;
+import org.sigmah.server.domain.element.ContactListElement;
 import org.sigmah.server.domain.element.FlexibleElement;
 import org.sigmah.server.domain.element.QuestionElement;
 import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
@@ -73,6 +74,13 @@ public class GlobalExportFlexibleElementColumn extends GlobalExportDataColumn {
 				ExporterUtil.addChoiceTitles(titles, categories, flexibleElement, i18nTranslator, language);
 			}
 			ExporterUtil.addChoiceValues(values, valueResult, flexibleElement);
+		}
+		/* CONTACT LIST */
+		else if (flexibleElement instanceof ContactListElement) {
+			if (firstLine) {
+				ExporterUtil.addContactListTitles(titles, flexibleElement, i18nTranslator, language);
+			}
+			ExporterUtil.addContactListValues(values, flexibleElement, valueResult, entityManager);
 		}
 		/* OTHERS */
 		else {
