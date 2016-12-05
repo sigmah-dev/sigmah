@@ -57,6 +57,7 @@ BEGIN
 	v_result := 0;
 	
 	-- temp table to keep all mapping between old and new ids
+	DROP TABLE IF EXISTS tmp_migrate_budget_field;
 	CREATE TEMPORARY TABLE tmp_migrate_budget_field AS
 	SELECT be.id_flexible_element old_id_flexible_element, 
 		be.id_ratio_divisor old_subfield_id_ratio_divisor, be.id_ratio_dividend old_subfield_id_ratio_dividend, 0 as old_subfield_id_received,
