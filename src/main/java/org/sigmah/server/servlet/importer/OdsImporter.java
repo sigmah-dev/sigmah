@@ -80,7 +80,7 @@ public class OdsImporter extends Importer {
 				nextSchemeModel();
 				
 				if (scheme.getFirstRow() != null) {
-					rowCursor = scheme.getFirstRow();
+					rowCursor = Math.max(scheme.getFirstRow() - 1, 0);
 				} else {
 					rowCursor = 0;
 				}
