@@ -115,6 +115,11 @@ public class FunctionalException extends CommandException {
 		// --
 		
 		/**
+		 * Cannot update because access rights are insufficient.
+		 */
+		ACCESS_DENIED,
+		
+		/**
 		 * A conflict happened while modifying a project.
 		 * Parameters:
 		 * - a list of error messages.
@@ -177,6 +182,9 @@ public class FunctionalException extends CommandException {
 			case ADMIN_BACKUP_ARCHIVE_CREATION_FAILED:
 				return I18N.MESSAGES.adminBackupArchiveCreationFailed(exception.getParameter(0));
 
+			case ACCESS_DENIED:
+				return I18N.MESSAGES.accessDeniedError(exception.getParameter(0), exception.getParameter(1), exception.getParameter(2));
+				
 			case UPDATE_CONFLICT:
 				final SafeHtmlBuilder ulBuilder = new SafeHtmlBuilder();
                 ulBuilder.appendHtmlConstant("<ul class=\"" + N10N.CSS_LIST + "\">");

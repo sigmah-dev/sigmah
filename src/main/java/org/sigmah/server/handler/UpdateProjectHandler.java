@@ -172,7 +172,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		
 		// Search the given project.
 		final Project project = em().find(Project.class, projectId);
-		containerInformation = throwIfProjectOrOrgUnitIsNotEditable(project, projectId, user);
+		containerInformation = throwIfProjectOrOrgUnitIsNotEditable(project, projectId, user, context.getLanguage());
 
 		// Verify if the modifications conflicts with the project state.
 		final List<String> conflicts = searchForConflicts(project, values, context);
@@ -244,21 +244,23 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 	 *			Identifier of the updated container.
 	 * @param user
 	 *			User trying to update the container.
+	 * @param language
+	 *			Language used by the user.
 	 * @return The informations about the updated container.
 	 * @throws IllegalStateException If the user can not edit the given container.
 	 */
-	private ContainerInformation throwIfProjectOrOrgUnitIsNotEditable(final Project project, final Integer containerId, final User user) throws IllegalStateException {
+	private ContainerInformation throwIfProjectOrOrgUnitIsNotEditable(final Project project, final Integer containerId, final User user, final Language language) throws CommandException {
 		
 		if (project != null) {
 			if (!Handlers.isProjectEditable(project, user)) {
-				throw new IllegalStateException("The project " + project.getId() + " is not editable by the user " + user.getId());
+				throw new FunctionalException(FunctionalException.ErrorCode.ACCESS_DENIED, i18nServer.t(language, "project"), project.getId().toString(), user.getId().toString());
 			}
 			return project.toContainerInformation();
 		} else {
 			// If project is null, it means the user is not trying to update a project but an org unit
 			final OrgUnit orgUnit = em().find(OrgUnit.class, containerId);
 			if (!Handlers.isOrgUnitVisible(orgUnit, user)) {
-				throw new IllegalStateException("The orgunit " + orgUnit.getId() + " is not editable by the user " + user.getId());
+				throw new FunctionalException(FunctionalException.ErrorCode.ACCESS_DENIED, i18nServer.t(language, "orgunit"), orgUnit.getId().toString(), user.getId().toString());
 			}
 			return orgUnit.toContainerInformation();
 		}

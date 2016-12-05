@@ -37,6 +37,7 @@ import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dispatch.CommandException;
+import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dto.ElementExtractedValue;
 import org.sigmah.shared.dto.ImportDetails;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -138,11 +139,40 @@ public class AutomatedImporter {
 	private BaseModelData onContainerFound(final ImportDetails details, final AutomatedImport configuration) {
 		
 		final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> singleEntry = details.getEntitiesToImport().entrySet().iterator().next();
-		final EntityDTO<Integer> container = singleEntry.getKey();
+		return updateContainer(singleEntry.getKey(), singleEntry.getValue(), configuration);
+	}
+
+	/**
+	 * Update the project/orgunit found.
+	 * 
+	 * @param container
+	 *          Found container.
+	 * @param extractedValues
+	 *			Values extracted from the imported file.
+	 * @param configuration 
+	 *          Import configuration.
+	 * @return A pair containing information about the container before the
+	 * update and the status of the importation.
+	 */
+	private BaseModelData updateContainer(final EntityDTO<Integer> container, final List<ElementExtractedValue> extractedValues, final AutomatedImport configuration) {
 		
-		updateContainerWithDetails(container, singleEntry.getValue(), configuration.getFileName());
+		AutomatedImportStatus status = AutomatedImportStatus.UPDATE_FAILED;
 		
-		return toBaseModelData(container, AutomatedImportStatus.UPDATED);
+		try {
+			updateContainerWithDetails(container, extractedValues, configuration.getFileName());
+			status = AutomatedImportStatus.UPDATED;
+		}
+		catch (FunctionalException ex) {
+			LOGGER.error("A functional exception occured while importing values for the project #" + container.getId() + ".", ex);
+			if (ex.getErrorCode() == FunctionalException.ErrorCode.ACCESS_DENIED) {
+				status = AutomatedImportStatus.ACCESS_DENIED;
+			}
+		}
+		catch (CommandException ex) {
+			LOGGER.error("An error occured while importing values for the project #" + container.getId() + ".", ex);
+		}
+		
+		return toBaseModelData(container, status);
 	}
 	
 	/**
@@ -161,9 +191,7 @@ public class AutomatedImporter {
 		
 		if (configuration.isUpdateAllMatches()) {
 			for (final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> entry : details.getEntitiesToImport().entrySet()) {
-				final EntityDTO<Integer> container = entry.getKey();
-				updateContainerWithDetails(container, entry.getValue(), configuration.getFileName());
-				result.add(toBaseModelData(container, AutomatedImportStatus.UPDATED));
+				result.add(updateContainer(entry.getKey(), entry.getValue(), configuration));
 			}
 		} else {
 			for (final Map.Entry<EntityDTO<Integer>, List<ElementExtractedValue>> entry : details.getEntitiesToImport().entrySet()) {
@@ -299,7 +327,7 @@ public class AutomatedImporter {
 	 * @param fileName 
 	 *          Name of the imported file.
 	 */
-	private void updateContainerWithDetails(final EntityDTO<Integer> container, final List<ElementExtractedValue> extractedValues, final String fileName) {
+	private void updateContainerWithDetails(final EntityDTO<Integer> container, final List<ElementExtractedValue> extractedValues, final String fileName) throws CommandException {
 		
 		final ArrayList<ValueEvent> values = new ArrayList<>();
 		for (final ElementExtractedValue value : extractedValues) {
@@ -311,11 +339,7 @@ public class AutomatedImporter {
 		}
 		
 		final UpdateProject updateProject = new UpdateProject(container.getId(), values, "Imported from file '" + fileName + "'.");
-		try {
-			importer.getExecutionContext().execute(updateProject);
-		} catch (CommandException ex) {
-			LOGGER.error("An error occured while importing values for the project #" + container.getId() + ".", ex);
-		}
+		importer.getExecutionContext().execute(updateProject);
 	}
 	
 	// --

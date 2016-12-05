@@ -33,6 +33,7 @@ import org.sigmah.client.i18n.I18N;
 public enum AutomatedImportStatus {
 	
 	UPDATED,
+	UPDATE_FAILED,
 	WAS_LOCKED,
 	UNLOCK_FAILED,
 	UNLOCKED_AND_UPDATED,
@@ -40,6 +41,7 @@ public enum AutomatedImportStatus {
 	MULTIPLE_MATCHES_FOUND,
 	CREATED_AND_UPDATED,
 	CREATION_FAILED,
+	ACCESS_DENIED
 	;
 	
 	/**
@@ -59,6 +61,8 @@ public enum AutomatedImportStatus {
 		}
 
 		switch (status) {
+			case ACCESS_DENIED:
+				return I18N.CONSTANTS.automatedImportAccessDenied();
 			case CREATED_AND_UPDATED:
 				return I18N.CONSTANTS.automatedImportCreatedAndUpdated();
 			case CREATION_FAILED:
@@ -73,6 +77,8 @@ public enum AutomatedImportStatus {
 				return I18N.CONSTANTS.automatedImportUnlockedFailed();
 			case UPDATED:
 				return I18N.CONSTANTS.automatedImportUpdated();
+			case UPDATE_FAILED:
+				return I18N.CONSTANTS.automatedImportUpdateFailed();
 			case WAS_LOCKED:
 				return I18N.CONSTANTS.automatedImportWasLocked();
 			default:
