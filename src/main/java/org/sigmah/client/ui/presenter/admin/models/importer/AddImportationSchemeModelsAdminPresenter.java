@@ -44,6 +44,7 @@ import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.GetImportationSchemes;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
@@ -138,8 +139,10 @@ public class AddImportationSchemeModelsAdminPresenter extends AbstractPagePresen
 
 				if (model instanceof ProjectModelDTO) {
 					newImportationSchemeModelProperties.put(AdminUtil.ADMIN_PROJECT_MODEL, model);
-				} else {
+				} else if (model instanceof  OrgUnitDTO) {
 					newImportationSchemeModelProperties.put(AdminUtil.ADMIN_ORG_UNIT_MODEL, model);
+				} else {
+					newImportationSchemeModelProperties.put(AdminUtil.ADMIN_CONTACT_MODEL, model);
 				}
 
 				newImportationSchemeModelProperties.put(AdminUtil.ADMIN_IMPORTATION_SCHEME_MODEL, new ImportationSchemeModelDTO());
@@ -190,9 +193,13 @@ public class AddImportationSchemeModelsAdminPresenter extends AbstractPagePresen
 
 			cmd.setOrgUnitModelId(model.getId());
 
-		} else {
+		} else if (model instanceof ProjectDTO) {
 
 			cmd.setProjectModelId(model.getId());
+
+		} else {
+
+			cmd.setContactModelId(model.getId());
 
 		}
 

@@ -353,6 +353,10 @@
 			<a>orgUnitModel</a>
 			<b>orgUnitModelDTO</b>
 		</field>
+		<field>
+			<a>contactModel</a>
+			<b>contactModelDTO</b>
+		</field>
 	</mapping>
 	
 	<!-- Importation VariableFlexibleElement/VariableFlexibleElementDTO mapping -->

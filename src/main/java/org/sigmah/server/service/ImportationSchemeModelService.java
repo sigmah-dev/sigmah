@@ -28,6 +28,7 @@ import java.util.List;
 
 import org.sigmah.client.util.AdminUtil;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
+import org.sigmah.server.domain.ContactModel;
 import org.sigmah.server.domain.OrgUnitModel;
 import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.element.BudgetElement;
@@ -42,6 +43,7 @@ import org.sigmah.server.domain.importation.VariableBudgetSubFieldId;
 import org.sigmah.server.domain.importation.VariableFlexibleElement;
 import org.sigmah.server.service.base.AbstractEntityService;
 import org.sigmah.server.service.util.PropertyMap;
+import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
@@ -82,29 +84,35 @@ public class ImportationSchemeModelService extends AbstractEntityService<Importa
 		ImportationSchemeDTO importationSchemeDTO = properties.get(AdminUtil.ADMIN_SCHEMA);
 		ProjectModelDTO projectModelDTO = null;
 		OrgUnitModelDTO orgUnitModelDTO = null;
+		ContactModelDTO contactModelDTO = null;
 
 		if (properties.get(AdminUtil.ADMIN_PROJECT_MODEL) != null) {
 			projectModelDTO = properties.get(AdminUtil.ADMIN_PROJECT_MODEL);
 
 		} else if (properties.get(AdminUtil.ADMIN_ORG_UNIT_MODEL) != null) {
 			orgUnitModelDTO = properties.get(AdminUtil.ADMIN_ORG_UNIT_MODEL);
+		} else if (properties.get(AdminUtil.ADMIN_CONTACT_MODEL) != null) {
+			contactModelDTO = properties.get(AdminUtil.ADMIN_CONTACT_MODEL);
 		}
 
 		if (importationSchemeModelDTO.getId() != null) {
 			update(importationSchemeModelDTO.getId(), properties, context);
 
 		} else {
-			if (importationSchemeDTO != null && (projectModelDTO != null || orgUnitModelDTO != null)) {
+			if (importationSchemeDTO != null && (projectModelDTO != null || orgUnitModelDTO != null || contactModelDTO != null)) {
 				ImportationScheme importationScheme = em().find(ImportationScheme.class, importationSchemeDTO.getId());
 				importationSchemeModel.setImportationScheme(importationScheme);
 				if (projectModelDTO != null) {
 					ProjectModel pm = em().find(ProjectModel.class, projectModelDTO.getId());
 					importationSchemeModel.setProjectModel(pm);
 
-				} else {
+				} else if (orgUnitModelDTO != null) {
 					OrgUnitModel oum = em().find(OrgUnitModel.class, orgUnitModelDTO.getId());
 					importationSchemeModel.setOrgUnitModel(oum);
 
+				} else {
+					ContactModel cm = em().find(ContactModel.class, contactModelDTO.getId());
+					importationSchemeModel.setContactModel(cm);
 				}
 				em().persist(importationSchemeModel);
 			}

@@ -60,9 +60,12 @@ public class GetImportationSchemesHandler extends AbstractCommandHandler<GetImpo
 						em().createQuery("SELECT sm.importationScheme FROM ImportationSchemeModel sm WHERE sm.projectModel.id = :projectModelId", ImportationScheme.class);
 				query.setParameter("projectModelId", cmd.getProjectModelId());
 
-			} else {
+			} else if (cmd.getOrgUnitModelId() != null) {
 				query = em().createQuery("SELECT sm.importationScheme FROM ImportationSchemeModel sm WHERE sm.orgUnitModel.id = :orgUnitId", ImportationScheme.class);
 				query.setParameter("orgUnitId", cmd.getOrgUnitModelId());
+			} else {
+				query = em().createQuery("SELECT sm.importationScheme FROM ImportationSchemeModel sm WHERE sm.contactModel.id = :contactId", ImportationScheme.class);
+				query.setParameter("contactId", cmd.getContactModelId());
 			}
 
 			schemeToExclude.addAll(query.getResultList());

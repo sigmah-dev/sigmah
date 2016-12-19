@@ -37,6 +37,8 @@ public class GetImportationSchemes extends AbstractCommand<ListResult<Importatio
 
 	private Integer orgUnitModelId;
 
+	private Integer contactModelId;
+
 	private Boolean excludeExistent = false;
 
 	public GetImportationSchemes() {
@@ -94,6 +96,21 @@ public class GetImportationSchemes extends AbstractCommand<ListResult<Importatio
 	 */
 	public void setOrgUnitModelId(Integer orgUnitModelId) {
 		this.orgUnitModelId = orgUnitModelId;
+	}
+
+	/**
+	 * @return the contactModelId
+	 */
+	public Integer getContactModelId() {
+		return contactModelId;
+	}
+
+	/**
+	 * @param contactModelId
+	 *          the contactModelId to set
+	 */
+	public void setContactModelId(Integer contactModelId) {
+		this.contactModelId = contactModelId;
 	}
 
 }
