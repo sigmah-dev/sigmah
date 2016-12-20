@@ -644,6 +644,16 @@
 							<url>http://www.netapsys.fr</url>
 						</partner>
 						<partner>
+							<name>Atol Conseils et Développements</name>
+							<role>developer</role>
+							<url>http://www.atolcd.com</url>
+						</partner>
+						<partner>
+							<name>Code Lutin</name>
+							<role>developer</role>
+							<url>http://www.codelutin.com</url>
+						</partner>
+						<partner>
 							<name>Adergo</name>
 							<role>ergonomist</role>
 							<url>http://www.adergo.com</url>
@@ -675,6 +685,10 @@
 						<developer>
 							<name>Denis Colliot</name>
 							<email>denis.colliot@gmail.com</email>
+						</developer>
+						<developer>
+							<name>Thibault Degivry</name>
+							<email>tde@atolcd.com</email>
 						</developer>
 						<developer>
 							<name>Zhe Hu</name>
@@ -712,6 +726,10 @@
 							<name>Nadia Rebiai</name>
 							<email>nadiarebiai@gmail.com</email>
 						</developer>
+						<developer>
+							<name>Fran\u00E7ois Tavin</name>
+							<email>f.tavin@atolcd.com</email>
+						</developer>
 					</developers>
 					<!-- Maven property: ${sigmah.version.contributors} -->
 					<contributors>
@@ -724,6 +742,9 @@
 							<!--<email>Mathilde.Beziau@croix-rouge.fr</email>-->
 						</contributor>
 						<contributor>
+							<name>Jean-Christophe Brard</name>
+						</contributor>
+						<contributor>
 							<name>Fadoi Chaouki</name>
 							<!--<email>fadoichaouki@hotmail.fr</email>-->
 						</contributor>
@@ -732,12 +753,18 @@
 							<!--<email>jcarlier@urd.org</email>-->
 						</contributor>
 						<contributor>
+							<name>Salomé Cousinié</name>
+						</contributor>
+						<contributor>
 							<name>Emeline Dupont-Huin</name>
 							<!--<email>emeline.dupont-huin@medecinsdumonde.net</email>-->
 						</contributor>
 						<contributor>
 							<name>Mathilde Guilment</name>
 							<!--<email>mathilde.guilment@gmail.com</email>-->
+						</contributor>
+						<contributor>
+							<name>Philomène Maigron</name>
 						</contributor>
 						<contributor>
 							<name>Oussama Mojahed</name>
