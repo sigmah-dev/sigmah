@@ -23,7 +23,7 @@
 	<inceptionYear>2010</inceptionYear>
 
 	<organization>
-		<name>URD</name>
+		<name>Groupe URD</name>
 		<url>http://www.urd.org</url>
 	</organization>
 
@@ -686,6 +686,10 @@
 							<name>Denis Colliot</name>
 							<email>denis.colliot@gmail.com</email>
 						</developer>
+ 						<developer>
+							<name>tdegivry</name>
+							<email>tde@atolcd.com</email>
+						</developer>
 						<developer>
 							<name>Zhe Hu</name>
 							<email>zhe.hu32@gmail.com</email>
@@ -725,6 +729,10 @@
 						<developer>
 							<name>Nadia Rebiai</name>
 							<email>nadiarebiai@gmail.com</email>
+						</developer>
+						<developer>
+							<name>ftavin</name>
+							<email>f.tavin@atolcd.com</email>
 						</developer>
 					</developers>
 					<!-- Maven property: ${sigmah.version.contributors} -->
