@@ -687,10 +687,6 @@
 							<email>denis.colliot@gmail.com</email>
 						</developer>
 						<developer>
-							<name>Thibault Degivry</name>
-							<email>tde@atolcd.com</email>
-						</developer>
-						<developer>
 							<name>Zhe Hu</name>
 							<email>zhe.hu32@gmail.com</email>
 						</developer>
@@ -729,10 +725,6 @@
 						<developer>
 							<name>Nadia Rebiai</name>
 							<email>nadiarebiai@gmail.com</email>
-						</developer>
-						<developer>
-							<name>Fran\u00E7ois Tavin</name>
-							<email>f.tavin@atolcd.com</email>
 						</developer>
 					</developers>
 					<!-- Maven property: ${sigmah.version.contributors} -->
