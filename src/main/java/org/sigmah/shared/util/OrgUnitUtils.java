@@ -26,6 +26,9 @@ import org.sigmah.server.domain.OrgUnit;
 
 public class OrgUnitUtils {
   public static boolean areOrgUnitsEqualOrParent(OrgUnit potentialChild, Integer targetId) {
+    if (potentialChild == null) {
+      return false;
+    }
     if (potentialChild.getId().equals(targetId)) {
       return true;
     }
