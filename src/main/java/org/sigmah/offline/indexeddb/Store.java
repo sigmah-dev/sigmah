@@ -34,6 +34,9 @@ public enum Store implements Schema {
 	AUTHENTICATION,
 	CATEGORY_TYPE,
 	CATEGORY_ELEMENT,
+	CONTACT,
+	CONTACT_HISTORY("contactId", "contactId"),
+	CONTACT_RELATIONSHIP("contactId", "contactId"),
 	COUNTRY,
 	COMMAND(true),
 	COMPUTATION(

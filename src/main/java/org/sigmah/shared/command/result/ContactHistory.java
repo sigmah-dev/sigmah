@@ -29,6 +29,7 @@ public class ContactHistory extends BaseModelData implements Result {
   private static final long serialVersionUID = -2066389453096136392L;
 
   public static final String ID = "ID";
+  public static final String CONTACT_ID = "contactId";
   public static final String UPDATED_AT = "updatedAt";
   public static final String USER_FULL_NAME = "userFullName";
   public static final String FORMATTED_CHANGE_TYPE = "changeType";
@@ -43,6 +44,15 @@ public class ContactHistory extends BaseModelData implements Result {
 
   public void setId(Integer id) {
     set(ID, id);
+  }
+
+  // Mainly used for offline mode
+  public Integer getContactId() {
+    return get(CONTACT_ID);
+  }
+
+  public void setContactId(Integer contactId) {
+    set(CONTACT_ID, contactId);
   }
 
   public Date getUpdatedAt() {

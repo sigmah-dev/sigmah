@@ -34,7 +34,7 @@ import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.country.CountryDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
-public class ContactJS extends JavaScriptObject {
+public final class ContactJS extends JavaScriptObject {
   protected ContactJS() {
   }
 

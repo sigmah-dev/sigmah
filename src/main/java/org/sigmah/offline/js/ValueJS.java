@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.sigmah.shared.command.GetValue;
+import org.sigmah.shared.command.UpdateContact;
 import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
@@ -83,28 +84,42 @@ public final class ValueJS extends JavaScriptObject {
 	public static ValueJS toJavaScript(UpdateProject updateProject, ValueEventWrapper valueEventWrapper) {
 		return toJavaScript(updateProject, valueEventWrapper, null);
 	}
-	
+
 	public static ValueJS toJavaScript(UpdateProject updateProject, ValueEventWrapper valueEventWrapper, ValueResult originalValue) {
+		String identifier = ValueJSIdentifierFactory.toIdentifier(updateProject, valueEventWrapper);
+		return toJavaScript(identifier, updateProject.getProjectId(), valueEventWrapper, originalValue);
+	}
+
+	public static ValueJS toJavaScript(UpdateContact updateContact, ValueEventWrapper valueEventWrapper) {
+		return toJavaScript(updateContact, valueEventWrapper, null);
+	}
+
+	public static ValueJS toJavaScript(UpdateContact updateContact, ValueEventWrapper valueEventWrapper, ValueResult originalValue) {
+		String identifier = ValueJSIdentifierFactory.toIdentifier(updateContact, valueEventWrapper);
+		return toJavaScript(identifier, updateContact.getContactId(), valueEventWrapper, originalValue);
+	}
+
+	public static ValueJS toJavaScript(String identifier, Integer containerId, ValueEventWrapper valueEventWrapper, ValueResult originalValue) {
 		final ValueJS valueJS = Values.createJavaScriptObject(ValueJS.class);
-		
-		valueJS.setId(ValueJSIdentifierFactory.toIdentifier(updateProject, valueEventWrapper));
+
+		valueJS.setId(identifier);
 		valueJS.setElementEntityName(valueEventWrapper.getSourceElement().getEntityName());
-		valueJS.setProjectId(updateProject.getProjectId());
+		valueJS.setProjectId(containerId);
 		valueJS.setElementId(valueEventWrapper.getSourceElement().getId());
 		valueJS.setAmendmentId(null);
-		
+
 		if (originalValue != null) {
 			valueJS.setValue(originalValue.getValueObject());
 			valueJS.setValues(originalValue.getValuesObject());
 			valueJS.setAmendment(originalValue.isAmendment());
 		}
-		
+
 		valueJS.update(valueEventWrapper);
-		
+
 		valueJS.setChangeType(valueEventWrapper.getChangeType());
 		valueJS.setProjectCountryChanged(valueEventWrapper.isProjectCountryChanged());
 		valueJS.setSourceElement(FlexibleElementJS.toJavaScript(valueEventWrapper.getSourceElement()));
-		
+
 		return valueJS;
 	}
 	

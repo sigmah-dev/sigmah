@@ -37,7 +37,7 @@ public final class ContactListElementJS extends FlexibleElementJS {
 		return contactListElementJS;
 	}
 
-	protected ContactListElementDTO toContactListElementDTO() {
+	public ContactListElementDTO toContactListElementDTO() {
 		final ContactListElementDTO contactListElementDTO = new ContactListElementDTO();
 
 		contactListElementDTO.setLimit(getLimitInteger());

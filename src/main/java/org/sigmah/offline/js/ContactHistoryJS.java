@@ -28,13 +28,14 @@ import java.util.Date;
 
 import org.sigmah.shared.command.result.ContactHistory;
 
-public class ContactHistoryJS extends JavaScriptObject {
+public final class ContactHistoryJS extends JavaScriptObject {
   protected ContactHistoryJS() {
   }
 
   public static ContactHistoryJS toJavaScript(ContactHistory contactHistory) {
     ContactHistoryJS contactHistoryJS = (ContactHistoryJS) JavaScriptObject.createObject();
     contactHistoryJS.setId(contactHistory.getId());
+    contactHistoryJS.setContactId(contactHistory.getContactId());
     contactHistoryJS.setUserFullName(contactHistory.getUserFullName());
     contactHistoryJS.setFormattedChangeType(contactHistory.getFormattedChangeType());
     contactHistoryJS.setFormattedValue(contactHistory.getFormattedValue());
@@ -64,6 +65,14 @@ public class ContactHistoryJS extends JavaScriptObject {
 
   public native void setId(int id) /*-{
 		this.id = id;
+	}-*/;
+
+  public native int getContactId() /*-{
+    return this.contactId;
+	}-*/;
+
+  public native void setContactId(int contactId) /*-{
+		this.contactId = contactId;
 	}-*/;
 
   public native String getUserFullName() /*-{

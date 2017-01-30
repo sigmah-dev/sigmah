@@ -27,7 +27,7 @@ import org.sigmah.shared.dto.ContactCardDTO;
 import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 
-public class ContactCardJS extends JavaScriptObject {
+public final class ContactCardJS extends JavaScriptObject {
   protected ContactCardJS() {
   }
 

@@ -30,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import org.sigmah.client.dispatch.DispatchListener;
+import org.sigmah.offline.dao.ContactAsyncDAO;
+import org.sigmah.offline.dao.ContactListElementAsyncDAO;
 import org.sigmah.offline.dao.MonitoredPointAsyncDAO;
 import org.sigmah.offline.dao.PersonalCalendarAsyncDAO;
 import org.sigmah.offline.dao.ProjectAsyncDAO;
@@ -44,10 +46,12 @@ import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.command.result.Calendar;
 import org.sigmah.shared.command.result.CreateResult;
+import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.calendar.Event;
 import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
 import org.sigmah.shared.dto.calendar.PersonalEventDTO;
+import org.sigmah.shared.dto.element.ContactListElementDTO;
 import org.sigmah.shared.dto.referential.ReminderChangeType;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.reminder.MonitoredPointHistoryDTO;
@@ -80,7 +84,13 @@ public class CreateEntityAsyncHandler implements AsyncCommandHandler<CreateEntit
 	
 	@Inject
 	private ReminderAsyncDAO reminderAsyncDAO;
-	
+
+	@Inject
+	private ContactAsyncDAO contactAsyncDAO;
+
+	@Inject
+	private ContactListElementAsyncDAO contactListElementAsyncDAO;
+
 	@Override
 	public void execute(CreateEntity command, OfflineExecutionContext executionContext, final AsyncCallback<CreateResult> callback) {
 		executeCommand(command, null, executionContext.getAuthentication(), callback);
@@ -92,7 +102,7 @@ public class CreateEntityAsyncHandler implements AsyncCommandHandler<CreateEntit
 		executeCommand(command, result, authentication, null);
 	}
 	
-	private void executeCommand(CreateEntity command, CreateResult result, Authentication authentication, AsyncCallback<CreateResult> callback) {
+	private void executeCommand(CreateEntity command, CreateResult result, Authentication authentication, final AsyncCallback<CreateResult> callback) {
 		if(ProjectDTO.ENTITY_NAME.equals(command.getEntityName())) {
 			exception(command, callback != null);
 			
@@ -116,7 +126,35 @@ public class CreateEntityAsyncHandler implements AsyncCommandHandler<CreateEntit
 				insertMonitoredPoint(command, authentication, callback);
 			}
 			
-		} else {
+		} else if (ContactDTO.ENTITY_NAME.equals(command.getEntityName())) {
+			if (result != null) {
+				contactAsyncDAO.saveOrUpdate((ContactDTO) result.getEntity(), new AsyncCallback<ContactDTO>() {
+					@Override
+					public void onFailure(Throwable caught) {
+						callback.onFailure(caught);
+					}
+
+					@Override
+					public void onSuccess(ContactDTO result) {
+						callback.onSuccess(new CreateResult(result));
+					}
+				});
+			}
+		} else if (ContactListElementDTO.ENTITY_NAME.equals(command.getEntityName())) {
+			if (result != null) {
+				contactListElementAsyncDAO.saveOrUpdate((ContactListElementDTO) result.getEntity(), new AsyncCallback<ContactListElementDTO>() {
+					@Override
+					public void onFailure(Throwable caught) {
+						callback.onFailure(caught);
+					}
+
+					@Override
+					public void onSuccess(ContactListElementDTO result) {
+						callback.onSuccess(new CreateResult(result));
+					}
+				});
+			}
+	  } else {
 			exception(command, callback != null);
 		}
 	}

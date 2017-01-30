@@ -81,22 +81,25 @@ public class OfflineModule extends AbstractGinModule {
 
 	private LocalDispatchServiceAsync localDispatchAsync;
 	private SecureDispatchAsync remoteDispatchAsync;
-	
+
 	@Override
 	protected void configure() {
         bind(TransfertManager.class).toProvider(TransfertManagerProvider.class).in(Singleton.class);
 	}
-	
+
 	@Provides
-    protected LocalDispatchServiceAsync provideLocalDispatcher(DispatchAsync dispatchAsync, 
+    protected LocalDispatchServiceAsync provideLocalDispatcher(DispatchAsync dispatchAsync,
 			AuthenticationProvider authenticationProvider,
-			
+
 			// Injecting command handlers
 			BatchCommandAsyncHandler batchCommandAsyncHandler,
+      CheckContactDuplicationAsyncHandler checkContactDuplicationAsyncHandler,
 			CreateEntityAsyncHandler createEntityAsyncHandler,
 			DeleteAsyncHandler deleteAsyncHandler,
 			GetCalendarAsyncHandler getCalendarAsyncHandler,
 			GetCategoriesAsyncHandler getCategoriesAsyncHandler,
+			GetContactHistoryAsyncHandler getContactHistoryAsyncHandler,
+			GetContactRelationshipsAsyncHandler getContactRelationshipsAsyncHandler,
 			GetCountriesAsyncHandler getCountriesAsyncHandler,
 			GetCountryAsyncHandler getCountryAsyncHandler,
 			GetHistoryAsyncHandler getHistoryAsyncHandler,
@@ -122,6 +125,7 @@ public class OfflineModule extends AbstractGinModule {
 			GetValueFromLinkedProjectsAsyncHandler getValueFromLinkedProjectsAsyncHandler,
             PrepareFileUploadAsyncHandler prepareFileUploadAsyncHandler,
 			SecureNavigationAsyncHandler secureNavigationAsyncHandler,
+			UpdateContactAsyncHandler updateContactAsyncHandler,
 			UpdateEntityAsyncHandler updateEntityAsyncHandler,
 			UpdateLogFrameAsyncHandler updateLogFrameAsyncHandler,
 			UpdateMonitoredPointsAsyncHandler updateMonitoredPointsAsyncHandler,
@@ -129,7 +133,7 @@ public class OfflineModule extends AbstractGinModule {
 			UpdateProjectFavoriteAsyncHandler updateProjectFavoriteAsyncHandler,
 			UpdateProjectTeamMembersAsyncHandler updateProjectTeamMembersAsyncHandler,
 			UpdateRemindersAsyncHandler updateRemindersAsyncHandler) {
-		
+
 		localDispatchAsync = new LocalDispatchServiceAsync(authenticationProvider);
 		if(dispatchAsync instanceof SecureDispatchAsync) {
 			remoteDispatchAsync = (SecureDispatchAsync) dispatchAsync;
@@ -137,14 +141,17 @@ public class OfflineModule extends AbstractGinModule {
 		} else {
 			throw new IllegalArgumentException("Given DispatchAsync type is not supported (SecureDispatchAsync is required).");
 		}
-		
+
 		batchCommandAsyncHandler.setDispatcher(localDispatchAsync);
-		
+
         registerHandler(BatchCommand.class, batchCommandAsyncHandler);
+				registerHandler(CheckContactDuplication.class, checkContactDuplicationAsyncHandler);
         registerHandler(CreateEntity.class, createEntityAsyncHandler);
         registerHandler(Delete.class, deleteAsyncHandler);
         registerHandler(GetCalendar.class, getCalendarAsyncHandler);
         registerHandler(GetCategories.class, getCategoriesAsyncHandler);
+				registerHandler(GetContactHistory.class, getContactHistoryAsyncHandler);
+				registerHandler(GetContactHistory.class, getContactHistoryAsyncHandler);
         registerHandler(GetCountries.class, getCountriesAsyncHandler);
         registerHandler(GetCountry.class, getCountryAsyncHandler);
         registerHandler(GetHistory.class, getHistoryAsyncHandler);
@@ -177,13 +184,13 @@ public class OfflineModule extends AbstractGinModule {
         registerHandler(UpdateProjectFavorite.class, updateProjectFavoriteAsyncHandler);
 		registerHandler(UpdateReminders.class, updateRemindersAsyncHandler);
 		registerHandler(UpdateProjectTeamMembers.class, updateProjectTeamMembersAsyncHandler);
-				
+
         return localDispatchAsync;
 	}
-	
+
 	private <C extends Command<R>, R extends Result> void registerHandler(Class<C> commandClass, AsyncCommandHandler<C, R> handler) {
 		localDispatchAsync.registerHandler(commandClass, handler);
-		
+
 		if(handler instanceof DispatchListener) {
 			final DispatchListener<C, R> listener = (DispatchListener<C, R>)handler;
 			remoteDispatchAsync.registerListener(commandClass, listener);

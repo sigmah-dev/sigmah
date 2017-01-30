@@ -27,7 +27,7 @@ import org.sigmah.shared.dto.ContactDetailsDTO;
 import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.layout.LayoutDTO;
 
-public class ContactDetailsJS extends JavaScriptObject {
+public final class ContactDetailsJS extends JavaScriptObject {
   protected ContactDetailsJS() {
   }
 

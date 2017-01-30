@@ -32,7 +32,7 @@ import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
-public class ContactModelJS extends JavaScriptObject {
+public final class ContactModelJS extends JavaScriptObject {
   protected ContactModelJS() {
   }
 
