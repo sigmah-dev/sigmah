@@ -50,9 +50,6 @@ public class ContactDuplicationService {
   }
 
   public List<ContactDuplicatedProperty> extractProperties(Contact newContact, Contact oldContact, Language language) {
-    if (!Objects.equals(newContact.getContactModel().getId(), oldContact.getContactModel().getId())) {
-      throw new IllegalStateException("Uncompatible contact models : " + newContact.getContactModel().getId() + " and " + oldContact.getContactModel().getId());
-    }
 
     List<ContactDuplicatedProperty> properties = new ArrayList<>();
     for (LayoutGroup group : newContact.getContactModel().getDetails().getLayout().getGroups()) {

@@ -395,11 +395,11 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
       case INDIVIDUAL:
         String currentFamilyName = getCurrentSingleValue(DefaultContactFlexibleElementType.FAMILY_NAME, contactDTO.getFamilyName());
         String currentFirstName = getCurrentSingleValue(DefaultContactFlexibleElementType.FIRST_NAME, contactDTO.getFirstname());
-        checkDuplicationCommand = new CheckContactDuplication(contactDTO.getId(), currentEmail, currentFamilyName, currentFirstName);
+        checkDuplicationCommand = new CheckContactDuplication(contactDTO.getId(), currentEmail, currentFamilyName, currentFirstName, contactDTO.getContactModel());
         break;
       case ORGANIZATION:
         String currentOrganizationName = getCurrentSingleValue(DefaultContactFlexibleElementType.ORGANIZATION_NAME, contactDTO.getOrganizationName());
-        checkDuplicationCommand = new CheckContactDuplication(contactDTO.getId(), currentEmail, currentOrganizationName, null);
+        checkDuplicationCommand = new CheckContactDuplication(contactDTO.getId(), currentEmail, currentOrganizationName, null, contactDTO.getContactModel());
         break;
       default:
         throw new IllegalStateException("Unknown ContactModelType : " + contactDTO.getContactModel().getType());

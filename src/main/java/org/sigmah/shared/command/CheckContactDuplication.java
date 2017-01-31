@@ -24,6 +24,7 @@ package org.sigmah.shared.command;
 import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.ContactDTO;
+import org.sigmah.shared.dto.ContactModelDTO;
 
 public class CheckContactDuplication extends AbstractCommand<ListResult<ContactDTO>> {
   private static final long serialVersionUID = 2632734238352656536L;
@@ -32,16 +33,18 @@ public class CheckContactDuplication extends AbstractCommand<ListResult<ContactD
   private String email;
   private String name;
   private String firstName;
+  private ContactModelDTO contactModelDTO;
 
   public CheckContactDuplication() {
     // Serialization
   }
 
-  public CheckContactDuplication(Integer contactId, String email, String name, String firstName) {
+  public CheckContactDuplication(Integer contactId, String email, String name, String firstName, ContactModelDTO contactModelDTO) {
     this.contactId = contactId;
     this.email = email;
     this.name = name;
     this.firstName = firstName;
+    this.contactModelDTO = contactModelDTO;
   }
 
   public Integer getContactId() {
@@ -58,5 +61,9 @@ public class CheckContactDuplication extends AbstractCommand<ListResult<ContactD
 
   public String getFirstName() {
     return firstName;
+  }
+
+  public ContactModelDTO getContactModelDTO() {
+    return contactModelDTO;
   }
 }

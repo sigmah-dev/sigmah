@@ -94,9 +94,9 @@ public class ContactListElementDTO extends FlexibleElementDTO {
       public void handleContactCreation(final ContactModelDTO contactModelDTO, final String email, final String firstName, final String familyName, final String organizationName, final OrgUnitDTO mainOrgUnit, final List<OrgUnitDTO> secondaryOrgUnits) {
         CheckContactDuplication checkContactDuplication;
         if (contactModelDTO.getType() == ContactModelType.INDIVIDUAL) {
-          checkContactDuplication = new CheckContactDuplication(null, email, familyName, firstName);
+          checkContactDuplication = new CheckContactDuplication(null, email, familyName, firstName, contactModelDTO);
         } else {
-          checkContactDuplication = new CheckContactDuplication(null, email, familyName, null);
+          checkContactDuplication = new CheckContactDuplication(null, email, familyName, null, contactModelDTO);
         }
         dispatch.execute(checkContactDuplication, new AsyncCallback<ListResult<ContactDTO>>() {
           @Override
