@@ -485,7 +485,7 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 		familyNameField.setVisible(false);
 		organizationNameField.setVisible(false);
 
-		final ComboBox<OrgUnitDTO> mainOrgUnitComboBox = Forms.combobox(I18N.CONSTANTS.contactMainOrgUnit(), false, OrgUnitDTO.ID, OrgUnitDTO.FULL_NAME);
+		final ComboBox<OrgUnitDTO> mainOrgUnitComboBox = Forms.combobox(I18N.CONSTANTS.contactMainOrgUnit(), true, OrgUnitDTO.ID, OrgUnitDTO.FULL_NAME);
 		final ListComboBox<OrgUnitDTO> secondaryOrgUnitsComboBox = new ListComboBox<OrgUnitDTO>(OrgUnitDTO.ID, OrgUnitDTO.FULL_NAME);
 		secondaryOrgUnitsComboBox.initComponent();
 		final AdapterField secondaryOrgUnitsFieldAdapter = Forms.adapter(I18N.CONSTANTS.contactSecondaryOrgUnits(), secondaryOrgUnitsComboBox);
