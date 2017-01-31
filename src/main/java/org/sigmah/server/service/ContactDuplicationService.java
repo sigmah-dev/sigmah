@@ -21,6 +21,7 @@ package org.sigmah.server.service;
  * #L%
  */
 
+import com.google.gwt.thirdparty.guava.common.base.Strings;
 import com.google.inject.Inject;
 
 import java.util.ArrayList;
@@ -89,10 +90,10 @@ public class ContactDuplicationService {
           formattedOldValue = modelPropertyService.getFormattedValue(element, oldValue.getValue(), language);
         }
 
-        if ("".equals(serializedOldValue)) {
+        if (Strings.isNullOrEmpty(serializedOldValue)) {
           serializedOldValue = null;
         }
-        if ("".equals(serializedNewValue)) {
+        if (Strings.isNullOrEmpty(serializedNewValue)) {
           serializedNewValue = null;
         }
 
