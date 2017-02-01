@@ -148,7 +148,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
                   @Override
                   protected void onCommandSuccess(ContactDTO targetedContactDTO) {
                     dedupeContactDialog.hide();
-                    eventBus.navigateRequest(Page.CONTACT_DASHBOARD.requestWith(RequestParameter.ID, targetedContactId));
+                    listComboBox.getListStore().add(targetedContactDTO);
                   }
                 });
               }

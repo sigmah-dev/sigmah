@@ -199,9 +199,16 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 							public void handleDedupeContact(final Integer targetedContactId, List<ContactDuplicatedProperty> selectedProperties) {
 								dispatch.execute(new DedupeContact(selectedProperties, targetedContactId), new CommandResultHandler<ContactDTO>() {
 									@Override
-									protected void onCommandSuccess(ContactDTO targetedContactDTO) {
+									protected void onCommandSuccess(final ContactDTO targetedContactDTO) {
 										dedupeContactDialog.hide();
-										eventBus.navigateRequest(Page.CONTACT_DASHBOARD.requestWith(RequestParameter.ID, targetedContactId));
+										GetContactHistory historyCmd = new GetContactHistory(targetedContactDTO.getId(), true);
+										dispatch.execute(historyCmd, new CommandResultHandler<ListResult<ContactHistory>>() {
+											@Override
+											protected void onCommandSuccess(ListResult<ContactHistory> result) {
+												ContactHistory lastChange = result.isEmpty() ? null : result.getList().get(0);
+												view.addContact(new DashboardContact(targetedContactDTO, lastChange));
+											}
+										});
 									}
 								});
 							}
