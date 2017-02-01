@@ -86,6 +86,8 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
     String getTabHeader();
 
     void refresh(ContactDTO contactDTO);
+
+    boolean hasValueChanged();
   }
 
   private final List<? extends ContactSubPresenter> tabPresenters;
@@ -277,5 +279,14 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
     for (ContactSubPresenter tabPresenter : tabPresenters) {
       tabPresenter.refresh(contactDTO);
     }
+  }
+
+  @Override
+  public boolean hasValueChanged() {
+    for (ContactSubPresenter tabPresenter : tabPresenters) {
+      if (tabPresenter.hasValueChanged())
+        return true;
+    }
+    return false;
   }
 }

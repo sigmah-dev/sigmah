@@ -825,4 +825,8 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
       }
     });
   }
+
+  public boolean hasValueChanged() {
+    return !valueChanges.isEmpty() || !iterationChanges.isEmpty();
+  }
 }
