@@ -229,7 +229,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		mandatoryField = Forms.checkbox("", null, I18N.CONSTANTS.adminFlexibleCompulsory(), false);
 		privacyGroupField = Forms.combobox(I18N.CONSTANTS.adminPrivacyGroups(), false, PrivacyGroupDTO.ID, PrivacyGroupDTO.TITLE);
 		privacyGroupField.setEmptyText(I18N.CONSTANTS.adminPrivacyGroupChoice());
-		amendableField = Forms.checkbox("", null, I18N.CONSTANTS.partOfProjectCore(), false);
+		amendableField = Forms.checkbox("", null, IconImageBundle.ICONS.DNABrownGreen().getHTML()+I18N.CONSTANTS.partOfProjectCore(), false);
 		exportableField = Forms.checkbox("", null, I18N.CONSTANTS.adminFlexibleExportable(), false);
 
 		// Form initialization.
