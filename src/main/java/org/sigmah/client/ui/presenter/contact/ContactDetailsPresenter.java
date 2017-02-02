@@ -645,6 +645,7 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
             if (callback != null) {
               callback.onSuccess(contactDTO);
             }
+            refresh(contactDTO);
           }
         }, view.getSaveButton(), new LoadingMask(view.getDetailsContainer()), new LoadingMask(target));
       }
