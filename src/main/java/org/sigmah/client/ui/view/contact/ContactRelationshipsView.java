@@ -165,7 +165,7 @@ public class ContactRelationshipsView extends AbstractView implements ContactRel
     grid.getStore().removeAll();
     grid.getStore().add(relationships);
     grid.recalculate();
-    resizeGrid(grid, container, false);
+    resizeGrid(grid, container, true);
   }
 
   @Override
@@ -193,7 +193,7 @@ public class ContactRelationshipsView extends AbstractView implements ContactRel
     Window.addResizeHandler(new ResizeHandler() {
       @Override
       public void onResize(ResizeEvent event) {
-        resizeGrid(grid, container, false);
+        resizeGrid(grid, container, true);
       }
     });
 
@@ -268,10 +268,6 @@ public class ContactRelationshipsView extends AbstractView implements ContactRel
           height = unwrappedGridHeight;
         } else {
           height = maxHeight;
-        }
-
-        if (grid.getHeight() == height) {
-          return;
         }
 
         grid.setHeight(height);
