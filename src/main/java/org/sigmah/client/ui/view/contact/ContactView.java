@@ -216,6 +216,13 @@ public class ContactView extends AbstractView implements ContactPresenter.View {
     tabPanel.add(tabItem);
   }
 
+  @Override
+  public void selectFirstTab() {
+    if (tabPanel.getItemCount() > 0) {
+      tabPanel.setSelection(tabPanel.getItem(0));
+    }
+  }
+
   private void fixTabViewHeight(final Widget tabView, final TabItem tabItem) {
     Timer timer = new Timer() {
       @Override

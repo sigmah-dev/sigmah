@@ -80,6 +80,8 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
     void setHeaderText(String header);
 
     void addTab(final String tabTitle, final Widget tabView);
+
+    void selectFirstTab();
   }
 
   interface ContactSubPresenter<E extends ViewInterface> extends Presenter<E> {
@@ -276,6 +278,7 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
   }
 
   private void refreshTabs() {
+    view.selectFirstTab();
     for (ContactSubPresenter tabPresenter : tabPresenters) {
       tabPresenter.refresh(contactDTO);
     }
