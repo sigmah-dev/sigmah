@@ -76,7 +76,7 @@ public class ContactHistoryView extends AbstractView implements ContactHistoryPr
     Window.addResizeHandler(new ResizeHandler() {
       @Override
       public void onResize(ResizeEvent event) {
-        resizeGrid(contactHistoryGrid, container, false);
+        resizeGrid(contactHistoryGrid, container, true);
       }
     });
 
@@ -90,7 +90,7 @@ public class ContactHistoryView extends AbstractView implements ContactHistoryPr
   public void updateGridData(List<ContactHistory> contactHistories) {
     contactHistoryGrid.getStore().removeAll();
     contactHistoryGrid.getStore().add(contactHistories);
-    resizeGrid(contactHistoryGrid, container, false);
+    resizeGrid(contactHistoryGrid, container, true);
   }
 
   @Override
@@ -159,10 +159,6 @@ public class ContactHistoryView extends AbstractView implements ContactHistoryPr
           height = unwrappedGridHeight;
         } else {
           height = maxHeight;
-        }
-
-        if (grid.getHeight() == height) {
-          return;
         }
 
         grid.setHeight(height);

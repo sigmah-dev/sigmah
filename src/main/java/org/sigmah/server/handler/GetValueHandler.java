@@ -114,7 +114,7 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 
 			if (tokens != null) {
 				for (final HistoryToken token : tokens) {
-					if (token.getElementId().equals(cmd.getElementId()) && token.getLayoutGroupIterationId().equals(cmd.getIterationId())) {
+					if (token.getElementId().equals(cmd.getElementId()) && token.getLayoutGroupIterationId() == cmd.getIterationId()) {
 						historyValue = token.getValue();
 					}
 				}

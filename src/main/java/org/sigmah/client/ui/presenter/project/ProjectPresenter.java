@@ -270,7 +270,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 			public void selectionChanged(SelectionChangedEvent<CoreVersionAction> se) {
 				final CoreVersionAction action = se.getSelectedItem();
 
-				if(action == currentCoreVersion) {
+				if(action == currentCoreVersion || action == null) {
 					return;
 				}
 
