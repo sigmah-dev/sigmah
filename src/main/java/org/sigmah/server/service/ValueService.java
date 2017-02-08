@@ -26,6 +26,7 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -1025,8 +1026,8 @@ public class ValueService extends EntityManagerProvider {
 		final Project project = em().find(Project.class, containerId);
 		
 		final ArrayList<ProjectFunding> allFundings = new ArrayList<>();
-		allFundings.addAll(project.getFunded());
-		allFundings.addAll(project.getFunding());
+		allFundings.addAll(project.getFunded() != null ? project.getFunded() : Collections.<ProjectFunding>emptyList());
+		allFundings.addAll(project.getFunding() != null ? project.getFunding() : Collections.<ProjectFunding>emptyList());
 		
 		for (final ComputationElement computationElement : computationElements) {
 			final ProjectModel parentModel = computationService.getParentProjectModel(computationElement);
