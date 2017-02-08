@@ -81,6 +81,10 @@ public class ServerDependencyResolver extends AbstractDependencyResolver {
 	 */
 	private void resolve(final CollectionDependency dependency) {
 		final List<ProjectModel> projectModels = projectModelDAO.findProjectModelsWithName(dependency.getScope().getModelName());
+		
+		if (projectModels.isEmpty()) {
+			throw new IllegalArgumentException("Project Model '" + dependency.getScope().getModelName() + "' was not found.");
+		}
 				
 		for (final ProjectModel projectModel : projectModels) {
 			final FlexibleElementDTO element = ServerComputations.getElementWithCodeInModel(dependency.getElementCode(), projectModel);
@@ -99,6 +103,10 @@ public class ServerDependencyResolver extends AbstractDependencyResolver {
 				dependency.setFlexibleElement(element);
 				dependency.setProjectModelId(projectModel.getId());
 			}
+		}
+		
+		if (dependency.getFlexibleElement() == null) {
+			throw new IllegalArgumentException("No element with code '" + dependency.getElementCode() + "' was found in model '" + dependency.getScope().getModelName() + "'.");
 		}
 	}
 	
