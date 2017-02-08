@@ -975,7 +975,6 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		view.setTextAreaSpecificFieldsVisibility(textAreaType);
 
-		view.getCodeField().setEnabled(!isUpdateAndUnderMaintenance());
 		view.getMinDateField().setEnabled(!isUpdateAndUnderMaintenance());
 		view.getMaxDateField().setEnabled(!isUpdateAndUnderMaintenance());
 		view.getMinLimitField().setEnabled(!isUpdateAndUnderMaintenance());

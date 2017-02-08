@@ -74,7 +74,7 @@ public class DedupeContactHandler extends AbstractCommandHandler<DedupeContact, 
       Contact originContact = contactDAO.findById(command.getOriginContactId());
       mergeContacts(originContact, targetedContact, command.getContactDuplicatedProperties(), context.getUser());
     } else {
-      applyProperties(command.getContactDuplicatedProperties(), targetedContact);
+      applyProperties(command.getContactDuplicatedProperties(), targetedContact, context.getUser());
     }
 
     return mapper().map(targetedContact, new ContactDTO());
@@ -158,7 +158,7 @@ public class DedupeContactHandler extends AbstractCommandHandler<DedupeContact, 
     }
   }
 
-  private void applyProperties(List<ContactDuplicatedProperty> properties, Contact contact) {
+  private void applyProperties(List<ContactDuplicatedProperty> properties, Contact contact, User user) {
     // This function is always called when the new contact was in creation
     // So only default values are concerned by the properties
     for (ContactDuplicatedProperty property : properties) {
@@ -235,5 +235,6 @@ public class DedupeContactHandler extends AbstractCommandHandler<DedupeContact, 
           throw new IllegalStateException("Unknown DefaultContactFlexibleElementType : " + flexibleElement.getType());
       }
     }
+    contactDAO.persist(contact, user);
   }
 }

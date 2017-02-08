@@ -127,7 +127,9 @@ public class PagingContactsProxy extends MemoryProxy<PagingLoadResult<DashboardC
               return compareNullableStrings(nom1, nom2);
             }
             if (sortField.equals(ContactHistory.UPDATED_AT)) {
-              return compareNullableDates(p1.getLastChange().getUpdatedAt(), p2.getLastChange().getUpdatedAt());
+              Date d1 = p1.getLastChange() != null ? p1.getLastChange().getUpdatedAt() : null;
+              Date d2 = p2.getLastChange() != null ? p2.getLastChange().getUpdatedAt() : null;
+              return compareNullableDates(d1, d2);
             }
             if (sortField.equals(ContactHistory.COMMENT)) {
               return compareNullableStrings(p1.getLastChange().getComment(), p2.getLastChange().getComment());

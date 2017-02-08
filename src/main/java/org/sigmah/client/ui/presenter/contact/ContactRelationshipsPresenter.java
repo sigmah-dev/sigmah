@@ -186,4 +186,8 @@ public class ContactRelationshipsPresenter extends AbstractPresenter<ContactRela
       }
     });
   }
+
+  public boolean hasValueChanged() {
+    return false;
+  }
 }

@@ -93,4 +93,8 @@ public class ContactHistoryPresenter extends AbstractPresenter<ContactHistoryPre
       }
     });
   }
+
+  public boolean hasValueChanged() {
+    return false;
+  }
 }

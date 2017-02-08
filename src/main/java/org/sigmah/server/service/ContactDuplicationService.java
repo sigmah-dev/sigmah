@@ -21,6 +21,7 @@ package org.sigmah.server.service;
  * #L%
  */
 
+import com.google.gwt.thirdparty.guava.common.base.Strings;
 import com.google.inject.Inject;
 
 import java.util.ArrayList;
@@ -49,9 +50,6 @@ public class ContactDuplicationService {
   }
 
   public List<ContactDuplicatedProperty> extractProperties(Contact newContact, Contact oldContact, Language language) {
-    if (!Objects.equals(newContact.getContactModel().getId(), oldContact.getContactModel().getId())) {
-      throw new IllegalStateException("Uncompatible contact models : " + newContact.getContactModel().getId() + " and " + oldContact.getContactModel().getId());
-    }
 
     List<ContactDuplicatedProperty> properties = new ArrayList<>();
     for (LayoutGroup group : newContact.getContactModel().getDetails().getLayout().getGroups()) {
@@ -89,10 +87,10 @@ public class ContactDuplicationService {
           formattedOldValue = modelPropertyService.getFormattedValue(element, oldValue.getValue(), language);
         }
 
-        if ("".equals(serializedOldValue)) {
+        if (Strings.isNullOrEmpty(serializedOldValue)) {
           serializedOldValue = null;
         }
-        if ("".equals(serializedNewValue)) {
+        if (Strings.isNullOrEmpty(serializedNewValue)) {
           serializedNewValue = null;
         }
 

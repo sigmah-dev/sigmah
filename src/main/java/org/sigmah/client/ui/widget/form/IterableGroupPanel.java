@@ -135,7 +135,7 @@ public class IterableGroupPanel extends TabPanel {
 
       refreshRenameButton();
 
-      Button btnRemove = new Button("Remove iteration");
+      Button btnRemove = new Button(I18N.CONSTANTS.layoutGroupIterationRemoveButton());
       btnRemove.addSelectionListener(new SelectionListener<ButtonEvent>() {
         @Override
         public void componentSelected(ButtonEvent menuEvent) {
@@ -154,9 +154,9 @@ public class IterableGroupPanel extends TabPanel {
     private void refreshRenameButton() {
 
       if(getIterationName() == null || "".equals(getIterationName())) {
-        btnRename.setText("Set iteration name");
+        btnRename.setText(I18N.CONSTANTS.layoutGroupIterationSetNameButton());
       } else {
-        btnRename.setText("Rename iteration");
+        btnRename.setText(I18N.CONSTANTS.layoutGroupIterationRenameButton());
       }
     }
 
