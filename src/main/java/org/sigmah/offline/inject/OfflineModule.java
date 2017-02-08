@@ -103,6 +103,7 @@ public class OfflineModule extends AbstractGinModule {
 			GetCountriesAsyncHandler getCountriesAsyncHandler,
 			GetCountryAsyncHandler getCountryAsyncHandler,
 			GetHistoryAsyncHandler getHistoryAsyncHandler,
+			GetLayoutGroupIterationsAsyncHandler getLayoutGroupIterationsAsyncHandler,
             GetLinkedProjectsAsyncHandler getLinkedProjectsAsyncHandler,
 			GetMonitoredPointsAsyncHandler getMonitoredPointsAsyncHandler,
 			GetOrganizationAsyncHandler getOrganizationAsyncHandler,
@@ -126,6 +127,7 @@ public class OfflineModule extends AbstractGinModule {
             PrepareFileUploadAsyncHandler prepareFileUploadAsyncHandler,
 			SecureNavigationAsyncHandler secureNavigationAsyncHandler,
 			UpdateContactAsyncHandler updateContactAsyncHandler,
+			UpdateLayoutGroupIterationsAsyncHandler updateLayoutGroupIterationsAsyncHandler,
 			UpdateEntityAsyncHandler updateEntityAsyncHandler,
 			UpdateLogFrameAsyncHandler updateLogFrameAsyncHandler,
 			UpdateMonitoredPointsAsyncHandler updateMonitoredPointsAsyncHandler,
@@ -155,6 +157,7 @@ public class OfflineModule extends AbstractGinModule {
         registerHandler(GetCountries.class, getCountriesAsyncHandler);
         registerHandler(GetCountry.class, getCountryAsyncHandler);
         registerHandler(GetHistory.class, getHistoryAsyncHandler);
+		    registerHandler(GetLayoutGroupIterations.class, getLayoutGroupIterationsAsyncHandler);
         registerHandler(GetLinkedProjects.class, getLinkedProjectsAsyncHandler);
         registerHandler(GetMonitoredPoints.class, getMonitoredPointsAsyncHandler);
         registerHandler(GetOrganization.class, getOrganizationAsyncHandler);
@@ -177,6 +180,8 @@ public class OfflineModule extends AbstractGinModule {
         registerHandler(GetValueFromLinkedProjects.class, getValueFromLinkedProjectsAsyncHandler);
 		registerHandler(PrepareFileUpload.class, prepareFileUploadAsyncHandler);
         registerHandler(SecureNavigationCommand.class, secureNavigationAsyncHandler);
+		registerHandler(UpdateContact.class, updateContactAsyncHandler);
+		registerHandler(UpdateLayoutGroupIterations.class, updateLayoutGroupIterationsAsyncHandler);
         registerHandler(UpdateEntity.class, updateEntityAsyncHandler);
         registerHandler(UpdateLogFrame.class, updateLogFrameAsyncHandler);
 		registerHandler(UpdateMonitoredPoints.class, updateMonitoredPointsAsyncHandler);

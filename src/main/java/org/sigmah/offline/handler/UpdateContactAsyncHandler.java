@@ -66,8 +66,10 @@ public class UpdateContactAsyncHandler implements AsyncCommandHandler<UpdateCont
   private ValueAsyncDAO valueAsyncDAO;
 
   @Inject
-  public UpdateContactAsyncHandler(ContactAsyncDAO contactAsyncDAO) {
+  public UpdateContactAsyncHandler(ContactAsyncDAO contactAsyncDAO, UpdateDiaryAsyncDAO updateDiaryAsyncDAO, ValueAsyncDAO valueAsyncDAO) {
     this.contactAsyncDAO = contactAsyncDAO;
+    this.updateDiaryAsyncDAO = updateDiaryAsyncDAO;
+    this.valueAsyncDAO = valueAsyncDAO;
   }
 
   @Override

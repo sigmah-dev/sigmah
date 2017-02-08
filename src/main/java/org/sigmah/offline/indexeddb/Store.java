@@ -47,6 +47,7 @@ public enum Store implements Schema {
 			Indexes.FILE_DATA_FILEVERSIONID, "fileVersion.id"
 	),
 	HISTORY,
+	LAYOUT_GROUP_ITERATION,
 	LOG_FRAME,
 	LOGO,
 	MONITORED_POINT(

@@ -46,6 +46,10 @@ public final class ValueJSIdentifierFactory {
 	public static String toIdentifier(UpdateContact updateContact, ValueEventWrapper valueEventWrapper) {
 		return toIdentifier(valueEventWrapper.getSourceElement().getEntityName(), updateContact.getContactId(), valueEventWrapper.getSourceElement().getId(), null);
 	}
+
+	public static String toIdentifier(int containerId) {
+		return toIdentifier("LayoutGroupIterations", containerId, 0, null);
+	}
 	
 	public static String toIdentifier(String elementEntityName, int containerId, int elementId, Integer amendmentId) {
 		return new StringBuilder()

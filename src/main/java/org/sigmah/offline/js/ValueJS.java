@@ -72,6 +72,7 @@ public final class ValueJS extends JavaScriptObject {
 		valueJS.setElementEntityName(getValue.getElementEntityName());
 		valueJS.setProjectId(getValue.getProjectId());
 		valueJS.setElementId(getValue.getElementId());
+		valueJS.setIterationId(getValue.getIterationId());
 		valueJS.setAmendmentId(getValue.getAmendmentId());
 		
 		valueJS.setValue(valueResult.getValueObject());
@@ -106,6 +107,7 @@ public final class ValueJS extends JavaScriptObject {
 		valueJS.setElementEntityName(valueEventWrapper.getSourceElement().getEntityName());
 		valueJS.setProjectId(containerId);
 		valueJS.setElementId(valueEventWrapper.getSourceElement().getId());
+		valueJS.setIterationId(valueEventWrapper.getIterationId());
 		valueJS.setAmendmentId(null);
 
 		if (originalValue != null) {
@@ -149,6 +151,7 @@ public final class ValueJS extends JavaScriptObject {
 		valueEventWrapper.setChangeType(getChangeTypeEnum());
 		valueEventWrapper.setProjectCountryChanged(isProjectCountryChanged());
 		valueEventWrapper.setSingleValue(getValue());
+		valueEventWrapper.setIterationId(getIterationId());
 		// TODO: set multivalued values
 		
 		if (getValues() != null && getValues().length() == 1) {
@@ -232,6 +235,20 @@ public final class ValueJS extends JavaScriptObject {
 	public native void setElementId(int elementId) /*-{
 		this.elementId = elementId;
 	}-*/;
+
+	public void setIterationId(Integer iterationId) {
+		if (iterationId != null) {
+			setIterationId(iterationId.intValue());
+		}
+	}
+
+	public native void setIterationId(int iterationId) /*-{
+    this.iterationId = iterationId;
+  }-*/;
+
+	public native int getIterationId() /*-{
+    return this.iterationId;
+  }-*/;
 
 	public native int getAmendmentId() /*-{
 		return this.amendmentId;
