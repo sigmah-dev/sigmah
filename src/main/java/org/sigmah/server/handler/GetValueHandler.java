@@ -36,10 +36,12 @@ import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.Amendment;
 import org.sigmah.server.domain.HistoryToken;
 import org.sigmah.server.domain.Project;
+import org.sigmah.server.domain.element.ComputationElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.element.FlexibleElement;
 import org.sigmah.server.file.FileStorageProvider;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
+import org.sigmah.server.service.ComputationService;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.computation.value.ComputedValue;
@@ -47,6 +49,7 @@ import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.element.BudgetDistributionElementDTO;
 import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
+import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
 import org.sigmah.shared.dto.element.IndicatorsListElementDTO;
@@ -83,6 +86,12 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 	 */
 	@Inject
 	private FileStorageProvider fileStorageProvider;
+	
+	/**
+	 * Service to compute values of ComputationElements.
+	 */
+	@Inject
+	private ComputationService computationService;
 
 	/**
 	 * Gets a flexible element value from the database.
@@ -148,6 +157,15 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 		// No value exists for the flexible element.
 		if (!isValueExisting) {
 			LOG.debug("No value for this flexible element #{}.", cmd.getElementId());
+			
+			if (ComputationElementDTO.ENTITY_NAME.equals(cmd.getElementEntityName())) {
+				final ComputationElement computationElement = em().find(ComputationElement.class, cmd.getElementId());
+				final Project project = em().find(Project.class, cmd.getProjectId());
+				
+				final ComputedValue computedValue = computationService.computeValueForProject(computationElement, project);
+				valueResult.setValueObject(computedValue.toString());
+			}
+			
 			return valueResult;
 		}
 

@@ -97,6 +97,20 @@ public class ComputationService extends EntityManagerProvider {
 		return null;
 	}
 	
+	public ComputedValue computeValueForProject(final ComputationElement computationElement, final Project project) {
+		
+		final Computation computation = Computations.parse(computationElement.getRule(), ServerComputations.getAllElementsFromModel(project.getProjectModel()));
+		
+		final Future<String> computedValue = new Future<>();
+		computation.computeValueWithResolver(project.getId(), valueResolver, computedValue.defer());
+
+		try {
+			return ComputedValues.from(computedValue.getOrThrow());
+		} catch (Throwable t) {
+			throw new IllegalArgumentException("An error occured when computing the formula of the element '" + computationElement.getId() + "' for project '" + project.getId() + "'.", t);
+		}
+	}
+	
 	/**
 	 * Update the value of the given computation element for the given project.
 	 * 
@@ -109,16 +123,11 @@ public class ComputationService extends EntityManagerProvider {
 	 */
 	public void updateComputationValueForProject(final ComputationElement computationElement, final Project project, final User user) {
 		
-		final Computation computation = Computations.parse(computationElement.getRule(), ServerComputations.getAllElementsFromModel(project.getProjectModel()));
-		
-		final Future<String> computedValue = new Future<>();
-		computation.computeValueWithResolver(project.getId(), valueResolver, computedValue.defer());
-
 		try {
-			final ComputedValue value = ComputedValues.from(computedValue.getOrThrow());
+			final ComputedValue value = computeValueForProject(computationElement, project);
 			valueService.saveValue(value.toString(), computationElement, project.getId(), null, user);
-		} catch (Throwable t) {
-			LOGGER.error("An error occured when computing the formula of the element '" + computationElement.getId() + "' for project '" + project.getId() + "'.", t);
+		} catch (IllegalArgumentException e) {
+			LOGGER.error("An error occured when computing the formula of the element '" + computationElement.getId() + "' for project '" + project.getId() + "'.", e);
 		}
 	}
 	
