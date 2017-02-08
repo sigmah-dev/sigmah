@@ -24,6 +24,7 @@ package org.sigmah.server.handler;
 
 import com.google.inject.Inject;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import javax.persistence.TypedQuery;
 import org.sigmah.server.dao.ProjectFundingDAO;
@@ -70,6 +71,10 @@ public class GetValueFromLinkedProjectsHandler extends AbstractCommandHandler<Ge
 					throw new CommandException("Unsupported linked project type: " + command.getType());
 			}
 			containerIds.add(project.getId());
+		}
+		
+		if (containerIds.isEmpty()) {
+			return new ListResult<>(Collections.<String>emptyList());
 		}
 
 		final TypedQuery<String> query = em().createQuery("SELECT v.value FROM Value v WHERE v.containerId IN :containerIds AND v.element.id = :elementId", String.class);
