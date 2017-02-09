@@ -59,8 +59,7 @@ public class LayoutGroupIteration extends AbstractEntityId<Integer> {
   @NotNull
   private Integer containerId;
 
-  @Column(name = EntityConstants.LAYOUT_GROUP_ITERATION_COLUMN_NAME, nullable = false)
-  @NotNull
+  @Column(name = EntityConstants.LAYOUT_GROUP_ITERATION_COLUMN_NAME)
   private String name;
 
   // --------------------------------------------------------------------------------
