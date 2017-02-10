@@ -12,7 +12,7 @@
 	<artifactId>sigmah</artifactId>
 	<!-- Any change of version here should also be reported manually client-side in 
 		public static final String VERSION of /src/main/java/org/sigmah/client/Sigmah.java  -->
-	<version>2.2-SNAPSHOT</version>
+	<version>2.2-rc3</version>
 
 	<packaging>war</packaging>
 
