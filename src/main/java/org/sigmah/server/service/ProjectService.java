@@ -85,6 +85,12 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 	 */
 	@Inject
 	private ProjectFundingService fundingService;
+	
+	/**
+	 * Service handling the update of Value objects.
+	 */
+	@Inject
+	private ValueService valueService;
 
 	/**
 	 * {@inheritDoc}
@@ -237,21 +243,13 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 		final LogFrame logFrame = createDefaultLogFrame(project);
 		project.setLogFrame(logFrame);
 
-		// Create the budget values
-		final Double budgetPlanned = properties.<Double> get(ProjectDTO.BUDGET);
-		final String budgetValue;
-		if (budgetPlanned != null) {
-			budgetValue = createPlannedBudgetValue(budgetPlanned, model, project, user);
-		} else {
-			budgetValue = null;
-		}
-
 		// Updates the project
 		project = em().merge(project);
 
 		// Create initials history tokens
 		// BUGFIX #729 & #784
-		createInitialHistoryTokens(project, budgetValue, user);
+		// NOTE: initial history token for budget value is created by the value service.
+		createInitialHistoryTokens(project, null, user);
 
 		// Create links (if requested)
 		final ProjectDTO baseProject = properties.get(ProjectDTO.BASE_PROJECT);
@@ -285,7 +283,13 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 				project.getFunded().add(funded);
 			}
 		}
-
+		
+		// Create the budget values
+		final Double budgetPlanned = properties.<Double> get(ProjectDTO.BUDGET);
+		if (budgetPlanned != null) {
+			createPlannedBudgetValue(budgetPlanned, model, project, user);
+		}
+		
 		return project;
 	}
 
@@ -311,14 +315,7 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 		
 		final String budgetValue = budgetPlanned.toString();
 		
-		final Value value = new Value();
-		value.setContainerId(project.getId());
-		value.setElement(budgetRatioElement.getPlannedBudget());
-		value.setLastModificationAction('C');
-		value.setLastModificationDate(new Date());
-		value.setLastModificationUser(user);
-		value.setValue(budgetValue);
-		em().persist(value);
+		valueService.saveValue(budgetValue, new Date(), budgetRatioElement.getPlannedBudget(), project.getId(), null, user, "Initial budget");
 		
 		return budgetValue;
 	}
@@ -402,9 +399,8 @@ public class ProjectService extends AbstractEntityService<Project, Integer, Proj
 			final String value;
 
 			if (element instanceof BudgetRatioElement) {
-				value = budgetValue;
-				final FlexibleElement plannedBudgetElement = ((BudgetRatioElement) element).getPlannedBudget();
-				elementId = plannedBudgetElement != null ? plannedBudgetElement.getId() : null;
+				// Created by value service in createPlannedBudgetValue.
+				continue;
 			} else {
 				value = element.getValue(project);
 				elementId = element.getId();
