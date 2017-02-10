@@ -354,6 +354,22 @@ public class ContactModelDTO extends AbstractModelDataEntityDTO<Integer> impleme
           element.setContainerModel(getDetails());
 
           final ElementTypeEnum type = element.getElementType();
+          if (element instanceof DefaultContactFlexibleElementDTO) {
+            DefaultContactFlexibleElementDTO defaultElement = (DefaultContactFlexibleElementDTO) element;
+            if (getType() == ContactModelType.INDIVIDUAL) {
+              switch (defaultElement.getType()) {
+                case ORGANIZATION_NAME:
+                  continue;
+              }
+            } else {
+              switch (defaultElement.getType()) {
+                case FAMILY_NAME:
+                case FIRST_NAME:
+                  continue;
+              }
+            }
+          }
+
           if (ElementTypeEnum.DEFAULT_CONTACT == type
               || ElementTypeEnum.CHECKBOX == type
               || ElementTypeEnum.TEXT_AREA == type

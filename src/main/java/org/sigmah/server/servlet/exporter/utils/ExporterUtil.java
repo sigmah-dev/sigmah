@@ -905,7 +905,7 @@ public final class ExporterUtil {
 				if (hasValue) {
 					value = valueResult.getValueObject();
 				} else {
-					value = contact.getOrganization() != null ? contact.getOrganization().getName() : null;
+					value = contact.getName();
 				}
 			}
 			break;
