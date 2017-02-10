@@ -365,6 +365,65 @@ public final class ExporterUtil {
 		}
 	}
 	
+	/**
+	 * Add the columns titles for a {@link ContactListElement}.
+	 * 
+	 * @param titles
+	 *			List of cells.
+	 * @param element
+	 *			Contact list element.
+	 * @param i18nTranslator
+	 *			Translator.
+	 * @param language 
+	 *			Language of the user.
+	 */
+	public static void addContactListTitles(final List<ExportDataCell> titles, final FlexibleElement element, final I18nServer i18nTranslator, final Language language) {
+		
+		titles.add(new ExportStringCell(element.getLabel()));
+		titles.add(new ExportStringCell(element.getLabel() + " [" + i18nTranslator.t(language, "contactListExportIds") + ']'));
+	}
+	
+	/**
+	 * Add the values for a {@link ContactListElement}.
+	 * 
+	 * @param values
+	 *			Values to add.
+	 * @param element
+	 *			Contact list element.
+	 * @param valueResult
+	 *			Value in the database.
+	 * @param entityManager 
+	 *			Entity manager to query the database.
+	 */
+	public static void addContactListValues(final List<ExportDataCell> values, final FlexibleElement element, final ValueResult valueResult, final EntityManager entityManager) {
+		
+		final StringBuilder namesBuilder = new StringBuilder();
+		final StringBuilder idsBuilder = new StringBuilder();
+
+		if (valueResult != null && valueResult.isValueDefined()) {
+
+			// Retrieving list values from database.
+			final TypedQuery<Contact> query = entityManager.createQuery("SELECT c FROM Contact c WHERE c.id IN (:idList)", Contact.class);
+			query.setParameter("idList", ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject()));
+			final List<Contact> contacts = query.getResultList();
+
+			for (final Contact contact : contacts) {
+				namesBuilder.append(" - ")
+					.append(contact.getFullName())
+					.append("\n");
+				idsBuilder.append(contact.getId()).append(',');
+			}
+
+			if (namesBuilder.length() > 0) {
+				namesBuilder.setLength(namesBuilder.length() - 1);
+				idsBuilder.setLength(idsBuilder.length() - 1);
+			}
+		}
+		
+		values.add(new ExportStringCell(namesBuilder.toString()));
+		values.add(new ExportStringCell(idsBuilder.toString()));
+	}
+	
 	// -------------------------------------------------------------------------
 	// VALUE RESULTS
 	// -------------------------------------------------------------------------
@@ -513,6 +572,7 @@ public final class ExporterUtil {
 		return new ValueLabel(element.getLabel(), value, lines);
 	}
 
+	@Deprecated
 	public static ValueLabel getContactListPair(final FlexibleElement element, final ValueResult valueResult, final EntityManager entityManager) {
 
 		String value = null;
@@ -543,6 +603,7 @@ public final class ExporterUtil {
 	}
 
 	public static ValueLabel getChoicePair(final FlexibleElement element, final ValueResult valueResult) {
+		
 		String value = null;
 		int lines = 1;
 
