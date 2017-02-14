@@ -139,22 +139,19 @@ public class OdsImporter extends Importer {
 		if (reference != null && !reference.isEmpty()) {
 			switch (scheme.getImportType()) {
 			case ROW:
-				Integer firstRow = scheme.getFirstRow();
-				if (firstRow != null && firstRow >= 0 && scheme.getSheetName() != null) {
-					sheet = doc.getTableByName(sheetName);
-					if (sheet != null) {
-						Row row = sheet.getRowByIndex(lineNumber);
-						if (row != null) {
-							Integer collNumber;
-							try {
-								collNumber = getColumnFromReference(reference);
-							} catch (NumberFormatException e) {
-								return null;
-							}
-							varCell = row.getCellByIndex(collNumber);
-							if (varCell != null) {
-								cellValue = getCellValue(varCell);
-							}
+				sheet = doc.getTableByName(sheetName);
+				if (sheet != null) {
+					Row row = sheet.getRowByIndex(lineNumber);
+					if (row != null) {
+						Integer collNumber;
+						try {
+							collNumber = getColumnFromReference(reference);
+						} catch (NumberFormatException e) {
+							return null;
+						}
+						varCell = row.getCellByIndex(collNumber);
+						if (varCell != null) {
+							cellValue = getCellValue(varCell);
 						}
 					}
 				}
