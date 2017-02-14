@@ -123,7 +123,7 @@ public class GlobalExportIterativeGroupColumn extends GlobalExportDataColumn {
 						/* OTHERS */
 						else {
 							final ValueLabel pair = ExporterUtil.getPair(iterationValueResult, element, constraint, entityManager, i18nTranslator, language, null);
-							values.add(new ExportStringCell(pair != null ? pair.toValueString(): null));
+							columns.add(new ExportStringCell(pair != null ? pair.toValueString(): null));
 						}
 					} catch (Exception e) {
 						LOGGER.warn("No value found for the element #" + element.getId() + " (" + element.getLabel() + ")", e);
