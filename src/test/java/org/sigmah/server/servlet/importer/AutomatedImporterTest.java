@@ -229,7 +229,7 @@ public class AutomatedImporterTest extends AbstractDaoTest {
 		final ImportationScheme scheme = new ImportationScheme();
 		scheme.setName("Test scheme");
 		scheme.setFileFormat(ImportationSchemeFileFormat.CSV);
-		scheme.setFirstRow(1);
+		scheme.setFirstRow(2);
 		scheme.setImportType(ImportationSchemeImportType.ROW);
 		scheme.setVariables(variables);
 		
