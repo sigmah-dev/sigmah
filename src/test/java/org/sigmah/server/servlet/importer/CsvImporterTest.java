@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 import org.junit.After;
 import org.junit.Assert;
@@ -104,6 +105,7 @@ public class CsvImporterTest extends AbstractDaoTest {
 	
 	@Before
 	public void before() {
+		cleanEntities();
 		persistEntities();
 	}
 	
@@ -241,7 +243,9 @@ public class CsvImporterTest extends AbstractDaoTest {
 		final ImportationScheme scheme = new ImportationScheme();
 		scheme.setName("Test scheme");
 		scheme.setFileFormat(ImportationSchemeFileFormat.CSV);
-		scheme.setFirstRow(1);
+		// 'FirstRow' is one-based and we want to skip the first line (= header)
+		// so we start at line 2.
+		scheme.setFirstRow(2);
 		scheme.setImportType(ImportationSchemeImportType.ROW);
 		scheme.setVariables(variables);
 		
@@ -352,6 +356,26 @@ public class CsvImporterTest extends AbstractDaoTest {
 			user,
 			country
 		};
+	}
+	
+	private void cleanEntities() {
+		final EntityManager em = em();
+		final EntityTransaction transaction = em.getTransaction();
+		transaction.begin();
+		
+		em.createQuery("DELETE FROM Value v WHERE EXISTS (select 1 from User u where u.name = 'TestLastName' and u.id = v.lastModificationUser.id)").executeUpdate();
+		em.createQuery("DELETE FROM Project p WHERE EXISTS (select 1 from User u where u.name = 'TestLastName' and u.id = p.owner.id)").executeUpdate();
+		em.createQuery("DELETE FROM ProjectBanner pb WHERE EXISTS (select 1 from ProjectModel pm where pm.name = 'TestModel' AND pm.id = pb.projectModel.id)").executeUpdate();
+		em.createQuery("DELETE FROM ProjectDetails pd WHERE EXISTS (select 1 from ProjectModel pm where pm.name = 'TestModel' AND pm.id = pd.projectModel.id)").executeUpdate();
+		em.createQuery("DELETE FROM VariableFlexibleElement vfe WHERE EXISTS (select 1 from ImportationSchemeModel ism WHERE ism.projectModel.name = 'TestModel' and ism.id = vfe.importationSchemeModel.id)").executeUpdate();
+		em.createQuery("DELETE FROM ImportationSchemeModel ism where EXISTS (select 1 from ProjectModel pm where pm.name = 'TestModel' and pm.id = ism.projectModel.id)").executeUpdate();
+		em.createQuery("DELETE FROM Variable v where EXISTS (select 1 from ImportationScheme i where i.name = 'Test scheme' and i.id = v.importationScheme.id)").executeUpdate();
+		em.createQuery("DELETE FROM ImportationScheme i where i.name = 'Test scheme'").executeUpdate();
+		em.createQuery("DELETE FROM ProjectModel pm where pm.name = 'TestModel'").executeUpdate();
+		em.createQuery("DELETE FROM User u where u.name = 'TestLastName'").executeUpdate();
+		em.createQuery("DELETE FROM Country c where c.name = 'Testry'").executeUpdate();
+		
+		transaction.commit();
 	}
 	
 	private void removeEntities() {

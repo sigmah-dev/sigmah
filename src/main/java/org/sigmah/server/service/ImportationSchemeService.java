@@ -111,8 +111,9 @@ public class ImportationSchemeService extends AbstractEntityService<ImportationS
 		if (changes.containsKey(AdminUtil.PROP_SCH_FIRST_ROW)) {
 			final Integer schFirstRow = (Integer) changes.get(AdminUtil.PROP_SCH_FIRST_ROW);
 			importationScheme.setFirstRow(schFirstRow);
-		} else {
-			importationScheme.setFirstRow(0);
+		}
+		else if (importationScheme.getFirstRow() == null) {
+			importationScheme.setFirstRow(1);
 		}
 
 		if (changes.containsKey(AdminUtil.PROP_SCH_SHEET_NAME)) {

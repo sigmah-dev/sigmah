@@ -70,7 +70,7 @@ public class CsvImporter extends Importer {
 		
 		if (cursor == null || cursor == lines.size()) {
 			nextSchemeModel();
-			cursor = scheme.getFirstRow();
+			cursor = Math.max(scheme.getFirstRow() - 1, 0);
 		}
 		
 		if (cursor < lines.size()) {

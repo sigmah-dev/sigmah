@@ -80,11 +80,11 @@ public class ExcelImporter extends Importer {
 		
 		switch (scheme.getImportType()) {
 		case ROW:
-			if (rowCursor == null || (sheet != null && rowCursor == sheet.getLastRowNum())) {
+			if (rowCursor == null || (sheet != null && rowCursor > sheet.getLastRowNum())) {
 				nextSchemeModel();
 				
 				if (scheme.getFirstRow() != null) {
-					rowCursor = scheme.getFirstRow();
+					rowCursor = Math.max(scheme.getFirstRow() - 1, 0);
 				} else {
 					rowCursor = 0;
 				}
@@ -96,7 +96,7 @@ public class ExcelImporter extends Importer {
 					}
 				}
 			}
-			if (sheet != null && rowCursor < sheet.getLastRowNum()) {
+			if (sheet != null && rowCursor <= sheet.getLastRowNum()) {
 				details = getCorrespondancePerSheetOrLine(rowCursor, sheet.getSheetName());
 				rowCursor++;
 			}
@@ -235,7 +235,7 @@ public class ExcelImporter extends Importer {
 	private boolean hasNextRow() {
 		switch (scheme.getImportType()) {
 		case ROW:
-			return rowCursor == null || (sheet != null && rowCursor < sheet.getLastRowNum());
+			return rowCursor == null || (sheet != null && rowCursor <= sheet.getLastRowNum());
 		case SEVERAL:
 			return sheetCursor == null || sheetCursor < workbook.getNumberOfSheets();
 		case UNIQUE:
