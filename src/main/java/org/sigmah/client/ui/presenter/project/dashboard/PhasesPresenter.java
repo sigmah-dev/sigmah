@@ -821,7 +821,8 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 							// Stores the change to be saved later.
 							valueChanges.add(event);
 
-							if (!getCurrentDisplayedPhase().isEnded()) {
+							if (!getCurrentDisplayedPhase().isEnded()
+                                    || ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
 
 								// Enables the save action.
 								refreshSaveButtonState();
