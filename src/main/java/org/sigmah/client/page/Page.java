@@ -316,6 +316,8 @@ public enum Page implements IsSerializable {
 				return I18N.CONSTANTS.adminboard();
 			case ADMIN_PARAMETERS:
 				return I18N.CONSTANTS.adminboard();
+			case ADMIN_IMPORTATION_SCHEME:
+				return I18N.CONSTANTS.adminboard();
 			case CREATE_PROJECT:
 				return I18N.CONSTANTS.createProject();
 			default:
