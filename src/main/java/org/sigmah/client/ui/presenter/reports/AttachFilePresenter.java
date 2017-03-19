@@ -207,7 +207,7 @@ public class AttachFilePresenter extends AbstractPagePresenter<AttachFilePresent
 		// --
 		// Page title.
 		// --
-
+ 
 		setPageTitle(I18N.CONSTANTS.flexibleElementFilesListAddDocumentDetails());
 
 		// --
@@ -364,8 +364,8 @@ public class AttachFilePresenter extends AbstractPagePresenter<AttachFilePresent
 		reportReference.setName(view.getFileUploadButtonField().getValue());
 		reportReference.setLastEditDate(new Date());
 		reportReference.setEditorName(auth().getUserShortName());
-		reportReference.setFlexibleElementLabel(view.getElementField().getTitle());
-		reportReference.setPhaseName(view.getPhaseField().getTitle());
+                reportReference.setFlexibleElementLabel((String)view.getElementField().getValue());
+		reportReference.setPhaseName((String)view.getPhaseField().getValue());
 
 		N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.flexibleElementFilesListUploadFileConfirm());
 
