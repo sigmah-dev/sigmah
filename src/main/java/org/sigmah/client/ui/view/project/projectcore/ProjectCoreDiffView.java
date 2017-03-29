@@ -50,7 +50,6 @@ import java.util.Arrays;
 /**
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
-@Singleton
 public class ProjectCoreDiffView extends AbstractPopupView<PopupWidget> implements ProjectCoreDiffPresenter.View {
 
 	private ContentPanel mainPanel;

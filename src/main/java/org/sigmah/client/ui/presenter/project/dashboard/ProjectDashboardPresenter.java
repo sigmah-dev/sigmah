@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.UpdateEvent;
@@ -89,13 +90,13 @@ import org.sigmah.shared.util.ProjectUtils;
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
+
 public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectDashboardPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ProjectDashboardView.class)
+	
 	public static interface View extends AbstractProjectPresenter.View {
 
 		/**
@@ -205,8 +206,8 @@ public class ProjectDashboardPresenter extends AbstractProjectPresenter<ProjectD
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	public ProjectDashboardPresenter(final View view, final Injector injector) {
+	
+	public ProjectDashboardPresenter(final View view, final ClientFactory injector) {
 		super(view, injector);
 	}
 

@@ -33,7 +33,6 @@ import com.google.inject.Singleton;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class PersonalCalendarAsyncDAO extends AbstractUserDatabaseAsyncDAO<Calendar, PersonalCalendarJS> {
 
 	/**

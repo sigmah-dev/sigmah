@@ -72,7 +72,6 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class OrgUnitsAdminView extends AbstractView implements OrgUnitsAdminPresenter.View {
 
 	// CSS style names.

@@ -90,19 +90,19 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.computation.ComputationTriggerManager;
 import org.sigmah.client.event.UpdateEvent;
 
 /**
  * OrgUnit Details Presenter.
  */
-@Singleton
 public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDetailsPresenter.View> implements IterableGroupPanel.Delegate {
 
 	/**
 	 * Presenter's view interface.
 	 */
-	@ImplementedBy(OrgUnitDetailsView.class)
 	public static interface View extends AbstractOrgUnitPresenter.View {
 
 		ContentPanel getContentOrgUnitDetailsPanel();
@@ -128,12 +128,12 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
     /**
 	 * Listen to the values of flexible elements to update computated values.
 	 */
-	@Inject
 	private ComputationTriggerManager computationTriggerManager;
 
-	@Inject
-	protected OrgUnitDetailsPresenter(View view, Injector injector) {
-		super(view, injector);
+	
+	public OrgUnitDetailsPresenter(View view, ClientFactory factory) {
+		super(view, factory);
+		computationTriggerManager = factory.getComputationTriggerManager();
 	}
 
 	/**
@@ -173,7 +173,7 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 			public void handleEvent(final ButtonEvent be) {
 
 				final ServletUrlBuilder urlBuilder =
-						new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_ORG_UNIT);
+						new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_ORG_UNIT);
 
 				urlBuilder.addParameter(RequestParameter.ID, getOrgUnit().getId());
 
@@ -391,11 +391,11 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 
 						// Configures the flexible element for the current application state before generating its component.
 						elementDTO.setService(dispatch);
-						elementDTO.setAuthenticationProvider(injector.getAuthenticationProvider());
+						elementDTO.setAuthenticationProvider(factory.getAuthenticationProvider());
 						elementDTO.setEventBus(eventBus);
-						elementDTO.setCache(injector.getClientCache());
+						elementDTO.setCache(factory.getClientCache());
 					elementDTO.setCurrentContainerDTO(orgUnit);
-						elementDTO.setTransfertManager(injector.getTransfertManager());
+						elementDTO.setTransfertManager(factory.getTransfertManager());
 						elementDTO.assignValue(valueResult);
 					elementDTO.setTabPanel(tabPanel);
 

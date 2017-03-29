@@ -39,12 +39,16 @@ import org.sigmah.shared.dto.report.ProjectReportDTO;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class GetProjectReportAsyncHandler implements AsyncCommandHandler<GetProjectReport, ProjectReportDTO>, DispatchListener<GetProjectReport, ProjectReportDTO> {
 
-	@Inject
 	private ProjectReportAsyncDAO projectReportAsyncDAO;
 	
+	
+	
+	public GetProjectReportAsyncHandler(ProjectReportAsyncDAO projectReportAsyncDAO) {
+		this.projectReportAsyncDAO = projectReportAsyncDAO;
+	}
+
 	@Override
 	public void execute(GetProjectReport command, OfflineExecutionContext executionContext, AsyncCallback<ProjectReportDTO> callback) {
 		projectReportAsyncDAO.get(command.getReportId(), callback);

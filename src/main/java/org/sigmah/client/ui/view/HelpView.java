@@ -37,7 +37,7 @@ import com.google.inject.Singleton;
  * 
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
+
 public class HelpView extends AbstractPopupView<PopupWidget> implements HelpPresenter.View {
 
 	// CSS.

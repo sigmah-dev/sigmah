@@ -49,7 +49,7 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
+
 public class ProjectDetailsView extends AbstractView implements ProjectDetailsPresenter.View {
 
 	private ContentPanel mainPanel;

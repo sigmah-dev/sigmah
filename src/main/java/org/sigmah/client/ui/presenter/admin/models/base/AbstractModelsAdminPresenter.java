@@ -33,6 +33,7 @@ import java.util.Set;
 
 import javax.validation.constraints.NotNull;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.event.handler.UpdateHandler;
@@ -232,9 +233,8 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 	 *          The tab presenters.
 	 */
 	@SafeVarargs
-	@Inject
-	protected AbstractModelsAdminPresenter(final V view, final Injector injector, final IsModelTabPresenter<E, ?>... tabPresenters) {
-		super(view, injector);
+	public AbstractModelsAdminPresenter(final V view, final ClientFactory factory, final IsModelTabPresenter<E, ?>... tabPresenters) {
+		super(view, factory);
 		this.tabPresenters = tabPresenters;
 	}
 
@@ -846,11 +846,11 @@ public abstract class AbstractModelsAdminPresenter<E extends IsModel, V extends 
 	private void onExportAction(final E model) {
 		final ServletUrlBuilder urlBuilder;
 		if (model instanceof ProjectModelDTO) {
-			urlBuilder = new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_MODEL_PROJECT);
+			urlBuilder = new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_MODEL_PROJECT);
 		} else if (model instanceof OrgUnitModelDTO) {
-			urlBuilder = new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_MODEL_ORGUNIT);
+			urlBuilder = new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_MODEL_ORGUNIT);
 		} else if (model instanceof ContactModelDTO) {
-			urlBuilder = new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_MODEL_CONTACT);
+			urlBuilder = new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_MODEL_CONTACT);
 		} else {
 			throw new IllegalStateException("Model type not supported : " + model.getClass());
 		}

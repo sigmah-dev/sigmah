@@ -42,12 +42,10 @@ import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
  * JavaScript implementation of {@link org.sigmah.server.handler.GetOrgUnitsHandler}.
  * Used when the user is offline.
  */
-@Singleton
 public class GetOrgUnitsAsyncHandler implements AsyncCommandHandler<GetOrgUnits, ListResult<OrgUnitDTO>>, DispatchListener<GetOrgUnits, ListResult<OrgUnitDTO>> {
 
 	private final OrgUnitAsyncDAO orgUnitAsyncDAO;
 
-	@Inject
 	public GetOrgUnitsAsyncHandler(OrgUnitAsyncDAO orgUnitAsyncDAO) {
 		this.orgUnitAsyncDAO = orgUnitAsyncDAO;
 	}

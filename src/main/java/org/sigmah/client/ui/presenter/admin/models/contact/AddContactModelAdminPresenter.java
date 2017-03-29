@@ -32,6 +32,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
@@ -52,10 +53,10 @@ import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
-@Singleton
+
 public class AddContactModelAdminPresenter extends AbstractPagePresenter<AddContactModelAdminPresenter.View> implements HasForm {
 
-	@ImplementedBy(AddContactModelAdminView.class)
+
 	public interface View extends ViewPopupInterface {
 
 		FormPanel getForm();
@@ -68,9 +69,9 @@ public class AddContactModelAdminPresenter extends AbstractPagePresenter<AddCont
 
 	}
 
-	@Inject
-	protected AddContactModelAdminPresenter(final View view, final Injector injector) {
-		super(view, injector);
+
+	public AddContactModelAdminPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

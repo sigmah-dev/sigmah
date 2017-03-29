@@ -44,6 +44,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.HashMap;
 import java.util.List;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.UpdateEvent;
@@ -85,13 +87,11 @@ import org.sigmah.shared.util.ProfileUtils;
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class ProjectIndicatorManagementPresenter extends AbstractProjectPresenter<ProjectIndicatorManagementPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ProjectIndicatorManagementView.class)
 	public static interface View extends AbstractProjectPresenter.View, HasTreeGrid<IndicatorElement> {
 		SplitButton getSaveButton();
 		MenuItem getSaveItem();
@@ -118,12 +118,11 @@ public class ProjectIndicatorManagementPresenter extends AbstractProjectPresente
 	 * 
 	 * @param view
 	 *          Presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected client injector.
 	 */
-	@Inject
-	public ProjectIndicatorManagementPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public ProjectIndicatorManagementPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
@@ -356,7 +355,7 @@ public class ProjectIndicatorManagementPresenter extends AbstractProjectPresente
 	
 	private void onExport() {
 		final ServletUrlBuilder urlBuilder =
-				new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), ServletConstants.Servlet.EXPORT, ServletConstants.ServletMethod.EXPORT_PROJECT_INDICATORS);
+				new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), ServletConstants.Servlet.EXPORT, ServletConstants.ServletMethod.EXPORT_PROJECT_INDICATORS);
 		
 		urlBuilder.addParameter(RequestParameter.ID, getProject().getId());
 

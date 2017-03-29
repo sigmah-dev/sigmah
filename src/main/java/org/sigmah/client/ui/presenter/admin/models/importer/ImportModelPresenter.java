@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.admin.models.importer;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -51,14 +53,12 @@ import com.google.inject.Singleton;
 /**
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)v2.0
  */
-@Singleton
 public class ImportModelPresenter extends AbstractPagePresenter<ImportModelPresenter.View> {
 
 	private ServletMethod method;
 	private String message;
 	private String type;
 
-	@ImplementedBy(ImportModelView.class)
 	public static interface View extends ViewPopupInterface {
 
 		Button getImportButton();
@@ -75,9 +75,8 @@ public class ImportModelPresenter extends AbstractPagePresenter<ImportModelPrese
 
 	}
 
-	@Inject
-	protected ImportModelPresenter(View view, Injector injector) {
-		super(view, injector);
+	public ImportModelPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	@Override
@@ -255,7 +254,7 @@ public class ImportModelPresenter extends AbstractPagePresenter<ImportModelPrese
 
 		if (view.getForm().isValid()) {
 
-			ServletUrlBuilder url = new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.IMPORT, method);
+			ServletUrlBuilder url = new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), Servlet.IMPORT, method);
 			view.getForm().setAction(url.toString());
 			view.getForm().submit();
 

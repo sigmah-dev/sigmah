@@ -32,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
@@ -89,13 +90,11 @@ import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class LinkedProjectPresenter extends AbstractPagePresenter<LinkedProjectPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(LinkedProjectView.class)
 	public static interface View extends ViewInterface {
 
 		/**
@@ -204,8 +203,7 @@ public class LinkedProjectPresenter extends AbstractPagePresenter<LinkedProjectP
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	public LinkedProjectPresenter(final View view, final Injector injector) {
+	public LinkedProjectPresenter(final View view, final ClientFactory injector) {
 		super(view, injector);
 	}
 

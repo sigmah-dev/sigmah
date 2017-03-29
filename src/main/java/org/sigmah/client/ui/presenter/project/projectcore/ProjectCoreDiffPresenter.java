@@ -26,6 +26,7 @@ package org.sigmah.client.ui.presenter.project.projectcore;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
@@ -62,7 +63,6 @@ import org.sigmah.shared.command.result.Result;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreDiffPresenter.View> {
 	
 	private static final int LEFT = 0;
@@ -72,7 +72,6 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 
 	private boolean show = true;
 
-	@ImplementedBy(ProjectCoreDiffView.class)
 	public static interface View extends ViewPopupInterface {
 
 		ContentPanel getMainPanel();
@@ -91,9 +90,8 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 
 	}
 
-	@Inject
-	protected ProjectCoreDiffPresenter(View view, Injector injector) {
-		super(view, injector);
+	public ProjectCoreDiffPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	@Override
@@ -164,7 +162,7 @@ public class ProjectCoreDiffPresenter extends AbstractPagePresenter<ProjectCoreD
 		for (FlexibleElementDTO field : project.getProjectModel().getAllElements()) {
 			if (field.getAmendable()) {
 				// BUGFIX #728: Using the cache to resolve users and countries.
-				field.setCache(injector.getClientCache());
+				field.setCache(factory.getClientCache());
 				
 				DiffEntry entry = new DiffEntry();
 				entry.setField(field);

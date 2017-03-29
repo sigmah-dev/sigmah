@@ -42,12 +42,11 @@ import com.google.inject.Singleton;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class OrganizationAsyncDAO extends AbstractUserDatabaseAsyncDAO<OrganizationDTO, OrganizationJS> {
 	
 	private final OrgUnitAsyncDAO orgUnitDAO;
 
-	@Inject
+	
 	public OrganizationAsyncDAO(OrgUnitAsyncDAO orgUnitDAO) {
 		this.orgUnitDAO = orgUnitDAO;
 	}

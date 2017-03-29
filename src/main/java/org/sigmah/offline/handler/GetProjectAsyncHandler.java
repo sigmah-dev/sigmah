@@ -40,12 +40,10 @@ import org.sigmah.shared.dto.ProjectDTO;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class GetProjectAsyncHandler implements AsyncCommandHandler<GetProject, ProjectDTO>, DispatchListener<GetProject, ProjectDTO> {
 
 	private final ProjectAsyncDAO projectAsyncDAO;
 
-	@Inject
 	public GetProjectAsyncHandler(ProjectAsyncDAO projectAsyncDAO) {
 		this.projectAsyncDAO = projectAsyncDAO;
 	}

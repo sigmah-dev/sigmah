@@ -52,6 +52,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.computation.ComputationTriggerManager;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.DispatchQueue;
@@ -115,7 +116,7 @@ import org.sigmah.shared.servlet.ServletUrlBuilder;
 import org.sigmah.shared.util.ProfileUtils;
 
 public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPresenter.View> implements ContactPresenter.ContactSubPresenter<ContactDetailsPresenter.View>, IterableGroupPanel.Delegate {
-  @ImplementedBy(ContactDetailsView.class)
+
   public interface View extends ViewInterface {
     LayoutContainer getDetailsContainer();
 
@@ -148,12 +149,11 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
 
   private FormPanel formPanel;
 
-  @Inject
-  public ContactDetailsPresenter(View view, Injector injector, ComputationTriggerManager computationTriggerManager, ImageProvider imageProvider) {
-    super(view, injector);
+  public ContactDetailsPresenter(View view, ClientFactory factory) {
+    super(view, factory);
 
-    this.computationTriggerManager = computationTriggerManager;
-    this.imageProvider = imageProvider;
+    this.computationTriggerManager = factory.getComputationTriggerManager();
+    this.imageProvider = factory.getImageProvider();
   }
 
   @Override
@@ -329,7 +329,7 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
                   @Override
                   protected void onCommandSuccess(ContactDTO targetedContactDTO) {
                     dedupeContactDialog.hide();
-                    final PageRequest currentRequest = injector.getPageManager().getCurrentPageRequest(false);
+                    final PageRequest currentRequest = factory.getPageManager().getCurrentPageRequest(false);
                     eventBus.navigateRequest(Page.CONTACT_DASHBOARD.requestWith(RequestParameter.ID, targetedContactId));
                     eventBus.fireEvent(new UpdateEvent(UpdateEvent.CONTACT_DELETE, currentRequest));
                   }
@@ -483,11 +483,11 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
 
           // Configures the flexible element for the current application state before generating its component.
           elementDTO.setService(dispatch);
-          elementDTO.setAuthenticationProvider(injector.getAuthenticationProvider());
+          elementDTO.setAuthenticationProvider(factory.getAuthenticationProvider());
           elementDTO.setEventBus(eventBus);
-          elementDTO.setCache(injector.getClientCache());
+          elementDTO.setCache(factory.getClientCache());
           elementDTO.setCurrentContainerDTO(contact);
-          elementDTO.setTransfertManager(injector.getTransfertManager());
+          elementDTO.setTransfertManager(factory.getTransfertManager());
           elementDTO.assignValue(valueResult);
           elementDTO.setImageProvider(imageProvider);
           if (elementDTO instanceof DefaultContactFlexibleElementDTO) {
@@ -771,7 +771,7 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
           @Override
           public void onCommandSuccess(final VoidResult result) {
 
-            final PageRequest currentRequest = injector.getPageManager().getCurrentPageRequest(false);
+            final PageRequest currentRequest = factory.getPageManager().getCurrentPageRequest(false);
             eventBus.fireEvent(new UpdateEvent(UpdateEvent.CONTACT_DELETE, currentRequest));
 
             N10N.infoNotif(I18N.CONSTANTS.deleteContactNotificationTitle(), I18N.CONSTANTS.deleteContactNotificationContent());
@@ -805,7 +805,7 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
       public void onExportContact(final boolean characteristicsField, final boolean allRelationsField, final boolean frameworkRelationsField, final boolean relationsByElementField) {
 
         final ServletUrlBuilder urlBuilder =
-            new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_CONTACT);
+            new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_CONTACT);
 
         urlBuilder.addParameter(RequestParameter.ID, contact.getId());
         urlBuilder.addParameter(RequestParameter.WITH_CHARACTERISTICS, characteristicsField);

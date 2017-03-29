@@ -31,6 +31,8 @@ import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.computation.ClientValueResolver;
 import org.sigmah.client.dispatch.DispatchListener;
 import org.sigmah.offline.dao.ComputationAsyncDAO;
@@ -77,33 +79,40 @@ import org.sigmah.shared.dto.report.RichTextElementDTO;
  */
 public class UpdateEntityAsyncHandler implements AsyncCommandHandler<UpdateEntity, VoidResult>, DispatchListener<UpdateEntity, VoidResult> {
 
-	@Inject
 	private UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
-	
-	@Inject
+
 	private ProjectReportAsyncDAO projectReportAsyncDAO;
 	
-	@Inject
 	private PersonalCalendarAsyncDAO personalCalendarAsyncDAO;
 	
-	@Inject
 	private ReminderAsyncDAO reminderAsyncDAO;
 	
-	@Inject
 	private MonitoredPointAsyncDAO monitoredPointAsyncDAO;
 	
-	@Inject
+
 	private ProjectAsyncDAO projectAsyncDAO;
 	
-	@Inject
 	private ComputationAsyncDAO computationAsyncDAO;
 	
-	@Inject
+	
 	private ClientValueResolver valueResolver;
 	
-	@Inject
 	private ValueAsyncDAO valueAsyncDAO;
 	
+	
+	
+	public UpdateEntityAsyncHandler(ClientFactory factory) {
+		updateDiaryAsyncDAO = factory.getUpdateDiaryAsyncDAO();
+		projectAsyncDAO = factory.getProjectAsyncDAO();
+		personalCalendarAsyncDAO = factory.getPersonalCalendarAsyncDAO();
+		reminderAsyncDAO = factory.getReminderAsyncDAO();
+		monitoredPointAsyncDAO = factory.getMonitoredPointAsyncDAO();
+		projectAsyncDAO = factory.getProjectAsyncDAO();
+		computationAsyncDAO = factory.getComputationAsyncDAO();
+		valueResolver = factory.getClientValueResolver();
+		valueAsyncDAO = factory.getValueAsyncDAO();
+	}
+
 	@Override
 	public void execute(UpdateEntity command, OfflineExecutionContext executionContext, AsyncCallback<VoidResult> callback) {
 		executeCommand(command, executionContext.getAuthentication(), callback);

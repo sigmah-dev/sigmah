@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -45,13 +47,13 @@ import com.google.inject.Singleton;
  * 
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
+
 public class HelpPresenter extends AbstractPagePresenter<HelpPresenter.View> {
 
 	/**
 	 * View interface.
 	 */
-	@ImplementedBy(HelpView.class)
+
 	public static interface View extends ViewInterface {
 
 		void setHelpURL(String url);
@@ -61,9 +63,9 @@ public class HelpPresenter extends AbstractPagePresenter<HelpPresenter.View> {
 	private String url;
 	private String anchor;
 
-	@Inject
-	public HelpPresenter(final View view, final Injector injector) {
-		super(view, injector);
+
+	public HelpPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
@@ -81,7 +83,7 @@ public class HelpPresenter extends AbstractPagePresenter<HelpPresenter.View> {
 	public void onPageRequest(final PageRequest request) {
 
 		// Retrieves the anchor.
-		final Page page = injector.getPageManager().getCurrentPage(false);
+		final Page page = factory.getPageManager().getCurrentPage(false);
         //removal of all "-"/"_" because LibreOffice writer2xhtml plugin unable to 
         //      keep them in anchors of user guide html export
         anchor = page.toString().replace("-", "").replace("_", ""); 

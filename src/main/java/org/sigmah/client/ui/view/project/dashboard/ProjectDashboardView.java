@@ -25,6 +25,7 @@ package org.sigmah.client.ui.view.project.dashboard;
 
 import java.util.Date;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.project.dashboard.PhasesPresenter;
 import org.sigmah.client.ui.presenter.project.dashboard.ProjectDashboardPresenter;
@@ -72,14 +73,13 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
+
 public class ProjectDashboardView extends AbstractView implements ProjectDashboardPresenter.View {
 
 	// CSS style names.
 	private static final String STYLE_TOOLBAR_TITLE = "toolbar-title";
 
-	@Inject
-	private Provider<PhasesPresenter> phasesPresenterProvider;
+	ClientFactory factory;
 	private PhasesPresenter phasesPresenter;
 
 	private Grid<ReminderDTO> remindersGrid;
@@ -108,6 +108,12 @@ public class ProjectDashboardView extends AbstractView implements ProjectDashboa
 	 * Specific presenter's handlers.
 	 */
 	private PresenterHandler handler;
+	
+	
+	public ProjectDashboardView(ClientFactory factory){
+		this.factory = factory;
+		
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -653,7 +659,7 @@ public class ProjectDashboardView extends AbstractView implements ProjectDashboa
 	 */
 	private Component createProjectDashboardPanel() {
 
-		phasesPresenter = phasesPresenterProvider.get();
+		phasesPresenter = factory.getPhasesPresenter();
 		phasesPresenter.initialize();
 
 		return (Component) phasesPresenter.getView().asWidget();

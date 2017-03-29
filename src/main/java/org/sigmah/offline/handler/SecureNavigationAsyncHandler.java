@@ -57,14 +57,17 @@ import org.sigmah.shared.dto.referential.PrivacyGroupPermissionEnum;
  *
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class SecureNavigationAsyncHandler implements AsyncCommandHandler<SecureNavigationCommand, SecureNavigationResult>, DispatchListener<SecureNavigationCommand, SecureNavigationResult> {
 
-	@Inject
 	private AuthenticationAsyncDAO authenticationAsyncDAO;
 
-	@Inject
 	private PageAccessAsyncDAO pageAccessAsyncDAO;
+
+	public SecureNavigationAsyncHandler(AuthenticationAsyncDAO authenticationAsyncDAO,
+			PageAccessAsyncDAO pageAccessAsyncDAO) {
+		this.authenticationAsyncDAO = authenticationAsyncDAO;
+		this.pageAccessAsyncDAO = pageAccessAsyncDAO;
+	}
 
 	@Override
 	public void execute(SecureNavigationCommand command, OfflineExecutionContext executionContext, AsyncCallback<SecureNavigationResult> callback) {

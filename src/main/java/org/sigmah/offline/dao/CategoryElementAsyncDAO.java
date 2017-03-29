@@ -35,7 +35,6 @@ import com.google.inject.Singleton;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class CategoryElementAsyncDAO extends AbstractUserDatabaseAsyncDAO<CategoryElementDTO, CategoryElementJS> {
 
 	/**

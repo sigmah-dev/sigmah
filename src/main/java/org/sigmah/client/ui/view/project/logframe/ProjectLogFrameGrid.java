@@ -203,7 +203,7 @@ public class ProjectLogFrameGrid implements IsWidget {
 	 */
 	private FlexTableView prerequisitesView;
 
-	@Inject
+	
 	private EventBus eventBus;
 	
 	private int databaseId;
@@ -211,11 +211,12 @@ public class ProjectLogFrameGrid implements IsWidget {
 	/**
 	 * Builds an empty grid.
 	 */
-	public ProjectLogFrameGrid() {
+	public ProjectLogFrameGrid(EventBus eventBus) {
 		listeners = new ArrayList<LogFrameGridListener>();
 		table = new FlexTable();
 		formWindow = new FormWindow();
-	}
+		this.eventBus = eventBus;
+	}  
 
 	/**
 	 * Registers a listener.

@@ -67,7 +67,6 @@ import com.google.inject.Singleton;
  * 
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
 public class CreateProjectView extends AbstractPopupView<PopupWidget> implements CreateProjectPresenter.View {
 
 	// CSS.

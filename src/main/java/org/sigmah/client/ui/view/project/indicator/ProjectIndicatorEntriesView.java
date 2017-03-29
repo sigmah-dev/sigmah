@@ -34,11 +34,16 @@ import org.sigmah.client.ui.view.pivot.ProjectPivotContainer;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
+
 public class ProjectIndicatorEntriesView extends AbstractView implements ProjectIndicatorEntriesPresenter.View {
 
-	@Inject
+	
 	private ProjectPivotContainer projectPivotContainer;
+	
+	
+	public ProjectIndicatorEntriesView(ProjectPivotContainer projectPivotContainer) {
+		this.projectPivotContainer = projectPivotContainer;
+	}
 	
 	/**
 	 * {@inheritDoc}

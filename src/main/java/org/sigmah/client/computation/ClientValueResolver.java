@@ -62,8 +62,12 @@ import org.sigmah.shared.util.Collections;
  */
 public class ClientValueResolver implements ValueResolver {
 
-	@Inject
+	
 	private DispatchAsync dispatch;
+	
+	public ClientValueResolver(DispatchAsync dispatch) {
+		this.dispatch = dispatch;
+	}
 
 	/**
 	 * {@inheritDoc}

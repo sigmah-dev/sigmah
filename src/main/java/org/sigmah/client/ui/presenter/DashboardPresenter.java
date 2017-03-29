@@ -28,6 +28,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.i18n.I18N;
@@ -92,7 +93,7 @@ import org.sigmah.shared.dto.profile.ExecutionDTO;
  * @author Tom Miette (tmiette@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
+
 public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter.View> {
 
     public static interface ReminderOrMonitoredPointHandler{
@@ -102,7 +103,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 	/**
 	 * View interface.
 	 */
-	@ImplementedBy(DashboardView.class)
+
 	public static interface View extends ViewInterface {
 
         void setReminderOrMonitoredPointHandler(ReminderOrMonitoredPointHandler handler);
@@ -203,12 +204,12 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 	 * 
 	 * @param view
 	 *          Presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected client injector.
 	 */
-	@Inject
-	public DashboardPresenter(final View view, final Injector injector) {
-		super(view, injector);
+
+	public DashboardPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
@@ -299,7 +300,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		
 		// Ask the user to synchronize its favorite projects.
 		// BUGFIX #701: only showing this message if the user is online.
-		final boolean userIsOnline = injector.getApplicationStateManager().getState() == ApplicationState.ONLINE;
+		final boolean userIsOnline = factory.getApplicationStateManager().getState() == ApplicationState.ONLINE;
 		final boolean userIsDifferent = auth().getUserId() != null && !auth().getUserId().equals(lastUserId);
 		final boolean userHasSynchronized = UpdateDates.getDatabaseUpdateDate(auth()) != null;
 		if(userIsOnline && userIsDifferent && !userHasSynchronized) {
@@ -398,7 +399,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 	 * Initializes menu buttons based on authenticated user profile permissions.
 	 */
 	private void initializeMenuButtons() {
-		initializeMenuButtons(injector.getApplicationStateManager().getState());
+		initializeMenuButtons(factory.getApplicationStateManager().getState());
 	}
 	
 	private void initializeMenuButtons(ApplicationState applicationState) {

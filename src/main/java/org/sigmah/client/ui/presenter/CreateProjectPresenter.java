@@ -28,6 +28,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
@@ -84,13 +85,11 @@ import com.google.inject.Singleton;
  * 
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
 public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectPresenter.View> {
 
 	/**
 	 * View interface.
 	 */
-	@ImplementedBy(CreateProjectView.class)
 	public static interface View extends ViewInterface {
 
 		void setTitle(String title);
@@ -201,9 +200,8 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 	 */
 	private ProjectDTO baseProject;
 
-	@Inject
-	public CreateProjectPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public CreateProjectPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
@@ -258,7 +256,7 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 
 				final ProjectModelType type;
 				if (se != null && se.getSelectedItem() != null) {
-					type = se.getSelectedItem().getVisibility(injector.getAuthenticationProvider().get().getOrganizationId());
+					type = se.getSelectedItem().getVisibility(factory.getAuthenticationProvider().get().getOrganizationId());
 				} else {
 					type = null;
 				}

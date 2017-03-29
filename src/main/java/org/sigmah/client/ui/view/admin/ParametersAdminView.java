@@ -71,7 +71,6 @@ import org.sigmah.shared.dto.password.ExpirationPolicy;
  * @author Maxime Lombard (mlombard@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class ParametersAdminView extends AbstractView implements ParametersAdminPresenter.View {
 
 	// CSS styles.

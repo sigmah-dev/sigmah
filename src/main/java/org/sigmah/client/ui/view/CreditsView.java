@@ -42,7 +42,7 @@ import com.google.inject.Singleton;
  * 
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
+
 public class CreditsView extends AbstractPopupView<PopupWidget> implements CreditsPresenter.View {
 
 	// CSS.

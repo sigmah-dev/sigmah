@@ -32,15 +32,14 @@ import org.sigmah.shared.command.result.Authentication;
 
 import com.google.gwt.user.client.Cookies;
 import com.google.inject.Provider;
-import com.google.inject.Singleton;
 
 /**
  * Provides the {@link Authentication}.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
-public class AuthenticationProvider implements Provider<Authentication> {
+
+public class AuthenticationProvider {
 
 	/**
 	 * <p>
@@ -60,7 +59,6 @@ public class AuthenticationProvider implements Provider<Authentication> {
 	 * 
 	 * @return The current authentication or empty authentication (never returns {@code null}).
 	 */
-	@Override
 	public Authentication get() {
 		
 		if (isAnonymous()) {

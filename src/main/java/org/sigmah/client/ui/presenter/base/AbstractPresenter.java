@@ -25,6 +25,7 @@ package org.sigmah.client.ui.presenter.base;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.Sigmah;
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.event.EventBus;
@@ -33,15 +34,14 @@ import org.sigmah.client.ui.presenter.base.HasSubPresenter.SubPresenter;
 import org.sigmah.client.ui.view.base.AbstractView;
 import org.sigmah.client.ui.view.base.HasSubView;
 import org.sigmah.client.ui.view.base.ViewInterface;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 import org.sigmah.shared.command.result.Authentication;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.google.gwt.event.shared.HandlerRegistration;
 import com.google.gwt.user.client.ui.Widget;
-import com.google.inject.Inject;
-import org.sigmah.client.util.profiler.Profiler;
-import org.sigmah.client.util.profiler.Scenario;
 
 /**
  * <p>
@@ -92,7 +92,7 @@ public abstract class AbstractPresenter<V extends ViewInterface> implements Pres
 	/**
 	 * Application injector.
 	 */
-	protected final Injector injector;
+	protected final ClientFactory factory;
 
 	/**
 	 * Application command dispatcher.
@@ -118,9 +118,9 @@ public abstract class AbstractPresenter<V extends ViewInterface> implements Pres
 	 * @param injector
 	 *          Injected application injector allowing access to all useful objects.
 	 */
-	@Inject
-	protected AbstractPresenter(V view, Injector injector) {
-		this.injector = injector;
+	
+	protected AbstractPresenter(V view, ClientFactory injector) {
+		this.factory = injector;
 		this.eventBus = injector.getEventBus();
 		this.dispatch = injector.getDispatch();
 		this.view = view;
@@ -132,6 +132,8 @@ public abstract class AbstractPresenter<V extends ViewInterface> implements Pres
 
 		bind();
 	}
+
+
 
 	/**
 	 * {@inheritDoc}
@@ -226,13 +228,13 @@ public abstract class AbstractPresenter<V extends ViewInterface> implements Pres
 			placeHolder.removeAll();
 			placeHolder.add(Widget.asWidgetOrNull(getView()));
 
-			injector.getApplicationPresenter().showPresenter(parentPresenter);
+			factory.getApplicationPresenter().showPresenter(parentPresenter);
 
 			placeHolder.layout();
 
 		} else {
 			// Presenter's view is shown into application's main view.
-			injector.getApplicationPresenter().showPresenter(this);
+			factory.getApplicationPresenter().showPresenter(this);
 		}
 
 		view.onViewRevealed();
@@ -296,7 +298,7 @@ public abstract class AbstractPresenter<V extends ViewInterface> implements Pres
 	 * @return {@code true} if no user is currently authenticated, {@code false} otherwise.
 	 */
 	protected final boolean isAnonymous() {
-		return injector.getAuthenticationProvider().isAnonymous();
+		return factory.getAuthenticationProvider().isAnonymous();
 	}
 
 	/**
@@ -305,7 +307,7 @@ public abstract class AbstractPresenter<V extends ViewInterface> implements Pres
 	 * @return The current {@link Authentication}, never {@code null}.
 	 */
 	protected final Authentication auth() {
-		return injector.getAuthenticationProvider().get();
+		return factory.getAuthenticationProvider().get();
 	}
 
 	/**

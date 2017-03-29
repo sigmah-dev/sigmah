@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
@@ -62,13 +63,11 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class EditPhaseModelAdminPresenter extends AbstractPagePresenter<EditPhaseModelAdminPresenter.View> implements HasForm {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(EditPhaseModelAdminView.class)
 	public static interface View extends ViewPopupInterface {
 
 		FormPanel getForm();
@@ -111,9 +110,8 @@ public class EditPhaseModelAdminPresenter extends AbstractPagePresenter<EditPhas
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	protected EditPhaseModelAdminPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public EditPhaseModelAdminPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.view.project.logframe;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -58,7 +60,7 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
+
 public class ProjectLogFrameView extends AbstractView implements ProjectLogFramePresenter.View {
 
 	// CSS style names.
@@ -84,8 +86,11 @@ public class ProjectLogFrameView extends AbstractView implements ProjectLogFrame
 	private TextField<String> mainObjectiveField;
 
 	// Grid.
-	@Inject
 	private ProjectLogFrameGrid logFrameGrid;
+	
+	public ProjectLogFrameView(ProjectLogFrameGrid grid) {
+		grid = logFrameGrid;
+	}
 
 	/**
 	 * {@inheritDoc}

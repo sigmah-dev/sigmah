@@ -45,7 +45,7 @@ import org.sigmah.offline.indexeddb.Index;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
+
 public class MonitoredPointAsyncDAO extends AbstractUserDatabaseAsyncDAO<MonitoredPointDTO, MonitoredPointJS> {
 
 	public void saveOrUpdate(final MonitoredPointListDTO monitoredPointListDTO, Transaction<Store> transaction) {

@@ -39,12 +39,12 @@ import org.sigmah.shared.dto.country.CountryDTO;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
+
 public class GetCountryAsyncHandler implements AsyncCommandHandler<GetCountry, CountryDTO>, DispatchListener<GetCountry, CountryDTO> {
 
 	private final CountryAsyncDAO countryDAO;
 
-	@Inject
+	
 	public GetCountryAsyncHandler(CountryAsyncDAO countryDAO) {
 		this.countryDAO = countryDAO;
 	}

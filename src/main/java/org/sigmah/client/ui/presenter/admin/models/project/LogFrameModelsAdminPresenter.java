@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
@@ -67,7 +68,6 @@ public class LogFrameModelsAdminPresenter extends AbstractPresenter<LogFrameMode
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(LogFrameModelsAdminView.class)
 	public static interface View extends ViewInterface {
 
 		/**
@@ -173,9 +173,8 @@ public class LogFrameModelsAdminPresenter extends AbstractPresenter<LogFrameMode
 	 * @param injector
 	 *          The application injector.
 	 */
-	@Inject
-	public LogFrameModelsAdminPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public LogFrameModelsAdminPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

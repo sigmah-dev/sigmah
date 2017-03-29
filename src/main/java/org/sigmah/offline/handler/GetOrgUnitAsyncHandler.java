@@ -40,12 +40,12 @@ import org.sigmah.shared.command.result.Authentication;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
+
 public class GetOrgUnitAsyncHandler implements AsyncCommandHandler<GetOrgUnit, OrgUnitDTO>, DispatchListener<GetOrgUnit, OrgUnitDTO> {
 
 	private final OrgUnitAsyncDAO orgUnitAsyncDAO;
 
-	@Inject
+
 	public GetOrgUnitAsyncHandler(OrgUnitAsyncDAO orgUnitAsyncDAO) {
 		this.orgUnitAsyncDAO = orgUnitAsyncDAO;
 	}

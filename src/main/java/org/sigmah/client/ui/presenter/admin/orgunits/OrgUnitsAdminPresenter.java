@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.admin.orgunits;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -66,13 +68,11 @@ import com.google.inject.Singleton;
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 @SuppressWarnings("deprecation")
-@Singleton
 public class OrgUnitsAdminPresenter extends AbstractAdminPresenter<OrgUnitsAdminPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(OrgUnitsAdminView.class)
 	public static interface View extends AbstractAdminPresenter.View, HasTreeGrid<OrgUnitDTO> {
 
 		Button getAddButton();
@@ -101,13 +101,12 @@ public class OrgUnitsAdminPresenter extends AbstractAdminPresenter<OrgUnitsAdmin
 	 * 
 	 * @param view
 	 *          Presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected client injector.
 	 */
-	@Inject
-	protected OrgUnitsAdminPresenter(View view, Injector injector) {
-		super(view, injector);
-		this.localCache = injector.getClientCache();
+	public OrgUnitsAdminPresenter(View view, ClientFactory factory) {
+		super(view, factory);
+		this.localCache = factory.getClientCache();
 	}
 
 	/**

@@ -30,6 +30,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.UpdateEvent;
@@ -107,7 +108,7 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	 *
 	 * @author Denis Colliot (dcolliot@ideia.fr)
 	 */
-	@ImplementedBy(ProjectsListView.class)
+
 	public static interface View extends ViewInterface, HasTreeGrid<ProjectDTO> {
 
 		/**
@@ -306,9 +307,9 @@ public class ProjectsListWidget extends AbstractPresenter<ProjectsListWidget.Vie
 	/**
 	 * Builds a new project list panel with default values.
 	 */
-	@Inject
-	public ProjectsListWidget(final View view, final Injector injector) {
-		super(view, injector);
+
+	public ProjectsListWidget(final View view, final ClientFactory factory) {
+		super(view, factory);
 		this.orgUnitsIds = new ArrayList<Integer>();
 
 		// Default values.

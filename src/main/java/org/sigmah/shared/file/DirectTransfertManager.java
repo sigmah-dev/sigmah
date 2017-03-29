@@ -48,7 +48,7 @@ import org.sigmah.shared.util.FileType;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-class DirectTransfertManager implements TransfertManager {
+public class DirectTransfertManager implements TransfertManager {
 
 	private final AuthenticationProvider authenticationProvider;
 	private final PageManager pageManager;

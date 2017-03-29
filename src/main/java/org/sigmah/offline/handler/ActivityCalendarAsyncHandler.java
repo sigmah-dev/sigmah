@@ -55,12 +55,11 @@ import com.google.inject.Singleton;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class ActivityCalendarAsyncHandler implements AsyncCommandHandler<GetCalendar, Calendar> {
 
 	private final ProjectAsyncDAO projectAsyncDAO;
 
-	@Inject
+	
 	public ActivityCalendarAsyncHandler(ProjectAsyncDAO projectAsyncDAO) {
 		this.projectAsyncDAO = projectAsyncDAO;
 	}

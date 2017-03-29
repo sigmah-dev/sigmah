@@ -33,7 +33,6 @@ import org.sigmah.shared.command.result.Authentication;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class AuthenticationAsyncDAO extends AbstractUserDatabaseAsyncDAO<Authentication, AuthenticationJS> {
 	
 	public void get(AsyncCallback<Authentication> callback) {

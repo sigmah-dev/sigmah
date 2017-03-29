@@ -51,7 +51,7 @@ import org.sigmah.client.util.DateUtils;
 import org.sigmah.shared.dto.GlobalContactExportDTO;
 import org.sigmah.shared.dto.GlobalExportDTO;
 
-@Singleton
+
 public class ExportContactsView extends AbstractPopupView<PopupWidget> implements ExportContactsPresenter.View {
 
 	private Button settingsButton;

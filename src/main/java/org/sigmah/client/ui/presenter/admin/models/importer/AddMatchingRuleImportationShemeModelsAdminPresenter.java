@@ -55,6 +55,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.ui.notif.N10N;
@@ -76,7 +78,6 @@ import org.sigmah.shared.dto.referential.BudgetSubFieldType;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class AddMatchingRuleImportationShemeModelsAdminPresenter extends AbstractPagePresenter<AddMatchingRuleImportationShemeModelsAdminPresenter.View> {
 
 	private EntityDTO<Integer> currentModel;
@@ -85,8 +86,6 @@ public class AddMatchingRuleImportationShemeModelsAdminPresenter extends Abstrac
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-
-	@ImplementedBy(AddMatchingRuleImportationShemeModelsAdminView.class)
 	public static interface View extends ViewPopupInterface {
 
 		ComboBox<VariableDTO> getVariablesCombo();
@@ -112,9 +111,8 @@ public class AddMatchingRuleImportationShemeModelsAdminPresenter extends Abstrac
 		boolean isValid();
 	}
 
-	@Inject
-	protected AddMatchingRuleImportationShemeModelsAdminPresenter(View view, Injector injector) {
-		super(view, injector);
+	public AddMatchingRuleImportationShemeModelsAdminPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	@Override

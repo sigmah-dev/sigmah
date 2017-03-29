@@ -93,6 +93,8 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.computation.ComputationTriggerManager;
 import org.sigmah.client.util.profiler.Profiler;
 import org.sigmah.client.util.profiler.Scenario;
@@ -102,7 +104,6 @@ import org.sigmah.client.util.profiler.Scenario;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDetailsPresenter.View> implements IterableGroupPanel.Delegate {
 
 	// CSS style names.
@@ -111,7 +112,6 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ProjectDetailsView.class)
 	public static interface View extends AbstractProjectPresenter.View {
 
 		LayoutContainer getMainPanel();
@@ -134,7 +134,7 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 	/**
 	 * Listen to the values of flexible elements to update computated values.
 	 */
-	@Inject
+	
 	private ComputationTriggerManager computationTriggerManager;
 
 	/**
@@ -142,12 +142,12 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 	 * 
 	 * @param view
 	 *          Presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected client injector.
 	 */
-	@Inject
-	public ProjectDetailsPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public ProjectDetailsPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
+		computationTriggerManager = factory.getComputationTriggerManager();
 	}
 
 	/**
@@ -400,15 +400,15 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 
 						// Configures the flexible element for the current application state before generating its component.
 						elementDTO.setService(dispatch);
-						elementDTO.setAuthenticationProvider(injector.getAuthenticationProvider());
+						elementDTO.setAuthenticationProvider(factory.getAuthenticationProvider());
 						elementDTO.setEventBus(eventBus);
-						elementDTO.setCache(injector.getClientCache());
+						elementDTO.setCache(factory.getClientCache());
 					elementDTO.setCurrentContainerDTO(project);
-                        elementDTO.setTransfertManager(injector.getTransfertManager());
+                        elementDTO.setTransfertManager(factory.getTransfertManager());
 						elementDTO.assignValue(valueResult);
 					elementDTO.setTabPanel(tabPanel);
 						
-						final ProjectPresenter projectPresenter = injector.getProjectPresenter();
+						final ProjectPresenter projectPresenter = factory.getProjectPresenter();
 
 						// Generates element component (with the value).
 						elementDTO.init();

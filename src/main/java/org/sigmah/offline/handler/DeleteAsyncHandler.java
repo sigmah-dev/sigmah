@@ -31,6 +31,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.DispatchListener;
 import org.sigmah.offline.dao.PersonalCalendarAsyncDAO;
 import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
@@ -59,25 +61,30 @@ import org.sigmah.shared.dto.value.ListableValue;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
+
 public class DeleteAsyncHandler implements AsyncCommandHandler<Delete, VoidResult>, DispatchListener<Delete, VoidResult> {
 	
-	@Inject
+	
 	private UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
 	
-	@Inject
+
 	private ValueAsyncDAO valueAsyncDAO;
 	
-	@Inject
 	private PersonalCalendarAsyncDAO personalCalendarAsyncDAO;
 	
 	private final Map<String, String> entityNameMap;
+	
+	
 
-	public DeleteAsyncHandler() {
+	public DeleteAsyncHandler(ClientFactory factory) {
+		this.updateDiaryAsyncDAO = factory.getUpdateDiaryAsyncDAO();
+		this.valueAsyncDAO = factory.getValueAsyncDAO();
+		this.personalCalendarAsyncDAO = factory.getPersonalCalendarAsyncDAO();
 		entityNameMap = new HashMap<String, String>();
 		entityNameMap.put(FileDTO.ENTITY_NAME, FilesListElementDTO.ENTITY_NAME);
 		entityNameMap.put(FileVersionDTO.ENTITY_NAME, FilesListElementDTO.ENTITY_NAME);
 	}
+
 	
 	@Override
 	public void execute(final Delete command, OfflineExecutionContext executionContext, AsyncCallback<VoidResult> callback) {

@@ -49,12 +49,16 @@ import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class MonitoredPointCalendarAsyncHandler implements AsyncCommandHandler<GetCalendar, Calendar> {
 
-	@Inject
+	
 	private MonitoredPointAsyncDAO monitoredPointAsyncDAO;
 	
+	
+	public MonitoredPointCalendarAsyncHandler(MonitoredPointAsyncDAO monitoredPointAsyncDAO) {
+		this.monitoredPointAsyncDAO = monitoredPointAsyncDAO;
+	}
+
 	@Override
 	public void execute(GetCalendar command, OfflineExecutionContext executionContext, final AsyncCallback<Calendar> callback) {
 		final MonitoredPointCalendarIdentifier identifier = (MonitoredPointCalendarIdentifier)command.getIdentifier();

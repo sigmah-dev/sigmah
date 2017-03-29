@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
@@ -69,13 +70,11 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(CalendarEventView.class)
 	public static interface View extends ViewInterface {
 
 		FormPanel getForm();
@@ -109,9 +108,8 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      * @param view Presenter's view interface.
      * @param injector Injected client injector.
 	 */
-	@Inject
-	public CalendarEventPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public CalendarEventPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

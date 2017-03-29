@@ -30,6 +30,7 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.UpdateEvent;
@@ -55,7 +56,7 @@ import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 public class ContactModelsAdminPresenter extends AbstractModelsAdminPresenter<ContactModelDTO, ContactModelsAdminPresenter.View> {
-  @ImplementedBy(ContactModelsAdminView.class)
+  
   public interface View extends AbstractModelsAdminPresenter.View<ContactModelDTO> {
 
     Field<String> getNameField();
@@ -64,9 +65,8 @@ public class ContactModelsAdminPresenter extends AbstractModelsAdminPresenter<Co
 
   }
 
-  @Inject
-  protected ContactModelsAdminPresenter(ContactModelsAdminPresenter.View view, Injector injector, Provider<FlexibleElementsAdminPresenter<ContactModelDTO>> flexibleElementsProvider) {
-    super(view, injector, flexibleElementsProvider.get());
+  public ContactModelsAdminPresenter(ContactModelsAdminPresenter.View view, ClientFactory factory) {
+    super(view, factory, factory.getFlexibleElementsAdminPresenter3());
   }
 
   @Override

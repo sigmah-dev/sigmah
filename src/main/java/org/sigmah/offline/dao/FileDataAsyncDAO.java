@@ -40,7 +40,7 @@ import org.sigmah.offline.js.FileDataJS;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
+
 public class FileDataAsyncDAO extends AbstractAsyncDAO<FileDataJS, Store> {
 
 	/**

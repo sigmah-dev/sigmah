@@ -38,7 +38,6 @@ import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.popup.PopupWidget;
 import org.sigmah.shared.dto.referential.ContactModelType;
 
-@Singleton
 public class AddContactModelAdminView extends AbstractPopupView<PopupWidget> implements AddContactModelAdminPresenter.View {
 
 	private FormPanel form;

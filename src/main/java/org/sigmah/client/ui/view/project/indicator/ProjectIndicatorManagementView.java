@@ -75,7 +75,6 @@ import org.sigmah.shared.dto.IndicatorGroup;
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class ProjectIndicatorManagementView extends AbstractView implements ProjectIndicatorManagementPresenter.View {
 
 	/** Main panel. */

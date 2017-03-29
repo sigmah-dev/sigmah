@@ -41,8 +41,6 @@
 	<set-configuration-property name="log_pattern" value="[%-5p] {%d{yyyy/MM/dd HH:mm:ss.SSS}} %C - %m%n" />
 	<set-property name="log_DivLogger" value="DISABLED" />
 
-	<!-- GIN (Google INjector) -->
-	<inherits name="com.google.gwt.inject.Inject" />
 	
 	<!-- Maps (Google Maps and OpenStreetMaps) -->
 	<inherits name="com.google.gwt.maps.GoogleMaps" />
@@ -50,6 +48,10 @@
 
 	<!-- Reduce the compilation time by creating permutations for specific browsers. -->
 	<!-- <set-property name="user.agent" value="safari,gecko1_8" /> - FF only (available values: ie8, gecko1_8, safari, ie9, ie10). -->
+	
+	<replace-with class="org.sigmah.client.ClientFactoryImpl">
+    <when-type-is class="org.sigmah.client.ClientFactory"/>
+   </replace-with>
 
 	<!-- Default locale. -->
 	<extend-property name="locale" values="fr,en_GB,es" />

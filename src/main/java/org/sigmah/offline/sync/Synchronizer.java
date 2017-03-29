@@ -79,7 +79,7 @@ import org.sigmah.shared.dto.report.ReportReference;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
+
 public class Synchronizer {
     
     private static final double ACCESS_RIGHTS_VALUE = 0.05;
@@ -88,28 +88,35 @@ public class Synchronizer {
     private static final double ORGUNIT_DETAIL_VALUE = 0.3;
     private static final double PROJECT_DETAIL_VALUE = 0.5;
     
-    @Inject
 	private UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
 	
-	@Inject
 	private ReminderAsyncDAO reminderAsyncDAO;
     
-	@Inject
 	private MonitoredPointAsyncDAO monitoredPointAsyncDAO;
 	
-	@Inject
 	private TransfertAsyncDAO transfertAsyncDAO;
 	
-	@Inject
 	private FileDataAsyncDAO fileDataAsyncDAO;
     
-    @Inject
 	private DispatchAsync dispatcher;
 	
-	@Inject
 	private OrgUnitAsyncDAO orgUnitAsyncDAO;
 	
-    /**
+
+	
+    public Synchronizer(UpdateDiaryAsyncDAO updateDiaryAsyncDAO, ReminderAsyncDAO reminderAsyncDAO,
+			MonitoredPointAsyncDAO monitoredPointAsyncDAO, TransfertAsyncDAO transfertAsyncDAO,
+			FileDataAsyncDAO fileDataAsyncDAO, DispatchAsync dispatcher, OrgUnitAsyncDAO orgUnitAsyncDAO) {
+		this.updateDiaryAsyncDAO = updateDiaryAsyncDAO;
+		this.reminderAsyncDAO = reminderAsyncDAO;
+		this.monitoredPointAsyncDAO = monitoredPointAsyncDAO;
+		this.transfertAsyncDAO = transfertAsyncDAO;
+		this.fileDataAsyncDAO = fileDataAsyncDAO;
+		this.dispatcher = dispatcher;
+		this.orgUnitAsyncDAO = orgUnitAsyncDAO;
+	}
+
+	/**
 	 * Send to the server the modifications done offline.
 	 * 
 	 * @param callback Callback called when the push is finished or when an error occured.

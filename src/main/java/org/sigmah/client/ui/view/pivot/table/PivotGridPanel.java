@@ -97,7 +97,7 @@ public class PivotGridPanel extends ContentPanel implements HasValue<PivotElemen
 	
 	private boolean loading;
 
-	@Inject
+	
 	public PivotGridPanel(EventBus eventBus, DispatchAsync dispatcher) {
 		this.eventBus = eventBus;
 		this.dispatcher = dispatcher;

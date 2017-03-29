@@ -39,7 +39,6 @@ import com.google.inject.Singleton;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
 
-@Singleton
 public class AddVariableImporationSchemeView extends AbstractPopupView<PopupWidget> implements AddVariableImporationSchemePresenter.View {
 
 	private TextField<String> nameField;

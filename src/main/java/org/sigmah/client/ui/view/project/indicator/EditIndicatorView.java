@@ -31,6 +31,8 @@ import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.project.indicator.EditIndicatorPresenter;
@@ -78,19 +80,20 @@ public class EditIndicatorView extends AbstractPopupView<PopupWidget> implements
 	private Button saveButton;
 	private Button cancelButton;
 	
-	@Inject
 	private PivotGridPanel pivotGridPanel;
 	private Widget pivotLabel;
 	
 	// Required by DatasourceField
-	@Inject
 	private DispatchAsync dispatchAsync;
+	
 	
 	/**
 	 * Builds the view.
 	 */
-	public EditIndicatorView() {
+	public EditIndicatorView(DispatchAsync dispatch, PivotGridPanel pivotGridPanel) {
 		super(new PopupWidget(true), 800);
+		this.dispatchAsync = dispatch;
+		this.pivotGridPanel = pivotGridPanel;
 	}
 
 	/**

@@ -28,6 +28,7 @@ import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.shared.servlet.ServletConstants;
@@ -38,17 +39,17 @@ import org.sigmah.shared.servlet.ServletRequestBuilder;
  */
 
 public class ImageProvider {
-  private final Injector injector;
+  private final ClientFactory factory;
 
-  @Inject
-  public ImageProvider(Injector injector) {
-    this.injector = injector;
+  
+  public ImageProvider(ClientFactory factory) {
+    this.factory = factory;
   }
 
   // TODO: Create a servlet which return the image stream, not a Byte64 string which is very heavy
 
   public void provideDataUrl(final String imageId, final AsyncCallback<String> callback) {
-    ServletRequestBuilder builder = new ServletRequestBuilder(injector, RequestBuilder.GET, ServletConstants.Servlet.FILE, ServletConstants.ServletMethod.DOWNLOAD_LOGO);
+    ServletRequestBuilder builder = new ServletRequestBuilder(factory, RequestBuilder.GET, ServletConstants.Servlet.FILE, ServletConstants.ServletMethod.DOWNLOAD_LOGO);
     builder.addParameter(RequestParameter.ID, imageId);
     builder.send(new ServletRequestBuilder.RequestCallbackAdapter() {
       @Override

@@ -25,6 +25,7 @@ package org.sigmah.client.ui.presenter.reminder;
 import java.util.Date;
 import java.util.HashMap;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
@@ -62,13 +63,11 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class ReminderEditPresenter extends AbstractPagePresenter<ReminderEditPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ReminderEditView.class)
 	public static interface View extends ViewInterface {
 
 		/**
@@ -132,12 +131,11 @@ public class ReminderEditPresenter extends AbstractPagePresenter<ReminderEditPre
 	 * 
 	 * @param view
 	 *          Presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected client injector.
 	 */
-	@Inject
-	public ReminderEditPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public ReminderEditPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

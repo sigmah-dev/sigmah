@@ -45,6 +45,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 
 import java.util.Set;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
@@ -86,13 +87,11 @@ import com.allen_sauer.gwt.log.client.Log;
  * @author Maxime Lombard (mlombard@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersAdminPresenter.View> implements HasForm {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ParametersAdminView.class)
 	public static interface View extends AbstractAdminPresenter.View {
 
 		// --
@@ -190,11 +189,10 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	protected ParametersAdminPresenter(View view, Injector injector, ImageProvider imageProvider) {
-		super(view, injector);
+	public ParametersAdminPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 
-		this.imageProvider = imageProvider;
+		this.imageProvider = factory.getImageProvider();
 	}
 
 	/**
@@ -258,7 +256,7 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 				if (ClientUtils.isNotBlank(logoFileName)) {
 					// Submit logo file upload form.
 					final ServletUrlBuilder urlBuilder =
-							new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.FILE, ServletMethod.UPLOAD_ORGANIZATION_LOGO);
+							new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), Servlet.FILE, ServletMethod.UPLOAD_ORGANIZATION_LOGO);
 					urlBuilder.addParameter(RequestParameter.ID, auth().getOrganizationId());
 
 					view.getGeneralParametersForm().setAction(urlBuilder.toString());
@@ -440,7 +438,7 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 					public void onClick(final ClickEvent event) {
 
 						final ServletUrlBuilder builder =
-								new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.FILE, ServletMethod.DOWNLOAD_ARCHIVE);
+								new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), Servlet.FILE, ServletMethod.DOWNLOAD_ARCHIVE);
 						builder.addParameter(RequestParameter.ID, result.getArchiveFileName());
 
 						ClientUtils.launchDownload(builder.toString());

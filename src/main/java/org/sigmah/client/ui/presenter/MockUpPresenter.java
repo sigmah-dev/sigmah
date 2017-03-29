@@ -27,14 +27,13 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.sigmah.client.inject.Injector;
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.notif.ConfirmCallback;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
-import org.sigmah.client.ui.view.MockUpView;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.zone.Zone;
 import org.sigmah.client.util.ClientUtils;
@@ -50,22 +49,19 @@ import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.inject.ImplementedBy;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Mock-up presenter.
  * 
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
+
 public class MockUpPresenter extends AbstractPagePresenter<MockUpPresenter.View> {
 
 	/**
 	 * View interface.
 	 */
-	@ImplementedBy(MockUpView.class)
+	
 	public static interface View extends ViewInterface {
 
 		/**
@@ -96,8 +92,8 @@ public class MockUpPresenter extends AbstractPagePresenter<MockUpPresenter.View>
 	 */
 	private FilesListElementDTO filesListElementDTO;
 
-	@Inject
-	public MockUpPresenter(final View view, final Injector injector) {
+	
+	public MockUpPresenter(final View view, final ClientFactory injector) {
 		super(view, injector);
 	}
 
@@ -392,9 +388,9 @@ public class MockUpPresenter extends AbstractPagePresenter<MockUpPresenter.View>
 
 		filesListElementDTO = new FilesListElementDTO();
 		filesListElementDTO.setService(dispatch);
-		filesListElementDTO.setAuthenticationProvider(injector.getAuthenticationProvider());
+		filesListElementDTO.setAuthenticationProvider(factory.getAuthenticationProvider());
 		filesListElementDTO.setCurrentContainerDTO(projectDTO);
-		filesListElementDTO.setTransfertManager(injector.getTransfertManager());
+		filesListElementDTO.setTransfertManager(factory.getTransfertManager());
 		filesListElementDTO.setEventBus(eventBus);
 
 		filesListElementDTO.setId(2168);

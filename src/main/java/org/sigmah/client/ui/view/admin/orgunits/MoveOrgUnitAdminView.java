@@ -43,7 +43,6 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class MoveOrgUnitAdminView extends AbstractPopupView<PopupWidget> implements MoveOrgUnitAdminPresenter.View {
 
 	private FormPanel form;

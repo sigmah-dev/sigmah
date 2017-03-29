@@ -40,7 +40,6 @@ import org.sigmah.offline.indexeddb.OpenDatabaseRequest;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class PageAccessAsyncDAO extends BaseAsyncDAO<Store> {
 
 	/**

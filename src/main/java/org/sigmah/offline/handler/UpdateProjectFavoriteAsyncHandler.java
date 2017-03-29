@@ -43,15 +43,19 @@ import org.sigmah.shared.dto.UserDTO;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class UpdateProjectFavoriteAsyncHandler implements AsyncCommandHandler<UpdateProjectFavorite, CreateResult> {
 
-	@Inject
 	private ProjectAsyncDAO projectAsyncDAO;
 	
-	@Inject
 	private UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
 	
+	
+	
+	public UpdateProjectFavoriteAsyncHandler(ProjectAsyncDAO projectAsyncDAO, UpdateDiaryAsyncDAO updateDiaryAsyncDAO) {
+		this.projectAsyncDAO = projectAsyncDAO;
+		this.updateDiaryAsyncDAO = updateDiaryAsyncDAO;
+	}
+
 	@Override
 	public void execute(final UpdateProjectFavorite command, final OfflineExecutionContext executionContext, final AsyncCallback<CreateResult> callback) {
 		updateDiaryAsyncDAO.saveOrUpdate(command);

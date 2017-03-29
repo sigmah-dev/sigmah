@@ -50,7 +50,7 @@ public class SecureExceptionHandler implements ExceptionHandler {
 	 */
 	private final EventBus eventBus;
 
-	@Inject
+	
 	public SecureExceptionHandler(final EventBus eventBus) {
 		this.eventBus = eventBus;
 	}

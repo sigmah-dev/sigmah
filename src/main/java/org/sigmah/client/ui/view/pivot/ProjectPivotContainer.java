@@ -128,7 +128,7 @@ public class ProjectPivotContainer extends ContentPanel implements Loadable {
 	private PivotLayout currentLayout;
 	private PivotTableElement currentPivot;
 	
-	@Inject
+	
 	public ProjectPivotContainer(EventBus eventBus, DispatchAsync dispatcher, PivotGridPanel gridPanel, IStateManager stateManager) {
 		this.dispatcher = dispatcher;
 		this.eventBus = eventBus;

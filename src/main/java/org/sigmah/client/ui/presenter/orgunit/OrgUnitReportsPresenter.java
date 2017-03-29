@@ -25,6 +25,7 @@ package org.sigmah.client.ui.presenter.orgunit;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
@@ -56,13 +57,11 @@ import com.google.inject.Singleton;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr) (v2.0)
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class OrgUnitReportsPresenter extends AbstractOrgUnitPresenter<OrgUnitReportsPresenter.View> {
 
 	/**
 	 * Presenter's view interface.
 	 */
-	@ImplementedBy(OrgUnitReportsView.class)
 	public static interface View extends AbstractOrgUnitPresenter.View {
 
 		/**
@@ -82,10 +81,9 @@ public class OrgUnitReportsPresenter extends AbstractOrgUnitPresenter<OrgUnitRep
 	 */
 	private final ReportsPresenter reportsPresenter;
 
-	@Inject
-	public OrgUnitReportsPresenter(View view, Injector injector, Provider<ReportsPresenter> reportsPresenterProvider) {
-		super(view, injector);
-		reportsPresenter = reportsPresenterProvider.get();
+	public OrgUnitReportsPresenter(View view, ClientFactory factory) {
+		super(view, factory);
+		reportsPresenter = factory.getReportsPresenter();
 		view.provideReportsView(reportsPresenter.getView());
 	}
 

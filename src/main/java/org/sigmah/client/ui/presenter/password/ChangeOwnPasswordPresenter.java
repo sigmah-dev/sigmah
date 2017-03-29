@@ -28,6 +28,8 @@ import com.extjs.gxt.ui.client.widget.form.Field;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
@@ -47,13 +49,12 @@ import org.sigmah.shared.command.result.VoidResult;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
+
 public class ChangeOwnPasswordPresenter extends AbstractPagePresenter<ChangeOwnPasswordPresenter.View> {
 	
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ChangeOwnPasswordView.class)
 	public static interface View extends ViewInterface {
 
 		FormPanel getForm();
@@ -78,8 +79,7 @@ public class ChangeOwnPasswordPresenter extends AbstractPagePresenter<ChangeOwnP
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	public ChangeOwnPasswordPresenter(final ChangeOwnPasswordPresenter.View view, final Injector injector) {
+	public ChangeOwnPasswordPresenter(final ChangeOwnPasswordPresenter.View view, final ClientFactory injector) {
 		super(view, injector);
 	}
 	

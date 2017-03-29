@@ -36,10 +36,16 @@ import org.sigmah.shared.dto.profile.ProfileDTO;
 
 public class GetProfilesAsyncHandler implements AsyncCommandHandler<GetProfiles, ListResult<ProfileDTO>>,
     DispatchListener<GetProfiles, ListResult<ProfileDTO>> {
-  @Inject
+ 
   ProfileAsyncDAO profileAsyncDAO;
+  
+  
 
-  @Override
+  public GetProfilesAsyncHandler(ProfileAsyncDAO profileAsyncDAO) {
+	this.profileAsyncDAO = profileAsyncDAO;
+}
+
+@Override
   public void execute(GetProfiles command, OfflineExecutionContext executionContext, final AsyncCallback<ListResult<ProfileDTO>> callback) {
     profileAsyncDAO.getListResult(callback);
   }

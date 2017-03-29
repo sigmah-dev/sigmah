@@ -36,6 +36,8 @@ import org.sigmah.client.ui.view.project.indicator.ProjectIndicatorEntriesView;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.EventBus;
 import org.sigmah.client.page.RequestParameter;
@@ -52,13 +54,11 @@ import org.sigmah.shared.util.ProfileUtils;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class ProjectIndicatorEntriesPresenter extends AbstractProjectPresenter<ProjectIndicatorEntriesPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ProjectIndicatorEntriesView.class)
 	public static interface View extends AbstractProjectPresenter.View {
 		ProjectPivotContainer getProjectPivotContainer();
 	}
@@ -71,8 +71,7 @@ public class ProjectIndicatorEntriesPresenter extends AbstractProjectPresenter<P
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	public ProjectIndicatorEntriesPresenter(final View view, final Injector injector) {
+	public ProjectIndicatorEntriesPresenter(final View view, final ClientFactory injector) {
 		super(view, injector);
 	}
 

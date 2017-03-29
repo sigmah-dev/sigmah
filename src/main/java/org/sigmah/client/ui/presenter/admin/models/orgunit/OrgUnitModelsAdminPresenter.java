@@ -26,6 +26,7 @@ package org.sigmah.client.ui.presenter.admin.models.orgunit;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.UpdateEvent;
@@ -63,13 +64,11 @@ import com.google.inject.Singleton;
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr) (v2.0)
  */
-@Singleton
 public class OrgUnitModelsAdminPresenter extends AbstractModelsAdminPresenter<OrgUnitModelDTO, OrgUnitModelsAdminPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(OrgUnitModelsAdminView.class)
 	public static interface View extends AbstractModelsAdminPresenter.View<OrgUnitModelDTO> {
 
 		Field<String> getNameField();
@@ -92,9 +91,8 @@ public class OrgUnitModelsAdminPresenter extends AbstractModelsAdminPresenter<Or
 	 * @param flexibleElementsProvider
 	 *          The {@link FlexibleElementsAdminPresenter} provider.
 	 */
-	@Inject
-	protected OrgUnitModelsAdminPresenter(final View view, final Injector injector, final Provider<FlexibleElementsAdminPresenter<OrgUnitModelDTO>> flexibleElementsProvider, final Provider<ImportationSchemeModelsAdminPresenter<OrgUnitModelDTO>> importationSchemeModelsAdminPresenterProvider) {
-		super(view, injector, flexibleElementsProvider.get(), importationSchemeModelsAdminPresenterProvider.get());
+	public OrgUnitModelsAdminPresenter(final View view, final ClientFactory factory) {
+		super(view, factory, factory.getFlexibleElementsAdminPresenter(), factory.getImportationSchemeModelsAdminPresenter());
 	}
 
 	/**

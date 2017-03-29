@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.orgunit;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -65,8 +67,8 @@ public abstract class AbstractOrgUnitPresenter<V extends AbstractOrgUnitPresente
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	protected AbstractOrgUnitPresenter(final V view, final Injector injector) {
-		super(view, injector);
+	protected AbstractOrgUnitPresenter(final V view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
@@ -74,7 +76,7 @@ public abstract class AbstractOrgUnitPresenter<V extends AbstractOrgUnitPresente
 	 */
 	@Override
 	public OrgUnitPresenter getParentPresenter() {
-		return injector.getOrgUnitPresenter();
+		return factory.getOrgUnitPresenter();
 	}
 
 	/**

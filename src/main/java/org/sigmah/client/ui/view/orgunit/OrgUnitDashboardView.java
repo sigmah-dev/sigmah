@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.view.orgunit;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -45,15 +47,18 @@ import com.google.inject.Singleton;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
 
-@Singleton
 public class OrgUnitDashboardView extends AbstractView implements OrgUnitDashboardPresenter.View {
 
-	@Inject
-	private Provider<ProjectsListWidget> projectsListWidgetProvider;
+	
+	ClientFactory factory;
 
 	private OrgUnitTreeGrid tree;
 	private ContentPanel contentPanelOrgUnit;
 	private ProjectsListWidget projectsListWidget;
+	
+	public OrgUnitDashboardView(ClientFactory factory) {
+		this.factory = factory;
+	}
 
 	@Override
 	public void initialize() {
@@ -107,7 +112,7 @@ public class OrgUnitDashboardView extends AbstractView implements OrgUnitDashboa
 	 */
 	private Widget createProjectsPanel() {
 
-		projectsListWidget = projectsListWidgetProvider.get();
+		projectsListWidget = factory.getProjectsListWidget();
 		projectsListWidget.initialize();
 
 		return projectsListWidget.getView().asWidget();
