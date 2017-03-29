@@ -932,8 +932,7 @@
 					<runTarget>/</runTarget>
 					<localWorkers>4</localWorkers>
 					<module>org.sigmah.Sigmah</module>
-					<extraJvmArgs>-Xmx1G -Xss512M -XX:PermSize=256M
-						-Djava.io.tmpdir=${project.build.directory}</extraJvmArgs>
+					<extraJvmArgs>-Xmx1G -Xss256M</extraJvmArgs>
 				</configuration>
 			</plugin>
 
