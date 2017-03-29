@@ -28,6 +28,7 @@ package org.sigmah.client.ui.view.pivot.table.drilldown;
  */
 
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.security.AuthenticationProvider;
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.event.EventBus;
 import org.sigmah.client.ui.view.project.indicator.SiteGridPanel;
@@ -48,7 +49,8 @@ public class DrillDownEditor extends SiteGridPanel {
 
     private final Dates dates;
 
-    public DrillDownEditor(EventBus eventBus, DispatchAsync service, IStateManager stateMgr, Dates dates) {
+    public DrillDownEditor(EventBus eventBus, DispatchAsync service, IStateManager stateMgr, AuthenticationProvider authenticationProvider, Dates dates) {
+    	super(eventBus, service, authenticationProvider);
     	this.dates = dates;
 
     	setHeadingText(I18N.CONSTANTS.drilldown());

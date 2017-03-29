@@ -72,7 +72,6 @@ import com.google.inject.Singleton;
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
-@Singleton
 public class ReportModelsAdminView extends AbstractView implements ReportModelsAdminPresenter.View {
 
 	private Grid<ReportModelDTO> reportModelsGrid;

@@ -51,6 +51,8 @@ import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import java.util.ArrayList;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.dispatch.monitor.LoadingMask;

@@ -26,6 +26,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.offline.dao.ProjectAsyncDAO;
 import org.sigmah.offline.dao.RequestManager;
 import org.sigmah.offline.dao.RequestManagerCallback;
@@ -51,15 +53,20 @@ public class GetValueFromLinkedProjectsAsyncHandler implements AsyncCommandHandl
 	/**
 	 * Injected instance of {@link ProjectAsyncDAO}. 
 	 */
-	@Inject
+
 	private ProjectAsyncDAO projectAsyncDAO;
 	
 	/**
 	 * Injected instance of {@link ValueAsyncDAO}. 
 	 */
-	@Inject
+
 	private ValueAsyncDAO valueAsyncDAO;
 	
+	public GetValueFromLinkedProjectsAsyncHandler(ClientFactory factory) {
+		this.projectAsyncDAO = factory.getProjectAsyncDAO();
+		this.valueAsyncDAO = factory.getValueAsyncDAO();
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

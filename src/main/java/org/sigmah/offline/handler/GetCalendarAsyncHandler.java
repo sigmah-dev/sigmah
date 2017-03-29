@@ -25,6 +25,7 @@ package org.sigmah.offline.handler;
 import java.util.EnumMap;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.DispatchListener;
 import org.sigmah.offline.dispatch.AsyncCommandHandler;
 import org.sigmah.offline.dispatch.OfflineExecutionContext;
@@ -45,21 +46,17 @@ import org.sigmah.shared.command.result.Authentication;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class GetCalendarAsyncHandler implements AsyncCommandHandler<GetCalendar, Calendar>, DispatchListener<GetCalendar, Calendar> {
 
 	private final Map<CalendarType, AsyncCommandHandler<GetCalendar, Calendar>> calendarHandlers;
 
-	@Inject
-	public GetCalendarAsyncHandler(ActivityCalendarAsyncHandler activityCalendarAsyncHandler,
-			PersonalCalendarAsyncHandler personalCalendarAsyncHandler,
-			MonitoredPointCalendarAsyncHandler monitoredPointCalendarAsyncHandler,
-			ReminderCalendarAsyncHandler reminderCalendarAsyncHandler) {
+	
+	public GetCalendarAsyncHandler(ClientFactory factory) {
 		calendarHandlers = new EnumMap<CalendarType, AsyncCommandHandler<GetCalendar, Calendar>>(CalendarType.class);
-		calendarHandlers.put(CalendarType.Activity, activityCalendarAsyncHandler);
-		calendarHandlers.put(CalendarType.Personal, personalCalendarAsyncHandler);
-		calendarHandlers.put(CalendarType.MonitoredPoint, monitoredPointCalendarAsyncHandler);
-		calendarHandlers.put(CalendarType.Reminder, reminderCalendarAsyncHandler);
+		calendarHandlers.put(CalendarType.Activity, factory.getActivityCalendarAsyncHandler());
+		calendarHandlers.put(CalendarType.Personal, factory.getPersonalCalendarAsyncHandler());
+		calendarHandlers.put(CalendarType.MonitoredPoint, factory.getMonitoredPointCalendarAsyncHandler());
+		calendarHandlers.put(CalendarType.Reminder, factory.getReminderCalendarAsyncHandler());
 	}
 	
 	@Override

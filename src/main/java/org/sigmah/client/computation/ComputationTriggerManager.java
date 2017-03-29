@@ -59,7 +59,7 @@ import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
  */
 public class ComputationTriggerManager {
 
-	@Inject
+	
 	private ClientValueResolver valueResolver;
 
 	private final Map<ComputationElementDTO, Computation> computations = new HashMap<ComputationElementDTO, Computation>();
@@ -68,6 +68,11 @@ public class ComputationTriggerManager {
 	private final Map<Integer, ComputationElementDTO> elementsWithHandlers = new HashMap<Integer, ComputationElementDTO>();
 
 	private FlexibleElementContainer container;
+	
+	public ComputationTriggerManager(ClientValueResolver valueResolver){
+		this.valueResolver = valueResolver;
+		
+	}
 
 	/**
 	 * Prepare the trigger manager.

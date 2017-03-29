@@ -39,7 +39,6 @@ import org.sigmah.client.ui.widget.popup.PopupWidget;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class ChangeOwnPasswordView extends AbstractPopupView<PopupWidget> implements ChangeOwnPasswordPresenter.View {
 
 	private FormPanel formPanel;

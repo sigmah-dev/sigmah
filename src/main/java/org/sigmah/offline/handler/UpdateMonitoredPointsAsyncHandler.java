@@ -41,15 +41,22 @@ import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class UpdateMonitoredPointsAsyncHandler implements AsyncCommandHandler<UpdateMonitoredPoints, ListResult<MonitoredPointDTO>>, DispatchListener<UpdateMonitoredPoints, ListResult<MonitoredPointDTO>> {
 
-	@Inject
+
 	private MonitoredPointAsyncDAO monitoredPointAsyncDAO;
 	
-	@Inject
+
 	private UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
 	
+	
+	
+	public UpdateMonitoredPointsAsyncHandler(MonitoredPointAsyncDAO monitoredPointAsyncDAO,
+			UpdateDiaryAsyncDAO updateDiaryAsyncDAO) {
+		this.monitoredPointAsyncDAO = monitoredPointAsyncDAO;
+		this.updateDiaryAsyncDAO = updateDiaryAsyncDAO;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

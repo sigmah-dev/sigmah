@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.UpdateEvent;
@@ -77,7 +78,6 @@ import org.sigmah.shared.command.result.VoidResult;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<ImportationSchemeAdminPresenter.View> {
 
 	/**
@@ -88,7 +88,6 @@ public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<Impo
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ImportationSchemeAdminView.class)
 	public static interface View extends AbstractAdminPresenter.View {
 
 		void setImportationSchemePresenterHandler(ImportationSchemePresenterHandler importationSchemePresenterHandler);
@@ -167,9 +166,8 @@ public class ImportationSchemeAdminPresenter extends AbstractAdminPresenter<Impo
 
 	}
 
-	@Inject
-	protected ImportationSchemeAdminPresenter(View view, Injector injector) {
-		super(view, injector);
+	public ImportationSchemeAdminPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	@Override

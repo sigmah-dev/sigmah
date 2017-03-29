@@ -42,6 +42,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.computation.ClientValueResolver;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.offline.dao.ComputationAsyncDAO;
@@ -66,25 +68,30 @@ import org.sigmah.shared.util.Collections;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProject, VoidResult>, DispatchListener<UpdateProject, VoidResult> {
 
-    @Inject
+
 	private ValueAsyncDAO valueAsyncDAO;
     
-    @Inject
 	private UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
     
-    @Inject
     private ProjectAsyncDAO projectAsyncDAO;
 	
-	@Inject
 	private ComputationAsyncDAO computationAsyncDAO;
 	
-	@Inject
 	private ClientValueResolver clientValueResolver;
+	
+	
 
-    /**
+    public UpdateProjectAsyncHandler(ClientFactory factory) {
+		this.valueAsyncDAO = factory.getValueAsyncDAO();
+		this.updateDiaryAsyncDAO = factory.getUpdateDiaryAsyncDAO();
+		this.projectAsyncDAO = factory.getProjectAsyncDAO();
+		this.computationAsyncDAO = factory.getComputationAsyncDAO();
+		this.clientValueResolver = factory.getClientValueResolver();
+	}
+
+	/**
      * {@inheritDoc}
      */
 	@Override

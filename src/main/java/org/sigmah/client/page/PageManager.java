@@ -85,7 +85,7 @@ public class PageManager implements ValueChangeHandler<String>, PageChangedHandl
 	 * @param eventBus
 	 *          application event bus.
 	 */
-	@Inject
+
 	public PageManager(final EventBus eventBus) {
 		this.eventBus = eventBus;
 		pages = new HashMap<String, Pair<Page, Boolean>>();

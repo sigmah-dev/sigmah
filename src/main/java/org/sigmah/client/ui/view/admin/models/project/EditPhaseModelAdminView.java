@@ -52,7 +52,6 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class EditPhaseModelAdminView extends AbstractPopupView<PopupWidget> implements EditPhaseModelAdminPresenter.View {
 
 	private Map<CheckBox, PhaseModelDTO> successors;

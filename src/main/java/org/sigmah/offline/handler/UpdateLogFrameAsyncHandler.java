@@ -44,15 +44,19 @@ import org.sigmah.shared.dto.logframe.LogFrameDTO;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class UpdateLogFrameAsyncHandler implements AsyncCommandHandler<UpdateLogFrame, LogFrameDTO>, DispatchListener<UpdateLogFrame, LogFrameDTO> {
 
-	@Inject
 	private ProjectAsyncDAO projectAsyncDAO;
 	
-	@Inject
 	private UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
 	
+	
+	
+	public UpdateLogFrameAsyncHandler(ProjectAsyncDAO projectAsyncDAO, UpdateDiaryAsyncDAO updateDiaryAsyncDAO) {
+		this.projectAsyncDAO = projectAsyncDAO;
+		this.updateDiaryAsyncDAO = updateDiaryAsyncDAO;
+	}
+
 	@Override
 	public void execute(final UpdateLogFrame command, OfflineExecutionContext executionContext, AsyncCallback<LogFrameDTO> callback) {
 		updateDiaryAsyncDAO.saveOrUpdate(command);

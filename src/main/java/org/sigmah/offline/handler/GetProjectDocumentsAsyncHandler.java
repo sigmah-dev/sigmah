@@ -50,9 +50,15 @@ import org.sigmah.shared.dto.value.ListableValue;
 @Singleton
 public class GetProjectDocumentsAsyncHandler implements AsyncCommandHandler<GetProjectDocuments, ListResult<ReportReference>> {
 
-	@Inject
+	
 	private ValueAsyncDAO valueAsyncDAO;
 	
+	public GetProjectDocumentsAsyncHandler(ValueAsyncDAO valueAsyncDAO) {
+		this.valueAsyncDAO = valueAsyncDAO;
+	}
+
+
+
 	@Override
 	public void execute(GetProjectDocuments command, OfflineExecutionContext executionContext, AsyncCallback<ListResult<ReportReference>> callback) {
 		final ArrayList<ReportReference> references = new ArrayList<ReportReference>();

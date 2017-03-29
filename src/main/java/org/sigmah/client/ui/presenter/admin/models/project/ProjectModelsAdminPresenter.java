@@ -25,6 +25,7 @@ package org.sigmah.client.ui.presenter.admin.models.project;
 
 import java.util.*;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.UpdateEvent;
@@ -63,13 +64,11 @@ import com.google.inject.Singleton;
  *
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class ProjectModelsAdminPresenter extends AbstractModelsAdminPresenter<ProjectModelDTO, ProjectModelsAdminPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ProjectModelsAdminView.class)
 	public static interface View extends AbstractModelsAdminPresenter.View<ProjectModelDTO> {
 
 		void setProjectTypeProvider(ProjectTypeProvider provider);
@@ -111,10 +110,9 @@ public class ProjectModelsAdminPresenter extends AbstractModelsAdminPresenter<Pr
 	 * @param importationSchemeModelsAdminPresenterProvider
 	 *			The {@link ImportationSchemeModelsAdminPresenter} provider.
 	 */
-	@Inject
-	protected ProjectModelsAdminPresenter(final View view, final Injector injector, final Provider<FlexibleElementsAdminPresenter<ProjectModelDTO>> flexibleElementsProvider, final Provider<PhaseModelsAdminPresenter> phaseModelsAdminPresenterProvider, final Provider<LogFrameModelsAdminPresenter> logFrameModelsAdminPresenterProvider, final Provider<ImportationSchemeModelsAdminPresenter<ProjectModelDTO>> importationSchemeModelsAdminPresenterProvider) {
-		super(view, injector, flexibleElementsProvider.get(), phaseModelsAdminPresenterProvider.get(), logFrameModelsAdminPresenterProvider.get(),
-			importationSchemeModelsAdminPresenterProvider.get());
+	public ProjectModelsAdminPresenter(final View view, final ClientFactory factory) {
+		super(view, factory, factory.getFlexibleElementsAdminPresenter2(), factory.getPhaseModelsAdminPresenter(), factory.getLogFrameModelsAdminPresenter(),
+			factory.getImportationSchemeModelsAdminPresenter2());
 	}
 
 	/**

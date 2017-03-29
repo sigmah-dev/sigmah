@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.admin;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -54,8 +56,8 @@ public abstract class AbstractAdminPresenter<V extends AbstractAdminPresenter.Vi
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	protected AbstractAdminPresenter(final V view, final Injector injector) {
-		super(view, injector);
+	protected AbstractAdminPresenter(final V view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
@@ -63,7 +65,7 @@ public abstract class AbstractAdminPresenter<V extends AbstractAdminPresenter.Vi
 	 */
 	@Override
 	public AdminPresenter getParentPresenter() {
-		return injector.getAdminPresenter();
+		return factory.getAdminPresenter();
 	}
 
 }

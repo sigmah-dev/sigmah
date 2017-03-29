@@ -54,7 +54,6 @@ import com.google.inject.Singleton;
 /**
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
-@Singleton
 public class ExportProjectsView extends AbstractPopupView<PopupWidget> implements ExportProjectsPresenter.View {
 
 	private Button settingsButton;

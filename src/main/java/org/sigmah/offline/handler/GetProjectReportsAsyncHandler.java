@@ -40,12 +40,15 @@ import org.sigmah.shared.dto.report.ReportReference;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class GetProjectReportsAsyncHandler implements AsyncCommandHandler<GetProjectReports, ListResult<ReportReference>>, DispatchListener<GetProjectReports, ListResult<ReportReference>> {
 
-	@Inject
 	private ReportReferenceAsyncDAO reportReferenceAsyncDAO;
 	
+	
+	public GetProjectReportsAsyncHandler(ReportReferenceAsyncDAO reportReferenceAsyncDAO) {
+		this.reportReferenceAsyncDAO = reportReferenceAsyncDAO;
+	}
+
 	@Override
 	public void execute(GetProjectReports command, OfflineExecutionContext executionContext, AsyncCallback<ListResult<ReportReference>> callback) {
 		reportReferenceAsyncDAO.getAll(getParentId(command), callback);

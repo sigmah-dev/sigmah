@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -65,13 +67,13 @@ import com.google.inject.Singleton;
  * @author Claire Yang (cyang@ideia.fr)
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
+
 public class ApplicationPresenter extends AbstractPresenter<ApplicationPresenter.View> {
 
 	/**
 	 * Application view.
 	 */
-	@ImplementedBy(ApplicationView.class)
+	
 	public static interface View extends ViewInterface {
 
 		/**
@@ -132,16 +134,16 @@ public class ApplicationPresenter extends AbstractPresenter<ApplicationPresenter
 	 * 
 	 * @param view
 	 *          Presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected client injector.
 	 */
-	@Inject
-	public ApplicationPresenter(final View view, final Injector injector) {
+	
+	public ApplicationPresenter(final View view, final ClientFactory factory) {
 
-		super(view, injector); // Executes 'bind()' method.
+		super(view, factory); // Executes 'bind()' method.
 
-		view.initZones(injector.getOrganizationBannerPresenter().getView(), injector.getAuthenticationBannerPresenter().getView(), injector
-			.getOfflineBannerPresenter().getView(), injector.getAppLoaderPresenter().getView(), injector.getMenuBannerPresenter().getView(), injector
+		view.initZones(factory.getOrganizationBannerPresenter().getView(), factory.getAuthenticationBannerPresenter().getView(), factory
+			.getOfflineBannerPresenter().getView(), factory.getAppLoaderPresenter().getView(), factory.getMenuBannerPresenter().getView(), factory
 			.getMessageBannerPresenter().getView());
 
 	}

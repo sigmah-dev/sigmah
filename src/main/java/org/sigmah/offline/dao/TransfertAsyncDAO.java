@@ -46,7 +46,7 @@ import org.sigmah.shared.file.TransfertType;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
+
 public class TransfertAsyncDAO extends AbstractAsyncDAO<TransfertJS, Store> {
 
 	/**

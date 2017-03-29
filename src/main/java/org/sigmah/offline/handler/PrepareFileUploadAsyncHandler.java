@@ -58,14 +58,19 @@ import org.sigmah.shared.util.ValueResultUtils;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class PrepareFileUploadAsyncHandler implements AsyncCommandHandler<PrepareFileUpload, FileVersionDTO> {
 	
-	@Inject
+
 	private ValueAsyncDAO valueAsyncDAO;
 	
-	@Inject
 	private UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
+	
+	
+
+	public PrepareFileUploadAsyncHandler(ValueAsyncDAO valueAsyncDAO, UpdateDiaryAsyncDAO updateDiaryAsyncDAO) {
+		this.valueAsyncDAO = valueAsyncDAO;
+		this.updateDiaryAsyncDAO = updateDiaryAsyncDAO;
+	}
 
 	@Override
 	public void execute(final PrepareFileUpload command, final OfflineExecutionContext executionContext, final AsyncCallback<FileVersionDTO> callback) {

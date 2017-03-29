@@ -44,7 +44,7 @@ import org.sigmah.offline.indexeddb.Schema;
  */
 public abstract class BaseAsyncDAO<S extends Enum<S> & Schema> {
 	
-	@Inject
+	
 	private AuthenticationProvider authenticationProvider;
 	
 	/**

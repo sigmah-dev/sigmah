@@ -34,6 +34,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 
 import java.util.List;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.i18n.I18N;
@@ -52,7 +53,8 @@ import org.sigmah.shared.servlet.ServletConstants;
 import org.sigmah.shared.servlet.ServletUrlBuilder;
 
 public class ContactRelationshipsPresenter extends AbstractPresenter<ContactRelationshipsPresenter.View> implements ContactPresenter.ContactSubPresenter<ContactRelationshipsPresenter.View> {
-  @ImplementedBy(ContactRelationshipsView.class)
+
+	
   public interface View extends ViewInterface {
     void reloadView(ContactDTO contactDTO, AnchorHandler anchorHandler);
 
@@ -78,9 +80,8 @@ public class ContactRelationshipsPresenter extends AbstractPresenter<ContactRela
     void handleClick(ContactRelationship.Type type, Integer id);
   }
 
-  @Inject
-  public ContactRelationshipsPresenter(View view, Injector injector) {
-    super(view, injector);
+  public ContactRelationshipsPresenter(View view, ClientFactory factory) {
+    super(view, factory);
   }
 
   @Override
@@ -166,7 +167,7 @@ public class ContactRelationshipsPresenter extends AbstractPresenter<ContactRela
       public void onExportContactRelationships(final boolean characteristicsField, final boolean allRelationsField, final boolean frameworkRelationsField, final boolean relationsByElementField) {
 
         final ServletUrlBuilder urlBuilder =
-            new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), ServletConstants.Servlet.EXPORT, ServletConstants.ServletMethod.EXPORT_CONTACT);
+            new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), ServletConstants.Servlet.EXPORT, ServletConstants.ServletMethod.EXPORT_CONTACT);
 
         urlBuilder.addParameter(RequestParameter.ID, contact.getId());
         urlBuilder.addParameter(RequestParameter.WITH_CHARACTERISTICS, characteristicsField);

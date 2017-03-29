@@ -44,7 +44,6 @@ import com.google.inject.Singleton;
  * @author Maxime Lombard (mlombard@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class AdminView extends AbstractView implements AdminPresenter.View {
 
 	private SubMenuWidget subMenu;

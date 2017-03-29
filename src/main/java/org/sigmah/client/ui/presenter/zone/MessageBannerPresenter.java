@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.zone;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -42,13 +44,11 @@ import com.google.inject.Singleton;
  * 
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
 public class MessageBannerPresenter extends AbstractZonePresenter<MessageBannerPresenter.View> {
 
 	/**
 	 * View interface.
 	 */
-	@ImplementedBy(MessageBannerView.class)
 	public static interface View extends ViewInterface {
 
 		Panel getMessagePanel();
@@ -57,8 +57,8 @@ public class MessageBannerPresenter extends AbstractZonePresenter<MessageBannerP
 
 	}
 
-	@Inject
-	public MessageBannerPresenter(View view, Injector injector) {
+
+	public MessageBannerPresenter(View view, ClientFactory injector) {
 		super(view, injector);
 	}
 

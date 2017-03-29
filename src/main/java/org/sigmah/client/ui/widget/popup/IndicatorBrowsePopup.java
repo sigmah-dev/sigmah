@@ -46,6 +46,8 @@ import com.extjs.gxt.ui.client.widget.treepanel.TreePanel.CheckNodes;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.inject.Inject;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.i18n.I18N;
@@ -71,7 +73,7 @@ public class IndicatorBrowsePopup extends AbstractPopupView<PopupWidget> {
 	
 	private AsyncCallback<VoidResult> callback;
 
-	@Inject
+	
 	public IndicatorBrowsePopup(DispatchAsync dispatcher) {
 		super(new PopupWidget(true));
 		

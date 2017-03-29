@@ -25,6 +25,7 @@ package org.sigmah.client.ui.presenter.project.export;
 import java.util.List;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.i18n.I18N;
@@ -58,10 +59,8 @@ import com.google.inject.Singleton;
 /**
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
-@Singleton
 public class ExportProjectsSettingPresenter extends AbstractPagePresenter<ExportProjectsSettingPresenter.View> {
 
-	@ImplementedBy(ExportProjectsSettingView.class)
 	public static interface View extends ViewPopupInterface {
 
 		ListStore<FlexibleElementDTO> getFieldsStore();
@@ -106,9 +105,8 @@ public class ExportProjectsSettingPresenter extends AbstractPagePresenter<Export
 
 	}
 
-	@Inject
-	public ExportProjectsSettingPresenter(View view, Injector injector) {
-		super(view, injector);
+	public ExportProjectsSettingPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	@Override

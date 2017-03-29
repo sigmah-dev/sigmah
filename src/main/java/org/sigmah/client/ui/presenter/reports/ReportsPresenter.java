@@ -29,6 +29,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.UpdateEvent;
@@ -39,7 +40,6 @@ import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.AbstractPresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
-import org.sigmah.client.ui.view.reports.ReportsView;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.panel.FoldPanel;
 import org.sigmah.client.util.ClientConfiguration;
@@ -88,10 +88,7 @@ import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHTML;
 import com.google.gwt.user.client.ui.RootPanel;
-import com.google.inject.ImplementedBy;
-import com.google.inject.Inject;
 import org.sigmah.shared.file.TransfertManager;
-
 /**
  * Reports & Documents widget presenter.
  * 
@@ -102,12 +99,8 @@ public class ReportsPresenter extends AbstractPresenter<ReportsPresenter.View> {
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ReportsView.class)
-	public static interface View extends ViewInterface {
 
-		// --
-		// Documents (reports / files) lists area.
-		// --
+	public static interface View extends ViewInterface {
 
 		void setDocumentNameColumnActionHandler(DocumentNameColumnActionHandler documentNameColumnActionHandler);
 
@@ -240,7 +233,7 @@ public class ReportsPresenter extends AbstractPresenter<ReportsPresenter.View> {
 	 */
 	private String phaseName;
 	
-	@Inject
+	
 	private TransfertManager transfertManager;
 
 	/**
@@ -251,9 +244,9 @@ public class ReportsPresenter extends AbstractPresenter<ReportsPresenter.View> {
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	protected ReportsPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public ReportsPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
+		transfertManager = factory.getTransfertManager();
 	}
 
 	/**
@@ -922,7 +915,7 @@ public class ReportsPresenter extends AbstractPresenter<ReportsPresenter.View> {
 	private void onExportReport(final ProjectReportDTO report) {
 
 		final ServletUrlBuilder urlBuilder =
-				new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_REPORT);
+				new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_REPORT);
 
 		urlBuilder.addParameter(RequestParameter.ID, report.getId());
 		urlBuilder.addParameter(RequestParameter.TYPE, ExportType.PROJECT_REPORT);

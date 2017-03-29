@@ -52,14 +52,12 @@ import org.sigmah.offline.dao.RequestManagerCallback;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class GetProjectsAsyncHandler implements AsyncCommandHandler<GetProjects, ListResult<ProjectDTO>>, DispatchListener<GetProjects, ListResult<ProjectDTO>> {
 
 	private final Authentication authentication;
 	private final ProjectAsyncDAO projectAsyncDAO;
 	private final OrgUnitAsyncDAO orgUnitAsyncDAO;
 
-	@Inject
 	public GetProjectsAsyncHandler(Authentication authentication, ProjectAsyncDAO projectAsyncDAO, OrgUnitAsyncDAO orgUnitAsyncDAO) {
 		this.authentication = authentication;
 		this.projectAsyncDAO = projectAsyncDAO;

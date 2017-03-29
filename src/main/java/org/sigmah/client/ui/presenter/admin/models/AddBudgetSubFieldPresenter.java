@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.admin.models;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -46,12 +48,11 @@ import com.google.inject.Singleton;
 /**
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
-@Singleton
 public class AddBudgetSubFieldPresenter extends AbstractPagePresenter<AddBudgetSubFieldPresenter.View> {
 
 	private BudgetSubFieldDTO currentBudgetSubField;
 
-	@ImplementedBy(AddBudgetSubFieldView.class)
+
 	public static interface View extends ViewPopupInterface {
 
 		FormPanel getForm();
@@ -62,9 +63,8 @@ public class AddBudgetSubFieldPresenter extends AbstractPagePresenter<AddBudgetS
 
 	}
 
-	@Inject
-	public AddBudgetSubFieldPresenter(View view, Injector injector) {
-		super(view, injector);
+	public AddBudgetSubFieldPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	@Override

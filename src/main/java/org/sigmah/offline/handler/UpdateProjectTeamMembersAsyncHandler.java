@@ -43,7 +43,7 @@ public class UpdateProjectTeamMembersAsyncHandler implements AsyncCommandHandler
 	private final ProjectTeamMembersAsyncDAO projectTeamMembersAsyncDAO;
 	private final UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
 
-	@Inject UpdateProjectTeamMembersAsyncHandler(ProjectTeamMembersAsyncDAO projectTeamMembersAsyncDAO, UpdateDiaryAsyncDAO updateDiaryAsyncDAO) {
+	public UpdateProjectTeamMembersAsyncHandler(ProjectTeamMembersAsyncDAO projectTeamMembersAsyncDAO, UpdateDiaryAsyncDAO updateDiaryAsyncDAO) {
 		this.projectTeamMembersAsyncDAO = projectTeamMembersAsyncDAO;
 		this.updateDiaryAsyncDAO = updateDiaryAsyncDAO;
 	}

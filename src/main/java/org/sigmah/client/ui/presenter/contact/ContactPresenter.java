@@ -36,6 +36,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.TreeSet;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
@@ -59,7 +60,7 @@ import org.sigmah.shared.dto.referential.ContactModelType;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.View> {
-  @ImplementedBy(ContactView.class)
+
   public interface View extends ViewInterface {
     Component getMainComponent();
 
@@ -97,11 +98,11 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
 
   private ContactDTO contactDTO;
 
-  @Inject
-  public ContactPresenter(View view, Injector injector, ContactDetailsPresenter contactDetailsPresenter, ContactRelationshipsPresenter contactRelationshipsPresenter, ContactHistoryPresenter contactHistoryPresenter, ImageProvider imageProvider) {
-    super(view, injector);
+  public ContactPresenter(View view, ClientFactory factory, ContactDetailsPresenter contactDetailsPresenter, ContactRelationshipsPresenter contactRelationshipsPresenter, ContactHistoryPresenter contactHistoryPresenter, ImageProvider imageProvider) {
+    super(view, factory);
 
     this.imageProvider = imageProvider;
+    
 
     this.tabPresenters = Arrays.asList(contactDetailsPresenter, contactRelationshipsPresenter, contactHistoryPresenter);
   }

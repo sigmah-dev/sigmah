@@ -27,6 +27,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.util.ClientUtils;
@@ -102,9 +103,9 @@ public final class ServletRequestBuilder {
 	 * @param method
 	 *          The servlet method to execute.
 	 */
-	public ServletRequestBuilder(final Injector injector, final Method requestMethod, final Servlet servlet, final ServletMethod method) {
+	public ServletRequestBuilder(final ClientFactory factory, final Method requestMethod, final Servlet servlet, final ServletMethod method) {
 		this.requestMethod = requestMethod;
-		this.urlBuilder = new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), servlet, method);
+		this.urlBuilder = new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), servlet, method);
 		this.requestAttributes = new HashMap<String, String>();
 		this.urlBuilder.addParameter(ServletConstants.AJAX, ClientUtils.toList(true));
 	}

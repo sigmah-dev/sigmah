@@ -40,12 +40,10 @@ import com.google.inject.Singleton;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class GetProjectsFromIdAsyncHandler implements AsyncCommandHandler<GetProjectsFromId, ListResult<ProjectDTO>> {
 
 	private final ProjectAsyncDAO projectAsyncDAO;
 
-	@Inject
 	public GetProjectsFromIdAsyncHandler(ProjectAsyncDAO projectAsyncDAO) {
 		this.projectAsyncDAO = projectAsyncDAO;
 	}

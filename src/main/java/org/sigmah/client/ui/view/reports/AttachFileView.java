@@ -45,7 +45,6 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class AttachFileView extends AbstractPopupView<PopupWidget> implements AttachFilePresenter.View {
 
 	private FormPanel uploadFormPanel;

@@ -36,7 +36,6 @@ import com.google.inject.Singleton;
 /**
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
-@Singleton
 public class AddBudgetSubFieldView extends AbstractPopupView<PopupWidget> implements AddBudgetSubFieldPresenter.View {
 
 	private TextField<String> nameField;

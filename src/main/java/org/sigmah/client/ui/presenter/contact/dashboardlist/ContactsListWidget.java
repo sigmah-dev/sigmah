@@ -50,6 +50,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.UpdateEvent;
@@ -94,7 +96,7 @@ import org.sigmah.shared.util.ProfileUtils;
 
 public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.View> {
 
-	@ImplementedBy(ContactsListView.class)
+	
 	public static interface View extends ViewInterface, HasGrid<DashboardContact> {
 
 		void updateAccessibilityState(boolean authorized);
@@ -127,7 +129,7 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 	private final Queue<GetContacts> commandQueue = new LinkedList<GetContacts>();
 	private CreateContactHandler createContactHandler;
 
-	@Inject
+
 	private ImageProvider imageProvider;
 
 	/**
@@ -138,10 +140,9 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 	/**
 	 * Builds a new contact list panel with default values.
 	 */
-	@Inject
-	public ContactsListWidget(final View view, final Injector injector) {
-		super(view, injector);
-
+	public ContactsListWidget(final View view, final ClientFactory factory) {
+		super(view, factory);
+		imageProvider = factory.getImageProvider();
 		createContactHandler = new CreateContactHandler() {
 			@Override
 			public void handleContactCreation(final ContactModelDTO contactModelDTO, final String email, final String firstName, final String familyName, final String organizationName, final OrgUnitDTO mainOrgUnit, final List<OrgUnitDTO> secondaryOrgUnits) {

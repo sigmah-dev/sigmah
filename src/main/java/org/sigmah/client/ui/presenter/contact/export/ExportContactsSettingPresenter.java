@@ -35,6 +35,8 @@ import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.i18n.I18N;
@@ -54,10 +56,9 @@ import org.sigmah.shared.dto.GlobalContactExportSettingsDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.util.ExportUtils;
 
-@Singleton
+
 public class ExportContactsSettingPresenter extends AbstractPagePresenter<ExportContactsSettingPresenter.View> {
 
-	@ImplementedBy(ExportContactsSettingView.class)
 	public static interface View extends ViewPopupInterface {
 
 		ListStore<FlexibleElementDTO> getFieldsStore();
@@ -102,8 +103,7 @@ public class ExportContactsSettingPresenter extends AbstractPagePresenter<Export
 
 	}
 
-	@Inject
-	public ExportContactsSettingPresenter(View view, Injector injector) {
+	public ExportContactsSettingPresenter(View view, ClientFactory injector) {
 		super(view, injector);
 	}
 

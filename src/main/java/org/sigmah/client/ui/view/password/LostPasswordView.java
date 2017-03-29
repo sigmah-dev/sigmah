@@ -40,7 +40,7 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
+
 public class LostPasswordView extends AbstractPopupView<PopupWidget> implements LostPasswordPresenter.View {
 
 	private FormPanel formPanel;

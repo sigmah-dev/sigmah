@@ -42,7 +42,7 @@ public class GetProjectTeamMembersAsyncHandler implements AsyncCommandHandler<Ge
 
 	private final ProjectTeamMembersAsyncDAO projectTeamMembersAsyncDAO;
 
-	@Inject GetProjectTeamMembersAsyncHandler(ProjectTeamMembersAsyncDAO projectTeamMembersAsyncDAO) {
+	public GetProjectTeamMembersAsyncHandler(ProjectTeamMembersAsyncDAO projectTeamMembersAsyncDAO) {
 		this.projectTeamMembersAsyncDAO = projectTeamMembersAsyncDAO;
 	}
 

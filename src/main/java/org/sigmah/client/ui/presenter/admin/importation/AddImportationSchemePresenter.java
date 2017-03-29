@@ -26,6 +26,7 @@ package org.sigmah.client.ui.presenter.admin.importation;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
@@ -61,7 +62,6 @@ import com.google.inject.Singleton;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class AddImportationSchemePresenter extends AbstractPagePresenter<AddImportationSchemePresenter.View> {
 
 	public static final String VALUE = "type";
@@ -74,7 +74,6 @@ public class AddImportationSchemePresenter extends AbstractPagePresenter<AddImpo
 	 * The view interface managed by this presenter.
 	 */
 
-	@ImplementedBy(AddImportationSchemeView.class)
 	public static interface View extends ViewInterface {
 
 		TextField<String> getNameField();
@@ -107,9 +106,8 @@ public class AddImportationSchemePresenter extends AbstractPagePresenter<AddImpo
 
 	}
 
-	@Inject
-	protected AddImportationSchemePresenter(View view, Injector injector) {
-		super(view, injector);
+	public AddImportationSchemePresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	@Override

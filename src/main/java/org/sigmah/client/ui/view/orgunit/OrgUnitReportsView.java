@@ -32,7 +32,7 @@ import com.google.inject.Singleton;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
 
-@Singleton
+
 public class OrgUnitReportsView extends AbstractView implements OrgUnitReportsPresenter.View {
 
 	/**

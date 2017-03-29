@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.UpdateEvent;
@@ -82,13 +83,11 @@ import com.google.inject.Singleton;
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
-@Singleton
 public class ReportModelsAdminPresenter extends AbstractAdminPresenter<ReportModelsAdminPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ReportModelsAdminView.class)
 	public static interface View extends AbstractAdminPresenter.View {
 
 		LoadingMask getReportModelsLoadingMonitor();
@@ -153,9 +152,8 @@ public class ReportModelsAdminPresenter extends AbstractAdminPresenter<ReportMod
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	protected ReportModelsAdminPresenter(View view, Injector injector) {
-		super(view, injector);
+	public ReportModelsAdminPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
@@ -252,7 +250,7 @@ public class ReportModelsAdminPresenter extends AbstractAdminPresenter<ReportMod
 			@Override
 			public void onClickHandler(ReportModelDTO reportModelDTO) {
 				final ServletUrlBuilder urlBuilder =
-						new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_MODEL_REPORT);
+						new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_MODEL_REPORT);
 
 				urlBuilder.addParameter(RequestParameter.ID, reportModelDTO.getId());
 

@@ -108,6 +108,8 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.computation.ComputationTriggerManager;
 import org.sigmah.client.ui.presenter.project.ProjectPresenter;
 import org.sigmah.client.ui.widget.Loadable;
@@ -125,7 +127,6 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(PhasesView.class)
 	public static interface View extends ViewInterface, Loadable {
 
 		/**
@@ -219,7 +220,6 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 	/**
 	 * Listen to the values of flexible elements to update computated values.
 	 */
-	@Inject
 	private ComputationTriggerManager computationTriggerManager;
 	
 	/**
@@ -230,9 +230,9 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 	 * @param injector
 	 *          The application injector.
 	 */
-	@Inject
-	protected PhasesPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public PhasesPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
+		this.computationTriggerManager = factory.getComputationTriggerManager();
 	}
 
 	/**
@@ -285,19 +285,19 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 	}
 
 	private ProjectDTO getCurrentProject() {
-		return injector.getProjectPresenter().getCurrentProject();
+		return factory.getProjectPresenter().getCurrentProject();
 	}
 
 	private void setCurrentProject(final ProjectDTO project) {
-		injector.getProjectPresenter().setCurrentProject(project);
+		factory.getProjectPresenter().setCurrentProject(project);
 	}
 
 	private PhaseDTO getCurrentDisplayedPhase() {
-		return injector.getProjectPresenter().getCurrentDisplayedPhase();
+		return factory.getProjectPresenter().getCurrentDisplayedPhase();
 	}
 
 	private void setCurrentDisplayedPhase(final PhaseDTO phase) {
-		injector.getProjectPresenter().setCurrentDisplayedPhase(phase);
+		factory.getProjectPresenter().setCurrentDisplayedPhase(phase);
 	}
 
 	/**
@@ -583,7 +583,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 			protected void onComplete() {
 				// View layouts update.
 				// FIXME (v1.3) This should be done by Ext, not be the developer!
-				injector.getProjectDashboardPresenter().getView().layoutView();
+				factory.getProjectDashboardPresenter().getView().layoutView();
 				view.layout();				
 				Profiler.INSTANCE.endScenario(Scenario.OPEN_PROJECT);
 			}
@@ -768,15 +768,15 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 
 							// Configures the flexible element for the current application state before generating its component.
 							elementDTO.setService(dispatch);
-							elementDTO.setAuthenticationProvider(injector.getAuthenticationProvider());
+							elementDTO.setAuthenticationProvider(factory.getAuthenticationProvider());
 					elementDTO.setEventBus(eventBus);
-							elementDTO.setCache(injector.getClientCache());
+							elementDTO.setCache(factory.getClientCache());
 					elementDTO.setCurrentContainerDTO(project);
-							elementDTO.setTransfertManager(injector.getTransfertManager());
+							elementDTO.setTransfertManager(factory.getTransfertManager());
 							elementDTO.assignValue(valueResult);
 					elementDTO.setTabPanel(tabPanel);
 
-							final ProjectPresenter projectPresenter = injector.getProjectPresenter();
+							final ProjectPresenter projectPresenter = factory.getProjectPresenter();
 							
 							// Generates element component (with the value).
 							elementDTO.init();

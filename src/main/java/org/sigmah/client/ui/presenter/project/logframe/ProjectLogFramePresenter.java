@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.project.logframe;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -67,13 +69,11 @@ import com.google.inject.Singleton;
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
 public class ProjectLogFramePresenter extends AbstractProjectPresenter<ProjectLogFramePresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ProjectLogFrameView.class)
 	public static interface View extends AbstractProjectPresenter.View {
 
 		Component getMainPanel();
@@ -119,12 +119,11 @@ public class ProjectLogFramePresenter extends AbstractProjectPresenter<ProjectLo
 	 *
 	 * @param view
 	 *          Presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected client injector.
 	 */
-	@Inject
-	public ProjectLogFramePresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public ProjectLogFramePresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
@@ -201,7 +200,7 @@ public class ProjectLogFramePresenter extends AbstractProjectPresenter<ProjectLo
 			public void handleEvent(final ButtonEvent be) {
 
 				final ServletUrlBuilder urlBuilder =
-						new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_PROJECT_LOGFRAME);
+						new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_PROJECT_LOGFRAME);
 
 				urlBuilder.addParameter(RequestParameter.ID, getProject().getId());
 

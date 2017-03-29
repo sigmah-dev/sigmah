@@ -51,7 +51,6 @@ import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class ApplicationStateManager implements OfflineEvent.Source {
 	
 	public static final int NETWORK_POLLING_INTERVAL = 3000;
@@ -82,7 +81,7 @@ public class ApplicationStateManager implements OfflineEvent.Source {
 	 */
 	private Runnable onReconnection;
 	
-	@Inject
+
 	public ApplicationStateManager(EventBus eventBus, UpdateDiaryAsyncDAO updateDiaryAsyncDAO) {
 		this.eventBus = eventBus;
 		this.updateDiaryAsyncDAO = updateDiaryAsyncDAO;

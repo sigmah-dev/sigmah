@@ -26,6 +26,7 @@ package org.sigmah.client.ui.presenter.admin.models;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.event.handler.UpdateHandler;
@@ -80,7 +81,6 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(FlexibleElementsAdminView.class)
 	public static interface View extends ViewInterface, HasGrid<FlexibleElementDTO> {
 
 		void setModelEditable(final boolean editable);
@@ -116,12 +116,11 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 	 * 
 	 * @param view
 	 *          The view managed by this presenter.
-	 * @param injector
+	 * @param factory
 	 *          The application injector.
 	 */
-	@Inject
-	public FlexibleElementsAdminPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public FlexibleElementsAdminPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

@@ -1,4 +1,5 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
 	<!-- =========================================================================================== -->
 	<!-- -->
@@ -10,8 +11,8 @@
 
 	<groupId>org.sigmah</groupId>
 	<artifactId>sigmah</artifactId>
-	<!-- Any change of version here should also be reported manually client-side in 
-		public static final String VERSION of /src/main/java/org/sigmah/client/Sigmah.java  -->
+	<!-- Any change of version here should also be reported manually client-side 
+		in public static final String VERSION of /src/main/java/org/sigmah/client/Sigmah.java -->
 	<version>2.2-SNAPSHOT</version>
 
 	<packaging>war</packaging>
@@ -47,8 +48,8 @@
 	<!-- =========================================================================================== -->
 
 	<developers>
-		<!-- Representatives of the two organizations co-authors of Sigmah. For
-		full developers list, see: https://github.com/sigmah-dev/sigmah/graphs/contributors). -->
+		<!-- Representatives of the two organizations co-authors of Sigmah. For 
+			full developers list, see: https://github.com/sigmah-dev/sigmah/graphs/contributors). -->
 		<developer>
 			<id>groupe.urd</id>
 			<name>Groupe URD</name>
@@ -130,7 +131,7 @@
 	<!-- =========================================================================================== -->
 
 	<properties>
-	
+
 		<!-- ========= [ PROJECT PROPERTIES. ] ========= -->
 
 		<!-- JDK. -->
@@ -195,15 +196,17 @@
 		<itext-rtf.version>2.1.7</itext-rtf.version>
 		<quartz.version>1.5.2</quartz.version>
 		<gson.version>2.6.1</gson.version>
-		
+
 		<!-- ========= [ DEFAULT PROFILES PROPERTIES. ] ========= -->
-		
+
 		<!-- Logger properties. -->
 
-		<log.pattern>[%-5level] {%d{dd/MM/yyyy HH:mm:ss.SSS}} [%thread] %logger{35} - %msg%n</log.pattern>
+		<log.pattern>[%-5level] {%d{dd/MM/yyyy HH:mm:ss.SSS}} [%thread]
+			%logger{35} - %msg%n</log.pattern>
 		<log.level>ERROR</log.level> <!-- Available levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, OFF. -->
 
-		<!-- Default database access properties, shared by both Flyway and Hibernate (may be override in profiles) -->
+		<!-- Default database access properties, shared by both Flyway and Hibernate 
+			(may be override in profiles) -->
 
 		<sigmah.database.url>jdbc:postgresql://localhost:5432/sigmah</sigmah.database.url>
 		<sigmah.database.user>sigmah</sigmah.database.user>
@@ -219,7 +222,7 @@
 		<hibernate.connection.url>${sigmah.database.url}</hibernate.connection.url>
 		<hibernate.connection.username>${sigmah.database.user}</hibernate.connection.username>
 		<hibernate.connection.password>${sigmah.database.password}</hibernate.connection.password>
-		
+
 		<!-- JDBC pool properties. -->
 
 		<jdbc.pool.min_size>1</jdbc.pool.min_size>
@@ -249,7 +252,7 @@
 		<mail.contentType>text/html</mail.contentType>
 
 		<mail.support.to>support@sigmah.org</mail.support.to>
-		
+
 		<!-- Maps API properties. -->
 
 		<maps.key>ABQIAAAAaKyZGjYsJ9quclBfsnGc-xRxtna0S6DNUYSvLTUdQl9eB6x9_xQH4P0V3CSFEY_MypecLWSdS3Q8IQ</maps.key>
@@ -297,7 +300,7 @@
 			<version>${gwt.version}</version>
 			<scope>provided</scope>
 		</dependency>
-		
+
 		<!-- GWT-MAPS -->
 		<dependency>
 			<groupId>com.google.gwt.google-apis</groupId>
@@ -311,7 +314,7 @@
 				</exclusion>
 			</exclusions>
 		</dependency>
-		
+
 		<dependency>
 			<groupId>org.gwtopenmaps.openlayers</groupId>
 			<artifactId>gwt-openlayers-client</artifactId>
@@ -389,12 +392,8 @@
 		</dependency>
 
 		<!-- GIN -->
-		<dependency>
-			<groupId>com.google.gwt.inject</groupId>
-			<artifactId>gin</artifactId>
-			<version>${gin.version}</version>
-			<scope>provided</scope>
-		</dependency>
+		<!-- <dependency> <groupId>com.google.gwt.inject</groupId> <artifactId>gin</artifactId> 
+			<version>${gin.version}</version> <scope>provided</scope> </dependency> -->
 
 		<!-- GXT -->
 		<dependency>
@@ -409,7 +408,7 @@
 			<groupId>postgresql</groupId>
 			<artifactId>postgresql</artifactId>
 			<version>${jdbc-driver-postgresql.version}</version>
-                        <scope>runtime</scope>
+			<scope>runtime</scope>
 		</dependency>
 
 		<!-- HIBERNATE -->
@@ -438,7 +437,7 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-validator</artifactId>
 			<version>${hibernate-validator.version}</version>
-                        <scope>runtime</scope>
+			<scope>runtime</scope>
 			<exclusions>
 				<exclusion>
 					<artifactId>slf4j-api</artifactId>
@@ -450,7 +449,7 @@
 			<groupId>org.hibernate</groupId>
 			<artifactId>hibernate-c3p0</artifactId>
 			<version>${hibernate-c3p0.version}</version>
-                        <scope>runtime</scope>
+			<scope>runtime</scope>
 		</dependency>
 
 		<!-- COMMONS -->
@@ -515,7 +514,7 @@
 			<artifactId>simple-odf</artifactId>
 			<version>${odf.version}</version>
 		</dependency>
-                <dependency>
+		<dependency>
 			<groupId>org.apache.odftoolkit</groupId>
 			<artifactId>odfdom-java</artifactId>
 			<version>0.8.8-incubating</version>
@@ -637,8 +636,8 @@
 							<url>http\://www.urd.org</url>
 						</manager>
 					</managers>
-					<!-- Maven property: ${sigmah.version.partners} Available roles: (developer,
-					ergonomist, designer). -->
+					<!-- Maven property: ${sigmah.version.partners} Available roles: (developer, 
+						ergonomist, designer). -->
 					<partners>
 						<partner>
 							<name>Netapsys</name>
@@ -691,7 +690,7 @@
 							<name>Denis Colliot</name>
 							<email>denis.colliot@gmail.com</email>
 						</developer>
- 						<developer>
+						<developer>
 							<name>tdegivry</name>
 							<email>tde@atolcd.com</email>
 						</developer>
@@ -747,76 +746,76 @@
 					<contributors>
 						<contributor>
 							<name>Alan Beuret</name>
-							<!--<email>beuretalan@gmail.com</email>-->
+							<!--<email>beuretalan@gmail.com</email> -->
 						</contributor>
 						<contributor>
 							<name>Mathilde Beziau</name>
-							<!--<email>Mathilde.Beziau@croix-rouge.fr</email>-->
+							<!--<email>Mathilde.Beziau@croix-rouge.fr</email> -->
 						</contributor>
 						<contributor>
 							<name>Jean-Christophe Brard</name>
 						</contributor>
 						<contributor>
 							<name>Fadoi Chaouki</name>
-							<!--<email>fadoichaouki@hotmail.fr</email>-->
+							<!--<email>fadoichaouki@hotmail.fr</email> -->
 						</contributor>
 						<contributor>
 							<name>Julien Carlier</name>
-							<!--<email>jcarlier@urd.org</email>-->
+							<!--<email>jcarlier@urd.org</email> -->
 						</contributor>
 						<contributor>
 							<name>Salomé Cousinié</name>
 						</contributor>
 						<contributor>
 							<name>Emeline Dupont-Huin</name>
-							<!--<email>emeline.dupont-huin@medecinsdumonde.net</email>-->
+							<!--<email>emeline.dupont-huin@medecinsdumonde.net</email> -->
 						</contributor>
 						<contributor>
 							<name>Mathilde Guilment</name>
-							<!--<email>mathilde.guilment@gmail.com</email>-->
+							<!--<email>mathilde.guilment@gmail.com</email> -->
 						</contributor>
 						<contributor>
 							<name>Philomène Maigron</name>
 						</contributor>
 						<contributor>
 							<name>Oussama Mojahed</name>
-							<!--<email>omojahed@ideia.fr</email>-->
+							<!--<email>omojahed@ideia.fr</email> -->
 						</contributor>
 						<contributor>
 							<name>Juan Pablo Rodríguez Portugués</name>
-							<!--<email>cachomero@hotmail.com</email>-->
+							<!--<email>cachomero@hotmail.com</email> -->
 						</contributor>
 						<contributor>
 							<name>Laura Perchat</name>
-							<!--<email>l.perchat.lp@gmail.com</email>-->
+							<!--<email>l.perchat.lp@gmail.com</email> -->
 						</contributor>
 						<contributor>
 							<name>Astrid Renet</name>
-							<!--<email>astrid.renet@gmail.com</email>-->
+							<!--<email>astrid.renet@gmail.com</email> -->
 						</contributor>
 						<contributor>
 							<name>Pierrick Rumel</name>
-							<!--<email>pierrick.rumel@gmail.com</email>-->
+							<!--<email>pierrick.rumel@gmail.com</email> -->
 						</contributor>
 						<contributor>
 							<name>Olivier Sarrat</name>
-							<!--<email>osarrat@urd.org</email>-->
+							<!--<email>osarrat@urd.org</email> -->
 						</contributor>
 						<contributor>
 							<name>Flora Soussi</name>
-							<!--<email>flo.soussi@hotmail.fr</email>-->
+							<!--<email>flo.soussi@hotmail.fr</email> -->
 						</contributor>
 						<contributor>
 							<name>Etienne Sutherland</name>
-							<!--<email>esutherland@urd.org</email>-->
+							<!--<email>esutherland@urd.org</email> -->
 						</contributor>
 						<contributor>
 							<name>Pierre van Male</name>
-							<!--<email>vmalep@gmail.com</email>-->
+							<!--<email>vmalep@gmail.com</email> -->
 						</contributor>
 						<contributor>
 							<name>Edmond Wach</name>
-							<!--<email>edmond.wach@yahoo.fr</email>-->
+							<!--<email>edmond.wach@yahoo.fr</email> -->
 						</contributor>
 					</contributors>
 				</configuration>
@@ -931,8 +930,10 @@
 					</i18nMessagesBundles>
 					<!-- For gwt:run command. -->
 					<runTarget>/</runTarget>
+					<localWorkers>4</localWorkers>
 					<module>org.sigmah.Sigmah</module>
-					<extraJvmArgs>-Xmx1G -Xss256M -XX:PermSize=256M -Djava.io.tmpdir=${project.build.directory}</extraJvmArgs>
+					<extraJvmArgs>-Xmx1G -Xss512M -XX:PermSize=256M
+						-Djava.io.tmpdir=${project.build.directory}</extraJvmArgs>
 				</configuration>
 			</plugin>
 
@@ -975,8 +976,8 @@
 
 		<pluginManagement>
 			<plugins>
-				<!--This plugin's configuration is used to store Eclipse m2e settings
-				only. It has no influence on the Maven build itself. -->
+				<!--This plugin's configuration is used to store Eclipse m2e settings 
+					only. It has no influence on the Maven build itself. -->
 				<plugin>
 					<groupId>org.eclipse.m2e</groupId>
 					<artifactId>lifecycle-mapping</artifactId>
@@ -1028,11 +1029,11 @@
 		<connection>scm:git:https://github.com/sigmah-dev/sigmah.git</connection>
 		<developerConnection>scm:git:git@github.com:sigmah-dev/sigmah.git</developerConnection>
 		<url>https://github.com/sigmah-dev/sigmah</url>
-	  <tag>HEAD</tag>
-  </scm>
+		<tag>HEAD</tag>
+	</scm>
 
 	<profiles>
-		
+
 		<!-- ========= [ LOCAL DEVELOPMENT ENVIRONMENT. ] ========= -->
 
 		<profile>
@@ -1048,7 +1049,7 @@
 				<!-- Hibernate properties. -->
 
 				<hibernate.show_sql>true</hibernate.show_sql>
-				
+
 				<!-- Mailer properties. -->
 
 				<mail.from.name>Sigmah - DEV</mail.from.name>
@@ -1068,81 +1069,107 @@
 						<groupId>org.codehaus.mojo</groupId>
 						<artifactId>gwt-maven-plugin</artifactId>
 						<version>${gwt-maven-plugin.version}</version>
+						<executions>
+							<execution>
+								<goals>
+									<goal>compile</goal>
+									<goal>test</goal>
+									<goal>i18n</goal>
+								</goals>
+							</execution>
+						</executions>
 						<configuration>
+							<logLevel>${gwt.logLevel}</logLevel>
+							<gwtVersion>${gwt.version}</gwtVersion>
+							<webappDirectory>${webapp.directory}</webappDirectory>
+							<hostedWebapp>${webapp.directory}</hostedWebapp>
+							<generateDirectory>${project.build.directory}/generated-sources/java</generateDirectory>
+							<workDir>${project.build.directory}/gwt-workDir</workDir>
+							<i18nConstantsBundles>
+								<i18nConstantsBundle>${project.groupId}.client.i18n.UIConstants</i18nConstantsBundle>
+							</i18nConstantsBundles>
+							<i18nMessagesBundles>
+								<i18nMessagesBundle>${project.groupId}.client.i18n.UIMessages</i18nMessagesBundle>
+							</i18nMessagesBundles>
+							<!-- For gwt:run command. -->
+							<runTarget>/</runTarget>
+							<localWorkers>4</localWorkers>
+							<draftCompile>true</draftCompile>
 							<module>org.sigmah.SigmahDev</module>
+							<extraJvmArgs>-Xmx1G -Xss256M -Djava.io.tmpdir=${project.build.directory}</extraJvmArgs>
 						</configuration>
 					</plugin>
 				</plugins>
 			</build>
 		</profile>
-		        
+
 		<!-- ========= [ HANDICAP INTERNATIONAL SPECIAL VERSION. ] ========= -->
-                <profile>
-                        <id>sigmah-custom-handicapinternational</id>
+		<profile>
+			<id>sigmah-custom-handicapinternational</id>
 
-                        <build>
-                                <finalName>sigmah-hi_v${project.version}</finalName>
-                                <plugins>
-                                        <plugin>
-                                                <groupId>com.google.code.maven-replacer-plugin</groupId>
-                                                <artifactId>replacer</artifactId>
-                                                <version>1.5.3</version>
-                                                <executions>
-                                                        <execution>
-                                                                <phase>process-sources</phase>
-                                                                <goals>
-                                                                        <goal>replace</goal>
-                                                                </goals>
-                                                        </execution>
-                                                </executions>
+			<build>
+				<finalName>sigmah-hi_v${project.version}</finalName>
+				<plugins>
+					<plugin>
+						<groupId>com.google.code.maven-replacer-plugin</groupId>
+						<artifactId>replacer</artifactId>
+						<version>1.5.3</version>
+						<executions>
+							<execution>
+								<phase>process-sources</phase>
+								<goals>
+									<goal>replace</goal>
+								</goals>
+							</execution>
+						</executions>
 
-                                                <configuration>
-                                                        <basedir>${basedir}</basedir>
-                                                        <filesToInclude>
-                                                                src/main/resources/org/sigmah/client/i18n/UIConstants.properties,
-                                                                src/main/resources/org/sigmah/client/i18n/UIConstants_en_GB.properties
-                                                        </filesToInclude>
-                                                        <replacements>
-                                                                <replacement>
-                                                                        <token>createProjectTypeNGO=In-house project
-                                                                        </token>
-                                                                        <value>createProjectTypeNGO=Implemented
-                                                                                project
-                                                                        </value>
-                                                                </replacement>
-                                                        </replacements>
-                                                </configuration>
-                                        </plugin>
+						<configuration>
+							<basedir>${basedir}</basedir>
+							<filesToInclude>
+								src/main/resources/org/sigmah/client/i18n/UIConstants.properties,
+								src/main/resources/org/sigmah/client/i18n/UIConstants_en_GB.properties
+							</filesToInclude>
+							<replacements>
+								<replacement>
+									<token>createProjectTypeNGO=In-house project
+									</token>
+									<value>createProjectTypeNGO=Implemented
+										project
+									</value>
+								</replacement>
+							</replacements>
+						</configuration>
+					</plugin>
 
 
-                                        <plugin>
-                                                <groupId>org.sigmah</groupId>
-                                                <artifactId>sigmah-maven-plugin</artifactId>
-                                                <version>${maven-sigmah-plugin.version}</version>
-                                                <executions>
-                                                        <execution>
-                                                                <phase>process-sources</phase>
-                                                                <goals>
-                                                                        <goal>sigmah</goal>
-                                                                </goals>
-                                                        </execution>
-                                                </executions>
-                                                <configuration>
-                                                        <version>
-                                                                <!-- Maven property: ${sigmah.version.number} -->
-                                                                <number>${project.version}-hi</number>
-                                                                <!-- Maven property: ${sigmah.version.name} -->
-                                                                <name>Handicap International custom version</name>
-                                                                <!-- Maven property: ${sigmah.version.date} -->
-                                                        </version>
-                                                </configuration>
-                                        </plugin>
+					<plugin>
+						<groupId>org.sigmah</groupId>
+						<artifactId>sigmah-maven-plugin</artifactId>
+						<version>${maven-sigmah-plugin.version}</version>
+						<executions>
+							<execution>
+								<phase>process-sources</phase>
+								<goals>
+									<goal>sigmah</goal>
+								</goals>
+							</execution>
+						</executions>
+						<configuration>
+							<version>
+								<!-- Maven property: ${sigmah.version.number} -->
+								<number>${project.version}-hi</number>
+								<!-- Maven property: ${sigmah.version.name} -->
+								<name>Handicap International custom version</name>
+								<!-- Maven property: ${sigmah.version.date} -->
+							</version>
+						</configuration>
+					</plugin>
 
-                                </plugins>
+				</plugins>
 
-                        </build>
+			</build>
 
-                </profile>
+		</profile>
 
 		<profile>
 			<id>sigmah-check-bundles-integrity</id>
@@ -1194,7 +1221,8 @@
 				</property>
 			</activation>
 			<properties>
-				<!-- au release:perform, on ne souhaite pas déployer vers un dépôt d'artifact maven, on ne produit pas la javadoc car trop d'erreur de validation -->
+				<!-- au release:perform, on ne souhaite pas déployer vers un dépôt d'artifact 
+					maven, on ne produit pas la javadoc car trop d'erreur de validation -->
 				<maven.deploy.skip>true</maven.deploy.skip>
 				<maven.javadoc.skip>true</maven.javadoc.skip>
 			</properties>

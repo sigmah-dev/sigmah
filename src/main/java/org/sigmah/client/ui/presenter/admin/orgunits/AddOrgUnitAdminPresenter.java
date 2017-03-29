@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.admin.orgunits;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -57,13 +59,11 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class AddOrgUnitAdminPresenter extends AbstractPagePresenter<AddOrgUnitAdminPresenter.View> implements HasForm {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(AddOrgUnitAdminView.class)
 	public static interface View extends ViewPopupInterface {
 
 		FormPanel getForm();
@@ -93,9 +93,8 @@ public class AddOrgUnitAdminPresenter extends AbstractPagePresenter<AddOrgUnitAd
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	protected AddOrgUnitAdminPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public AddOrgUnitAdminPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
@@ -162,7 +161,7 @@ public class AddOrgUnitAdminPresenter extends AbstractPagePresenter<AddOrgUnitAd
 	@SuppressWarnings("deprecation")
 	private void loadCountries() {
 		view.getCountryField().getStore().removeAll();
-		view.getCountryField().getStore().add(injector.getClientCache().getCountryCache().get());
+		view.getCountryField().getStore().add(factory.getClientCache().getCountryCache().get());
 	}
 
 	/**

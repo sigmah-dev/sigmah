@@ -48,6 +48,8 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.EventBus;
@@ -110,7 +112,6 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ImportationView.class)
 	public static interface View extends AbstractProjectPresenter.View, HasForm {
 		Field<ImportationSchemeDTO> getSchemeField();
 		FileUploadField getFileField();
@@ -142,9 +143,8 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	public ImportationPresenter(View view, Injector injector) {
-		super(view, injector);
+	public ImportationPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 		changes = new HashMap<Integer, List<ElementExtractedValue>>();
 	}
 	
@@ -166,7 +166,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 		// --
 		// Action when submitting the form.
 		// --
-		final ServletUrlBuilder servletUrlBuilder = new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), 
+		final ServletUrlBuilder servletUrlBuilder = new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), 
 			ServletConstants.Servlet.IMPORT, ServletConstants.ServletMethod.IMPORT_STORE_FILE);
 		
 		final FormPanel form = view.getForms()[0];

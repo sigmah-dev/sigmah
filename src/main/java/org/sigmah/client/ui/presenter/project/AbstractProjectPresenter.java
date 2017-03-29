@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.project;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -68,8 +70,8 @@ public abstract class AbstractProjectPresenter<V extends AbstractProjectPresente
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	public AbstractProjectPresenter(final V view, final Injector injector) {
-		super(view, injector);
+	public AbstractProjectPresenter(final V view, final ClientFactory factory) {
+		super(view, factory);
 	}
 	
 	/**
@@ -153,7 +155,7 @@ public abstract class AbstractProjectPresenter<V extends AbstractProjectPresente
 	 */
 	@Override
 	public ProjectPresenter getParentPresenter() {
-		return injector.getProjectPresenter();
+		return factory.getProjectPresenter();
 	}
 
 	/**

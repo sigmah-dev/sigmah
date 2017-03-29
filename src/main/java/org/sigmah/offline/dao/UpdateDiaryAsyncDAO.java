@@ -47,7 +47,7 @@ import com.google.inject.Singleton;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
+
 public class UpdateDiaryAsyncDAO extends AbstractUserDatabaseAsyncDAO<Command, CommandJS> {
 
 	public void saveWithNegativeId(final Command t, final AsyncCallback<Integer> callback) {

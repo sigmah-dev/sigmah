@@ -41,12 +41,12 @@ import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
+
 public class PersonalCalendarAsyncHandler implements AsyncCommandHandler<GetCalendar, Calendar>, DispatchListener<GetCalendar, Calendar> {
 	
 	private final PersonalCalendarAsyncDAO personalCalendarAsyncDAO;
 
-	@Inject
+	
 	public PersonalCalendarAsyncHandler(PersonalCalendarAsyncDAO personalCalendarAsyncDAO) {
 		this.personalCalendarAsyncDAO = personalCalendarAsyncDAO;
 	}

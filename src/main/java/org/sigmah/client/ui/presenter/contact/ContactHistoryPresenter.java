@@ -29,6 +29,7 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 
 import java.util.List;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.event.handler.UpdateHandler;
@@ -53,11 +54,10 @@ public class ContactHistoryPresenter extends AbstractPresenter<ContactHistoryPre
 
   private final ImageProvider imageProvider;
 
-  @Inject
-  public ContactHistoryPresenter(View view, Injector injector, ImageProvider imageProvider) {
-    super(view, injector);
+  public ContactHistoryPresenter(View view, ClientFactory factory) {
+    super(view, factory);
 
-    this.imageProvider = imageProvider;
+    this.imageProvider = factory.getImageProvider();
   }
 
   @Override

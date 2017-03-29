@@ -46,7 +46,6 @@ import com.google.inject.Singleton;
 /**
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
-@Singleton
 public class AddImportationSchemeView extends AbstractPopupView<PopupWidget> implements AddImportationSchemePresenter.View {
 
 	private TextField<String> nameField;

@@ -37,6 +37,8 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.List;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
@@ -76,13 +78,11 @@ import org.sigmah.shared.dto.pivot.model.PivotTableElement;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class EditIndicatorPresenter extends AbstractPagePresenter<EditIndicatorPresenter.View> implements HasForm {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(EditIndicatorView.class)
 	public static interface View extends ViewPopupInterface {
 
 		FormPanel getForm();
@@ -124,12 +124,11 @@ public class EditIndicatorPresenter extends AbstractPagePresenter<EditIndicatorP
 	 * 
 	 * @param view
 	 *          Presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected client injector.
 	 */
-	@Inject
-	protected EditIndicatorPresenter(final EditIndicatorPresenter.View view, final Injector injector) {
-		super(view, injector);
+	public EditIndicatorPresenter(final EditIndicatorPresenter.View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 	
 	/**

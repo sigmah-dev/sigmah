@@ -36,7 +36,6 @@ import com.google.inject.Singleton;
  * 
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
 public class MockUpView extends AbstractView implements MockUpPresenter.View {
 
 	// CSS.

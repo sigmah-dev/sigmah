@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.base;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -51,8 +53,8 @@ public abstract class AbstractZonePresenter<V extends ViewInterface> extends Abs
 	 * @param injector
 	 *          Application injector.
 	 */
-	@Inject
-	public AbstractZonePresenter(final V view, final Injector injector) {
+	
+	public AbstractZonePresenter(final V view, final ClientFactory injector) {
 		super(view, injector); // Executes 'bind()' method.
 	}
 

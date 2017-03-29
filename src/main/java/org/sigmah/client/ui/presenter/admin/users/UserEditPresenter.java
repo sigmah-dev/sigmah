@@ -41,7 +41,7 @@ import java.util.Map;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.inject.Injector;
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.page.RequestParameter;
@@ -79,13 +79,11 @@ import org.sigmah.shared.dto.referential.ContactModelType;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr) v2.0
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.View> {
 
 	/**
 	 * The view interface managed by this presenter.
 	 */
-	@ImplementedBy(UserEditView.class)
 	public static interface View extends ViewInterface {
 
 		/**
@@ -151,9 +149,8 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 	 * @param injector
 	 *          The application injector.
 	 */
-	@Inject
-	protected UserEditPresenter(View view, Injector injector) {
-		super(view, injector);
+	public  UserEditPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 
 	}
 

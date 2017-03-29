@@ -43,6 +43,8 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.ui.notif.ConfirmCallback;
@@ -55,7 +57,7 @@ import org.sigmah.shared.util.ProfileUtils;
  * 
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
+
 public class AuthenticationBannerPresenter extends AbstractZonePresenter<AuthenticationBannerPresenter.View> {
 
 	private boolean canChangeOwnPassword;
@@ -63,7 +65,7 @@ public class AuthenticationBannerPresenter extends AbstractZonePresenter<Authent
 	/**
 	 * View interface.
 	 */
-	@ImplementedBy(AuthenticationBannerView.class)
+	
 	public static interface View extends ViewInterface {
 
 		Panel getNamePanel();
@@ -78,9 +80,9 @@ public class AuthenticationBannerPresenter extends AbstractZonePresenter<Authent
 
 	}
 
-	@Inject
-	public AuthenticationBannerPresenter(View view, Injector injector) {
-		super(view, injector);
+	
+	public AuthenticationBannerPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

@@ -44,7 +44,6 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class CalendarEventView extends AbstractPopupView<PopupWidget> implements CalendarEventPresenter.View {
 
 	private FormPanel form;

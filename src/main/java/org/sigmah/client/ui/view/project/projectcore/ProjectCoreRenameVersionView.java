@@ -57,8 +57,6 @@ import com.google.inject.Singleton;
 /**
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
-
-@Singleton
 public class ProjectCoreRenameVersionView extends AbstractPopupView<PopupWidget> implements ProjectCoreRenameVersionPresenter.View {
 
 	private ContentPanel mainPanel;

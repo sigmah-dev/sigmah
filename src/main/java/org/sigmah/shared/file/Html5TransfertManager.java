@@ -71,7 +71,7 @@ import org.sigmah.offline.fileapi.Files;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-class Html5TransfertManager implements TransfertManager, HasProgressListeners {
+public class Html5TransfertManager implements TransfertManager, HasProgressListeners {
 	
 	/**
 	 * Size in bytes of the first slice.

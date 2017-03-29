@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.password;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -53,13 +55,11 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class ResetPasswordPresenter extends AbstractPagePresenter<ResetPasswordPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ResetPasswordView.class)
 	public static interface View extends ViewInterface {
 
 		ValueBoxBase<String> getEmailField();
@@ -93,9 +93,8 @@ public class ResetPasswordPresenter extends AbstractPagePresenter<ResetPasswordP
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	public ResetPasswordPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public ResetPasswordPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.base;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -87,16 +89,16 @@ public abstract class AbstractPagePresenter<V extends ViewInterface> extends Abs
 	 * 
 	 * @param view
 	 *          Page presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected application client-side injector.
 	 */
-	@Inject
-	protected AbstractPagePresenter(final V view, final Injector injector) {
+	
+	protected AbstractPagePresenter(final V view, final ClientFactory factory) {
 
-		super(view, injector); // Executes 'bind()' method.
+		super(view, factory); // Executes 'bind()' method.
 
 		// Registers page object.
-		injector.getPageManager().registerPage(this, isPopupView());
+		factory.getPageManager().registerPage(this, isPopupView());
 	}
 
 	/**
@@ -234,7 +236,7 @@ public abstract class AbstractPagePresenter<V extends ViewInterface> extends Abs
 
 		} else {
 			// Classic page.
-			injector.getApplicationPresenter().setPageTitle(title);
+			factory.getApplicationPresenter().setPageTitle(title);
 		}
 	}
 
@@ -267,7 +269,7 @@ public abstract class AbstractPagePresenter<V extends ViewInterface> extends Abs
 		if (isPopupView()) {
 			((ViewPopupInterface) view).setPageMessage(message, type);
 		} else {
-			injector.getApplicationPresenter().setPageMessage(message, type);
+			factory.getApplicationPresenter().setPageMessage(message, type);
 		}
 
 	}

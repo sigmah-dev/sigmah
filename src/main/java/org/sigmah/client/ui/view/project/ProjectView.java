@@ -83,7 +83,6 @@ import org.sigmah.shared.dto.referential.CoreVersionActionType;
  *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class ProjectView extends AbstractView implements ProjectPresenter.View {
 
 	/**

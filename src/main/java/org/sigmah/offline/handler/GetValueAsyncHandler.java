@@ -40,12 +40,10 @@ import org.sigmah.shared.command.result.Authentication;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class GetValueAsyncHandler implements AsyncCommandHandler<GetValue, ValueResult>, DispatchListener<GetValue, ValueResult> {
 	
 	private final ValueAsyncDAO valueAsyncDAO;
 
-	@Inject
 	public GetValueAsyncHandler(ValueAsyncDAO valueAsyncDAO) {
 		this.valueAsyncDAO = valueAsyncDAO;
 	}

@@ -37,6 +37,7 @@ import java.util.Set;
 import org.sigmah.client.dispatch.AbstractDispatchAsync;
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.dispatch.DispatchListener;
+import org.sigmah.client.dispatch.ExceptionHandler;
 import org.sigmah.client.event.EventBus;
 import org.sigmah.client.page.PageManager;
 import org.sigmah.client.page.RequestParameter;
@@ -155,10 +156,6 @@ public class SecureDispatchAsync extends AbstractDispatchAsync {
 	 */
 	private final AuthenticationProvider authenticationProvider;
 
-	/**
-	 * The application event bus.
-	 */
-	private final EventBus eventBus;
 
 	/**
 	 * The application page manager.
@@ -194,10 +191,10 @@ public class SecureDispatchAsync extends AbstractDispatchAsync {
 	 * @param applicationStateManager
 	 *			he {@link ApplicationStateManager} implementation.
 	 */
-	@Inject
-	public SecureDispatchAsync(final AuthenticationProvider authenticationProvider, final EventBus eventBus, final PageManager pageManager, final ApplicationStateManager applicationStateManager) {
+	public SecureDispatchAsync(final AuthenticationProvider authenticationProvider, final EventBus eventBus, final PageManager pageManager, final ApplicationStateManager applicationStateManager, ExceptionHandler exceptionHandler) {
 		this.authenticationProvider = authenticationProvider;
-		this.eventBus = eventBus;
+		setEventBus(eventBus);
+		setExceptionHandler(exceptionHandler);
 		this.pageManager = pageManager;
 		this.listeners = new HashMap<Class<?>, List<DispatchListener<?, ?>>>();
 		

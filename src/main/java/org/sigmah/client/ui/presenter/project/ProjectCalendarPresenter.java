@@ -24,6 +24,7 @@ package org.sigmah.client.ui.presenter.project;
 
 import java.util.EnumMap;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageRequest;
@@ -52,13 +53,11 @@ import org.sigmah.client.util.profiler.Scenario;
  *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class ProjectCalendarPresenter extends AbstractProjectPresenter<ProjectCalendarPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ProjectCalendarView.class)
 	public static interface View extends AbstractProjectPresenter.View {
 
 		/**
@@ -82,15 +81,14 @@ public class ProjectCalendarPresenter extends AbstractProjectPresenter<ProjectCa
 	 *
 	 * @param view
 	 *          Presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected client injector.
 	 * @param calendarPresenterProvider
 	 *          The {@link CalendarPresenter} provider.
 	 */
-	@Inject
-	public ProjectCalendarPresenter(final View view, final Injector injector, final Provider<CalendarPresenter> calendarPresenterProvider) {
-		super(view, injector);
-		calendarPresenter = calendarPresenterProvider.get();
+	public ProjectCalendarPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
+		calendarPresenter = factory.getCalendarPresenter();
 		view.provideCalendarView(calendarPresenter.getView());
 	}
 

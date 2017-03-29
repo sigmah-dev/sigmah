@@ -39,6 +39,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.SiteEvent;
@@ -77,13 +79,11 @@ import org.sigmah.shared.dto.country.CountryDTO;
  *
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class EditSitePresenter extends AbstractPagePresenter<EditSitePresenter.View> implements HasForm {
 	
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(EditSiteView.class)
 	public static interface View extends ViewPopupInterface {
 
 		FormPanel getForm();
@@ -118,8 +118,7 @@ public class EditSitePresenter extends AbstractPagePresenter<EditSitePresenter.V
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	protected EditSitePresenter(final EditSitePresenter.View view, final Injector injector) {
+	public EditSitePresenter(final EditSitePresenter.View view, final ClientFactory injector) {
 		super(view, injector);
 	}
 	

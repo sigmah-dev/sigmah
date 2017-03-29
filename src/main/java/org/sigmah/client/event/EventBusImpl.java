@@ -1,5 +1,7 @@
 package org.sigmah.client.event;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -59,7 +61,6 @@ import com.google.inject.Singleton;
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
 public class EventBusImpl extends HandlerManager implements EventBus {
 
 	/**
@@ -92,7 +93,7 @@ public class EventBusImpl extends HandlerManager implements EventBus {
 	/**
 	 * Injected application injector.
 	 */
-	private final Injector injector;
+	private final ClientFactory factory;
 
 	/**
 	 * Last failed accessed {@link PageRequest} that will be reload on next authentication.
@@ -110,12 +111,11 @@ public class EventBusImpl extends HandlerManager implements EventBus {
 	 * @param injector
 	 *          The application injector.
 	 */
-	@Inject
-	public EventBusImpl(final Injector injector) {
+	public EventBusImpl(final ClientFactory factory) {
 
 		super(null);
 
-		this.injector = injector;
+		this.factory = factory;
 		this.failedAccessedPageRequest = null;
 	}
 
@@ -126,7 +126,7 @@ public class EventBusImpl extends HandlerManager implements EventBus {
 	public void logout() {
 
 		// Clears the session.
-		injector.getAuthenticationProvider().clearAuthentication();
+		factory.getAuthenticationProvider().clearAuthentication();
 
 		// Navigates to default page.
 		navigate(null);
@@ -147,7 +147,7 @@ public class EventBusImpl extends HandlerManager implements EventBus {
 		// Page request event.
 
 		// Before leaving the current presenter.
-		final Presenter<?> presenter = injector.getPageManager().getCurrentPresenter();
+		final Presenter<?> presenter = factory.getPageManager().getCurrentPresenter();
 		updateZoneRequest(Zone.APP_LOADER.requestWith(RequestParameter.CONTENT, true));
 
 		if (presenter == null) {
@@ -158,7 +158,7 @@ public class EventBusImpl extends HandlerManager implements EventBus {
 		final PageRequest pageRequest = ((PageRequestEvent) event).getRequest();
 		final Page page = pageRequest != null ? pageRequest.getPage() : null;
 
-		if (injector.getPageManager().isPopupView(page)) {
+		if (factory.getPageManager().isPopupView(page)) {
 			// Popup case : no 'before leaving' action.
 			// TODO [BEFORE LEAVING] Associer le 'beforeLeaving' des popup à la fermeture des popups.
 			handleEvent(event);
@@ -215,7 +215,7 @@ public class EventBusImpl extends HandlerManager implements EventBus {
 				}
 
 				// Local cache initialization.
-				injector.getClientCache().init();
+				factory.getClientCache().init();
 
 				EventBusImpl.super.fireEvent(event);
 			}
@@ -242,11 +242,11 @@ public class EventBusImpl extends HandlerManager implements EventBus {
 		// Determining page token to access.
 		final PageRequestEvent accessedPageEvent;
 
-		if (page != null && injector.getPageManager().getPage(page.getToken()) != null) {
+		if (page != null && factory.getPageManager().getPage(page.getToken()) != null) {
 			// Page is valid and registered with PageManager.
 			accessedPageEvent = event;
 
-		} else if (injector.getAuthenticationProvider().isAnonymous()) {
+		} else if (factory.getAuthenticationProvider().isAnonymous()) {
 			// Page is invalid and user anonymous: redirecting user to login page.
 			accessedPageEvent = new PageRequestEvent(DEFAULT_ANONYMOUS_PAGE);
 
@@ -256,15 +256,15 @@ public class EventBusImpl extends HandlerManager implements EventBus {
 		}
 
 		// Executing command securing the navigation event.
-		injector.getDispatch().execute(new SecureNavigationCommand(accessedPageEvent.getRequest().getPage()), new CommandResultHandler<SecureNavigationResult>() {
+		factory.getDispatch().execute(new SecureNavigationCommand(accessedPageEvent.getRequest().getPage()), new CommandResultHandler<SecureNavigationResult>() {
 
 			@Override
 			protected void onCommandSuccess(final SecureNavigationResult result) {
 
-				final boolean wasAuthenticated = !injector.getAuthenticationProvider().isAnonymous();
+				final boolean wasAuthenticated = !factory.getAuthenticationProvider().isAnonymous();
 
 				// Sets the authentication.
-				injector.getAuthenticationProvider().updateCache(result.getAuthentication());
+				factory.getAuthenticationProvider().updateCache(result.getAuthentication());
 
 				if (result.isGranted()) {
 					// Page access is granted.
@@ -281,7 +281,7 @@ public class EventBusImpl extends HandlerManager implements EventBus {
 						// From application link.
 						N10N.error(I18N.CONSTANTS.navigation_unauthorized_access());
 
-						if (wasAuthenticated && injector.getAuthenticationProvider().isAnonymous()) {
+						if (wasAuthenticated && factory.getAuthenticationProvider().isAnonymous()) {
 							// User is no longer authenticated (expired session).
 							callback.onPageRequestEventComplete(null);
 						}
@@ -310,7 +310,7 @@ public class EventBusImpl extends HandlerManager implements EventBus {
 
 		// If a requested page (not a popup one) has been recorded, we redirect the logged in user towards its previous
 		// request.
-		if (page == null && failedAccessedPageRequest != null && !injector.getPageManager().isPopupView(failedAccessedPageRequest.getPage())) {
+		if (page == null && failedAccessedPageRequest != null && !factory.getPageManager().isPopupView(failedAccessedPageRequest.getPage())) {
 
 			pageRequest = failedAccessedPageRequest;
 			failedAccessedPageRequest = null;

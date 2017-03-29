@@ -26,6 +26,8 @@ import java.util.HashMap;
 import java.util.Map;
 
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
@@ -77,13 +79,11 @@ import org.sigmah.shared.dto.referential.ElementTypeEnum;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLayoutGroupAdminPresenter.View> implements HasForm {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(EditLayoutGroupAdminView.class)
 	public static interface View extends ViewPopupInterface {
 
 		FormPanel getForm();
@@ -114,9 +114,8 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 	 * @param injector
 	 *          The application injector.
 	 */
-	@Inject
-	protected EditLayoutGroupAdminPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public EditLayoutGroupAdminPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

@@ -68,7 +68,7 @@ import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
 
-@Singleton
+
 public class ExportContactsSettingView extends AbstractPopupView<PopupWidget> implements ExportContactsSettingPresenter.View {
 
 	private FormPanel panel;
