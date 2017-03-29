@@ -52,7 +52,6 @@ import org.sigmah.offline.sync.Synchronizer;
  * @author Raphaël Calabro <rcalabro@ideia.fr>
  */
 @Deprecated
-@Singleton
 public class ConnectionStatus {
 	/**
 	 * Listener interface. Called immediately on add and after every status 
@@ -69,7 +68,7 @@ public class ConnectionStatus {
 	private final List<Listener> listeners;
 	private final Timer timer;
 
-	@Inject
+	
 	public ConnectionStatus(EventBus eventBus, Synchronizer synchronizer) {
 		this.online = getInitialStatus();
         this.state = online ? ApplicationState.ONLINE : ApplicationState.OFFLINE;

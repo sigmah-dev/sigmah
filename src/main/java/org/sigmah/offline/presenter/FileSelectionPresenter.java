@@ -35,6 +35,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import java.util.List;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.i18n.I18N;
@@ -77,7 +79,6 @@ public class FileSelectionPresenter extends AbstractPagePresenter<FileSelectionP
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(FileSelectionView.class)
 	public static interface View extends ViewPopupInterface {
 		
 		TreeGrid<TreeGridFileModel> getUploadGrid();
@@ -101,16 +102,14 @@ public class FileSelectionPresenter extends AbstractPagePresenter<FileSelectionP
 		
 	}
 	
-	@Inject
+
 	private TransfertAsyncDAO transfertAsyncDAO;
 	
-	@Inject
+
 	private ProjectAsyncDAO projectAsyncDAO;
 	
-	@Inject
 	private OrgUnitAsyncDAO orgUnitAsyncDAO;
 	
-	@Inject
 	private TransfertManager transfertManager;
 	
 	/**
@@ -118,12 +117,15 @@ public class FileSelectionPresenter extends AbstractPagePresenter<FileSelectionP
 	 * 
 	 * @param view
 	 *          The view managed by the presenter.
-	 * @param injector
+	 * @param factory
 	 *          The application injector.
 	 */
-	@Inject
-	protected FileSelectionPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public FileSelectionPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
+		this.transfertAsyncDAO = factory.getTransfertAsyncDAO();
+		this.projectAsyncDAO = factory.getProjectAsyncDAO();
+		this.orgUnitAsyncDAO = factory.getOrgUnitAsyncDAO();
+		this.transfertManager = factory.getTransfertManager();
 	}
 	
 	@Override

@@ -44,7 +44,6 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class ResetPasswordView extends AbstractView implements ResetPasswordPresenter.View {
 
 	private TextBox emailTextBox;

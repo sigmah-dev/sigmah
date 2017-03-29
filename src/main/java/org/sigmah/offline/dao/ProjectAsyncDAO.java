@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.offline.indexeddb.Cursor;
 import org.sigmah.offline.indexeddb.IDBKeyRange;
 import org.sigmah.offline.indexeddb.Index;
@@ -71,29 +72,34 @@ import org.sigmah.shared.util.ValueResultUtils;
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, ProjectJS> {
 	
-	@Inject
 	private ProjectModelAsyncDAO projectModelAsyncDAO;
 	
-	@Inject
 	private OrgUnitAsyncDAO orgUnitAsyncDAO;
 	
-	@Inject
 	private PhaseAsyncDAO phaseAsyncDAO;
 	
-	@Inject
 	private LogFrameAsyncDAO logFrameAsyncDAO;
 	
-	@Inject
 	private MonitoredPointAsyncDAO monitoredPointAsyncDAO;
 	
-	@Inject
 	private ReminderAsyncDAO reminderAsyncDAO;
 	
-	@Inject
 	private ValueAsyncDAO valueAsyncDAO;
+	
+	private ClientFactory factory;
+
+	public ProjectAsyncDAO(ClientFactory factory) {
+		this.factory = factory;
+		this.projectModelAsyncDAO = this.factory.getProjectModelAsyncDAO();
+		this.orgUnitAsyncDAO = this.factory.getOrgUnitAsyncDAO();
+		this.phaseAsyncDAO = this.factory.getPhaseAsyncDAO();
+		this.logFrameAsyncDAO = this.factory.getLogFrameAsyncDAO();
+		this.monitoredPointAsyncDAO = this.factory.getMonitoredPointAsyncDAO();
+		this.reminderAsyncDAO = this.factory.getReminderAsyncDAO();
+		this.valueAsyncDAO = this.factory.getValueAsyncDAO();
+	}
 
 	@Override
 	public void saveOrUpdate(final ProjectDTO t, final AsyncCallback<ProjectDTO> callback, Transaction<Store> transaction) {

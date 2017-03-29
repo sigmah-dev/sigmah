@@ -50,9 +50,9 @@ public class Sigmah implements EntryPoint {
 	public static final String VERSION = "2.2-SNAPSHOT";
 
 	/**
-	 * GIN injector.
+	 * our factory for DI 
 	 */
-	private Injector injector;
+	private ClientFactory factory;
 
 	/**
 	 * {@inheritDoc}
@@ -73,14 +73,14 @@ public class Sigmah implements EntryPoint {
 		if (Log.isDebugEnabled()) {
 			Log.debug("Application > Creates GIN injector.");
 		}
-		injector = GWT.create(Injector.class);
+		factory = GWT.create(ClientFactory.class);
 		
 
 		// Set GXT theme.
 		if (Log.isDebugEnabled()) {
 			Log.debug("Application > Sets GWT default theme.");
 		}
-		GXT.setDefaultTheme(injector.getTheme(), true);
+		GXT.setDefaultTheme(factory.getTheme(), true);
 		
 
 		// Uncaught exception handler.
@@ -98,8 +98,8 @@ public class Sigmah implements EntryPoint {
 
 		clientInitializing();
 		
-		Profiler.INSTANCE.setAuthenticationProvider(injector.getAuthenticationProvider());
-		Profiler.INSTANCE.setApplicationStateManager(injector.getApplicationStateManager());
+		Profiler.INSTANCE.setAuthenticationProvider(factory.getAuthenticationProvider());
+		Profiler.INSTANCE.setApplicationStateManager(factory.getApplicationStateManager());
 
 		if (Log.isDebugEnabled()) {
 			Log.debug("Application > Client init end.");
@@ -117,103 +117,103 @@ public class Sigmah implements EntryPoint {
 		}
 
 		// Offline dispatcher
-		injector.getLocalDispatch();
-		injector.getApplicationStateManager();
+		factory.getLocalDispatch();
+		factory.getApplicationStateManager();
 		// Application presenters.
-		injector.getApplicationPresenter();
-		injector.getHomePresenter();
-		injector.getMockUpPresenter();
-		injector.getCreditsPresenter();
-		injector.getHelpPresenter();
+		factory.getApplicationPresenter();
+		factory.getHomePresenter();
+		factory.getMockUpPresenter();
+		factory.getCreditsPresenter();
+		factory.getHelpPresenter();
 		// Zones.
-		injector.getOrganizationBannerPresenter();
-		injector.getAuthenticationBannerPresenter();
-		injector.getOfflineBannerPresenter();
-		injector.getAppLoaderPresenter();
-		injector.getMenuBannerPresenter();
-		injector.getMessageBannerPresenter();
+		factory.getOrganizationBannerPresenter();
+		factory.getAuthenticationBannerPresenter();
+		factory.getOfflineBannerPresenter();
+		factory.getAppLoaderPresenter();
+		factory.getMenuBannerPresenter();
+		factory.getMessageBannerPresenter();
 		
 		// Pages.
-		injector.getLoginPresenter();
-		injector.getLostPasswordPresenter();
-		injector.getResetPasswordPresenter();
-		injector.getChangeOwnPasswordPresenter();
-		injector.getProjectPresenter();
-		injector.getProjectDashboardPresenter();
-		injector.getProjectLogFramePresenter();
-		injector.getProjectDetailsPresenter();
-		injector.getProjectTeamMembersPresenter();
-		injector.getProjectCalendarPresenter();
-		injector.getProjectReportsPresenter();
-		injector.getProjectIndicatorEntriesPresenter();
-		injector.getProjectIndicatorManagementPresenter();
-		injector.getProjectIndicatorMapPresenter();
-		injector.getEditIndicatorPresenter();
-		injector.getEditSitePresenter();
-		injector.getExportContactsPresenter();
-		injector.getExportContactsSettingPresenter();
-		injector.getExportProjectsPresenter();
-		injector.getExportProjectsSettingPresenter();
-		injector.getProjectCoreRenameVersionPresenter();
-		injector.getProjectCoreDiffPresenter();
+		factory.getLoginPresenter();
+		factory.getLostPasswordPresenter();
+		factory.getResetPasswordPresenter();
+		factory.getChangeOwnPasswordPresenter();
+		factory.getProjectPresenter();
+		factory.getProjectDashboardPresenter();
+		factory.getProjectLogFramePresenter();
+		factory.getProjectDetailsPresenter();
+		factory.getProjectTeamMembersPresenter();
+		factory.getProjectCalendarPresenter();
+		factory.getProjectReportsPresenter();
+		factory.getProjectIndicatorEntriesPresenter();
+		factory.getProjectIndicatorManagementPresenter();
+		factory.getProjectIndicatorMapPresenter();
+		factory.getEditIndicatorPresenter();
+		factory.getEditSitePresenter();
+		factory.getExportContactsPresenter();
+		factory.getExportContactsSettingPresenter();
+		factory.getExportProjectsPresenter();
+		factory.getExportProjectsSettingPresenter();
+		factory.getProjectCoreRenameVersionPresenter();
+		factory.getProjectCoreDiffPresenter();
 
-		injector.getCreateProjectPresenter();
-		injector.getReminderEditPresenter();
-		injector.getReminderHistoryPresenter();
-		injector.getLinkedProjectPresenter();
-		injector.getCalendarEventPresenter();
-		injector.getReportCreatePresenter();
-		injector.getAttachFilePresenter();
-		injector.getImportationPresenter();
+		factory.getCreateProjectPresenter();
+		factory.getReminderEditPresenter();
+		factory.getReminderHistoryPresenter();
+		factory.getLinkedProjectPresenter();
+		factory.getCalendarEventPresenter();
+		factory.getReportCreatePresenter();
+		factory.getAttachFilePresenter();
+		factory.getImportationPresenter();
 
-		injector.getAdminPresenter();
-		injector.getUsersAdminPresenter();
-		injector.getParametersAdminPresenter();
-		injector.getPrivacyGroupEditPresenter();
-		injector.getProfileEditPresenter();
-		injector.getUserEditPresenter();
-		injector.getOrgUnitsAdminPresenter();
-		injector.getAddOrgUnitAdminPresenter();
-		injector.getMoveOrgUnitAdminPresenter();
-		injector.getCategoriesAdminPresenter();
-		injector.getOrgUnitModelsAdminPresenter();
-		injector.getAddOrgUnitModelAdminPresenter();
-		injector.getProjectModelsAdminPresenter();
-		injector.getAddProjectModelAdminPresenter();
-		injector.getContactModelsAdminPresenter();
-		injector.getAddContactModelAdminPresenter();
-		injector.getReportModelsAdminPresenter();
-		injector.getEditPhaseModelAdminPresenter();
-		injector.getEditLayoutGroupAdminPresenter();
-		injector.getEditFlexibleElementAdminPresenter();
-		injector.getAddBudgetSubFieldPresenter();
-		injector.getImportModelPresenter();
-		injector.getImportationShemePresenter();
-		injector.getAddVariableImporationSchemePresenter();
-		injector.getAddImportationSchemeModelsAdminPresenter();
-		injector.getAddMatchingRuleImportationShemeModelsAdminPresenter();
+		factory.getAdminPresenter();
+		factory.getUsersAdminPresenter();
+		factory.getParametersAdminPresenter();
+		factory.getPrivacyGroupEditPresenter();
+		factory.getProfileEditPresenter();
+		factory.getUserEditPresenter();
+		factory.getOrgUnitsAdminPresenter();
+		factory.getAddOrgUnitAdminPresenter();
+		factory.getMoveOrgUnitAdminPresenter();
+		factory.getCategoriesAdminPresenter();
+		factory.getOrgUnitModelsAdminPresenter();
+		factory.getAddOrgUnitModelAdminPresenter();
+		factory.getProjectModelsAdminPresenter();
+		factory.getAddProjectModelAdminPresenter();
+		factory.getContactModelsAdminPresenter();
+		factory.getAddContactModelAdminPresenter();
+		factory.getReportModelsAdminPresenter();
+		factory.getEditPhaseModelAdminPresenter();
+		factory.getEditLayoutGroupAdminPresenter();
+		factory.getEditFlexibleElementAdminPresenter();
+		factory.getAddBudgetSubFieldPresenter();
+		factory.getImportModelPresenter();
+		factory.getImportationShemePresenter();
+		factory.getAddVariableImporationSchemePresenter();
+		factory.getAddImportationSchemeModelsAdminPresenter();
+		factory.getAddMatchingRuleImportationShemeModelsAdminPresenter();
 
-		injector.getOrgUnitPresenter();
-		injector.getOrgUnitDashboradPresenter();
-		injector.getOrgUnitCalendarPresenter();
-		injector.getOrgUnitDetailsPresenter();
-		injector.getOrgUnitReportsPresenter();
-		injector.getAddImportationSchemePresenter();
+		factory.getOrgUnitPresenter();
+		factory.getOrgUnitDashboardPresenter();
+		factory.getOrgUnitCalendarPresenter();
+		factory.getOrgUnitDetailsPresenter();
+		factory.getOrgUnitReportsPresenter();
+		factory.getAddImportationSchemePresenter();
 
-		injector.getContactPresenter();
-		injector.getContactDetailsPresenter();
-		injector.getContactRelationshipsPresenter();
-		injector.getContactHistoryPresenter();
+		factory.getContactPresenter();
+		factory.getContactDetailsPresenter();
+		factory.getContactRelationshipsPresenter();
+		factory.getContactHistoryPresenter();
 
-		injector.getFileSelectionPresenter();
+		factory.getFileSelectionPresenter();
 
 		// Propagates the network state.
-		injector.getApplicationStateManager().fireCurrentState(new Runnable() {
+		factory.getApplicationStateManager().fireCurrentState(new Runnable() {
 
 			@Override
 			public void run() {
 				// Go to the current page.
-				injector.getPageManager().fireCurrentPlace();
+				factory.getPageManager().fireCurrentPlace();
 			}
 		});
 	}

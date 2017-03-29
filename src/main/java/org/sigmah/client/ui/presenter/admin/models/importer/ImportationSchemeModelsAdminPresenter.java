@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.admin.models.importer;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -78,7 +80,6 @@ implements IsModelTabPresenter<E, ImportationSchemeModelsAdminPresenter.View> {
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ImportationSchemeModelsAdminView.class)
 	public static interface View extends ViewInterface {
 
 		ListStore<ImportationSchemeModelDTO> getImportationSchemeModelsStore();
@@ -119,9 +120,8 @@ implements IsModelTabPresenter<E, ImportationSchemeModelsAdminPresenter.View> {
 
 	}
 
-	@Inject
-	protected ImportationSchemeModelsAdminPresenter(View view, Injector injector) {
-		super(view, injector);
+	public ImportationSchemeModelsAdminPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	@Override

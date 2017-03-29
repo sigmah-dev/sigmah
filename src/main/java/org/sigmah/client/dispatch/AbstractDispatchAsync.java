@@ -51,10 +51,12 @@ public abstract class AbstractDispatchAsync implements DispatchAsync, OfflineEve
 	/**
 	 * The dispatch exception handler.
 	 */
-	@Inject
+	
 	private ExceptionHandler exceptionHandler;
 	
-	@Inject
+	
+	
+
 	protected EventBus eventBus;
 	
 	/**
@@ -103,6 +105,14 @@ public abstract class AbstractDispatchAsync implements DispatchAsync, OfflineEve
 	 */
 	protected <C extends Command<R>, R extends Result> void onSuccess(final C command, final R result, final AsyncCallback<R> callback) {
 		callback.onSuccess(result);
+	}
+	
+	public void setExceptionHandler(ExceptionHandler exceptionHandler) {
+		this.exceptionHandler = exceptionHandler;
+	}
+
+	public void setEventBus(EventBus eventBus) {
+		this.eventBus = eventBus;
 	}
 
 }

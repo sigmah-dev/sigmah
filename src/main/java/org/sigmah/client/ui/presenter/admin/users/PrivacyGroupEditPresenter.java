@@ -25,6 +25,7 @@ package org.sigmah.client.ui.presenter.admin.users;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
@@ -57,13 +58,11 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class PrivacyGroupEditPresenter extends AbstractPagePresenter<PrivacyGroupEditPresenter.View> {
 
 	/**
 	 * View interface.
 	 */
-	@ImplementedBy(PrivacyGroupEditView.class)
 	public static interface View extends ViewInterface {
 
 		FormPanel getForm();
@@ -90,9 +89,8 @@ public class PrivacyGroupEditPresenter extends AbstractPagePresenter<PrivacyGrou
 	 * @param injector
 	 *          The application injector.
 	 */
-	@Inject
-	protected PrivacyGroupEditPresenter(View view, Injector injector) {
-		super(view, injector);
+	public PrivacyGroupEditPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

@@ -43,7 +43,7 @@ import com.google.inject.Singleton;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
 
-@Singleton
+
 public class AddImportationSchemeModelsAdminView extends AbstractPopupView<PopupWidget> implements AddImportationSchemeModelsAdminPresenter.View {
 
 	private FormPanel mainPanel;
@@ -51,8 +51,8 @@ public class AddImportationSchemeModelsAdminView extends AbstractPopupView<Popup
 	private Button submitButton;
 	private ListStore<ImportationSchemeDTO> schemasStore;
 
-	@Inject
-	protected AddImportationSchemeModelsAdminView() {
+	
+	public AddImportationSchemeModelsAdminView() {
 		super(new PopupWidget(true), 500);
 	}
 

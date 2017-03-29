@@ -33,6 +33,8 @@ import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
@@ -52,10 +54,10 @@ import org.sigmah.shared.servlet.ServletConstants.ServletMethod;
 import org.sigmah.shared.servlet.ServletUrlBuilder;
 import org.sigmah.shared.util.ExportUtils.ExportDataVersion;
 
-@Singleton
+
 public class ExportContactsPresenter extends AbstractPagePresenter<ExportContactsPresenter.View> {
 
-	@ImplementedBy(ExportContactsView.class)
+
 	public static interface View extends ViewPopupInterface {
 
 		Button getSettingsButton();
@@ -78,8 +80,7 @@ public class ExportContactsPresenter extends AbstractPagePresenter<ExportContact
 
 	}
 
-	@Inject
-	protected ExportContactsPresenter(View view, Injector injector) {
+	public ExportContactsPresenter(View view, ClientFactory injector) {
 		super(view, injector);
 	}
 
@@ -129,7 +130,7 @@ public class ExportContactsPresenter extends AbstractPagePresenter<ExportContact
 			public void handleEvent(BaseEvent be) {
 
 				final ServletUrlBuilder urlBuilder =
-						new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_CONTACT_GLOBAL);
+						new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_CONTACT_GLOBAL);
 
 				urlBuilder.addParameter(RequestParameter.ID, auth().getOrganizationId());
 

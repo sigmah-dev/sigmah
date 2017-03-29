@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.project.export;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -56,10 +58,8 @@ import com.google.inject.Singleton;
 /**
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
-@Singleton
 public class ExportProjectsPresenter extends AbstractPagePresenter<ExportProjectsPresenter.View> {
 
-	@ImplementedBy(ExportProjectsView.class)
 	public static interface View extends ViewPopupInterface {
 
 		Button getSettingsButton();
@@ -82,9 +82,8 @@ public class ExportProjectsPresenter extends AbstractPagePresenter<ExportProject
 
 	}
 
-	@Inject
-	protected ExportProjectsPresenter(View view, Injector injector) {
-		super(view, injector);
+	public ExportProjectsPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	@Override
@@ -133,7 +132,7 @@ public class ExportProjectsPresenter extends AbstractPagePresenter<ExportProject
 			public void handleEvent(BaseEvent be) {
 
 				final ServletUrlBuilder urlBuilder =
-						new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_GLOBAL);
+						new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_GLOBAL);
 
 				urlBuilder.addParameter(RequestParameter.ID, auth().getOrganizationId());
 

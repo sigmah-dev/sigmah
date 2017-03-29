@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.admin;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -50,13 +52,11 @@ import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
  * @author Maxime Lombard (mlombard@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class AdminPresenter extends AbstractPresenter<AdminPresenter.View> implements HasSubPresenter<AdminPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(AdminView.class)
 	public static interface View extends HasSubView {
 
 		/**
@@ -73,12 +73,11 @@ public class AdminPresenter extends AbstractPresenter<AdminPresenter.View> imple
 	 * 
 	 * @param view
 	 *          Presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected client injector.
 	 */
-	@Inject
-	protected AdminPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public  AdminPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
@@ -93,7 +92,7 @@ public class AdminPresenter extends AbstractPresenter<AdminPresenter.View> imple
 			@Override
 			public void onSubMenuClick(final SubMenuItem menuItem) {
 
-				final PageRequest currentPageRequest = injector.getPageManager().getCurrentPageRequest(false);
+				final PageRequest currentPageRequest = factory.getPageManager().getCurrentPageRequest(false);
 				eventBus.navigateRequest(menuItem.getRequest().addAllParameters(currentPageRequest.getParameters(true)));
 			}
 

@@ -25,6 +25,7 @@ package org.sigmah.client.ui.presenter.reports;
 
 import java.util.Date;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
@@ -69,13 +70,11 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class AttachFilePresenter extends AbstractPagePresenter<AttachFilePresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(AttachFileView.class)
 	public static interface View extends ViewPopupInterface {
 
 		FormPanel getForm();
@@ -122,12 +121,11 @@ public class AttachFilePresenter extends AbstractPagePresenter<AttachFilePresent
 	 * 
 	 * @param view
 	 *          Presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected client injector.
 	 */
-	@Inject
-	public AttachFilePresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public AttachFilePresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
@@ -229,7 +227,7 @@ public class AttachFilePresenter extends AbstractPagePresenter<AttachFilePresent
 	 */
 	private void onFileChange() {
 
-		if (!injector.getTransfertManager().canUpload()) {
+		if (!factory.getTransfertManager().canUpload()) {
 			N10N.warn(I18N.CONSTANTS.flexibleElementFilesListUploadUnable());
 			return;
 		}
@@ -266,7 +264,7 @@ public class AttachFilePresenter extends AbstractPagePresenter<AttachFilePresent
 
 		view.setLoading(true);
 
-		injector.getTransfertManager().upload(view.getForm(), new ProgressListener() {
+		factory.getTransfertManager().upload(view.getForm(), new ProgressListener() {
 
 			@Override
 			public void onProgress(final double progress, final double speed) {

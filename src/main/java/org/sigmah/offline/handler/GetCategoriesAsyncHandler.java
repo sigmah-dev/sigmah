@@ -1,5 +1,7 @@
 package org.sigmah.offline.handler;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -41,14 +43,15 @@ import org.sigmah.shared.command.result.Authentication;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
+
 public class GetCategoriesAsyncHandler implements AsyncCommandHandler<GetCategories, ListResult<CategoryTypeDTO>>, DispatchListener<GetCategories, ListResult<CategoryTypeDTO>> {
 
 	private final CategoryTypeAsyncDAO categoryTypeAsyncDAO;
 
-	@Inject
-	public GetCategoriesAsyncHandler(CategoryTypeAsyncDAO categoryTypeAsyncDAO) {
-		this.categoryTypeAsyncDAO = categoryTypeAsyncDAO;
+	
+	public GetCategoriesAsyncHandler(ClientFactory factory) {
+		this.categoryTypeAsyncDAO = factory.getCategoryTypeAsyncDAO();
+		
 	}
 	
 	/**

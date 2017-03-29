@@ -44,7 +44,6 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class OrgUnitModelsAdminView extends AbstractModelsAdminView<OrgUnitModelDTO> implements OrgUnitModelsAdminPresenter.View {
 
 	private TextField<String> nameField;

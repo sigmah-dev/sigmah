@@ -53,7 +53,6 @@ import org.sigmah.shared.dto.referential.ProjectModelType;
  *
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class ProjectModelsAdminView extends AbstractModelsAdminView<ProjectModelDTO> implements ProjectModelsAdminPresenter.View {
 
 	private TextField<String> nameField;

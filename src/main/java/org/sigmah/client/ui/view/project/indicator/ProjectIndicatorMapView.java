@@ -47,10 +47,9 @@ import org.sigmah.client.ui.widget.panel.Panels;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class ProjectIndicatorMapView extends AbstractView implements ProjectIndicatorMapPresenter.View {
 
-	@Inject
+	
 	private SiteGridPanel siteGridPanel;
 	
 	private ContentPanel mapDisplayPanel;
@@ -58,6 +57,11 @@ public class ProjectIndicatorMapView extends AbstractView implements ProjectIndi
 	private WorldMap worldMap;
 	
 	private Status mapStatusBar;
+	
+	
+	public ProjectIndicatorMapView(SiteGridPanel siteGridPanel) {
+		this.siteGridPanel = siteGridPanel;
+	}
 	
 	
 	/**

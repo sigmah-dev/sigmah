@@ -25,6 +25,7 @@ package org.sigmah.client.ui.presenter.project.projectcore;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
@@ -55,12 +56,10 @@ import com.google.inject.Singleton;
 /**
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
-@Singleton
 public class ProjectCoreRenameVersionPresenter extends AbstractPagePresenter<ProjectCoreRenameVersionPresenter.View> {
 
 	private boolean show = true;
 
-	@ImplementedBy(ProjectCoreRenameVersionView.class)
 	public static interface View extends ViewPopupInterface {
 
 		ContentPanel getMainPanel();
@@ -75,9 +74,8 @@ public class ProjectCoreRenameVersionPresenter extends AbstractPagePresenter<Pro
 
 	}
 
-	@Inject
-	protected ProjectCoreRenameVersionPresenter(View view, Injector injector) {
-		super(view, injector);
+	public ProjectCoreRenameVersionPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	@Override

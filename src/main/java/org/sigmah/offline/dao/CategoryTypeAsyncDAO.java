@@ -46,12 +46,10 @@ import com.google.inject.Singleton;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class CategoryTypeAsyncDAO extends AbstractUserDatabaseAsyncDAO<CategoryTypeDTO, CategoryTypeJS> {
 	
 	private final CategoryElementAsyncDAO categoryElementAsyncDAO;
 
-	@Inject
 	public CategoryTypeAsyncDAO(CategoryElementAsyncDAO categoryElementAsyncDAO) {
 		this.categoryElementAsyncDAO = categoryElementAsyncDAO;
 	}

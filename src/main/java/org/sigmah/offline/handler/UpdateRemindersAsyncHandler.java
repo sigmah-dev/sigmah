@@ -41,15 +41,18 @@ import org.sigmah.shared.dto.reminder.ReminderDTO;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class UpdateRemindersAsyncHandler implements AsyncCommandHandler<UpdateReminders, ListResult<ReminderDTO>>, DispatchListener<UpdateReminders, ListResult<ReminderDTO>> {
 
-	@Inject
 	private ReminderAsyncDAO reminderAsyncDAO;
 	
-	@Inject
 	private UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
 	
+	
+	public UpdateRemindersAsyncHandler(ReminderAsyncDAO reminderAsyncDAO, UpdateDiaryAsyncDAO updateDiaryAsyncDAO) {
+		this.reminderAsyncDAO = reminderAsyncDAO;
+		this.updateDiaryAsyncDAO = updateDiaryAsyncDAO;
+	}
+
 	/**
 	 * {@inheritDoc}
 	 */

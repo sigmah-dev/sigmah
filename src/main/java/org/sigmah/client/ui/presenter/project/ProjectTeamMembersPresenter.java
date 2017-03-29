@@ -38,6 +38,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.i18n.I18N;
@@ -64,7 +65,6 @@ import org.sigmah.shared.util.ProfileUtils;
  *
  * @author Aurélien PONÇON (aurelien.poncon@gmail.com)
  */
-@Singleton
 public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<ProjectTeamMembersPresenter.View> {
 	/**
 	 * Description of the view managed by this presenter.
@@ -107,9 +107,8 @@ public class ProjectTeamMembersPresenter extends AbstractProjectPresenter<Projec
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	public ProjectTeamMembersPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public ProjectTeamMembersPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

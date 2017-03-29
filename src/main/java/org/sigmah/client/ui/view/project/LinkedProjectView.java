@@ -53,7 +53,6 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class LinkedProjectView extends AbstractPopupView<PopupWidget> implements LinkedProjectPresenter.View {
 
 	// CSS style names.

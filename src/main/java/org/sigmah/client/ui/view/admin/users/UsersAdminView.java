@@ -87,7 +87,6 @@ import com.google.inject.Singleton;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr) v2.0
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class UsersAdminView extends AbstractView implements UsersAdminPresenter.View {
 
 	// CSS style names.

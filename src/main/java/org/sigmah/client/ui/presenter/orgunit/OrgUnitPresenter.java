@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.orgunit;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -68,13 +70,11 @@ import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class OrgUnitPresenter extends AbstractPresenter<OrgUnitPresenter.View> implements HasSubPresenter<OrgUnitPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(OrgUnitView.class)
 	public static interface View extends HasSubView {
 
 		/**
@@ -114,12 +114,11 @@ public class OrgUnitPresenter extends AbstractPresenter<OrgUnitPresenter.View> i
 	 * 
 	 * @param view
 	 *          Presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected client injector.
 	 */
-	@Inject
-	public OrgUnitPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public OrgUnitPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
@@ -134,7 +133,7 @@ public class OrgUnitPresenter extends AbstractPresenter<OrgUnitPresenter.View> i
 			@Override
 			public void onSubMenuClick(final SubMenuItem menuItem) {
 
-				final PageRequest currentPageRequest = injector.getPageManager().getCurrentPageRequest(false);
+				final PageRequest currentPageRequest = factory.getPageManager().getCurrentPageRequest(false);
 				eventBus.navigateRequest(menuItem.getRequest().addAllParameters(currentPageRequest.getParameters(true)));
 
 			}
@@ -235,8 +234,8 @@ public class OrgUnitPresenter extends AbstractPresenter<OrgUnitPresenter.View> i
 					// Builds the graphic component
 					final DefaultFlexibleElementDTO defaultElement = (DefaultFlexibleElementDTO) element;
 					defaultElement.setService(dispatch);
-					defaultElement.setAuthenticationProvider(injector.getAuthenticationProvider());
-					defaultElement.setCache(injector.getClientCache());
+					defaultElement.setAuthenticationProvider(factory.getAuthenticationProvider());
+					defaultElement.setCache(factory.getClientCache());
 					defaultElement.setCurrentContainerDTO(orgUnit);
 
 					dispatch.execute(new GetValue(orgUnit.getId(), defaultElement.getId(), defaultElement.getEntityName(), null),

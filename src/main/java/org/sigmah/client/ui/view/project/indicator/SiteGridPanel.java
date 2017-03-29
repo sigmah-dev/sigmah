@@ -103,13 +103,12 @@ public class SiteGridPanel extends ContentPanel implements SelectionProvider<Sit
 
     public static final int PAGE_SIZE = 25;
 
-	@Inject
+
     private EventBus eventBus;
 	
-	@Inject
+
     private DispatchAsync service;
 	
-	@Inject
 	private AuthenticationProvider authenticationProvider;
 
     private PagingLoader<SiteResult> loader;
@@ -131,8 +130,12 @@ public class SiteGridPanel extends ContentPanel implements SelectionProvider<Sit
 	
 	private SchemaDTO schema;
 
-    public SiteGridPanel() {
+    public SiteGridPanel(EventBus eventBus, DispatchAsync service, AuthenticationProvider authenticationProvider) {
+    	
         setLayout(new FitLayout());
+        this.eventBus = eventBus;
+        this.service = service;
+        this.authenticationProvider = authenticationProvider;
         setHeadingText(I18N.CONSTANTS.sites());
         initLoader();
 

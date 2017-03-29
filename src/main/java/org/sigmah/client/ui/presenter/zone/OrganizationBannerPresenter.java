@@ -1,30 +1,8 @@
 package org.sigmah.client.ui.presenter.zone;
 
-/*
- * #%L
- * Sigmah
- * %%
- * Copyright (C) 2010 - 2016 URD
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
-
-
-import org.sigmah.client.inject.Injector;
-import org.sigmah.client.page.RequestParameter;
+import org.sigmah.client.ClientFactory;
+import org.sigmah.client.event.OfflineEvent;
+import org.sigmah.client.event.handler.OfflineHandler;
 import org.sigmah.client.ui.presenter.base.AbstractZonePresenter;
 import org.sigmah.client.ui.res.ResourcesUtils;
 import org.sigmah.client.ui.view.base.ViewInterface;
@@ -33,36 +11,25 @@ import org.sigmah.client.ui.zone.Zone;
 import org.sigmah.client.ui.zone.ZoneRequest;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.ImageProvider;
-import org.sigmah.shared.servlet.ServletConstants.Servlet;
-import org.sigmah.shared.servlet.ServletConstants.ServletMethod;
-import org.sigmah.shared.servlet.ServletRequestBuilder;
+import org.sigmah.offline.dao.LogoAsyncDAO;
+import org.sigmah.offline.status.ApplicationState;
 
-import com.google.gwt.http.client.Request;
-import com.google.gwt.http.client.RequestBuilder;
-import com.google.gwt.http.client.Response;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.HasHTML;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.inject.ImplementedBy;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import org.sigmah.client.event.OfflineEvent;
-import org.sigmah.client.event.handler.OfflineHandler;
-import org.sigmah.offline.dao.LogoAsyncDAO;
-import org.sigmah.offline.status.ApplicationState;
 
 /**
  * Organization banner presenter displaying organization's name and logo.
  * 
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
+
 public class OrganizationBannerPresenter extends AbstractZonePresenter<OrganizationBannerPresenter.View> {
 
 	/**
 	 * View interface.
 	 */
-	@ImplementedBy(OrganizationBannerView.class)
+	
 	public static interface View extends ViewInterface {
 
 		Panel getLogoPanel();
@@ -89,8 +56,8 @@ public class OrganizationBannerPresenter extends AbstractZonePresenter<Organizat
 	 */
 	private static final String DEFAULT_ORGANIZATION_LOGO = ResourcesUtils.buildImageURL("header/org-default-logo.png");
 	
-	@Inject
-	public OrganizationBannerPresenter(View view, Injector injector, LogoAsyncDAO logoAsyncDAO, ImageProvider imageProvider) {
+	
+	public OrganizationBannerPresenter(View view, ClientFactory injector, LogoAsyncDAO logoAsyncDAO, ImageProvider imageProvider) {
 		super(view, injector);
 
 		this.logoAsyncDAO = logoAsyncDAO;

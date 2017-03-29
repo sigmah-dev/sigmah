@@ -36,6 +36,8 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.List;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.SiteEvent;
@@ -65,13 +67,11 @@ import org.sigmah.shared.util.Filter;
  * @author sherzod
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class ProjectIndicatorMapPresenter extends AbstractProjectPresenter<ProjectIndicatorMapPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ProjectIndicatorMapView.class)
 	public static interface View extends AbstractProjectPresenter.View {
 		SiteGridPanel getSiteGridPanel();
 		WorldMap getWorldMap();
@@ -93,9 +93,8 @@ public class ProjectIndicatorMapPresenter extends AbstractProjectPresenter<Proje
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	public ProjectIndicatorMapPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public ProjectIndicatorMapPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

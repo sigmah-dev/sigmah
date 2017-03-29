@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -46,7 +48,7 @@ import com.google.inject.Singleton;
  * 
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
+
 public class CreditsPresenter extends AbstractPagePresenter<CreditsPresenter.View> {
 
 	/**
@@ -87,7 +89,6 @@ public class CreditsPresenter extends AbstractPagePresenter<CreditsPresenter.Vie
 	/**
 	 * View interface.
 	 */
-	@ImplementedBy(CreditsView.class)
 	public static interface View extends ViewInterface {
 
 		HasText getVersionNameLabel();
@@ -114,9 +115,9 @@ public class CreditsPresenter extends AbstractPagePresenter<CreditsPresenter.Vie
 
 	}
 
-	@Inject
-	public CreditsPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	
+	public CreditsPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

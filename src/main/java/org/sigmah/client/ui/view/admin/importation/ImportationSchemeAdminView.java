@@ -78,7 +78,6 @@ import org.sigmah.client.ui.widget.panel.Panels;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class ImportationSchemeAdminView extends AbstractView implements ImportationSchemeAdminPresenter.View {
 
 	// CSS style names.

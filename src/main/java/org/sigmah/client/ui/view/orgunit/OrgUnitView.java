@@ -52,7 +52,6 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class OrgUnitView extends AbstractView implements OrgUnitPresenter.View {
 
 	// Grids coordinates.

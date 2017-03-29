@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.zone;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -43,13 +45,13 @@ import com.google.inject.Singleton;
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
+
 public class AppLoaderPresenter extends AbstractZonePresenter<AppLoaderPresenter.View> {
 
 	/**
 	 * View interface.
 	 */
-	@ImplementedBy(AppLoaderView.class)
+	
 	public static interface View extends ViewInterface {
 
 		Panel getLoaderPanel();
@@ -64,9 +66,9 @@ public class AppLoaderPresenter extends AbstractZonePresenter<AppLoaderPresenter
 
 	}
 
-	@Inject
-	public AppLoaderPresenter(View view, Injector injector) {
-		super(view, injector);
+
+	public AppLoaderPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

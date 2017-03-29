@@ -45,7 +45,6 @@ import org.sigmah.offline.indexeddb.Index;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class ReminderAsyncDAO extends AbstractUserDatabaseAsyncDAO<ReminderDTO, ReminderJS> {
 
 	public void saveOrUpdate(final ReminderListDTO reminderListDTO, Transaction<Store> transaction) {

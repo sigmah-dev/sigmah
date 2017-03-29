@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -61,13 +63,13 @@ import org.sigmah.client.event.UpdateEvent;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
+
 public class LoginPresenter extends AbstractPagePresenter<LoginPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(LoginView.class)
+
 	public static interface View extends ViewInterface {
 
 		ListBox getLanguagesField();
@@ -103,9 +105,8 @@ public class LoginPresenter extends AbstractPagePresenter<LoginPresenter.View> {
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	public LoginPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public LoginPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
@@ -200,7 +201,7 @@ public class LoginPresenter extends AbstractPagePresenter<LoginPresenter.View> {
 				if (Log.isInfoEnabled()) {
 					Log.info("Authentication proccesed successfully, reloading application.");
 				}
-				injector.getAuthenticationProvider().login(authentication);
+				factory.getAuthenticationProvider().login(authentication);
 				eventBus.fireEvent(new UpdateEvent(UpdateEvent.USER_LOGGED_IN));
 
 				if (GWT.isScript()) {

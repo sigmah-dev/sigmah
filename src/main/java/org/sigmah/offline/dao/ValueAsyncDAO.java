@@ -54,11 +54,14 @@ import org.sigmah.shared.dto.element.FlexibleElementDTO;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
+
 public class ValueAsyncDAO extends BaseAsyncDAO<Store> {
 	
-	@Inject
 	private FileDataAsyncDAO fileDataAsyncDAO;
+	
+	public ValueAsyncDAO(FileDataAsyncDAO fileDataAsyncDAO) {
+		this.fileDataAsyncDAO = fileDataAsyncDAO;
+	}
 
 	/**
 	 * {@inheritDoc}

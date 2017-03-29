@@ -25,16 +25,15 @@ package org.sigmah.client.ui.presenter.admin.models.orgunit;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
 import org.sigmah.client.ui.presenter.base.HasForm;
-import org.sigmah.client.ui.view.admin.models.orgunit.AddOrgUnitModelAdminView;
 import org.sigmah.client.ui.view.base.ViewPopupInterface;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.FormPanel;
@@ -47,9 +46,6 @@ import org.sigmah.shared.dto.referential.ProjectModelStatus;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.google.inject.ImplementedBy;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
 
 /**
  * Presenter in charge of adding a new OrgUnit model.
@@ -57,13 +53,11 @@ import com.google.inject.Singleton;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr) (v2.0)
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class AddOrgUnitModelAdminPresenter extends AbstractPagePresenter<AddOrgUnitModelAdminPresenter.View> implements HasForm {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(AddOrgUnitModelAdminView.class)
 	public static interface View extends ViewPopupInterface {
 
 		FormPanel getForm();
@@ -88,9 +82,8 @@ public class AddOrgUnitModelAdminPresenter extends AbstractPagePresenter<AddOrgU
 	 * @param injector
 	 *          The application injector.
 	 */
-	@Inject
-	protected AddOrgUnitModelAdminPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public AddOrgUnitModelAdminPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

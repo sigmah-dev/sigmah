@@ -41,12 +41,10 @@ import org.sigmah.shared.command.result.Authentication;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class GetUsersByOrganizationAsyncHandler implements AsyncCommandHandler<GetUsersByOrganization, ListResult<UserDTO>>, DispatchListener<GetUsersByOrganization, ListResult<UserDTO>> {
 
 	private final UserAsyncDAO userDAO;
 
-	@Inject
 	public GetUsersByOrganizationAsyncHandler(UserAsyncDAO userDAO) {
 		this.userDAO = userDAO;
 	}

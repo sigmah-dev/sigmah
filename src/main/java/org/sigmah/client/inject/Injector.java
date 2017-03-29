@@ -75,9 +75,15 @@ import org.sigmah.client.ui.presenter.orgunit.OrgUnitDashboardPresenter;
 import org.sigmah.client.ui.presenter.orgunit.OrgUnitDetailsPresenter;
 import org.sigmah.client.ui.presenter.orgunit.OrgUnitPresenter;
 import org.sigmah.client.ui.presenter.orgunit.OrgUnitReportsPresenter;
+import org.sigmah.client.ui.presenter.password.ChangeOwnPasswordPresenter;
 import org.sigmah.client.ui.presenter.password.LostPasswordPresenter;
 import org.sigmah.client.ui.presenter.password.ResetPasswordPresenter;
-import org.sigmah.client.ui.presenter.project.*;
+import org.sigmah.client.ui.presenter.project.LinkedProjectPresenter;
+import org.sigmah.client.ui.presenter.project.ProjectCalendarPresenter;
+import org.sigmah.client.ui.presenter.project.ProjectDetailsPresenter;
+import org.sigmah.client.ui.presenter.project.ProjectPresenter;
+import org.sigmah.client.ui.presenter.project.ProjectReportsPresenter;
+import org.sigmah.client.ui.presenter.project.ProjectTeamMembersPresenter;
 import org.sigmah.client.ui.presenter.project.dashboard.ProjectDashboardPresenter;
 import org.sigmah.client.ui.presenter.project.export.ExportProjectsPresenter;
 import org.sigmah.client.ui.presenter.project.export.ExportProjectsSettingPresenter;
@@ -103,15 +109,10 @@ import org.sigmah.client.ui.theme.Theme;
 import org.sigmah.offline.dao.FileDataAsyncDAO;
 import org.sigmah.offline.dao.TransfertAsyncDAO;
 import org.sigmah.offline.dispatch.LocalDispatchServiceAsync;
-import org.sigmah.offline.inject.OfflineModule;
-import org.sigmah.offline.sync.Synchronizer;
-import org.sigmah.shared.file.TransfertManager;
-
-import com.google.gwt.inject.client.GinModules;
-import com.google.gwt.inject.client.Ginjector;
-import org.sigmah.client.ui.presenter.password.ChangeOwnPasswordPresenter;
 import org.sigmah.offline.presenter.FileSelectionPresenter;
 import org.sigmah.offline.status.ApplicationStateManager;
+import org.sigmah.offline.sync.Synchronizer;
+import org.sigmah.shared.file.TransfertManager;
 
 /**
  * GIN injector.
@@ -119,11 +120,8 @@ import org.sigmah.offline.status.ApplicationStateManager;
  * @author Tom Miette (tmiette@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@GinModules(value = {
-											ClientModule.class,
-											OfflineModule.class
-})
-public interface Injector extends Ginjector {
+
+public interface Injector  {
 
 	EventBus getEventBus();
 

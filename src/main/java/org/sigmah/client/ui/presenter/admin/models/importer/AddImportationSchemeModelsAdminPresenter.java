@@ -26,6 +26,7 @@ package org.sigmah.client.ui.presenter.admin.models.importer;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.UpdateEvent;
@@ -65,7 +66,6 @@ import com.google.inject.Singleton;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
 
-@Singleton
 public class AddImportationSchemeModelsAdminPresenter extends AbstractPagePresenter<AddImportationSchemeModelsAdminPresenter.View> {
 
 	private EntityDTO<Integer> model;
@@ -73,7 +73,6 @@ public class AddImportationSchemeModelsAdminPresenter extends AbstractPagePresen
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(AddImportationSchemeModelsAdminView.class)
 	public static interface View extends ViewPopupInterface {
 
 		ComboBox<ImportationSchemeDTO> getSchemasCombo();
@@ -88,9 +87,8 @@ public class AddImportationSchemeModelsAdminPresenter extends AbstractPagePresen
 
 	}
 
-	@Inject
-	protected AddImportationSchemeModelsAdminPresenter(View view, Injector injector) {
-		super(view, injector);
+	public AddImportationSchemeModelsAdminPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	@Override

@@ -44,7 +44,7 @@ import com.google.inject.Singleton;
 /**
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)V2.0
  */
-@Singleton
+
 public class ImportModelView extends AbstractPopupView<PopupWidget> implements ImportModelPresenter.View {
 
 	private Button importButton;

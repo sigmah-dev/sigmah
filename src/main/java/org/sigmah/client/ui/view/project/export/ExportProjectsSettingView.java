@@ -72,7 +72,6 @@ import com.google.inject.Singleton;
 /**
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
-@Singleton
 public class ExportProjectsSettingView extends AbstractPopupView<PopupWidget> implements ExportProjectsSettingPresenter.View {
 
 	private FormPanel panel;

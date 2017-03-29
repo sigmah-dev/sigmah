@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.admin.orgunits;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -54,13 +56,11 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class MoveOrgUnitAdminPresenter extends AbstractPagePresenter<MoveOrgUnitAdminPresenter.View> implements HasForm {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(MoveOrgUnitAdminView.class)
 	public static interface View extends ViewPopupInterface {
 
 		FormPanel getForm();
@@ -81,12 +81,11 @@ public class MoveOrgUnitAdminPresenter extends AbstractPagePresenter<MoveOrgUnit
 	 * 
 	 * @param view
 	 *          Presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected client injector.
 	 */
-	@Inject
-	protected MoveOrgUnitAdminPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public MoveOrgUnitAdminPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
@@ -155,7 +154,7 @@ public class MoveOrgUnitAdminPresenter extends AbstractPagePresenter<MoveOrgUnit
 		view.getParentField().getStore().removeAll();
 
 		// Retrieves the units.
-		injector.getClientCache().getOrganizationCache().get(new AsyncCallback<OrgUnitDTO>() {
+		factory.getClientCache().getOrganizationCache().get(new AsyncCallback<OrgUnitDTO>() {
 
 			@Override
 			public void onFailure(final Throwable caught) {

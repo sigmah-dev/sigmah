@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.EventBus.LeavingCallback;
@@ -118,7 +119,7 @@ import org.sigmah.shared.dto.referential.CoreVersionAction;
  *
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
+
 public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> implements HasSubPresenter<ProjectPresenter.View> {
 
 	private static final String ALERT_STYLE = "header-alert";
@@ -126,7 +127,6 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ProjectView.class)
 	public static interface View extends HasSubView {
 
 		/**
@@ -235,9 +235,8 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	public ProjectPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public ProjectPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
@@ -254,7 +253,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 			@Override
 			public void onSubMenuClick(final SubMenuItem menuItem) {
 
-				final PageRequest currentPageRequest = injector.getPageManager().getCurrentPageRequest(false);
+				final PageRequest currentPageRequest = factory.getPageManager().getCurrentPageRequest(false);
 				Profiler.INSTANCE.startScenario(Scenario.AGENDA);	
 				Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "Before navigateRequest");
 				eventBus.navigateRequest(menuItem.getRequest().addAllParameters(currentPageRequest.getParameters(false)));
@@ -340,7 +339,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 			@Override
 			public void handleEvent(BaseEvent be) {
-				final PageRequest currentPageRequest = injector.getPageManager().getCurrentPageRequest();
+				final PageRequest currentPageRequest = factory.getPageManager().getCurrentPageRequest();
 				eventBus.navigateRequest(currentPageRequest.removeParameter(RequestParameter.VERSION), view.getBackToWorkingVersionButton());
 				// BUGFIX #726: Setting the current core version to null to really exit the core version view mode.
 				currentCoreVersion = null;
@@ -385,7 +384,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 				} else if(event.concern(UpdateEvent.CORE_VERSION_UPDATED)) {
 					// This is really harsh but it was the simplest to have to latest project revision.
 					// If too much, it is possible to set revision to revision + 1 and call loadAmendments instead.
-					eventBus.navigateRequest(injector.getPageManager().getCurrentPageRequest(), new LoadingMask(view.getProjectCoreVersionPanel()));
+					eventBus.navigateRequest(factory.getPageManager().getCurrentPageRequest(), new LoadingMask(view.getProjectCoreVersionPanel()));
 				}
 			}
 		}));
@@ -504,7 +503,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 							@Override
 							protected void onCommandSuccess(ProjectDTO result) {
 								project.setAmendmentState(result.getAmendmentState());
-								eventBus.navigateRequest(injector.getPageManager().getCurrentPageRequest(), loadable);
+								eventBus.navigateRequest(factory.getPageManager().getCurrentPageRequest(), loadable);
 							}
 						}, loadable);
 					}
@@ -592,7 +591,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 	private void onCoreVersionAction(final ProjectDTO project, final AmendmentAction action, final Button source, final String name) {
 
 		// Executes form changes detection control.
-		injector.getPageManager().getCurrentPresenter().beforeLeaving(new LeavingCallback() {
+		factory.getPageManager().getCurrentPresenter().beforeLeaving(new LeavingCallback() {
 
 			@Override
 			public void leavingOk() {
@@ -613,7 +612,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 						ProjectPresenter.this.project = result;
 
 						// Reloading the page.
-						eventBus.navigateRequest(injector.getPageManager().getCurrentPageRequest(), new LoadingMask(view.getProjectCoreVersionPanel()));
+						eventBus.navigateRequest(factory.getPageManager().getCurrentPageRequest(), new LoadingMask(view.getProjectCoreVersionPanel()));
 
 					}
 				}, source);
@@ -637,7 +636,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 		currentCoreVersion = coreVersion;
 
-		injector.getPageManager().getCurrentPresenter().beforeLeaving(new LeavingCallback() {
+		factory.getPageManager().getCurrentPresenter().beforeLeaving(new LeavingCallback() {
 
 			@Override
 			public void leavingOk() {
@@ -646,7 +645,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 
 				if (currentCoreVersion.getId() != null) {
 					// Reloading the page with the amendment id parameter.
-					final PageRequest currentPageRequest = injector.getPageManager().getCurrentPageRequest();
+					final PageRequest currentPageRequest = factory.getPageManager().getCurrentPageRequest();
 					currentPageRequest.addParameter(RequestParameter.VERSION, currentCoreVersion.getId());
 					eventBus.navigateRequest(currentPageRequest, new LoadingMask(view.getProjectCoreVersionPanel()));
 				}
@@ -746,9 +745,9 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 					// Builds the graphic component
 					final DefaultFlexibleElementDTO defaultElement = (DefaultFlexibleElementDTO) element;
 					defaultElement.setService(dispatch);
-					defaultElement.setAuthenticationProvider(injector.getAuthenticationProvider());
+					defaultElement.setAuthenticationProvider(factory.getAuthenticationProvider());
 					defaultElement.setEventBus(eventBus);
-					defaultElement.setCache(injector.getClientCache());
+					defaultElement.setCache(factory.getClientCache());
 					defaultElement.setCurrentContainerDTO(project);
 
 					final Integer amendmentId;
@@ -855,7 +854,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 			public void onExportProject(final Field<Boolean> indicatorField, final Field<Boolean> logFrameField, final Field<Boolean> contactsField) {
 
 				final ServletUrlBuilder urlBuilder =
-						new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_PROJECT);
+						new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_PROJECT);
 
 				final ExportType type;
 
@@ -918,7 +917,7 @@ public class ProjectPresenter extends AbstractPresenter<ProjectPresenter.View> i
 					@Override
 					public void onCommandSuccess(final VoidResult result) {
 
-						final PageRequest currentRequest = injector.getPageManager().getCurrentPageRequest(false);
+						final PageRequest currentRequest = factory.getPageManager().getCurrentPageRequest(false);
 						eventBus.fireEvent(new UpdateEvent(UpdateEvent.PROJECT_DELETE, currentRequest));
 
 						N10N.infoNotif(I18N.CONSTANTS.deleteProjectNotificationTitle(), I18N.CONSTANTS.deleteProjectNotificationContent());

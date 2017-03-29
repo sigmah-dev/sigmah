@@ -81,6 +81,8 @@ import com.google.gwt.dom.client.Style.Display;
 import com.google.gwt.i18n.shared.DateTimeFormat;
 import com.google.gwt.user.client.ui.Image;
 import java.util.List;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.ui.res.icon.offline.OfflineIconBundle;
 import org.sigmah.client.util.profiler.Execution;
@@ -98,7 +100,7 @@ import org.sigmah.shared.util.ProfileUtils;
  * @author Tom Miette (tmiette@ideia.fr)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
+
 public class OfflineBannerPresenter extends AbstractZonePresenter<OfflineBannerPresenter.View> 
 implements OfflineEvent.Source {
 	
@@ -125,7 +127,6 @@ implements OfflineEvent.Source {
 	/**
 	 * View interface.
 	 */
-	@ImplementedBy(OfflineBannerView.class)
 	public static interface View extends ViewInterface {
 
 		Panel getTraceHandle();		
@@ -143,8 +144,8 @@ implements OfflineEvent.Source {
 		public Image getTraceModeIcon();
 	}
     
-	@Inject
-	public OfflineBannerPresenter(View view, Injector injector, TransfertManager transfertManager) {
+
+	public OfflineBannerPresenter(View view, ClientFactory injector, TransfertManager transfertManager) {
 		super(view, injector);
 	}
     
@@ -165,7 +166,7 @@ implements OfflineEvent.Source {
 		ApplicationCacheManager.addHandler(createApplicationCacheEventHandler());
         
         // File transfer progress
-		final TransfertManager transfertManager = injector.getTransfertManager();
+		final TransfertManager transfertManager = factory.getTransfertManager();
         if(transfertManager instanceof HasProgressListeners) {
             ((HasProgressListeners)transfertManager).setProgressListener(TransfertType.DOWNLOAD, createProgressAdapter(ProgressType.DOWNLOAD));
             ((HasProgressListeners)transfertManager).setProgressListener(TransfertType.UPLOAD, createProgressAdapter(ProgressType.UPLOAD));
@@ -468,7 +469,7 @@ implements OfflineEvent.Source {
     }
 	
 	private int getPendingTransfers(ProgressType type) {
-		final HasProgressListeners hasProgressListeners = (HasProgressListeners) injector.getTransfertManager();
+		final HasProgressListeners hasProgressListeners = (HasProgressListeners) factory.getTransfertManager();
 		switch(type) {
 			case DOWNLOAD:
 				return hasProgressListeners.getDownloadQueueSize();
@@ -624,7 +625,7 @@ implements OfflineEvent.Source {
         view.getSynchronizePopup().setTask(I18N.CONSTANTS.offlineSynchronizePush());
         view.getSynchronizePopup().center();
         
-        injector.getSynchronizer().push(new AsyncCallback<Void>() {
+        factory.getSynchronizer().push(new AsyncCallback<Void>() {
 
             @Override
             public void onFailure(Throwable caught) {
@@ -647,7 +648,7 @@ implements OfflineEvent.Source {
                 view.getSynchronizePopup().setTask(I18N.CONSTANTS.offlineSynchronizePull());
                 progresses.put(ProgressType.DATABASE, PUSH_VALUE);
 
-                injector.getSynchronizer().pull(new SynchroProgressListener() {
+                factory.getSynchronizer().pull(new SynchroProgressListener() {
 
                     @Override
                     public void onProgress(double progress) {
@@ -666,7 +667,7 @@ implements OfflineEvent.Source {
                         setDatabaseUpdateDate(new Date());
 						
 						// Refresh the current page.
-						eventBus.navigateRequest(injector.getPageManager().getCurrentPageRequest());
+						eventBus.navigateRequest(factory.getPageManager().getCurrentPageRequest());
 						
 						pullFilesInvite();
                     }
@@ -691,7 +692,7 @@ implements OfflineEvent.Source {
         progresses.put(ProgressType.DATABASE, 0.0);
         view.setWarningIconVisible(false);
         
-        injector.getSynchronizer().pull(new SynchroProgressListener() {
+        factory.getSynchronizer().pull(new SynchroProgressListener() {
 
             @Override
             public void onProgress(double progress) {

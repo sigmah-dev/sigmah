@@ -67,7 +67,6 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class CategoriesAdminView extends AbstractView implements CategoriesAdminPresenter.View {
 
 	private static final Float CATEGORIE_PANEL_WIDTH = 450f;

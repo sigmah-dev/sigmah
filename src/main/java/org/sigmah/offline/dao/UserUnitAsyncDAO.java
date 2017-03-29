@@ -28,7 +28,7 @@ import org.sigmah.offline.indexeddb.Store;
 import org.sigmah.offline.js.UserUnitsResultJS;
 import org.sigmah.shared.command.result.UserUnitsResult;
 
-@Singleton
+
 public class UserUnitAsyncDAO extends AbstractUserDatabaseAsyncDAO<UserUnitsResult, UserUnitsResultJS> {
 
 	@Override

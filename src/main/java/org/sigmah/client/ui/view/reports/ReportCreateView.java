@@ -40,7 +40,6 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class ReportCreateView extends AbstractPopupView<PopupWidget> implements ReportCreatePresenter.View {
 
 	private FormPanel form;

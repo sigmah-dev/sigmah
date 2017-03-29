@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.event.handler.UpdateHandler;
@@ -75,13 +76,11 @@ import com.google.inject.Singleton;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr) (v2.0)
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class UsersAdminPresenter extends AbstractAdminPresenter<UsersAdminPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(UsersAdminView.class)
 	public static interface View extends AbstractAdminPresenter.View {
 
 		/**
@@ -186,12 +185,11 @@ public class UsersAdminPresenter extends AbstractAdminPresenter<UsersAdminPresen
 	 * 
 	 * @param view
 	 *          Presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected client injector.
 	 */
-	@Inject
-	protected UsersAdminPresenter(View view, Injector injector) {
-		super(view, injector);
+	public UsersAdminPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

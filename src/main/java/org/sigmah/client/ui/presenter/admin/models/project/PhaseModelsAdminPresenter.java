@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.admin.models.project;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -64,7 +66,6 @@ public class PhaseModelsAdminPresenter extends AbstractPresenter<PhaseModelsAdmi
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(PhaseModelsAdminView.class)
 	public static interface View extends ViewInterface, HasGrid<PhaseModelDTO> {
 
 		Button getAddButton();
@@ -88,9 +89,8 @@ public class PhaseModelsAdminPresenter extends AbstractPresenter<PhaseModelsAdmi
 	 * @param injector
 	 *          The application injector.
 	 */
-	@Inject
-	public PhaseModelsAdminPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public PhaseModelsAdminPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

@@ -44,7 +44,6 @@ import com.google.inject.Singleton;
  * 
  * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
  */
-@Singleton
 public class LocalDispatchServiceAsync implements SecureDispatchServiceAsync {
 	
 	public static final String LAST_USER_ITEM = "sigmah.last-user";

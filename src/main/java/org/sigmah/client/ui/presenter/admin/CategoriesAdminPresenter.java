@@ -27,6 +27,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.event.UpdateEvent;
@@ -82,13 +83,11 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class CategoriesAdminPresenter extends AbstractAdminPresenter<CategoriesAdminPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(CategoriesAdminView.class)
 	public static interface View extends AbstractAdminPresenter.View {
 
 		ListStore<CategoryTypeDTO> getCategoriesStore();
@@ -143,9 +142,8 @@ public class CategoriesAdminPresenter extends AbstractAdminPresenter<CategoriesA
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	protected CategoriesAdminPresenter(View view, Injector injector) {
-		super(view, injector);
+	public CategoriesAdminPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
@@ -219,7 +217,7 @@ public class CategoriesAdminPresenter extends AbstractAdminPresenter<CategoriesA
 			public void onClickHandler(CategoryTypeDTO categoryTypeDTO) {
 
 				final ServletUrlBuilder urlBuilder =
-						new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_MODEL_CATEGORY);
+						new ServletUrlBuilder(factory.getAuthenticationProvider(), factory.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_MODEL_CATEGORY);
 
 				urlBuilder.addParameter(RequestParameter.ID, categoryTypeDTO.getId());
 

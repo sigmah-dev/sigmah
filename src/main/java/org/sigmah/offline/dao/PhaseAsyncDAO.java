@@ -42,7 +42,7 @@ import com.google.inject.Singleton;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
+
 public class PhaseAsyncDAO extends AbstractUserDatabaseAsyncDAO<PhaseDTO, PhaseJS> {
 	
 	private final PhaseModelAsyncDAO phaseModelAsyncDAO;
@@ -50,7 +50,7 @@ public class PhaseAsyncDAO extends AbstractUserDatabaseAsyncDAO<PhaseDTO, PhaseJ
 	/**
 	 * {@inheritDoc}
 	 */
-	@Inject
+	
 	public PhaseAsyncDAO(PhaseModelAsyncDAO phaseModelAsyncDAO) {
 		this.phaseModelAsyncDAO = phaseModelAsyncDAO;
 	}

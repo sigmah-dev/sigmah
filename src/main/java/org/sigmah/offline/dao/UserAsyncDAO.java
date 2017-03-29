@@ -44,12 +44,10 @@ import com.allen_sauer.gwt.log.client.Log;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class UserAsyncDAO extends AbstractUserDatabaseAsyncDAO<UserDTO, UserJS> {
 
 	private final OrgUnitAsyncDAO orgUnitDAO;
 
-	@Inject
 	public UserAsyncDAO(OrgUnitAsyncDAO orgUnitDAO) {
 		this.orgUnitDAO = orgUnitDAO;
 	}

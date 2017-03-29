@@ -41,12 +41,10 @@ import org.sigmah.shared.command.result.Authentication;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class GetHistoryAsyncHandler implements AsyncCommandHandler<GetHistory, ListResult<HistoryTokenListDTO>>, DispatchListener<GetHistory, ListResult<HistoryTokenListDTO>> {
 
 	private final HistoryAsyncDAO historyAsyncDAO;
 
-	@Inject
 	public GetHistoryAsyncHandler(HistoryAsyncDAO historyAsyncDAO) {
 		this.historyAsyncDAO = historyAsyncDAO;
 	}

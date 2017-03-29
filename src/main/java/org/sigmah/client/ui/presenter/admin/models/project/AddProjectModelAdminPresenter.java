@@ -25,6 +25,7 @@ package org.sigmah.client.ui.presenter.admin.models.project;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
@@ -57,13 +58,12 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class AddProjectModelAdminPresenter extends AbstractPagePresenter<AddProjectModelAdminPresenter.View> implements HasForm {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(AddProjectModelAdminView.class)
+
 	public static interface View extends ViewPopupInterface {
 
 		FormPanel getForm();
@@ -84,8 +84,7 @@ public class AddProjectModelAdminPresenter extends AbstractPagePresenter<AddProj
 	 * @param injector
 	 *          The application injector.
 	 */
-	@Inject
-	protected AddProjectModelAdminPresenter(final View view, final Injector injector) {
+	public AddProjectModelAdminPresenter(final View view, final ClientFactory injector) {
 		super(view, injector);
 	}
 

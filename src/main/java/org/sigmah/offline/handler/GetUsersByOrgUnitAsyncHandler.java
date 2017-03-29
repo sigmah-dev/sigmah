@@ -45,8 +45,8 @@ public class GetUsersByOrgUnitAsyncHandler implements AsyncCommandHandler<GetUse
 	private final OrgUnitAsyncDAO orgUnitDAO;
 	private final UserAsyncDAO userDAO;
 
-	@Inject
-	GetUsersByOrgUnitAsyncHandler(OrgUnitAsyncDAO orgUnitDAO, UserAsyncDAO userDAO) {
+
+	public GetUsersByOrgUnitAsyncHandler(OrgUnitAsyncDAO orgUnitDAO, UserAsyncDAO userDAO) {
 		this.orgUnitDAO = orgUnitDAO;
 		this.userDAO = userDAO;
 	}

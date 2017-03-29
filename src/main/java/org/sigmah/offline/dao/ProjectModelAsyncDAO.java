@@ -25,6 +25,7 @@ package org.sigmah.offline.dao;
 import java.util.ArrayList;
 import java.util.Collection;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.offline.indexeddb.ObjectStore;
 import org.sigmah.offline.indexeddb.Request;
 import org.sigmah.offline.indexeddb.Store;
@@ -46,17 +47,25 @@ import org.sigmah.shared.dto.element.FlexibleElementDTO;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class ProjectModelAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectModelDTO, ProjectModelJS> {
 	
-	@Inject
+	
+
+	
 	private PhaseModelAsyncDAO phaseModelAsyncDAO;
 	
-	@Inject
+	
 	private ComputationAsyncDAO computationAsyncDAO;
+	
+	public ProjectModelAsyncDAO(ClientFactory factory) {
+		this.phaseModelAsyncDAO = factory.getPhaseModelAsyncDAO();
+		
+		this.computationAsyncDAO = factory.getComputationAsyncDAO();
+	}
 
 	/**
 	 * {@inheritDoc}
+	 * 
 	 */
 	@Override
 	public void saveOrUpdate(ProjectModelDTO t, AsyncCallback<ProjectModelDTO> callback, Transaction<Store> transaction) {

@@ -27,6 +27,7 @@ import com.allen_sauer.gwt.log.client.Log;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.event.handler.UpdateHandler;
 import org.sigmah.client.i18n.I18N;
@@ -60,7 +61,7 @@ import com.google.inject.Singleton;
  * @author Tom Miette (tmiette@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
+
 public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresenter.View> {
 
 	/**
@@ -74,7 +75,7 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 	/**
 	 * View interface.
 	 */
-	@ImplementedBy(MenuBannerView.class)
+
 	public static interface View extends ViewInterface {
 
 		Panel getMenuPanel();
@@ -94,9 +95,8 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 	// Page requests linked to the tabs.
 	private HashMap<TabId, PageRequest> requests;
 
-	@Inject
-	public MenuBannerPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public MenuBannerPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

@@ -55,7 +55,6 @@ import com.google.inject.Singleton;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr) (v2.0)
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class ProfileEditView extends AbstractPopupView<PopupWidget> implements ProfileEditPresenter.View {
 
 	private FormPanel formPanel;
@@ -68,7 +67,7 @@ public class ProfileEditView extends AbstractPopupView<PopupWidget> implements P
 	/**
 	 * View popup initialization.
 	 */
-	protected ProfileEditView() {
+	public ProfileEditView() {
 		super(new PopupWidget(true));
 		popup.setWidth(null); // Enables auto-width.
 	}

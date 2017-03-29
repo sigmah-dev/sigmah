@@ -45,7 +45,7 @@ public class GetUserUnitsByUserAsyncHandler implements AsyncCommandHandler<GetUs
 
 	private final UserUnitAsyncDAO userUnitDAO;
 
-	@Inject GetUserUnitsByUserAsyncHandler(UserUnitAsyncDAO userUnitDAO) {
+	public GetUserUnitsByUserAsyncHandler(UserUnitAsyncDAO userUnitDAO) {
 		this.userUnitDAO = userUnitDAO;
 	}
 

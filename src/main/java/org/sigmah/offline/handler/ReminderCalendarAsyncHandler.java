@@ -49,11 +49,14 @@ import org.sigmah.shared.dto.reminder.ReminderDTO;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class ReminderCalendarAsyncHandler implements AsyncCommandHandler<GetCalendar, Calendar> {
 
-	@Inject
+	
 	private ReminderAsyncDAO reminderAsyncDAO;
+	
+	public ReminderCalendarAsyncHandler(ReminderAsyncDAO reminderAsyncDAO) {
+		this.reminderAsyncDAO = reminderAsyncDAO;
+	}
 	
 	@Override
 	public void execute(GetCalendar command, OfflineExecutionContext executionContext, final AsyncCallback<Calendar> callback) {

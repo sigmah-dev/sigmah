@@ -27,6 +27,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
@@ -67,13 +68,11 @@ import com.google.inject.Singleton;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr) (v2.0)
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class ProfileEditPresenter extends AbstractPagePresenter<ProfileEditPresenter.View> {
 
 	/**
 	 * The view interface managed by this presenter.
 	 */
-	@ImplementedBy(ProfileEditView.class)
 	public static interface View extends ViewInterface {
 
 		/**
@@ -144,9 +143,8 @@ public class ProfileEditPresenter extends AbstractPagePresenter<ProfileEditPrese
 	 * @param injector
 	 *          The application injector.
 	 */
-	@Inject
-	protected ProfileEditPresenter(View view, Injector injector) {
-		super(view, injector);
+	public ProfileEditPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

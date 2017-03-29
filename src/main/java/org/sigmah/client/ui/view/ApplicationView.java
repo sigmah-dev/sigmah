@@ -68,7 +68,7 @@ import com.google.inject.Singleton;
  * @author Claire Yang (cyang@ideia.fr)
  * @author Tom Miette (tmiette@ideia.fr)
  */
-@Singleton
+
 public class ApplicationView implements ApplicationPresenter.View, HasPageMessage {
 
 	/**

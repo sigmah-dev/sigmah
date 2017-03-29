@@ -24,20 +24,14 @@ package org.sigmah.client.ui.presenter.orgunit;
 
 import java.util.EnumMap;
 
-import org.sigmah.client.inject.Injector;
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.ui.presenter.calendar.CalendarPresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
-import org.sigmah.client.ui.view.orgunit.OrgUnitCalendarView;
 import org.sigmah.shared.dto.calendar.CalendarType;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.util.ProfileUtils;
-
-import com.google.inject.ImplementedBy;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import com.google.inject.Singleton;
 
 /**
  * <p>
@@ -50,13 +44,11 @@ import com.google.inject.Singleton;
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr) (v2.0)
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class OrgUnitCalendarPresenter extends AbstractOrgUnitPresenter<OrgUnitCalendarPresenter.View> {
 
 	/**
 	 * Presenter's view interface.
 	 */
-	@ImplementedBy(OrgUnitCalendarView.class)
 	public static interface View extends AbstractOrgUnitPresenter.View {
 
 		/**
@@ -86,10 +78,9 @@ public class OrgUnitCalendarPresenter extends AbstractOrgUnitPresenter<OrgUnitCa
 	 * @param calendarPresenterProvider
 	 *          The {@link CalendarPresenter} provider.
 	 */
-	@Inject
-	protected OrgUnitCalendarPresenter(final View view, final Injector injector, final Provider<CalendarPresenter> calendarPresenterProvider) {
+	public OrgUnitCalendarPresenter(final View view, final ClientFactory injector) {
 		super(view, injector);
-		calendarPresenter = calendarPresenterProvider.get();
+		calendarPresenter = factory.getCalendarPresenter();
 		view.provideCalendarView(calendarPresenter.getView());
 	}
 

@@ -25,6 +25,7 @@ package org.sigmah.client.ui.presenter.project;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
@@ -59,13 +60,11 @@ import org.sigmah.shared.dto.element.FlexibleElementDTO;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class ProjectReportsPresenter extends AbstractProjectPresenter<ProjectReportsPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ProjectReportsView.class)
 	public static interface View extends AbstractProjectPresenter.View {
 
 		/**
@@ -90,13 +89,12 @@ public class ProjectReportsPresenter extends AbstractProjectPresenter<ProjectRep
 	 * 
 	 * @param view
 	 *          Presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected client injector.
 	 */
-	@Inject
-	public ProjectReportsPresenter(final View view, final Injector injector, final Provider<ReportsPresenter> reportsPresenterProvider) {
-		super(view, injector);
-		reportsPresenter = reportsPresenterProvider.get();
+	public ProjectReportsPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
+		reportsPresenter = factory.getReportsPresenter();
 		view.provideReportsView(reportsPresenter.getView());
 	}
 

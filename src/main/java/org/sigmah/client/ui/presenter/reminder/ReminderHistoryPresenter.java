@@ -24,6 +24,7 @@ package org.sigmah.client.ui.presenter.reminder;
 
 import java.util.List;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageRequest;
@@ -46,13 +47,11 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class ReminderHistoryPresenter extends AbstractPagePresenter<ReminderHistoryPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(ReminderHistoryView.class)
 	public static interface View extends ViewInterface {
 
 		void setData(List<? extends AbstractModelDataEntityDTO<?>> dataList);
@@ -73,9 +72,8 @@ public class ReminderHistoryPresenter extends AbstractPagePresenter<ReminderHist
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	public ReminderHistoryPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public ReminderHistoryPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

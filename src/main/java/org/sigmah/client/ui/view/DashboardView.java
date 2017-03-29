@@ -27,6 +27,7 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.DashboardPresenter;
 import org.sigmah.client.ui.presenter.contact.dashboardlist.ContactsListWidget;
@@ -78,7 +79,7 @@ import org.sigmah.client.ui.presenter.DashboardPresenter.ReminderOrMonitoredPoin
  * @author Tom Miette (tmiette@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
+
 public class DashboardView extends AbstractView implements DashboardPresenter.View {
 
 	/**
@@ -86,11 +87,9 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 	 */
 	private static final String EXPECTED_DATE_LABEL_STYLE = "points-date-exceeded";
 
-	@Inject
-	private Provider<ContactsListWidget> contactsListWidgetProvider;
-
-	@Inject
-	private Provider<ProjectsListWidget> projectsListWidgetProvider;
+	
+	
+	private ClientFactory factory;
 
 	private ContentPanel remindersPanel;
 	private ListStore<ReminderDTO> remindersStore;
@@ -119,6 +118,11 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 	@Override
 	public void setReminderOrMonitoredPointHandler(final ReminderOrMonitoredPointHandler handler) {
 		this.handler = handler;
+	}
+	
+	
+	public DashboardView(ClientFactory factory) {
+		this.factory = factory;
 	}
     
     
@@ -362,7 +366,7 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 	 */
 	private Widget createContactsPanel() {
 
-		contactsListWidget = contactsListWidgetProvider.get();
+		contactsListWidget = factory.getContactsListWidget();
 		contactsListWidget.initialize();
 
 		return contactsListWidget.getView().asWidget();
@@ -375,7 +379,7 @@ public class DashboardView extends AbstractView implements DashboardPresenter.Vi
 	 */
 	private Widget createProjectsPanel() {
 
-		projectsListWidget = projectsListWidgetProvider.get();
+		projectsListWidget = factory.getProjectsListWidget();
 		projectsListWidget.initialize();
 
 		return projectsListWidget.getView().asWidget();

@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.password;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -55,21 +57,18 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
+
 public class LostPasswordPresenter extends AbstractPagePresenter<LostPasswordPresenter.View> {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(LostPasswordView.class)
 	public static interface View extends ViewInterface {
-
 		FormPanel getForm();
 
 		Field<String> getEmailField();
 
 		Button getValidateButton();
-
 	}
 
 	/**
@@ -85,9 +84,8 @@ public class LostPasswordPresenter extends AbstractPagePresenter<LostPasswordPre
 	 * @param injector
 	 *          Injected client injector.
 	 */
-	@Inject
-	public LostPasswordPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public LostPasswordPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

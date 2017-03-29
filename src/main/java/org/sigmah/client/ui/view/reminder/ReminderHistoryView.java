@@ -44,7 +44,6 @@ import com.google.inject.Singleton;
  * 
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
 public class ReminderHistoryView extends AbstractPopupView<PopupWidget> implements ReminderHistoryPresenter.View {
 
 	private Grid<AbstractModelDataEntityDTO<?>> grid;

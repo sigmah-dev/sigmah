@@ -51,28 +51,37 @@ import org.sigmah.offline.dispatch.LocalDispatchServiceAsync;
  * @author Denis Colliot (dcolliot@ideia.fr)
  * @deprecated [TO DELETE] use the command each time it's necessary.
  */
-@Singleton
+
 @Deprecated
 public class UserLocalCache {
 
 	/**
 	 * The dispatcher.
 	 */
-	@Inject
+	
 	private DispatchAsync dispatch;
 	
 	/**
 	 * Implementation of the RPC dispatch service.
 	 */
-	@Inject
+	
 	private LocalDispatchServiceAsync localDispatch;
 
 	/**
 	 * The authentication provider.
 	 */
-	@Inject
+	
 	private AuthenticationProvider authenticationProvider;
 	
+	
+	
+	public UserLocalCache(DispatchAsync dispatch, LocalDispatchServiceAsync localDispatch,
+			AuthenticationProvider authenticationProvider) {
+		this.dispatch = dispatch;
+		this.localDispatch = localDispatch;
+		this.authenticationProvider = authenticationProvider;
+	}
+
 	/**
 	 * Cache of the countries.
 	 */
@@ -91,7 +100,7 @@ public class UserLocalCache {
 	/**
 	 * Flag set to {@code true} once local client-side cache has been initialized.
 	 */
-	private boolean initialized;
+     private boolean initialized;
 
 	/**
 	 * Gets the cache of the countries.

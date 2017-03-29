@@ -45,7 +45,7 @@ import org.sigmah.client.ui.widget.form.FormPanel;
 /**
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
-@Singleton
+
 public class AddMatchingRuleImportationShemeModelsAdminView extends AbstractPopupView<PopupWidget> implements
 																																																	AddMatchingRuleImportationShemeModelsAdminPresenter.View {
 
@@ -58,8 +58,7 @@ public class AddMatchingRuleImportationShemeModelsAdminView extends AbstractPopu
 
 	private FormPanel mainPanel;
 
-	@Inject
-	protected AddMatchingRuleImportationShemeModelsAdminView() {
+	public AddMatchingRuleImportationShemeModelsAdminView() {
 		super(new PopupWidget(true), 500);
 	}
 

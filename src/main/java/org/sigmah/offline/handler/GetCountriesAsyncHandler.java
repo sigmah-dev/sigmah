@@ -41,12 +41,12 @@ import org.sigmah.shared.command.result.Authentication;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
+
 public class GetCountriesAsyncHandler implements AsyncCommandHandler<GetCountries, ListResult<CountryDTO>>, DispatchListener<GetCountries, ListResult<CountryDTO>> {
 
 	private final CountryAsyncDAO countryDAO;
 
-	@Inject
+	
 	public GetCountriesAsyncHandler(CountryAsyncDAO countryDAO) {
 		this.countryDAO = countryDAO;
 	}

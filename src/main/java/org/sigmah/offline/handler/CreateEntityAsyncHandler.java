@@ -29,6 +29,8 @@ import com.google.inject.Singleton;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.DispatchListener;
 import org.sigmah.offline.dao.MonitoredPointAsyncDAO;
 import org.sigmah.offline.dao.PersonalCalendarAsyncDAO;
@@ -63,24 +65,28 @@ import org.sigmah.shared.dto.report.ProjectReportDTO;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class CreateEntityAsyncHandler implements AsyncCommandHandler<CreateEntity, CreateResult>, DispatchListener<CreateEntity, CreateResult> {
 
-	@Inject
 	private UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
 
-	@Inject
 	private ProjectAsyncDAO projectAsyncDAO;
 	
-	@Inject
 	private PersonalCalendarAsyncDAO personalCalendarAsyncDAO;
 	
-	@Inject
 	private MonitoredPointAsyncDAO monitoredPointAsyncDAO;
 	
-	@Inject
 	private ReminderAsyncDAO reminderAsyncDAO;
 	
+	
+	
+	public CreateEntityAsyncHandler(ClientFactory factory) {
+		this.updateDiaryAsyncDAO = factory.getUpdateDiaryAsyncDAO();
+		this.projectAsyncDAO = factory.getProjectAsyncDAO();
+		this.personalCalendarAsyncDAO = factory.getPersonalCalendarAsyncDAO();
+		this.monitoredPointAsyncDAO = factory.getMonitoredPointAsyncDAO();
+		this.reminderAsyncDAO = factory.getReminderAsyncDAO();
+	}
+
 	@Override
 	public void execute(CreateEntity command, OfflineExecutionContext executionContext, final AsyncCallback<CreateResult> callback) {
 		executeCommand(command, null, executionContext.getAuthentication(), callback);

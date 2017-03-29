@@ -40,12 +40,11 @@ import org.sigmah.shared.dto.ProjectFundingDTO;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-@Singleton
 public class GetLinkedProjectsAsyncHandler implements AsyncCommandHandler<GetLinkedProjects, ListResult<ProjectFundingDTO>> {
 
     private final ProjectAsyncDAO projectAsyncDAO;
 
-	@Inject
+
 	public GetLinkedProjectsAsyncHandler(ProjectAsyncDAO projectAsyncDAO) {
 		this.projectAsyncDAO = projectAsyncDAO;
 	}

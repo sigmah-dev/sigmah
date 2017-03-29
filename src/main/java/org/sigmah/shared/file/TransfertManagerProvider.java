@@ -1,5 +1,15 @@
 package org.sigmah.shared.file;
 
+import org.sigmah.client.dispatch.DispatchAsync;
+import org.sigmah.client.event.EventBus;
+import org.sigmah.client.page.PageManager;
+import org.sigmah.client.security.AuthenticationProvider;
+import org.sigmah.client.util.ClientUtils;
+import org.sigmah.offline.dao.FileDataAsyncDAO;
+import org.sigmah.offline.dao.TransfertAsyncDAO;
+import org.sigmah.offline.fileapi.FileReader;
+import org.sigmah.offline.indexeddb.IndexedDB;
+
 /*
  * #%L
  * Sigmah
@@ -23,18 +33,6 @@ package org.sigmah.shared.file;
  */
 
 import com.google.gwt.core.client.GWT;
-import com.google.inject.Inject;
-import com.google.inject.Provider;
-import org.sigmah.client.dispatch.DispatchAsync;
-import org.sigmah.client.event.EventBus;
-import org.sigmah.client.page.PageManager;
-import org.sigmah.client.security.AuthenticationProvider;
-import org.sigmah.client.util.ClientUtils;
-import org.sigmah.offline.dao.FileDataAsyncDAO;
-import org.sigmah.offline.dao.TransfertAsyncDAO;
-import org.sigmah.offline.fileapi.FileReader;
-import org.sigmah.offline.indexeddb.IndexedDB;
-import org.sigmah.offline.status.ConnectionStatus;
 
 /**
  * Maintain and provides a TransfertManager singleton.
@@ -43,7 +41,7 @@ import org.sigmah.offline.status.ConnectionStatus;
  * 
  * @author Raphaël Calabro (rcalabro@ideia.fr)
  */
-public class TransfertManagerProvider implements Provider<TransfertManager> {
+public class TransfertManagerProvider  {
     
     /**
      * Activates HTML5 engine if the current browser supports downloads from a 
@@ -61,7 +59,6 @@ public class TransfertManagerProvider implements Provider<TransfertManager> {
 
     private final TransfertManager transfertManager;
 
-    @Inject
     public TransfertManagerProvider(DispatchAsync dispatchAsync, AuthenticationProvider authenticationProvider, PageManager pageManager, EventBus eventBus, FileDataAsyncDAO fileDataAsyncDAO, TransfertAsyncDAO transfertAsyncDAO) {
       DirectTransfertManager directTransfertManager = new DirectTransfertManager(authenticationProvider, pageManager, eventBus);
       if (html5EngineActive && IndexedDB.isSupported() && FileReader.isSupported()) {
@@ -71,7 +68,7 @@ public class TransfertManagerProvider implements Provider<TransfertManager> {
       }
     }
 
-    @Override
+
     public TransfertManager get() {
         return transfertManager;
     }

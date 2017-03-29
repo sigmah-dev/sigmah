@@ -28,6 +28,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
+import org.sigmah.client.ClientFactory;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.DispatchQueue;
 import org.sigmah.client.event.UpdateEvent;
@@ -80,7 +81,6 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(CalendarView.class)
 	public static interface View extends ViewInterface {
 
 		void initializeCalendarWidget(final CalendarWidget calendarWidget);
@@ -121,12 +121,11 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 	 *
 	 * @param view
 	 *          Presenter's view interface.
-	 * @param injector
+	 * @param factory
 	 *          Injected client injector.
 	 */
-	@Inject
-	protected CalendarPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public CalendarPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

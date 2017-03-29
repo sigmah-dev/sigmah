@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.orgunit;
 
+import org.sigmah.client.ClientFactory;
+
 /*
  * #%L
  * Sigmah
@@ -45,13 +47,13 @@ import com.google.inject.Singleton;
  * 
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  */
-@Singleton
+
 public class OrgUnitDashboardPresenter extends AbstractOrgUnitPresenter<OrgUnitDashboardPresenter.View> {
 
 	/**
 	 * Presenter's view interface.
 	 */
-	@ImplementedBy(OrgUnitDashboardView.class)
+	
 	public static interface View extends AbstractOrgUnitPresenter.View {
 
 		/**
@@ -78,9 +80,9 @@ public class OrgUnitDashboardPresenter extends AbstractOrgUnitPresenter<OrgUnitD
 
 	}
 
-	@Inject
-	public OrgUnitDashboardPresenter(View view, Injector injector) {
-		super(view, injector);
+	
+	public OrgUnitDashboardPresenter(View view, ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**

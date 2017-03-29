@@ -1,5 +1,86 @@
 package org.sigmah.client.ui.presenter.admin.models;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Comparator;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
+import java.util.Set;
+import java.util.TreeSet;
+
+import org.sigmah.client.ClientFactory;
+import org.sigmah.client.dispatch.CommandResultHandler;
+import org.sigmah.client.dispatch.monitor.LoadingMask;
+import org.sigmah.client.event.UpdateEvent;
+import org.sigmah.client.event.handler.UpdateHandler;
+import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.inject.Injector;
+import org.sigmah.client.page.Page;
+import org.sigmah.client.page.PageRequest;
+import org.sigmah.client.page.RequestParameter;
+import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
+import org.sigmah.client.ui.presenter.base.HasForm;
+import org.sigmah.client.ui.res.icon.IconImageBundle;
+import org.sigmah.client.ui.view.base.ViewPopupInterface;
+import org.sigmah.client.ui.widget.HasGrid;
+import org.sigmah.client.ui.widget.button.Button;
+import org.sigmah.client.ui.widget.form.FormPanel;
+import org.sigmah.client.ui.widget.form.ListComboBox;
+import org.sigmah.client.util.AdminUtil;
+import org.sigmah.client.util.ClientUtils;
+import org.sigmah.client.util.EnumModel;
+import org.sigmah.client.util.TypeModel;
+import org.sigmah.shared.command.CreateEntity;
+import org.sigmah.shared.command.GetCategories;
+import org.sigmah.shared.command.GetContactModels;
+import org.sigmah.shared.command.GetPrivacyGroups;
+import org.sigmah.shared.command.GetReportModels;
+import org.sigmah.shared.command.UpdateEntity;
+import org.sigmah.shared.command.result.CreateResult;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.computation.Computation;
+import org.sigmah.shared.computation.Computations;
+import org.sigmah.shared.computation.dependency.SingleDependency;
+import org.sigmah.shared.computation.value.ComputedValues;
+import org.sigmah.shared.dto.ContactModelDTO;
+import org.sigmah.shared.dto.IsModel;
+import org.sigmah.shared.dto.OrgUnitBannerDTO;
+import org.sigmah.shared.dto.ProjectBannerDTO;
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
+import org.sigmah.shared.dto.category.CategoryTypeDTO;
+import org.sigmah.shared.dto.element.BudgetElementDTO;
+import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
+import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
+import org.sigmah.shared.dto.element.ComputationElementDTO;
+import org.sigmah.shared.dto.element.ContactListElementDTO;
+import org.sigmah.shared.dto.element.FilesListElementDTO;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.element.QuestionChoiceElementDTO;
+import org.sigmah.shared.dto.element.QuestionElementDTO;
+import org.sigmah.shared.dto.element.ReportElementDTO;
+import org.sigmah.shared.dto.element.ReportListElementDTO;
+import org.sigmah.shared.dto.element.TextAreaElementDTO;
+import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
+import org.sigmah.shared.dto.layout.LayoutDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupDTO;
+import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
+import org.sigmah.shared.dto.referential.BudgetSubFieldType;
+import org.sigmah.shared.dto.referential.ContactModelType;
+import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
+import org.sigmah.shared.dto.referential.ElementTypeEnum;
+import org.sigmah.shared.dto.referential.LogicalElementType;
+import org.sigmah.shared.dto.referential.LogicalElementTypes;
+import org.sigmah.shared.dto.referential.TextAreaType;
+import org.sigmah.shared.dto.report.ReportModelDTO;
+import org.sigmah.shared.util.Collections;
+
 /*
  * #%L
  * Sigmah
@@ -49,102 +130,18 @@ import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlexTable;
-import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import org.sigmah.client.dispatch.CommandResultHandler;
-import org.sigmah.client.dispatch.monitor.LoadingMask;
-import org.sigmah.client.event.UpdateEvent;
-import org.sigmah.client.event.handler.UpdateHandler;
-import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.inject.Injector;
-import org.sigmah.client.page.Page;
-import org.sigmah.client.page.PageRequest;
-import org.sigmah.client.page.RequestParameter;
-import org.sigmah.client.ui.notif.N10N;
-import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
-import org.sigmah.client.ui.presenter.base.HasForm;
-import org.sigmah.client.ui.res.icon.IconImageBundle;
-import org.sigmah.client.ui.view.admin.models.EditFlexibleElementAdminView;
-import org.sigmah.client.ui.view.base.ViewPopupInterface;
-import org.sigmah.client.ui.widget.HasGrid;
-import org.sigmah.client.ui.widget.button.Button;
-import org.sigmah.client.ui.widget.form.FormPanel;
-import org.sigmah.client.ui.widget.form.ListComboBox;
-import org.sigmah.client.util.AdminUtil;
-import org.sigmah.client.util.ClientUtils;
-import org.sigmah.client.util.EnumModel;
-import org.sigmah.client.util.TypeModel;
-import org.sigmah.shared.command.CreateEntity;
-import org.sigmah.shared.command.GetCategories;
-import org.sigmah.shared.command.GetContactModels;
-import org.sigmah.shared.command.GetPrivacyGroups;
-import org.sigmah.shared.command.GetReportModels;
-import org.sigmah.shared.command.UpdateEntity;
-import org.sigmah.shared.command.result.CreateResult;
-import org.sigmah.shared.command.result.ListResult;
-import org.sigmah.shared.command.result.VoidResult;
-import org.sigmah.shared.computation.Computation;
-import org.sigmah.shared.computation.Computations;
-import org.sigmah.shared.computation.value.ComputedValues;
-import org.sigmah.shared.dto.ContactModelDTO;
-import org.sigmah.shared.dto.IsModel;
-import org.sigmah.shared.dto.OrgUnitBannerDTO;
-import org.sigmah.shared.dto.ProjectBannerDTO;
-import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
-import org.sigmah.shared.dto.category.CategoryTypeDTO;
-import org.sigmah.shared.dto.element.BudgetElementDTO;
-import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
-import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
-import org.sigmah.shared.dto.element.ComputationElementDTO;
-import org.sigmah.shared.dto.element.ContactListElementDTO;
-import org.sigmah.shared.dto.element.FilesListElementDTO;
-import org.sigmah.shared.dto.element.FlexibleElementDTO;
-import org.sigmah.shared.dto.element.QuestionChoiceElementDTO;
-import org.sigmah.shared.dto.element.QuestionElementDTO;
-import org.sigmah.shared.dto.element.ReportElementDTO;
-import org.sigmah.shared.dto.element.ReportListElementDTO;
-import org.sigmah.shared.dto.element.TextAreaElementDTO;
-import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
-import org.sigmah.shared.dto.layout.LayoutDTO;
-import org.sigmah.shared.dto.layout.LayoutGroupDTO;
-import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
-import org.sigmah.shared.dto.referential.BudgetSubFieldType;
-import org.sigmah.shared.dto.referential.ContactModelType;
-import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
-import org.sigmah.shared.dto.referential.ElementTypeEnum;
-import org.sigmah.shared.dto.referential.LogicalElementType;
-import org.sigmah.shared.dto.referential.LogicalElementTypes;
-import org.sigmah.shared.dto.referential.TextAreaType;
-import org.sigmah.shared.dto.report.ReportModelDTO;
-import org.sigmah.shared.util.Collections;
-
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Comparator;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
-import java.util.Set;
-import java.util.TreeSet;
-import org.sigmah.shared.computation.dependency.SingleDependency;
 
 /**
  * Presenter in charge of creating/editing a flexible element.
  * 
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
-@Singleton
 public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<EditFlexibleElementAdminPresenter.View> implements HasForm {
 
 	/**
 	 * Description of the view managed by this presenter.
 	 */
-	@ImplementedBy(EditFlexibleElementAdminView.class)
 	public static interface View extends ViewPopupInterface, HasGrid<FlexibleElementDTO> {
 
 		// --
@@ -356,12 +353,11 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	 * 
 	 * @param view
 	 *          The view managed by the presenter.
-	 * @param injector
+	 * @param factory
 	 *          The application injector.
 	 */
-	@Inject
-	protected EditFlexibleElementAdminPresenter(final View view, final Injector injector) {
-		super(view, injector);
+	public EditFlexibleElementAdminPresenter(final View view, final ClientFactory factory) {
+		super(view, factory);
 	}
 
 	/**
