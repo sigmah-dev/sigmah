@@ -267,7 +267,7 @@ public class ProjectReportsPresenter extends AbstractProjectPresenter<ProjectRep
 				item.setTitle(I18N.CONSTANTS.flexibleElementFilesListAddErrorPhaseClosed());
 
 				item.setActiveStyle("trace-action-disabled");
-				item.setStyleAttribute("background-color", "lightgray");
+				item.setStyleAttribute("opacity", "0.4" );
 				item.setStyleAttribute("cursor", "default");
 
 			} else if (element.getPhase().equals(getProject().getCurrentPhase())) {
