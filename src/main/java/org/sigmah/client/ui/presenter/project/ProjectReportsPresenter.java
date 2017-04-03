@@ -266,6 +266,10 @@ public class ProjectReportsPresenter extends AbstractProjectPresenter<ProjectRep
 				item.setIcon(IconImageBundle.ICONS.close());
 				item.setTitle(I18N.CONSTANTS.flexibleElementFilesListAddErrorPhaseClosed());
 
+				item.setActiveStyle("trace-action-disabled");
+				item.setStyleAttribute("opacity", "0.4" );
+				item.setStyleAttribute("cursor", "default");
+
 			} else if (element.getPhase().equals(getProject().getCurrentPhase())) {
 
 				// --
