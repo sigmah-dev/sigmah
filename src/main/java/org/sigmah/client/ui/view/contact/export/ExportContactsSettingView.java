@@ -95,6 +95,7 @@ public class ExportContactsSettingView extends AbstractPopupView<PopupWidget> im
 	private ComboBox<SimpleComboBoxData> exportMonthlySchedulesBox;
 	private ListStore<SimpleComboBoxData> exportWeeklyScheduleStore;
 	private ComboBox<SimpleComboBoxData> exportWeeklySchedulesBox;
+	private ScrollPanel scrollPanel;
 
 	public ExportContactsSettingView() {
 		super(new PopupWidget(true), 550);
@@ -164,9 +165,10 @@ public class ExportContactsSettingView extends AbstractPopupView<PopupWidget> im
 
 		fieldsTable.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_TOP);
 
-		ScrollPanel scrollPanel = new ScrollPanel();
+		scrollPanel = new ScrollPanel();
 		scrollPanel.setSize("100%", "240px");
 		scrollPanel.add( elementsGrid );
+		scrollPanel.setAlwaysShowScrollBars(true);
 
 		fieldsTable.setWidget(0, 1, pModelsGrid);
 		fieldsTable.setWidget(0, 2, scrollPanel );
