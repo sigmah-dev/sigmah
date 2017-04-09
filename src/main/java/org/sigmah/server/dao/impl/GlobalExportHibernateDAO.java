@@ -27,6 +27,7 @@ import java.util.List;
 
 import javax.persistence.TypedQuery;
 
+import org.mortbay.log.Log;
 import org.sigmah.server.dao.GlobalExportDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.ContactModel;
@@ -52,6 +53,9 @@ public class GlobalExportHibernateDAO extends AbstractDAO<GlobalExport, Integer>
 	public List<ProjectModel> getProjectModelsByOrganization(final Organization organization) {
 		final TypedQuery<ProjectModel> query = em().createQuery("SELECT pmv.model FROM ProjectModelVisibility pmv WHERE pmv.organization=:org", ProjectModel.class);
 		query.setParameter("org", organization);
+		
+		Log.debug("Heloooo I am gubi " + query.getResultList().size());
+		System.out.println("Heloooo I am gubi " + query.getResultList().size());
 		return query.getResultList();
 	}
 

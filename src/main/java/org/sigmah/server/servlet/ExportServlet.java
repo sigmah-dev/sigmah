@@ -28,6 +28,7 @@ import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.mortbay.log.Log;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.server.servlet.base.AbstractServlet;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
@@ -240,7 +241,9 @@ public class ExportServlet extends AbstractServlet {
 	 *           If the export fails.
 	 */
 	private static void executeExport(final Exporter exporter, final HttpServletRequest request, final HttpServletResponse response) throws Exception {
-
+		
+		Log.debug("I'm here ");
+		System.out.println("I am here");
 		// Configures response headers.
 		if (request.getHeader("User-Agent").indexOf("MSIE") != -1) {
 			response.addHeader("Content-Disposition", "attachment; filename=" + exporter.getFileName());
@@ -254,6 +257,7 @@ public class ExportServlet extends AbstractServlet {
 		try (final OutputStream outputStream = response.getOutputStream()) {
 
 			// Exports.
+			
 			exporter.export(outputStream);
 
 		}
