@@ -103,13 +103,13 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 
 		final ProjectDAO projectDao = injector.getInstance(ProjectDAO.class);
 		final List<Project> projects = projectDao.getProjects(pModels);
-
+		
 		// project model and its projects
 		final Map<String, List<Project>> pModelProjectsMap = new HashMap<String, List<Project>>();
 		for (final Project project : projects) {
 			if (project.getDateDeleted() == null) {
 				final String pModelName = project.getProjectModel().getName();
-
+				
 				List<Project> pModelProjects = pModelProjectsMap.get(pModelName);
 				if (pModelProjects == null) {
 					pModelProjects = new ArrayList<Project>();

@@ -47,6 +47,10 @@ public class ProjectHibernateDAO extends AbstractDAO<Project, Integer> implement
 	 */
 	@Override
 	public List<Project> getProjects(final Collection<ProjectModel> pmodels) {
+
+		// Disable the ActivityInfo filter on Userdatabase.
+		DomainFilters.disableUserFilter(em());
+
 		final TypedQuery<Project> query = em().createQuery("FROM Project p WHERE  p.projectModel IN (:pmodels)", Project.class);
 		query.setParameter("pmodels", pmodels);
 		return query.getResultList();
