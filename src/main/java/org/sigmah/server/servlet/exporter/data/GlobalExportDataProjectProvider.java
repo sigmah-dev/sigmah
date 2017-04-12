@@ -34,7 +34,6 @@ import java.util.TreeMap;
 
 import javax.persistence.EntityManager;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.inject.Inject;
 import com.google.inject.Injector;
 import com.google.inject.Singleton;
@@ -104,8 +103,6 @@ public class GlobalExportDataProjectProvider extends GlobalExportDataProvider {
 
 		final ProjectDAO projectDao = injector.getInstance(ProjectDAO.class);
 		final List<Project> projects = projectDao.getProjects(pModels);
-		Log.error("Gubi size of the pro:" + projects.size());
-		System.out.println("Gubi size of the pro:" + projects.size());
 		
 		// project model and its projects
 		final Map<String, List<Project>> pModelProjectsMap = new HashMap<String, List<Project>>();
