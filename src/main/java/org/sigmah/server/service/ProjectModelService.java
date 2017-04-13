@@ -121,7 +121,7 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 
 		// Create new draft ProjectModel
 		ProjectModel pM = new ProjectModel();
-		String pMName = (String) properties.get(AdminUtil.PROP_PM_NAME);
+		String pMName = ((String) properties.get(AdminUtil.PROP_PM_NAME)).replaceAll("[\\[\\]]","");
 		ProjectModelType pMUse = (ProjectModelType) properties.get(AdminUtil.PROP_PM_USE);
 
 		pM.setName(pMName);
@@ -247,7 +247,7 @@ public class ProjectModelService extends AbstractEntityService<ProjectModel, Int
 		}
 
 		if (changes.get(AdminUtil.PROP_PM_NAME) != null) {
-			model.setName((String) changes.get(AdminUtil.PROP_PM_NAME));
+			model.setName(((String) changes.get(AdminUtil.PROP_PM_NAME)).replaceAll("[\\[\\]]",""));
 		}
 		if (changes.get(AdminUtil.PROP_PM_STATUS) != null) {
 			final ProjectModelStatus newStatus = changes.get(AdminUtil.PROP_PM_STATUS);
