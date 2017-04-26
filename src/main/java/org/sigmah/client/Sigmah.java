@@ -47,7 +47,7 @@ public class Sigmah implements EntryPoint {
 	 * Version number. Hard coded to avoid querying the server to identify
 	 * the current version number.
 	 */
-	public static final String VERSION = "2.2-SNAPSHOT";
+	public static final String VERSION = "2.2-rc5";
 
 	/**
 	 * GIN injector.
