@@ -62,7 +62,7 @@ public class GlobalContactExportExporter extends Exporter {
 	@Override
 	public String getFileName() {
 		SimpleDateFormat format = new SimpleDateFormat("yyyyMMddHHmmss");
-		return localize("globalExport") + "_" + format.format(new Date()) + getExtention();
+		return localize("contactsGlobalExportPrefix") + "_" + format.format(new Date()) + getExtention();
 	}
 
 	@Override
