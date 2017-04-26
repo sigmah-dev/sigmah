@@ -77,7 +77,6 @@ import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Singleton;
 
 /**
@@ -187,6 +186,19 @@ public class UsersAdminView extends AbstractView implements UsersAdminPresenter.
 
 		add(mainContainer);
 	}
+    
+    /**
+     * Update users panel title with latest active users count
+     */
+    public void updateUsersPanelTitle() {
+        int activeUsersCount = 0;
+        for(int i=0; i<usersGrid.getStore().getCount(); i++ ) {            
+            if (usersGrid.getStore().getAt(i).getActive())
+                activeUsersCount++;
+        }
+        this.usersListPanel.setHeadingText(I18N.CONSTANTS.adminUsersPanel()
+                + " (" + activeUsersCount + " " + I18N.CONSTANTS.adminUsersActiveUsers() + ")");
+    }
 
 	/**
 	 * {@inheritDoc}

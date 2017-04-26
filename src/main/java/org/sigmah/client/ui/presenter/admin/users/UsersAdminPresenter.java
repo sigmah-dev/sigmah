@@ -154,6 +154,8 @@ public class UsersAdminPresenter extends AbstractAdminPresenter<UsersAdminPresen
 		// --
 
 		void setGridEditHandler(GridEditHandler handler);
+        
+        void updateUsersPanelTitle();
 
 	}
 
@@ -430,6 +432,8 @@ public class UsersAdminPresenter extends AbstractAdminPresenter<UsersAdminPresen
 				view.getUsersStore().commitChanges();
 			}
 		}, view.getUsersLoadable());
+        
+        view.updateUsersPanelTitle();
 	}
 
 	/**
