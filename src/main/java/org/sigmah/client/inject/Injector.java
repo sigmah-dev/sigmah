@@ -99,6 +99,7 @@ import org.sigmah.client.ui.presenter.zone.MenuBannerPresenter;
 import org.sigmah.client.ui.presenter.zone.MessageBannerPresenter;
 import org.sigmah.client.ui.presenter.zone.OfflineBannerPresenter;
 import org.sigmah.client.ui.presenter.zone.OrganizationBannerPresenter;
+import org.sigmah.client.ui.presenter.zone.SearchPresenter;
 import org.sigmah.client.ui.theme.Theme;
 import org.sigmah.offline.dao.FileDataAsyncDAO;
 import org.sigmah.offline.dao.TransfertAsyncDAO;
@@ -178,6 +179,8 @@ public interface Injector extends Ginjector {
 	MenuBannerPresenter getMenuBannerPresenter();
 
 	MessageBannerPresenter getMessageBannerPresenter();
+	
+	SearchPresenter getSearchPresenter();
 
 	CreditsPresenter getCreditsPresenter();
 

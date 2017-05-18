@@ -27,6 +27,7 @@ import org.sigmah.client.ui.view.base.AbstractView;
 
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.SimplePanel;
 
@@ -40,6 +41,7 @@ public class OrganizationBannerView extends AbstractView implements Organization
 	private Panel logoPanel;
 	private Panel namePanel;
 	private HTML nameLabel;
+	//private HTML searchText;
 
 	/**
 	 * {@inheritDoc}
@@ -50,11 +52,14 @@ public class OrganizationBannerView extends AbstractView implements Organization
 		logoPanel = new SimplePanel();
 		logoPanel.getElement().setId("orglogo");
 
-		namePanel = new SimplePanel();
+		namePanel = new HorizontalPanel();
 		namePanel.getElement().setId("orgname");
 
 		nameLabel = new HTML();
 		namePanel.add(nameLabel);
+		
+//		searchText = new HTML("Search1");
+//		namePanel.add(searchText);
 
 		// initWidget(); Useless.
 

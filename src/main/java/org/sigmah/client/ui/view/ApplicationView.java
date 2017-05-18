@@ -33,6 +33,7 @@ import org.sigmah.client.ui.presenter.zone.MenuBannerPresenter;
 import org.sigmah.client.ui.presenter.zone.MessageBannerPresenter;
 import org.sigmah.client.ui.presenter.zone.OfflineBannerPresenter;
 import org.sigmah.client.ui.presenter.zone.OrganizationBannerPresenter;
+import org.sigmah.client.ui.presenter.zone.SearchPresenter;
 import org.sigmah.client.ui.view.base.AbstractView;
 import org.sigmah.client.ui.view.base.HasPageMessage;
 import org.sigmah.client.ui.view.zone.MessageBannerView;
@@ -48,6 +49,7 @@ import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Anchor;
 import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
+import com.google.gwt.user.client.ui.HorizontalPanel;
 import com.google.gwt.user.client.ui.InlineLabel;
 import com.google.gwt.user.client.ui.IsWidget;
 import com.google.gwt.user.client.ui.Panel;
@@ -178,6 +180,7 @@ public class ApplicationView implements ApplicationPresenter.View, HasPageMessag
 	private Panel headerLeftPanel;
 	private Panel headerMenuPanel;
 	private Panel headerMiddlePanel;
+	private Panel headerMiddleRightPanel;
 	private Panel headerRightPanel;
 	private Panel menuPanel;
 	private Panel messagePanel;
@@ -225,6 +228,9 @@ public class ApplicationView implements ApplicationPresenter.View, HasPageMessag
 
 		headerMiddlePanel = new FlowPanel();
 		headerMiddlePanel.getElement().setId("header-middle");
+		
+		headerMiddleRightPanel = new HorizontalPanel();
+		headerMiddleRightPanel.getElement().setId("header-middle-right");
 
 		headerRightPanel = new FlowPanel();
 		headerRightPanel.getElement().setId("header-right");
@@ -234,6 +240,7 @@ public class ApplicationView implements ApplicationPresenter.View, HasPageMessag
 
 		headerPanel.add(headerLeftPanel);
 		headerPanel.add(headerMiddlePanel);
+		headerPanel.add(headerMiddleRightPanel);
 		headerPanel.add(headerRightPanel);
 
 		// Menu.
@@ -365,7 +372,7 @@ public class ApplicationView implements ApplicationPresenter.View, HasPageMessag
 	@Override
 	public void initZones(OrganizationBannerPresenter.View organizationBannerView, AuthenticationBannerPresenter.View authenticationBannerPresenter,
 			OfflineBannerPresenter.View offlineBannerPresenter, AppLoaderPresenter.View appLoaderPresenter, MenuBannerPresenter.View menuBannerPresenter,
-			MessageBannerPresenter.View messageBannerPresenter) {
+			MessageBannerPresenter.View messageBannerPresenter, SearchPresenter.View searchView) {
 
 		// Organization logo.
 		headerLeftPanel.add(organizationBannerView.getLogoPanel());
@@ -375,6 +382,9 @@ public class ApplicationView implements ApplicationPresenter.View, HasPageMessag
 
 		// Organization name.
 		headerMiddlePanel.add(organizationBannerView.getNamePanel());
+		
+		//here is where I should add my search panels
+		headerMiddleRightPanel.add(searchView.getSearchBarPanel());
 
 		// User name.
 		headerRightPanel.add(authenticationBannerPresenter.getLogoutPanel());

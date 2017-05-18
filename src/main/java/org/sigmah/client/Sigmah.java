@@ -132,6 +132,7 @@ public class Sigmah implements EntryPoint {
 		injector.getAppLoaderPresenter();
 		injector.getMenuBannerPresenter();
 		injector.getMessageBannerPresenter();
+		injector.getSearchPresenter();
 		
 		// Pages.
 		injector.getLoginPresenter();
