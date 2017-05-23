@@ -35,6 +35,7 @@ import org.sigmah.client.ui.presenter.DashboardPresenter;
 import org.sigmah.client.ui.presenter.HelpPresenter;
 import org.sigmah.client.ui.presenter.LoginPresenter;
 import org.sigmah.client.ui.presenter.MockUpPresenter;
+import org.sigmah.client.ui.presenter.SearchResultsPresenter;
 import org.sigmah.client.ui.presenter.admin.AdminPresenter;
 import org.sigmah.client.ui.presenter.admin.CategoriesAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.ParametersAdminPresenter;
@@ -207,6 +208,8 @@ public interface Injector extends Ginjector {
 	AttachFilePresenter getAttachFilePresenter();
 
 	ImportationPresenter getImportationPresenter();
+	
+	SearchResultsPresenter getSearchResultsPresenter();
 
 	// ---- Project presenters.
 

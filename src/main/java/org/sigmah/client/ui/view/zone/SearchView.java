@@ -83,10 +83,10 @@ public class SearchView extends AbstractView implements SearchPresenter.View {
 		searchBarPanel.add(searchText);
 		searchBarPanel.add(searchButton);
 
-
-		// initWidget(); Useless.
+		// initWidget(); Useless
 
 	}
+
 
 	/**
 	 * {@inheritDoc}
@@ -112,6 +112,33 @@ public class SearchView extends AbstractView implements SearchPresenter.View {
 	@Override
 	public HasHTML getNameLabel() {
 		return searchForLabel;
+	}
+	
+	
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public ListBox getSearchOptions() {
+		return searchOptions;
+	}
+	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public TextBox getSearchText() {
+		return searchText;
+	}
+	
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Button getSearchButton() {
+		return searchButton;
 	}
 
 }

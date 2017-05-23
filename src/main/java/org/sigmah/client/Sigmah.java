@@ -166,6 +166,7 @@ public class Sigmah implements EntryPoint {
 		injector.getReportCreatePresenter();
 		injector.getAttachFilePresenter();
 		injector.getImportationPresenter();
+		injector.getSearchResultsPresenter();
 
 		injector.getAdminPresenter();
 		injector.getUsersAdminPresenter();
