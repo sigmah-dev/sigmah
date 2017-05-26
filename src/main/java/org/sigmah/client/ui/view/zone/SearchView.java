@@ -74,11 +74,12 @@ public class SearchView extends AbstractView implements SearchPresenter.View {
 		
 		
 		searchText = new TextBox();
-		searchText.setText("Enter search text");
+		//searchText.setText("Enter search text");
+		searchText.getElement().setPropertyString("placeholder", "Search text");
 		
 		searchButton = new Button("Go");
 		
-		searchBarPanel.add(searchForLabel);
+		//searchBarPanel.add(searchForLabel);
 		searchBarPanel.add(searchOptions);		
 		searchBarPanel.add(searchText);
 		searchBarPanel.add(searchButton);

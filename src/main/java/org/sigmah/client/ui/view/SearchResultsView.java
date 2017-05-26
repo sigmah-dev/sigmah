@@ -87,42 +87,9 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	 */
 	private static final String EXPECTED_DATE_LABEL_STYLE = "points-date-exceeded";
 
-	@Inject
-	private Provider<ContactsListWidget> contactsListWidgetProvider;
-
-	@Inject
-	private Provider<ProjectsListWidget> projectsListWidgetProvider;
-
 	private ContentPanel remindersPanel;
 	private ListStore<ReminderDTO> remindersStore;
-
-	private ContentPanel monitoredPointsPanel;
-	private ListStore<MonitoredPointDTO> monitoredPointsStore;
-
-	private LayoutContainer menuButtonsContainer;
-
-	private ContentPanel orgUnitsPanel;
-	private OrgUnitTreeGrid orgUnitsTreeGrid;
-
-	private ContactsListWidget contactsListWidget;
-
-	private ProjectsListWidget projectsListWidget;
-
-    private static ReminderOrMonitoredPointHandler handler;
-    
-    final ReminderOrMonitoredPointHandler getReminderOrMonitoredPointHandler() {
-		return handler;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-    
-	@Override
-	public void setReminderOrMonitoredPointHandler( SearchResultsPresenter.ReminderOrMonitoredPointHandler handler) {
-		// TODO Auto-generated method stub
-		
-	}
+   
     
 	/**
 	 * {@inheritDoc}
@@ -131,153 +98,15 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	public void initialize() {
 
 		// --
-		// Left panel (Reminders + MonitoredPoints + Buttons).
-		// --
-		final LayoutContainer leftContainer = Layouts.vBox();
-
-		leftContainer.add(createRemindersPanel(), Layouts.vBoxData(Margin.BOTTOM));
-		leftContainer.add(createMonitoredPointsPanel(), Layouts.vBoxData(Margin.BOTTOM));
-		leftContainer.add(createMenuButtonsPanel(), Layouts.vBoxData());
-
-		add(leftContainer, Layouts.borderLayoutData(LayoutRegion.WEST, Layouts.LEFT_COLUMN_WIDTH));
-
-		// --
 		// Center panel (OrgUnits + Contacts + Projects).
 		// --
 		final LayoutContainer centerContainer = Layouts.vBox();
-
-		// --
-		// Center-Up panel (OrgUnits + Contacts).
-		// --
-		final LayoutContainer centerUpContainer = Layouts.hBox();
-
-		centerUpContainer.add(createOrgUnitsPanel(), Layouts.hBoxData(1.0));
-
-		centerUpContainer.add(createContactsPanel(), Layouts.hBoxData(1.0, Margin.LEFT));
-
-		centerContainer.add(centerUpContainer, Layouts.vBoxData(1.0, Margin.BOTTOM, Margin.LEFT));
-		centerContainer.add(createProjectsPanel(), Layouts.vBoxData(1.0, Margin.LEFT));
+		centerContainer.add(createRemindersPanel(), Layouts.vBoxData(Margin.BOTTOM));
 
 		add(centerContainer);
 
 	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Component getRemindersPanel() {
-		return remindersPanel;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ListStore<ReminderDTO> getRemindersStore() {
-		return remindersStore;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Component getMonitoredPointsPanel() {
-		return monitoredPointsPanel;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ListStore<MonitoredPointDTO> getMonitoredPointsStore() {
-		return monitoredPointsStore;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void clearMenuButtons() {
-		menuButtonsContainer.removeAll();
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void addMenuButton(final String buttonText, final AbstractImagePrototype buttonIcon, final Listener<ButtonEvent> clickHandler) {
-
-		if (ClientUtils.isBlank(buttonText)) {
-			throw new IllegalArgumentException("Invalid button text.");
-		}
-
-		final Button button = Forms.button(buttonText, buttonIcon);
-
-		if (clickHandler != null) {
-			button.addListener(Events.OnClick, clickHandler);
-		}
-
-		menuButtonsContainer.add(button, Layouts.vBoxData());
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void layoutButtons() {
-		menuButtonsContainer.layout();
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void layoutViews() {
-		if (contactsListWidget != null) {
-			contactsListWidget.getView().syncSize();
-		projectsListWidget.getView().syncSize();
-	}
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public OrgUnitTreeGrid getOrgUnitsTreeGrid() {
-		return orgUnitsTreeGrid;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setPanelsTitleSuffix(final String suffix) {
-		orgUnitsPanel.setHeadingText(I18N.CONSTANTS.orgunitTree() + suffix);
-
-		projectsListWidget.setTitleSupplier(new ProjectsListWidget.TitleSupplier() {
-			@Override
-			public String supplyTitle(int projectCount) {
-				return ProjectsListWidget.DEFAULT_TITLE_SUPPLIER.supplyTitle(projectCount) + suffix;
-			}
-		});
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ContactsListWidget getContactsList() {
-		return contactsListWidget;
-	}
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ProjectsListWidget getProjectsList() {
-		return projectsListWidget;
-	}
 
 	// -------------------------------------------------------------------------------------------
 	//
@@ -296,91 +125,10 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		reminderGrid.getView().setForceFit(true);
 		reminderGrid.setAutoExpandColumn(ReminderDTO.LABEL);
 
-		remindersPanel = Panels.content(I18N.CONSTANTS.reminderPoints());
+		remindersPanel = Panels.content("Search Results");
 		remindersPanel.add(reminderGrid);
 
 		return remindersPanel;
-	}
-
-	/**
-	 * Creates the monitored points component.
-	 * 
-	 * @return The monitored points component widget.
-	 */
-	private Component createMonitoredPointsPanel() {
-
-		monitoredPointsStore = new ListStore<MonitoredPointDTO>();
-		final Grid<MonitoredPointDTO> monitoredPointsGrid = new Grid<MonitoredPointDTO>(monitoredPointsStore, new ColumnModel(createMonitoredPointsGridColumns()));
-		monitoredPointsGrid.getView().setForceFit(true);
-		monitoredPointsGrid.setAutoExpandColumn(MonitoredPointDTO.LABEL);
-
-		final GridFilters filters = new GridFilters();
-		filters.setLocal(true);
-		filters.addFilter(new StringFilter(MonitoredPointDTO.LABEL));
-		filters.addFilter(new DateFilter(MonitoredPointDTO.EXPECTED_DATE));
-		monitoredPointsGrid.addPlugin(filters);
-
-		monitoredPointsPanel = Panels.content(I18N.CONSTANTS.monitoredPoints());
-		monitoredPointsPanel.add(monitoredPointsGrid);
-
-		return monitoredPointsPanel;
-	}
-
-	/**
-	 * Creates the menu buttons component.
-	 * 
-	 * @return The menu buttons component widget.
-	 */
-	private Component createMenuButtonsPanel() {
-
-		final ContentPanel menuButtonsPanel = Panels.content(I18N.CONSTANTS.menu());
-
-		menuButtonsContainer = Layouts.vBox();
-		menuButtonsPanel.add(menuButtonsContainer);
-
-		return menuButtonsPanel;
-	}
-
-	/**
-	 * Creates the OrgUnits component.
-	 * 
-	 * @return The OrgUnits component widget.
-	 */
-	private Component createOrgUnitsPanel() {
-
-		orgUnitsPanel = Panels.content(I18N.CONSTANTS.orgunitTree());
-		orgUnitsTreeGrid = new OrgUnitTreeGrid(false);
-
-		orgUnitsPanel.setTopComponent(orgUnitsTreeGrid.getToolbar());
-		orgUnitsPanel.add(orgUnitsTreeGrid.getTreeGrid());
-
-		return orgUnitsPanel;
-	}
-
-	/**
-	 * Creates the contacts component.
-	 *
-	 * @return The contacts component widget.
-	 */
-	private Widget createContactsPanel() {
-
-		contactsListWidget = contactsListWidgetProvider.get();
-		contactsListWidget.initialize();
-
-		return contactsListWidget.getView().asWidget();
-	}
-
-	/**
-	 * Creates the projects component.
-	 * 
-	 * @return The projects component widget.
-	 */
-	private Widget createProjectsPanel() {
-
-		projectsListWidget = projectsListWidgetProvider.get();
-		projectsListWidget.initialize();
-
-		return projectsListWidget.getView().asWidget();
 	}
 
 	/**
@@ -433,7 +181,7 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 
 					@Override
 					public void onClick(ClickEvent event) {
-                        handler.onLabelClickEvent(model.getProjectId());
+                        //handler.onLabelClickEvent(model.getProjectId());
 					}
 				});
                 
@@ -470,91 +218,5 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		});
 	}
 
-	/**
-	 * Builds the monitored points grid columns configuration.
-	 * 
-	 * @return The monitored points grid columns list.
-	 */
-	private static List<ColumnConfig> createMonitoredPointsGridColumns() {
-
-		final DateTimeFormat format = DateUtils.DATE_SHORT;
-		final Date now = new Date();
-
-		// Icon
-		final ColumnConfig iconColumn = new ColumnConfig();
-		iconColumn.setId("icon");
-		iconColumn.setHeaderHtml("");
-		iconColumn.setWidth(16);
-		iconColumn.setResizable(false);
-		iconColumn.setRenderer(new GridCellRenderer<MonitoredPointDTO>() {
-
-			@Override
-			public Object render(final MonitoredPointDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-					final ListStore<MonitoredPointDTO> store, final Grid<MonitoredPointDTO> grid) {
-
-				if (DateUtils.DAY_COMPARATOR.compare(now, model.getExpectedDate()) > 0) {
-					return IconImageBundle.ICONS.overduePoint().createImage();
-				} else {
-					return IconImageBundle.ICONS.openedPoint().createImage();
-				}
-			}
-		});
-
-		// Label.
-		final ColumnConfig labelColumn = new ColumnConfig();
-		labelColumn.setId(MonitoredPointDTO.LABEL);
-		labelColumn.setHeaderHtml(I18N.CONSTANTS.monitoredPointLabel());
-		labelColumn.setWidth(100);
-
-        labelColumn.setRenderer(new GridCellRenderer<MonitoredPointDTO>() {
-
-			@Override
-			public Object render(final MonitoredPointDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<MonitoredPointDTO> store,
-					Grid<MonitoredPointDTO> grid) {
-
-				final com.google.gwt.user.client.ui.Label label = new com.google.gwt.user.client.ui.Label((String) model.get(property));
-				label.addStyleName("hyperlink-label");
-
-				label.addClickHandler(new ClickHandler() {
-
-					@Override
-					public void onClick(ClickEvent event) {
-                        handler.onLabelClickEvent(model.getProjectId());
-					}
-				});
-
-                label.setTitle(I18N.CONSTANTS.projectLabelWithDots() + ' ' + model.getProjectCode() + " - " + model.getProjectName());
-                
-				return label;
-			}
-		});
-
-		// Expected date.
-		final ColumnConfig expectedDateColumn = new ColumnConfig();
-		expectedDateColumn.setId(MonitoredPointDTO.EXPECTED_DATE);
-		expectedDateColumn.setHeaderHtml(I18N.CONSTANTS.monitoredPointExpectedDate());
-		expectedDateColumn.setWidth(60);
-		expectedDateColumn.setDateTimeFormat(format);
-		expectedDateColumn.setRenderer(new GridCellRenderer<MonitoredPointDTO>() {
-
-			@Override
-			public Object render(final MonitoredPointDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-					final ListStore<MonitoredPointDTO> store, final Grid<MonitoredPointDTO> grid) {
-
-				final Label label = new Label(format.format(model.getExpectedDate()));
-				if (!model.isCompleted() && DateUtils.DAY_COMPARATOR.compare(now, model.getExpectedDate()) > 0) {
-					label.addStyleName(EXPECTED_DATE_LABEL_STYLE);
-                    
-				}
-				return label;
-			}
-		});
-
-		return Arrays.asList(new ColumnConfig[] {
-																							iconColumn,
-																							labelColumn,
-																							expectedDateColumn
-		});
-	}
 
 }
