@@ -323,7 +323,7 @@ public enum Page implements IsSerializable {
 			case CREATE_PROJECT:
 				return I18N.CONSTANTS.createProject();
 			case SEARCH_RESULTS:
-				return "search-results";
+				return "Search Results";
 			default:
 				return PropertyName.error(page.token);
 		}

@@ -23,9 +23,11 @@ import org.sigmah.client.ui.zone.ZoneRequest;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.shared.conf.PropertyName;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.Events;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Button;
 import com.google.gwt.user.client.ui.HasHTML;
 import com.google.gwt.user.client.ui.ListBox;
@@ -71,6 +73,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		super(view, injector);
 		// TODO Auto-generated constructor stub
 	}
+	
 
 	/**
 	 * View interface.
@@ -106,10 +109,23 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 			@Override
 			public void onClick(ClickEvent event) {
 				
-				final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
 				//have to add a request param here so that it opens a tab with a new title
 				//request.addParameter(RequestParameter.HEADER, view.getSearchText());
-				eventBus.navigateRequest(request);
+				String searchText = view.getSearchText().getText();
+				if(searchText.length() > 0){
+					final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
+					request.addData(RequestParameter.HEADER, searchText );
+					request.addData(RequestParameter.TITLE, searchText );
+					//request.addParameter(RequestParameter.ID, );
+					//request.addParameter(RequestParameter.HEADER, searchText );
+					//request.addParameter(RequestParameter.TITLE, searchText + " Search Results");
+					Log.error("Title set to " + request.getData(RequestParameter.TITLE));
+					Window.alert("Title set to " + request.getData(RequestParameter.TITLE));
+					Log.error("Header set to " + request.getData(RequestParameter.HEADER));
+					Window.alert("Header set to " + request.getData(RequestParameter.HEADER));
+					eventBus.navigateRequest(request);
+					
+				}
 			}
 
 		});

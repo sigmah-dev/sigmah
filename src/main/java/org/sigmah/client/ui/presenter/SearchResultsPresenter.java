@@ -71,6 +71,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.inject.ImplementedBy;
@@ -83,6 +84,7 @@ import org.sigmah.client.event.handler.UpdateHandler;
 import org.sigmah.client.ui.notif.ConfirmCallback;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.zone.Zone;
+import org.sigmah.client.ui.zone.ZoneRequest;
 import org.sigmah.client.util.profiler.Checkpoint;
 import org.sigmah.client.util.profiler.Execution;
 import org.sigmah.client.util.profiler.ExecutionAsyncDAO;
@@ -104,13 +106,6 @@ import org.sigmah.shared.dto.profile.ExecutionDTO;
  */
 @Singleton
 public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsPresenter.View> {
-
-    public static interface ReminderOrMonitoredPointHandler{
-        public void onLabelClickEvent(Integer projectId);
-    }
-    
-    // Page requests linked to the tabs.
- 	private HashMap<TabId, PageRequest> requests;
  	
 // 	/**
 //	 * Search results tab id.
@@ -122,9 +117,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 	 */
 	@ImplementedBy(SearchResultsView.class)
 	public static interface View extends ViewInterface {
-
-        
-		
+		void initialize( String searchText );
 	}
 	
 	/**
@@ -151,7 +144,10 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 	@Override
 	public void onPageRequest(PageRequest request) {
 		// TODO Auto-generated method stub
-		
+		//view.initialize() is default
+		String title = (String)request.getData(RequestParameter.TITLE);
+		Window.alert("Title is " + title );
+		view.initialize(title);
 	}
 
 	

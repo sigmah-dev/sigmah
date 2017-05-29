@@ -49,6 +49,7 @@ import org.sigmah.shared.conf.PropertyName;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
@@ -219,10 +220,12 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 
 		// Simple page request: add a new tab.
 		if (tabTitle == null) {
+			Window.alert("Gubi tabtitle/header is null");
 			addTab(request);
 		}
 		// Page request + title: tab title update.
 		else {
+			Window.alert("Gubi tabtitle/header is not null, it is " + tabTitle );
 			view.getTabBar().updateTitle(new MenuTabId(request), tabTitle);
 		}
 		
@@ -270,15 +273,18 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 
 		if(request.getPage()==Page.DASHBOARD){
 			tab.getElement().setId(DASHBOARD_HOME_TAB_ID);
-		}		
+		}	
+		
 		// Adds the tab.
 		view.getTabBar().addTab(tab);
 		requests.put(tab.getId(), new PageRequest(request)); // Important: create a new instance.
 
 		// Sets the first title.
 		final String pageTitle = Page.getTitle(request.getPage());
+		Log.error("pageTitle is " + pageTitle );
 		final String tabTitle = ClientUtils.isNotBlank(pageTitle) && !PropertyName.isErrorKey(pageTitle) ? pageTitle : I18N.CONSTANTS.loading();
 		view.getTabBar().updateTitle(tab.getId(), tabTitle);
+		Log.error("tabTitle is " + tabTitle );
 
 	}
 

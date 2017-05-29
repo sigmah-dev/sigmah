@@ -65,6 +65,7 @@ import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
@@ -86,9 +87,11 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	 * Reminders expected date label style name.
 	 */
 	private static final String EXPECTED_DATE_LABEL_STYLE = "points-date-exceeded";
+	private String searchText;
 
 	private ContentPanel remindersPanel;
 	private ListStore<ReminderDTO> remindersStore;
+	private LayoutContainer centerContainer;
    
     
 	/**
@@ -100,12 +103,18 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		// --
 		// Center panel (OrgUnits + Contacts + Projects).
 		// --
-		final LayoutContainer centerContainer = Layouts.vBox();
-		centerContainer.add(createRemindersPanel(), Layouts.vBoxData(Margin.BOTTOM));
-
-		add(centerContainer);
 
 	}
+	
+	public void initialize(String searchText) {
+		this.searchText = searchText;
+		centerContainer = Layouts.vBox();
+		Window.alert("Searchtext set to " + searchText );
+		centerContainer.add(createRemindersPanel(), Layouts.vBoxData(Margin.BOTTOM));
+		add(centerContainer);
+	}
+
+
 
 
 	// -------------------------------------------------------------------------------------------
@@ -121,11 +130,13 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	private Component createRemindersPanel() {
 
 		remindersStore = new ListStore<ReminderDTO>();
-		final Grid<ReminderDTO> reminderGrid = new Grid<ReminderDTO>(remindersStore, new ColumnModel(createRemindersGridColumns()));
+		Grid<ReminderDTO> reminderGrid = new Grid<ReminderDTO>(remindersStore, new ColumnModel(createRemindersGridColumns()));
 		reminderGrid.getView().setForceFit(true);
 		reminderGrid.setAutoExpandColumn(ReminderDTO.LABEL);
 
-		remindersPanel = Panels.content("Search Results");
+		Window.alert("Searchtext is currently " + searchText );
+		remindersPanel = Panels.content("Search results for \"" + searchText + "\"");
+		//remindersPanel.repaint();
 		remindersPanel.add(reminderGrid);
 
 		return remindersPanel;
