@@ -55,6 +55,7 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
+import org.apache.commons.lang3.StringEscapeUtils;
 /**
  * Menu banner presenter displaying main tabs.
  * 
@@ -73,8 +74,14 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 	 */
 	private final static String DASHBOARD_PROJECT_TAB_ID="dashboardProjectTabId";
 	/**
+	 * Search results tab id.
+	 */
+	private final static String SEARCH_RESULTS_TAB_ID="searchResultsTabId";
+	
+	/**
 	 * View interface.
 	 */
+	
 	@ImplementedBy(MenuBannerView.class)
 	public static interface View extends ViewInterface {
 
@@ -220,12 +227,12 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 
 		// Simple page request: add a new tab.
 		if (tabTitle == null) {
-			Window.alert("Gubi tabtitle/header is null");
+			//Window.alert("Gubi tabtitle/header is null");
 			addTab(request);
 		}
 		// Page request + title: tab title update.
 		else {
-			Window.alert("Gubi tabtitle/header is not null, it is " + tabTitle );
+			//Window.alert("Gubi tabtitle/header is not null, it is " + tabTitle );
 			view.getTabBar().updateTitle(new MenuTabId(request), tabTitle);
 		}
 		
@@ -273,18 +280,33 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 
 		if(request.getPage()==Page.DASHBOARD){
 			tab.getElement().setId(DASHBOARD_HOME_TAB_ID);
-		}	
+		}
+		
+		String searchTabTitle = "";
+		
+		if(request.getPage()==Page.SEARCH_RESULTS){
+			searchTabTitle = request.getData(RequestParameter.TITLE);
+			tab.setTitle(searchTabTitle);
+			Window.alert("Search Results title is " +  tab.getTitle());
+			//tab.getElement().setId(SEARCH_RESULTS_TAB_ID + Num_Search_Res_Tabs);
+		}
 		
 		// Adds the tab.
 		view.getTabBar().addTab(tab);
+		Window.alert("Added tab!");
 		requests.put(tab.getId(), new PageRequest(request)); // Important: create a new instance.
 
 		// Sets the first title.
 		final String pageTitle = Page.getTitle(request.getPage());
-		Log.error("pageTitle is " + pageTitle );
+		//Window.alert("pageTitle is " + pageTitle );
 		final String tabTitle = ClientUtils.isNotBlank(pageTitle) && !PropertyName.isErrorKey(pageTitle) ? pageTitle : I18N.CONSTANTS.loading();
-		view.getTabBar().updateTitle(tab.getId(), tabTitle);
-		Log.error("tabTitle is " + tabTitle );
+		if(request.getPage()==Page.SEARCH_RESULTS){
+			view.getTabBar().updateTitle(tab.getId(), "\""+ searchTabTitle + "\"");
+			Window.alert("Updated search tab title!");
+		}else{
+			view.getTabBar().updateTitle(tab.getId(), tabTitle);
+		}
+		//Window.alert("tabTitle is " + tabTitle );
 
 	}
 
@@ -298,7 +320,7 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 		private final String token;
 		private final Map<RequestParameter, String> params;
 
-		private MenuTabId(final PageRequest request) {
+		private MenuTabId(PageRequest request) {
 
 			this.token = request.getPage().getParentKey() != null ? request.getPage().getParentKey() : request.getPage().getToken();
 			this.params = request.getParameters(true);
@@ -325,6 +347,7 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 
 			// Compares parameters maps sizes.
 			if (equals) {
+				//Window.alert("Found some existing tab!");
 				equals &= params.size() == other.params.size();
 			}
 

@@ -106,11 +106,6 @@ import org.sigmah.shared.dto.profile.ExecutionDTO;
  */
 @Singleton
 public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsPresenter.View> {
- 	
-// 	/**
-//	 * Search results tab id.
-//	 */
-//	private final static String SEARCH_RESULTS_TAB_ID="searchResultsTabId";
     
 	/**
 	 * View interface.
@@ -146,7 +141,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		// TODO Auto-generated method stub
 		//view.initialize() is default
 		String title = (String)request.getData(RequestParameter.TITLE);
-		Window.alert("Title is " + title );
+		//Window.alert("Title is " + title );
 		view.initialize(title);
 	}
 

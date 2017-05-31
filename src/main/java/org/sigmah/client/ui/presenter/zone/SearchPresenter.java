@@ -116,13 +116,14 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 					final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
 					request.addData(RequestParameter.HEADER, searchText );
 					request.addData(RequestParameter.TITLE, searchText );
-					//request.addParameter(RequestParameter.ID, );
-					//request.addParameter(RequestParameter.HEADER, searchText );
-					//request.addParameter(RequestParameter.TITLE, searchText + " Search Results");
-					Log.error("Title set to " + request.getData(RequestParameter.TITLE));
-					Window.alert("Title set to " + request.getData(RequestParameter.TITLE));
-					Log.error("Header set to " + request.getData(RequestParameter.HEADER));
-					Window.alert("Header set to " + request.getData(RequestParameter.HEADER));
+					request.addParameter(RequestParameter.ID, searchText.replaceAll("\\W", ""));
+					request.addParameter(RequestParameter.CONTENT, searchText );
+					request.addParameter(RequestParameter.HEADER, searchText );
+					request.addParameter(RequestParameter.TITLE, searchText );
+					//Log.error("Title set to " + request.getData(RequestParameter.TITLE));
+					//Window.alert("Title set to " + request.getData(RequestParameter.TITLE));
+					//Log.error("Header set to " + request.getData(RequestParameter.HEADER));
+					//Window.alert("Header set to " + request.getData(RequestParameter.HEADER));
 					eventBus.navigateRequest(request);
 					
 				}

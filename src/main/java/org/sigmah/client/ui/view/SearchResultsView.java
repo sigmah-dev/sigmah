@@ -134,7 +134,7 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		reminderGrid.getView().setForceFit(true);
 		reminderGrid.setAutoExpandColumn(ReminderDTO.LABEL);
 
-		Window.alert("Searchtext is currently " + searchText );
+		//Window.alert("Searchtext is currently " + searchText );
 		remindersPanel = Panels.content("Search results for \"" + searchText + "\"");
 		//remindersPanel.repaint();
 		remindersPanel.add(reminderGrid);
