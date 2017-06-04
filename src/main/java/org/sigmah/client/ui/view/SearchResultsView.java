@@ -1,6 +1,8 @@
 
 package org.sigmah.client.ui.view;
 
+import java.util.ArrayList;
+
 /*
  * #%L
  * Sigmah
@@ -27,8 +29,11 @@ package org.sigmah.client.ui.view;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.search.SearchService;
+import org.sigmah.client.search.SearchServiceAsync;
 import org.sigmah.client.ui.presenter.SearchResultsPresenter;
 import org.sigmah.client.ui.presenter.contact.dashboardlist.ContactsListWidget;
 import org.sigmah.client.ui.presenter.project.treegrid.ProjectsListWidget;
@@ -62,6 +67,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
@@ -71,6 +77,7 @@ import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
+
 import org.sigmah.client.ui.presenter.DashboardPresenter.ReminderOrMonitoredPointHandler;
 
 
@@ -99,14 +106,10 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	 */
 	@Override
 	public void initialize() {
-
-		// --
-		// Center panel (OrgUnits + Contacts + Projects).
-		// --
-
+		//default
 	}
 	
-	public void initialize(String searchText) {
+	public void initialize(final String searchText) {
 		this.searchText = searchText;
 		centerContainer = Layouts.vBox();
 		Window.alert("Searchtext set to " + searchText );
@@ -231,3 +234,5 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 
 
 }
+
+

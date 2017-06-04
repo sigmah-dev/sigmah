@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter;
 
+import java.io.IOException;
+
 /*
  * #%L
  * Sigmah
@@ -30,6 +32,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.solr.client.solrj.SolrServerException;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.i18n.I18N;
@@ -37,6 +40,8 @@ import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.page.RequestParameter;
+import org.sigmah.client.search.SearchService;
+import org.sigmah.client.search.SearchServiceAsync;
 import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
 import org.sigmah.client.ui.presenter.contact.dashboardlist.ContactsListWidget;
 import org.sigmah.client.ui.presenter.project.treegrid.ProjectsListWidget;
@@ -69,6 +74,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Window;
@@ -97,6 +103,7 @@ import org.sigmah.shared.command.result.Result;
 import org.sigmah.shared.conf.PropertyName;
 import org.sigmah.shared.dto.profile.CheckPointDTO;
 import org.sigmah.shared.dto.profile.ExecutionDTO;
+import org.sigmah.shared.dto.search.SearchResultsDTO;
 
 /**
  * Dashboard page presenter.
@@ -137,12 +144,17 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 	}
 
 	@Override
-	public void onPageRequest(PageRequest request) {
+	public void onPageRequest(PageRequest request){
 		// TODO Auto-generated method stub
 		//view.initialize() is default
 		String title = (String)request.getData(RequestParameter.TITLE);
 		//Window.alert("Title is " + title );
 		view.initialize(title);
+//		SearchResultsDTO search_res = new SearchResultsDTO();
+//		Map<String, Object> results = search_res.getResult();
+//		for (Map.Entry<String, Object> entry : results.entrySet()){
+//		    Window.alert(entry.getKey() + "/" + entry.getValue());
+//		}
 	}
 
 	
