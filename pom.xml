@@ -1220,6 +1220,46 @@
 				</plugins>
 			</build>
 		</profile>
+		
+		<!-- Production builds for Sigmah Central. -->
+		<profile>
+			<id>sigmah-central-template</id>
+			<properties>
+				<maven.deploy.skip>true</maven.deploy.skip>
+				<maven.javadoc.skip>true</maven.javadoc.skip>
+				
+				<!-- Properties are filled with variables to ease mass deployment. -->
+				
+				<sigmah.database.url>§{database.url}</sigmah.database.url>
+				<sigmah.database.user>§{database.user}</sigmah.database.user>
+				<sigmah.database.password>§{database.password}</sigmah.database.password>
+
+				<hibernate.hbm2ddl.auto></hibernate.hbm2ddl.auto>
+				<hibernate.show_sql>false</hibernate.show_sql>
+				<hibernate.format_sql>false</hibernate.format_sql>
+
+				<jdbc.pool.min_size>1</jdbc.pool.min_size>
+				<jdbc.pool.max_size>15</jdbc.pool.max_size>
+				<jdbc.pool.max_statements>100</jdbc.pool.max_statements>
+				<jdbc.pool.timeout>0</jdbc.pool.timeout>
+				<jdbc.pool.acquire_increment>1</jdbc.pool.acquire_increment>
+
+				<files.repository.name>§{files.repository.name}</files.repository.name>
+				<archives.repository.name>§{archives.repository.name}</archives.repository.name>
+				<files.upload.maxSize>§{files.upload.maxSize}</files.upload.maxSize>
+
+				<mail.hostname>§{mail.hostname}</mail.hostname>
+				<mail.port>§{mail.port}</mail.port>
+				<mail.from.address>§{mail.from.address}</mail.from.address>
+				<mail.from.name>§{mail.from.name}</mail.from.name>
+				<mail.auth.username>§{mail.auth.username}</mail.auth.username>
+				<mail.auth.password>§{mail.auth.password}</mail.auth.password>
+				<mail.encoding>§{mail.encoding}</mail.encoding>
+				<mail.contentType>§{mail.contentType}</mail.contentType>
+
+				<mail.support.to>§{mail.support.to}</mail.support.to>
+			</properties>
+		</profile>
 	</profiles>
 
 </project>
