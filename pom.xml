@@ -1235,14 +1235,8 @@
 				<sigmah.database.password>§{database.password}</sigmah.database.password>
 
 				<hibernate.hbm2ddl.auto></hibernate.hbm2ddl.auto>
-				<hibernate.show_sql>false</hibernate.show_sql>
-				<hibernate.format_sql>false</hibernate.format_sql>
-
-				<jdbc.pool.min_size>1</jdbc.pool.min_size>
-				<jdbc.pool.max_size>15</jdbc.pool.max_size>
-				<jdbc.pool.max_statements>100</jdbc.pool.max_statements>
-				<jdbc.pool.timeout>0</jdbc.pool.timeout>
-				<jdbc.pool.acquire_increment>1</jdbc.pool.acquire_increment>
+				<hibernate.show_sql>§{hibernate.show_sql}</hibernate.show_sql>
+				<hibernate.format_sql>§{hibernate.format_sql}</hibernate.format_sql>
 
 				<files.repository.name>§{files.repository.name}</files.repository.name>
 				<archives.repository.name>§{archives.repository.name}</archives.repository.name>
@@ -1258,6 +1252,8 @@
 				<mail.contentType>§{mail.contentType}</mail.contentType>
 
 				<mail.support.to>§{mail.support.to}</mail.support.to>
+				
+				<maps.key>§{maps.key}</maps.key>
 			</properties>
 		</profile>
 	</profiles>
