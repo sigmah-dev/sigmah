@@ -130,13 +130,13 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 					String searchText = view.getSearchText().getText();
 					if (searchText.length() > 0) {
-						final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
-						request.addData(RequestParameter.HEADER, searchText);
-						request.addData(RequestParameter.TITLE, searchText);
-						request.addParameter(RequestParameter.ID, searchText.replaceAll("\\W", ""));
-						request.addParameter(RequestParameter.CONTENT, searchText);
-						request.addParameter(RequestParameter.HEADER, searchText);
-						request.addParameter(RequestParameter.TITLE, searchText);
+//						final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
+//						request.addData(RequestParameter.HEADER, searchText);
+//						request.addData(RequestParameter.TITLE, searchText);
+//						request.addParameter(RequestParameter.ID, searchText.replaceAll("\\W", ""));
+//						request.addParameter(RequestParameter.CONTENT, searchText);
+//						request.addParameter(RequestParameter.HEADER, searchText);
+//						request.addParameter(RequestParameter.TITLE, searchText);
 						// Log.error("Title set to " +
 						// request.getData(RequestParameter.TITLE));
 						// Window.alert("Title set to " +
@@ -146,7 +146,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 						// Window.alert("Header set to " +
 						// request.getData(RequestParameter.HEADER));
 						search();
-						eventBus.navigateRequest(request);
+//						eventBus.navigateRequest(request);
 					}
 				}
 			}
@@ -165,13 +165,13 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 				// view.getSearchText());
 				String searchText = view.getSearchText().getText();
 				if (searchText.length() > 0) {
-					final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
-					request.addData(RequestParameter.HEADER, searchText);
-					request.addData(RequestParameter.TITLE, searchText);
-					request.addParameter(RequestParameter.ID, searchText.replaceAll("\\W", ""));
-					request.addParameter(RequestParameter.CONTENT, searchText);
-					request.addParameter(RequestParameter.HEADER, searchText);
-					request.addParameter(RequestParameter.TITLE, searchText);
+//					final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
+//					request.addData(RequestParameter.HEADER, searchText);
+//					request.addData(RequestParameter.TITLE, searchText);
+//					request.addParameter(RequestParameter.ID, searchText.replaceAll("\\W", ""));
+//					request.addParameter(RequestParameter.CONTENT, searchText);
+//					request.addParameter(RequestParameter.HEADER, searchText);
+//					request.addParameter(RequestParameter.TITLE, searchText);
 					// Log.error("Title set to " +
 					// request.getData(RequestParameter.TITLE));
 					// Window.alert("Title set to " +
@@ -181,7 +181,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 					// Window.alert("Header set to " +
 					// request.getData(RequestParameter.HEADER));
 					search();
-					eventBus.navigateRequest(request);
+//					eventBus.navigateRequest(request);
 
 				}
 			}

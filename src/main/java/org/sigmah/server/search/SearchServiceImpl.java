@@ -10,6 +10,7 @@ import org.sigmah.shared.dto.search.SearchResultsDTO;
 @SuppressWarnings("serial")
 public class SearchServiceImpl extends RemoteServiceServlet implements SearchService{
 	//implementation of the Search Methods
+	@Override
 	public ArrayList<SearchResultsDTO> search(String searchStr){
 		return SolrSearcher.getInstance().search(searchStr);
 	}

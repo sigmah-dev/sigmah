@@ -16,9 +16,11 @@ import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.util.NamedList;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
+import java.net.*;
 
 public class SolrSearcher {
 
@@ -41,6 +43,8 @@ public class SolrSearcher {
 				instance.loadServer();
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
+				System.out.println("GUBI SOLR CONNECTION FAILED");
+				Log.error("GUBI SOLR CONNECTION FAILED");
 				e.printStackTrace();
 			}
 		}
@@ -50,7 +54,9 @@ public class SolrSearcher {
 	private void loadServer() throws MalformedURLException {
 		urlString = "http://localhost:8983/solr/Test_Sigmah";
 		solrServer = new HttpSolrClient.Builder(urlString).build();
-		Window.alert("Successful solr connection!");
+		//Window.alert("Successful solr connection!");
+		System.out.println("GUBI SOLR CONNECTION CONNECTED");
+		Log.error("GUBI SOLR CONNECTION CONNECTED");
 	}
 
 	public SolrDocumentList SolrTestQuery() {
@@ -59,17 +65,23 @@ public class SolrSearcher {
 		QueryResponse response;
 		try {
 			response = solrServer.query(query);
+			System.out.println("GUBI SOLR QUERY HAPPENED");
+			Log.error("GUBI SOLR QUERY HAPPENED");
 			SolrDocumentList list = response.getResults();
 			for (SolrDocument doc : response.getResults()) {
-				Window.alert(doc.toString());
+				//Window.alert(doc.toString());
 			}
 			return list;
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			System.out.println("GUBI SOLR SERVER EXCEPTION HAPPENED");
+			Log.error("GUBI SOLR SERVER EXCEPTION HAPPENED");
 			return null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
+			System.out.println("GUBI SOLR SERVER EXCEPTION HAPPENED");
+			Log.error("GUBI SOLR SERVER EXCEPTION HAPPENED");
 			e.printStackTrace();
 			return null;
 		}
@@ -106,36 +118,15 @@ public class SolrSearcher {
 				SolrDocument resultDoc = (SolrDocument) iter.next();
 				
 				//Will make this more specific later
-				Map<String, Object> results = resultDoc.getFieldValueMap();
-				for (Map.Entry<String, Object> entry : results.entrySet()){
-				    descriptor.getResult().add(entry.getKey().toString() + " ::: " + entry.getValue().toString());
-				}
-
-//				descriptor.setUrlOrName((String) resultDoc.getFieldValue("id"));
-//				descriptor.setSubText((String) resultDoc.getFieldValue("links"));
-//				descriptor.setRelevance((String) resultDoc.getFieldValue("cat"));
-
+//				Map<String, Object> results = resultDoc.getFieldValueMap();
+//				for (Map.Entry<String, Object> entry : results.entrySet()){
+//				    descriptor.getResult().add(entry.getKey().toString() + " ::: " + entry.getValue().toString());
+//				}
+				descriptor.setResult(resultDoc.toString());
 				searchList.add(descriptor);
 
 			}
 			
-//			SolrQuery q = new SolrQuery();
-//			QueryRequest req = new QueryRequest(q);
-//
-//			NoOpResponseParser rawJsonResponseParser = new NoOpResponseParser();
-//			rawJsonResponseParser.setWriterType("json");
-//			req.setResponseParser(rawJsonResponseParser);
-//
-//			NamedList<Object> resp = null;
-//			try {
-//				resp = solrServer.request(req);
-//			} catch (SolrServerException | IOException e) {
-//				// TODO Auto-generated catch block
-//				e.printStackTrace();
-//			}
-//			String jsonResponse = (String) resp.get("response");
-//
-//			System.out.println(jsonResponse );
 		}
 
 		return searchList;
