@@ -25,6 +25,7 @@ package org.sigmah.client.ui.widget.form;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -32,6 +33,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.Layout;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -40,14 +42,21 @@ import com.extjs.gxt.ui.client.widget.form.*;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.user.client.ui.FlowPanel;
+
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.dispatch.DispatchQueue;
+import org.sigmah.client.event.EventBus;
+import org.sigmah.client.event.OfflineEvent;
+import org.sigmah.client.event.handler.OfflineHandler;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.notif.ConfirmCallback;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.layout.Layouts;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.shared.command.UpdateLayoutGroupIterations.IterationChange;
 import org.sigmah.shared.dto.element.FlexibleElementContainer;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
@@ -228,7 +237,7 @@ public class IterableGroupPanel extends TabPanel {
   /**
    * Next temporary iterationId (used until database insertion)
    */
-  private int nextIterationId = -1;
+  private int nextIterationId = -2;
 
   /**
    * Iterative group corresponding to this TabPanel
@@ -241,7 +250,7 @@ public class IterableGroupPanel extends TabPanel {
 
   private Delegate delegate;
 
-  public IterableGroupPanel(final DispatchAsync dispatch, final LayoutGroupDTO layoutGroup, FlexibleElementContainer container, final boolean canEdit) {
+  public IterableGroupPanel(final DispatchAsync dispatch, final LayoutGroupDTO layoutGroup, FlexibleElementContainer container, final boolean canEdit, final EventBus eventBus) {
     super();
 
     this.dispatch = dispatch;
@@ -251,12 +260,15 @@ public class IterableGroupPanel extends TabPanel {
 
     if(canEdit) {
       addListener(Events.Render, new Listener<TabPanelEvent>() {
+
         @Override
         public void handleEvent(TabPanelEvent tpe) {
+
           El strip = el().childNode(0).childNode(0).childNode(0);
           int clearIdx = strip.getChildIndex(strip.lastChild().dom);
-          Button button = new Button("+");
+          final Button button = new Button("+");
           button.setEnabled(canEdit);
+          button.setVisible(!isOfflineMode());
           button.render(strip.dom, clearIdx - 1);
           ComponentHelper.doAttach(button);
           button.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -265,9 +277,25 @@ public class IterableGroupPanel extends TabPanel {
               addEmptyTab();
             }
           });
-        }
+
+		eventBus.addHandler(OfflineEvent.getType(), new OfflineHandler() {
+
+			@Override
+			public void handleEvent(OfflineEvent event) {
+				if (ApplicationState.OFFLINE == event.getState()) {
+					button.setVisible(false);
+				}
+			}
+
+		});
+      }
+
       });
     }
+  }
+
+  private boolean isOfflineMode() {
+	return Profiler.INSTANCE.getApplicationStateManager().getLastState() == ApplicationState.OFFLINE;
   }
 
   private void addEmptyTab() {

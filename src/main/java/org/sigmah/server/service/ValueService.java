@@ -491,8 +491,7 @@ public class ValueService extends EntityManagerProvider {
 	public Value retrieveCurrentValue(int containerId, Integer elementId, Integer iterationId) {
 		final Query query;
 
-
-		if(iterationId == null) {
+		if(iterationId == null || iterationId == -1) {
 			query = em().createQuery("SELECT v FROM Value v WHERE v.containerId = :containerId and v.element.id = :elementId and v.layoutGroupIteration.id IS NULL");
 			query.setParameter("containerId", containerId);
 			query.setParameter("elementId", elementId);

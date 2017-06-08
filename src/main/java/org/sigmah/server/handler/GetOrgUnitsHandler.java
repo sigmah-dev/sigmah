@@ -71,7 +71,8 @@ public class GetOrgUnitsHandler extends AbstractCommandHandler<GetOrgUnits, List
 
 		List<OrgUnitDTO> orgUnitDTOs = new ArrayList<>();
 		for (OrgUnit orgUnit : orgUnits) {
-			orgUnitDTOs.add(mapper.map(orgUnit, OrgUnitDTO.class));
+			OrgUnitDTO map = mapper.map(orgUnit, new OrgUnitDTO());
+			orgUnitDTOs.add(map);
 		}
 
 		return new ListResult<>(orgUnitDTOs);

@@ -57,6 +57,8 @@ import org.sigmah.client.ui.view.base.AbstractView;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.panel.Panels;
 import org.sigmah.client.util.DateUtils;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.shared.command.result.ContactHistory;
 import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
@@ -133,11 +135,19 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 		exportButton = new Button(I18N.CONSTANTS.exportAll(), IconImageBundle.ICONS.excel());
 		toolbar.add(exportButton);
 
+		if(isOfflineMode()) {
+			toolbar.setEnabled(false);
+		}
+
 		// Panel
 		contactTreePanel = Panels.content(I18N.CONSTANTS.contacts());
 		contactTreePanel.setTopComponent(toolbar);
 		contactTreePanel.setBottomComponent(pagingToolBar);
 
+	}
+
+	public boolean isOfflineMode() {
+		return Profiler.INSTANCE.getApplicationStateManager().getLastState() == ApplicationState.OFFLINE;
 	}
 
 	/**
@@ -223,6 +233,11 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 	@Override
 	public void clearContacts() {
 		proxy.clearContacts();
+	}
+
+	@Override
+	public void refreshToolbar() {
+		pagingToolBar.refresh();
 	}
 
 	/**

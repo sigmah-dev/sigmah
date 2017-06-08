@@ -199,7 +199,7 @@ public class AmendmentService extends AbstractEntityService<Amendment, Integer, 
 	private void storeValue(Integer projectId, Integer elementId, Integer iterationId, Amendment amendment, List<HistoryToken> historyTokens) {
 		// The value of the current flexible element must be saved.
 		final Query maxDateQuery;
-		if(iterationId == null) {
+		if(iterationId == null || iterationId == -1) {
 			maxDateQuery = em().createQuery("SELECT MAX(h.date) FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId");
 			maxDateQuery.setParameter("projectId", projectId);
 			maxDateQuery.setParameter("elementId", elementId);
@@ -215,7 +215,7 @@ public class AmendmentService extends AbstractEntityService<Amendment, Integer, 
 
 			final Query query;
 
-			if(iterationId == null) {
+			if(iterationId == null || iterationId == -1) {
 				query = em().createQuery("SELECT h FROM HistoryToken h WHERE h.elementId = :elementId AND h.projectId = :projectId AND h.date = :maxDate");
 				query.setParameter("projectId", projectId);
 				query.setParameter("elementId", elementId);

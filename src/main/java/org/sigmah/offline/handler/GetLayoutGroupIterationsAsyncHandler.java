@@ -53,7 +53,7 @@ public class GetLayoutGroupIterationsAsyncHandler implements AsyncCommandHandler
 	 */
 	@Override
 	public void execute(final GetLayoutGroupIterations command, OfflineExecutionContext executionContext, final AsyncCallback<ListResult<LayoutGroupIterationDTO>> callback) {
-		layoutGroupIterationsAsyncDAO.getListResult(callback);
+		layoutGroupIterationsAsyncDAO.getListResult(command.getContainerId(), command.getLayoutGroupId(), command.getAmendmentId(), callback);
 	}
 
 	/**

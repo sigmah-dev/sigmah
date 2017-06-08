@@ -27,6 +27,8 @@ import org.sigmah.shared.command.UpdateContact;
 import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.dto.element.event.ValueEventWrapper;
 
+import com.allen_sauer.gwt.log.client.Log;
+
 /**
  *
  * @author Raphaël Calabro (rcalabro@ideia.fr)
@@ -36,26 +38,30 @@ public final class ValueJSIdentifierFactory {
     }
     
     public static String toIdentifier(GetValue getValue) {
-		return toIdentifier(getValue.getElementEntityName(), getValue.getProjectId(), (int)getValue.getElementId(), getValue.getAmendmentId());
+		return toIdentifier(getValue.getElementEntityName(), getValue.getProjectId(), (int)getValue.getElementId(), getValue.getAmendmentId(), getValue.getIterationId());
 	}
 
 	public static String toIdentifier(UpdateProject updateProject, ValueEventWrapper valueEventWrapper) {
-		return toIdentifier(valueEventWrapper.getSourceElement().getEntityName(), updateProject.getProjectId(), valueEventWrapper.getSourceElement().getId(), null);
+		return toIdentifier(valueEventWrapper.getSourceElement().getEntityName(), updateProject.getProjectId(), valueEventWrapper.getSourceElement().getId(), null, valueEventWrapper.getIterationId());
 	}
 
 	public static String toIdentifier(UpdateContact updateContact, ValueEventWrapper valueEventWrapper) {
-		return toIdentifier(valueEventWrapper.getSourceElement().getEntityName(), updateContact.getContactId(), valueEventWrapper.getSourceElement().getId(), null);
+		return toIdentifier(valueEventWrapper.getSourceElement().getEntityName(), updateContact.getContactId(), valueEventWrapper.getSourceElement().getId(), null, valueEventWrapper.getIterationId());
 	}
 
 	public static String toIdentifier(int containerId) {
-		return toIdentifier("LayoutGroupIterations", containerId, 0, null);
+		return toIdentifier("LayoutGroupIterations", containerId, 0, null, null);
 	}
 	
-	public static String toIdentifier(String elementEntityName, int containerId, int elementId, Integer amendmentId) {
+	public static String toIdentifier(String elementEntityName, int containerId, int elementId, Integer amendmentId, Integer iterationId) {
+		if(iterationId == null) {
+			iterationId = -1;
+		}
 		return new StringBuilder()
 				.append(elementEntityName).append('-')
 				.append(containerId).append('-')
 				.append(elementId).append('-')
-				.append(amendmentId).toString();
+				.append(amendmentId).append('-')
+				.append(iterationId).toString();
 	}
 }

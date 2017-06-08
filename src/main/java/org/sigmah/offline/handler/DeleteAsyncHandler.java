@@ -124,7 +124,7 @@ public class DeleteAsyncHandler implements AsyncCommandHandler<Delete, VoidResul
 		return ValueJSIdentifierFactory.toIdentifier(
 			getEntityName(command), 
 			command.getProjectId(), 
-			command.getElementId(), null);
+			command.getElementId(), null, null);
 	}
 	
 	private void deleteFileDTO(final Delete command, final AsyncCallback<VoidResult> callback) {

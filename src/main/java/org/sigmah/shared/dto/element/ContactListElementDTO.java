@@ -22,11 +22,15 @@ package org.sigmah.shared.dto.element;
  */
 
 import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.Image;
+import com.google.gwt.user.client.ui.Widget;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.form.AdapterField;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -38,14 +42,17 @@ import java.util.Set;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.DispatchQueue;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
+import org.sigmah.client.event.EventBus;
+import org.sigmah.client.event.OfflineEvent;
+import org.sigmah.client.event.handler.OfflineHandler;
 import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.page.Page;
-import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.widget.HistoryTokenText;
 import org.sigmah.client.ui.widget.contact.DedupeContactDialog;
 import org.sigmah.client.ui.widget.form.ContactListComboBox;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.form.ListComboBox;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.CheckContactDuplication;
 import org.sigmah.shared.command.CreateEntity;
@@ -78,11 +85,38 @@ public class ContactListElementDTO extends FlexibleElementDTO {
   public static final String LIMIT = "limit";
   public static final String IS_MEMBER = "isMember";
 
+  public Component getElementComponent(ValueResult valueResult, EventBus eventBus) {
+	
+	 final Component elementComponent = this.getElementComponent(valueResult);
+	 final Widget contactListComboBox = ((AdapterField) elementComponent).getWidget();
+	 eventBus.addHandler(OfflineEvent.getType(), new OfflineHandler() {
+		 
+		 Label offlineLabel = new Label(I18N.CONSTANTS.sigmahContactsOfflineUnavailable());
+		 
+		  @Override
+		  public void handleEvent(OfflineEvent event) {
+			  if (ApplicationState.OFFLINE == event.getState()) {
+				  ((FlowPanel)contactListComboBox).clear();
+				  ((FlowPanel)contactListComboBox).add(offlineLabel);
+			  }
+		  }
+	
+	  });
+	
+	return elementComponent;
+  }
+  
   @Override
   @SuppressWarnings("unchecked")
   protected Component getComponent(final ValueResult valueResult, final boolean enabled) {
     final ContactListComboBox listComboBox = new ContactListComboBox(getLimit(), getAllowedType(), getAllowedModelIds(), dispatch);
-    listComboBox.setEnabled(enabled);
+    
+    // if offline mode, no contact can be used
+    if(isOfflineMode()) {
+    	listComboBox.setEnabled(false);
+    } else {
+    	listComboBox.setEnabled(enabled);
+    }
     listComboBox.setChangeHandler(new ContactListComboBox.ChangeHandler() {
       @Override
       public void handleChange(List<ContactDTO> contacts, ValueEventChangeType changeType) {
@@ -190,6 +224,10 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     });
 
     return Forms.adapter(getLabel(), listComboBox);
+  }
+  
+  public boolean isOfflineMode() {
+	  return Profiler.INSTANCE.getApplicationStateManager().getLastState() == ApplicationState.OFFLINE;
   }
 
   @Override

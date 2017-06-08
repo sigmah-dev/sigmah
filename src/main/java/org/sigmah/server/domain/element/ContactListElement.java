@@ -73,11 +73,13 @@ public class ContactListElement extends FlexibleElement {
   }
 
   public Set<Integer> getAllowedModelIds() {
-    Set<Integer> ids = new HashSet<>();
-    for (ContactModel allowedModel : allowedModels) {
-      ids.add(allowedModel.getId());
-    }
-    return ids;
+	Set<Integer> ids = new HashSet<>();
+	if (allowedModels != null) {
+		for (ContactModel allowedModel : allowedModels) {
+			ids.add(allowedModel.getId());
+		}
+	}
+	return ids;
   }
 
   public void setAllowedModels(List<ContactModel> allowedModels) {

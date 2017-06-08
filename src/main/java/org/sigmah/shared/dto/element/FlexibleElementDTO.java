@@ -36,6 +36,8 @@ import org.sigmah.client.ui.widget.HistoryWindow;
 import org.sigmah.client.util.ImageProvider;
 import org.sigmah.client.ui.widget.form.IterableGroupPanel;
 import org.sigmah.client.util.ToStringBuilder;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.shared.command.GetHistory;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.command.result.ListResult;
@@ -297,6 +299,11 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 						loadAndShowHistory(wrapper.getHistoryButton());
 					}
 				});
+				
+				if (ElementTypeEnum.CONTACT_LIST == this.getElementType() && Profiler.INSTANCE.getApplicationStateManager().getLastState() == ApplicationState.OFFLINE) {
+					wrapper.getHistoryButton().setVisible(false);
+				}
+				
 				component = wrapper;
 			}
 		}

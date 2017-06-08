@@ -75,6 +75,8 @@ import org.sigmah.client.ui.widget.form.IterableGroupPanel.IterableGroupItem;
 import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.ImageProvider;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.CheckContactDuplication;
 import org.sigmah.shared.command.DedupeContact;
@@ -211,7 +213,7 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
       gridLayout.setWidget(groupLayout.getRow(), groupLayout.getColumn(), fieldSet);
 
       // iterative group
-      final IterableGroupPanel tabPanel = Forms.iterableGroupPanel(dispatch, groupLayout, contactDTO, ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CREATE_ITERATIONS));
+      final IterableGroupPanel tabPanel = Forms.iterableGroupPanel(dispatch, groupLayout, contactDTO, ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CREATE_ITERATIONS), eventBus);
       tabPanel.setDelegate(this);
       fieldSet.add(tabPanel);
 
@@ -223,7 +225,6 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
       tabPanel.setBodyBorder(false);
 
       GetLayoutGroupIterations getIterations = new GetLayoutGroupIterations(groupLayout.getId(), contactDTO.getId(), -1);
-
       queue.add(getIterations, new CommandResultHandler<ListResult<LayoutGroupIterationDTO>>() {
 
         @Override
@@ -578,78 +579,147 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
 
   private void updateContact(final ContactDTO contactDTO, final AsyncCallback<ContactDTO> callback, final Component target) {
 
-    // Checks if there are any changes regarding layout group iterations
-    dispatch.execute(new UpdateLayoutGroupIterations(new ArrayList<IterationChange>(iterationChanges.values()), contactDTO.getId()), new CommandResultHandler<ListResult<IterationChange>>() {
+		if (!iterationChanges.isEmpty()) {
 
-      @Override
-      public void onCommandFailure(final Throwable caught) {
-        N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
-      }
+			// Checks if there are any changes regarding layout group
+			// iterations
+			final List<IterationChange> iterationChangesList = new ArrayList<IterationChange>(iterationChanges.values());
+			Iterator<IterationChange> iterator = iterationChangesList.iterator();
+			// Filter iteration
+			while (iterator.hasNext()) {
+				IterationChange iterationChange = iterator.next();
+				// iteration created and in offline mode not saved
+				if (iterationChange.isCreated() && isOfflineMode()) {
+					iterator.remove();
+				}
+			}
 
-      @Override
-      protected void onCommandSuccess(ListResult<IterationChange> result) {
+			// Checks if there are any changes regarding layout group iterations
+			dispatch.execute(new UpdateLayoutGroupIterations(iterationChangesList,	contactDTO.getId()),
+					new CommandResultHandler<ListResult<IterationChange>>() {
 
-        for (IterationChange iterationChange : result.getList()) {
-          if (iterationChange.isDeleted()) {
-            // remove corresponding valueEvents
+						@Override
+						public void onCommandFailure(final Throwable caught) {
+							N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
+						}
 
-            Iterator<ValueEvent> valuesIterator = valueChanges.iterator();
-            while (valuesIterator.hasNext()) {
-              ValueEvent valueEvent = valuesIterator.next();
+						@Override
+						protected void onCommandSuccess(ListResult<IterationChange> result) {
 
-              if (valueEvent.getIterationId() == iterationChange.getIterationId()) {
-                valuesIterator.remove();
-              }
-            }
-          } else if (iterationChange.isCreated()) {
-            // change ids in valueEvents
-            int oldId = iterationChange.getIterationId();
-            int newId = iterationChange.getNewIterationId();
+							if(result != null) {
+							for (IterationChange iterationChange : result.getList()) {
+								if (iterationChange.isDeleted()) {
+									// remove corresponding valueEvents
 
-            // updating tabitem id
-            newIterationsTabItems.get(oldId).setIterationId(newId);
+									Iterator<ValueEvent> valuesIterator = valueChanges.iterator();
+									while (valuesIterator.hasNext()) {
+										ValueEvent valueEvent = valuesIterator.next();
 
-            for (ValueEvent valueEvent : valueChanges) {
-              if (valueEvent.getIterationId() == oldId) {
-                valueEvent.setIterationId(newId);
-              }
-            }
-          }
-        }
+										if (valueEvent.getIterationId() == iterationChange.getIterationId()) {
+											valuesIterator.remove();
+										}
+									}
+								} else if (iterationChange.isCreated()) {
+									// change ids in valueEvents
+									int oldId = iterationChange.getIterationId();
+									int newId = iterationChange.getNewIterationId();
 
-        iterationChanges.clear();
-        newIterationsTabItems.clear();
+									// updating tabitem id
+									newIterationsTabItems.get(oldId).setIterationId(newId);
 
-        dispatch.execute(new UpdateContact(contactDTO.getId(), valueChanges), new CommandResultHandler<VoidResult>() {
+									for (ValueEvent valueEvent : valueChanges) {
+										if (valueEvent.getIterationId() == oldId) {
+											valueEvent.setIterationId(newId);
+										}
+									}
+								}
+							}
 
-          @Override
-          public void onCommandFailure(final Throwable caught) {
-            N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
-          }
+							iterationChanges.clear();
+							newIterationsTabItems.clear();
 
-          @Override
-          protected void onCommandSuccess(final VoidResult result) {
+							dispatch.execute(new UpdateContact(contactDTO.getId(), valueChanges),
+									new CommandResultHandler<VoidResult>() {
 
-            N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
-            eventBus.fireEvent(new UpdateEvent(UpdateEvent.CONTACT_UPDATE, contactDTO));
+										@Override
+										public void onCommandFailure(final Throwable caught) {
+											N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
+										}
 
-            // Checks if there is any update needed to the local project instance.
-            for (final ValueEvent event : valueChanges) {
-              if (event.getSource() instanceof DefaultContactFlexibleElementDTO) {
-                updateCurrentContact(contactDTO, (DefaultContactFlexibleElementDTO) event.getSource(), event.getSingleValue());
-              }
-            }
+										@Override
+										protected void onCommandSuccess(final VoidResult result) {
 
-            valueChanges.clear();
+											N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
 
-            if (callback != null) {
-              callback.onSuccess(contactDTO);
-            }
-            refresh(contactDTO);
-          }
-        }, view.getSaveButton(), new LoadingMask(view.getDetailsContainer()), new LoadingMask(target));
-      }
-    }, view.getSaveButton(), new LoadingMask(view.getDetailsContainer()), new LoadingMask(target));
+											eventBus.fireEvent(new UpdateEvent(UpdateEvent.CONTACT_UPDATE, contactDTO));
+
+											// Checks if there is any update
+											// needed to the local project
+											// instance.
+											for (final ValueEvent event : valueChanges) {
+												if (event.getSource() instanceof DefaultContactFlexibleElementDTO) {
+													updateCurrentContact(contactDTO,
+															(DefaultContactFlexibleElementDTO) event.getSource(),
+															event.getSingleValue());
+												}
+											}
+
+											valueChanges.clear();
+
+											if (callback != null) {
+												callback.onSuccess(contactDTO);
+											}
+											refresh(contactDTO);
+										}
+									}, view.getSaveButton(), new LoadingMask(view.getDetailsContainer()),
+									new LoadingMask(target));
+							} else {
+								N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+							}
+						}
+					}, view.getSaveButton(), new LoadingMask(view.getDetailsContainer()), new LoadingMask(target));
+		} else {
+
+			dispatch.execute(new UpdateContact(contactDTO.getId(), valueChanges),
+					new CommandResultHandler<VoidResult>() {
+
+						@Override
+						public void onCommandFailure(final Throwable caught) {
+							N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
+						}
+
+						@Override
+						protected void onCommandSuccess(final VoidResult result) {
+
+							N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+
+							eventBus.fireEvent(new UpdateEvent(UpdateEvent.CONTACT_UPDATE, contactDTO));
+
+							// Checks if there is any update
+							// needed to the local project
+							// instance.
+							for (final ValueEvent event : valueChanges) {
+								if (event.getSource() instanceof DefaultContactFlexibleElementDTO) {
+									updateCurrentContact(contactDTO,
+											(DefaultContactFlexibleElementDTO) event.getSource(),
+											event.getSingleValue());
+								}
+							}
+
+							valueChanges.clear();
+
+							if (callback != null) {
+								callback.onSuccess(contactDTO);
+							}
+							refresh(contactDTO);
+						}
+					}, view.getSaveButton(), new LoadingMask(view.getDetailsContainer()), new LoadingMask(target));
+		}
+
+  }
+
+  private boolean isOfflineMode() {
+	  return Profiler.INSTANCE.getApplicationStateManager().getLastState() == ApplicationState.OFFLINE;
   }
 
   private void updateCurrentContact(final ContactDTO contactDTO, DefaultContactFlexibleElementDTO element, String value) {

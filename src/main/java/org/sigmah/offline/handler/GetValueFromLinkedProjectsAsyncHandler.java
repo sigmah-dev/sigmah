@@ -105,7 +105,7 @@ public class GetValueFromLinkedProjectsAsyncHandler implements AsyncCommandHandl
 		final RequestManager<ListResult<String>> manager = new RequestManager<ListResult<String>>(new ListResult<String>(values), callback);
 
 		for (final ProjectDTO linkedProject : linkedProjects) {
-			final String valueId = ValueJSIdentifierFactory.toIdentifier(command.getElementEntityName(), linkedProject.getId(), command.getElementId(), null);
+			final String valueId = ValueJSIdentifierFactory.toIdentifier(command.getElementEntityName(), linkedProject.getId(), command.getElementId(), null, null);
 
 			valueAsyncDAO.get(valueId, new RequestManagerCallback<ListResult<String>, ValueResult>(manager) {
 

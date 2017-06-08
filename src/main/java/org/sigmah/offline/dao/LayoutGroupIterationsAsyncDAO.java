@@ -23,12 +23,23 @@ package org.sigmah.offline.dao;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
+
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.persistence.TypedQuery;
+
+import org.sigmah.offline.indexeddb.Cursor;
 import org.sigmah.offline.indexeddb.ObjectStore;
 import org.sigmah.offline.indexeddb.Request;
 import org.sigmah.offline.indexeddb.Store;
 import org.sigmah.offline.indexeddb.Transaction;
 import org.sigmah.offline.js.LayoutGroupIterationJS;
 import org.sigmah.offline.js.UpdateLayoutGroupIterationsJS;
+import org.sigmah.offline.js.Values;
+import org.sigmah.offline.sync.SuccessCallback;
+import org.sigmah.server.domain.IterationHistoryToken;
+import org.sigmah.server.domain.layout.LayoutGroupIteration;
 import org.sigmah.shared.command.UpdateLayoutGroupIterations;
 import org.sigmah.shared.command.UpdateLayoutGroupIterations.IterationChange;
 import org.sigmah.shared.command.result.ListResult;
@@ -54,6 +65,42 @@ public class LayoutGroupIterationsAsyncDAO extends AbstractUserDatabaseAsyncDAO<
       }
     });
   }
+  
+  public void getListResult(final int containerId, final int layoutGroupId, final int amendmentId,
+			final AsyncCallback<ListResult<LayoutGroupIterationDTO>> callback) {
+	  
+		openTransaction(Transaction.Mode.READ_ONLY, new OpenTransactionHandler<Store>() {
+
+			@Override
+			public void onTransaction(Transaction<Store> transaction) {
+				final ArrayList<LayoutGroupIterationDTO> ts = new ArrayList<LayoutGroupIterationDTO>();
+				
+				final ObjectStore objectStore = transaction.getObjectStore(getRequiredStore());
+				
+				objectStore.openCursor().addCallback(new SuccessCallback<Request>(callback) {
+
+					@Override
+					public void onSuccess(Request result) {
+						final Cursor cursor = result.getResult();
+						if (cursor != null) {
+							final LayoutGroupIterationJS js = cursor.getValue();
+							if(js != null) {
+								if(amendmentId == -1 && containerId == js.getContainerId() && layoutGroupId == js.getLayoutGroup().getId()) {
+									ts.add(js.toDTO());									
+								}
+							}
+							cursor.next();
+						} else {
+							callback.onSuccess(new ListResult<LayoutGroupIterationDTO>(ts));
+						}
+					}
+					
+				});
+			}
+		});
+		
+	}
+    
 
   public void saveOrUpdate(final UpdateLayoutGroupIterations updateLayoutGroupIterations, final AsyncCallback<ListResult<IterationChange>> callback, Transaction transaction) {
     final ObjectStore layoutGroupIterationObjectStore = transaction.getObjectStore(getRequiredStore());
@@ -79,4 +126,5 @@ public class LayoutGroupIterationsAsyncDAO extends AbstractUserDatabaseAsyncDAO<
   public Store getRequiredStore() {
     return Store.LAYOUT_GROUP_ITERATION;
   }
+
 }

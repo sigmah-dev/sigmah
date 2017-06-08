@@ -21,22 +21,6 @@ package org.sigmah.client.ui.widget.form;
  * #L%
  */
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
-import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.store.StoreEvent;
-import com.extjs.gxt.ui.client.store.StoreListener;
-import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.button.Button;
-import com.extjs.gxt.ui.client.widget.form.AdapterField;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.form.Validator;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -45,6 +29,8 @@ import java.util.Set;
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.shared.command.GetContactModels;
 import org.sigmah.shared.command.GetOrgUnits;
 import org.sigmah.shared.command.result.ListResult;
@@ -55,6 +41,20 @@ import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.dto.referential.ValueEventChangeType;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
+import com.extjs.gxt.ui.client.event.SelectionChangedListener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.StoreEvent;
+import com.extjs.gxt.ui.client.store.StoreListener;
+import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.button.Button;
+import com.extjs.gxt.ui.client.widget.form.AdapterField;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public class ContactListComboBox extends ListComboBox<ContactDTO> {
   private boolean initialized = false;
@@ -65,7 +65,7 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
   private CreateContactHandler createContactHandler;
   private Button createButton;
   private DispatchAsync dispatch;
-
+  
   public ContactListComboBox(DispatchAsync dispatch) {
     this(0, null, Collections.<Integer>emptySet(), dispatch);
   }
@@ -76,7 +76,7 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
     this.limit = limit;
     this.allowedType = allowedType;
     this.allowedContactModelIds = allowedContactModelIds;
-    this.dispatch = dispatch;
+    this.dispatch = dispatch;    
   }
 
   public void setChangeHandler(ChangeHandler changeHandler) {
@@ -107,9 +107,14 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
   @Override
   protected void buildComponent() {
     super.buildComponent();
-
+    
+  	if(Profiler.INSTANCE.getApplicationStateManager().getLastState() == ApplicationState.OFFLINE) {
+  		getButtonPanel().add(new Label(I18N.CONSTANTS.sigmahContactsOfflineUnavailable()));
+  	}
+    
     createButton = Forms.button(I18N.CONSTANTS.createContact(), IconImageBundle.ICONS.create());
     getButtonPanel().add(createButton);
+    createButton.setVisible(this.isEnabled());
 
     applyButtonListeners();
   }
@@ -175,7 +180,14 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
       }
     });
   }
-
+  
+  @Override
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		if(this.createButton != null)
+			this.createButton.setVisible(enabled);
+	}
+  
   private void applyButtonListeners() {
     createButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
       @Override
@@ -340,4 +352,5 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
   public interface ChangeHandler {
     void handleChange(List<ContactDTO> contacts, ValueEventChangeType changeType);
   }
+
 }

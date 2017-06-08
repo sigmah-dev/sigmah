@@ -445,7 +445,7 @@ public class ProjectAsyncDAO extends AbstractUserDatabaseAsyncDAO<ProjectDTO, Pr
 				for(final FlexibleElementDTO element : project.getProjectModel().getAllElements()) {
 					if(element.getElementType() == ElementTypeEnum.QUESTION && 
 						((QuestionElementDTO)element).getCategoryType() != null) {
-						valueAsyncDAO.get(ValueJSIdentifierFactory.toIdentifier(element.getEntityName(), projectDTO.getId(), element.getId(), null), new RequestManagerCallback<M, ValueResult>(requestManager) {
+						valueAsyncDAO.get(ValueJSIdentifierFactory.toIdentifier(element.getEntityName(), projectDTO.getId(), element.getId(), null, null), new RequestManagerCallback<M, ValueResult>(requestManager) {
 							
 							@Override
 							public void onRequestSuccess(ValueResult result) {

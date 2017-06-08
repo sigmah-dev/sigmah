@@ -110,6 +110,8 @@ public class OfflineModule extends AbstractGinModule {
 			GetOrgUnitAsyncHandler getOrgUnitAsyncHandler,
 		GetOrgUnitsAsyncHandler getOrgUnitsAsyncHandler,
 		GetProfilesAsyncHandler getProfilesAsyncHandler,
+			GetContactAsyncHandler getContactAsyncHandler,
+			GetContactsAsyncHandler getContactsAsyncHandler,
 			GetProjectAsyncHandler getProjectAsyncHandler,
 			GetProjectsAsyncHandler getProjectsAsyncHandler,
 			GetProjectsFromIdAsyncHandler getProjectsFromIdAsyncHandler,
@@ -164,6 +166,8 @@ public class OfflineModule extends AbstractGinModule {
         registerHandler(GetOrgUnit.class, getOrgUnitAsyncHandler);
 		registerHandler(GetOrgUnits.class, getOrgUnitsAsyncHandler);
 		registerHandler(GetProfiles.class, getProfilesAsyncHandler);
+		registerHandler(GetContact.class, getContactAsyncHandler);
+		registerHandler(GetContacts.class, getContactsAsyncHandler);
         registerHandler(GetProject.class, getProjectAsyncHandler);
         registerHandler(GetProjects.class, getProjectsAsyncHandler);
         registerHandler(GetProjectsFromId.class, getProjectsFromIdAsyncHandler);

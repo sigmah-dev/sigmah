@@ -88,7 +88,7 @@ public final class UpdateDates {
     
     public static void setSigmahUpdateDate(Date date) {
         final Storage storage = Storage.getLocalStorageIfSupported();
-        if(storage != null) {
+        if(storage != null && date != null) {
             storage.setItem(ITEM_SIGMAH_UPDATE_DATE, Long.toString(date.getTime()));
         }
     }

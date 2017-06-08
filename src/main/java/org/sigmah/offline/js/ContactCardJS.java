@@ -31,6 +31,14 @@ public final class ContactCardJS extends JavaScriptObject {
   protected ContactCardJS() {
   }
 
+  public static ContactCardJS toJavaScript(ContactCardDTO contactCardDTO, ContactModelJS contactModelJS) {
+    ContactCardJS contactCardJS = (ContactCardJS) JavaScriptObject.createObject();
+    contactCardJS.setId(contactCardDTO.getId());
+    contactCardJS.setContactModel(contactModelJS);
+    contactCardJS.setLayout(contactCardDTO.getLayout());
+    return contactCardJS;
+  }
+  
   public static ContactCardJS toJavaScript(ContactCardDTO contactCardDTO) {
     ContactCardJS contactCardJS = (ContactCardJS) JavaScriptObject.createObject();
     contactCardJS.setId(contactCardDTO.getId());
@@ -43,6 +51,14 @@ public final class ContactCardJS extends JavaScriptObject {
     ContactCardDTO contactCardDTO = new ContactCardDTO();
     contactCardDTO.setId(getId());
     contactCardDTO.setContactModel(getContactModelDTO());
+    contactCardDTO.setLayout(getLayoutDTO());
+    return contactCardDTO;
+  }
+
+  public ContactCardDTO toDTO(ContactModelDTO contactModelDTO) {
+    ContactCardDTO contactCardDTO = new ContactCardDTO();
+    contactCardDTO.setId(getId());
+    contactCardDTO.setContactModel(contactModelDTO);
     contactCardDTO.setLayout(getLayoutDTO());
     return contactCardDTO;
   }

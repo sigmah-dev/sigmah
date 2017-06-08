@@ -79,7 +79,7 @@ public class LayoutGroup extends AbstractEntityId<Integer> {
 
 	@Column(name = EntityConstants.LAYOUT_GROUP_COLUMN_HAS_ITERATIONS, nullable = false)
 	@NotNull
-	private Boolean hasIterations = false;
+	private Boolean hasIterations;
 
 	// --------------------------------------------------------------------------------
 	//
@@ -103,6 +103,7 @@ public class LayoutGroup extends AbstractEntityId<Integer> {
 	// --------------------------------------------------------------------------------
 
 	public LayoutGroup() {
+		hasIterations = false;
 	}
 
 	/**
@@ -210,7 +211,7 @@ public class LayoutGroup extends AbstractEntityId<Integer> {
 	}
 
 	public Boolean getHasIterations() {
-		return hasIterations;
+		return this.hasIterations;
 	}
 
 	public void setHasIterations(Boolean hasIterations) {

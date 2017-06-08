@@ -56,7 +56,7 @@ public class GetContactsHandler extends AbstractCommandHandler<GetContacts, List
     List<ContactDTO> contactDTOs = new ArrayList<>();
     for (Contact contact : contacts) {
       if (!contact.isDeleted()) {
-        contactDTOs.add(mapper().map(contact, ContactDTO.class));
+        contactDTOs.add(mapper().map(contact, new ContactDTO()));
       }
     }
 

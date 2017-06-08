@@ -31,6 +31,14 @@ public final class ContactDetailsJS extends JavaScriptObject {
   protected ContactDetailsJS() {
   }
 
+  public static ContactDetailsJS toJavaScript(ContactDetailsDTO contactDetailsDTO, ContactModelJS contactModelJS) {
+    ContactDetailsJS contactDetailsJS = (ContactDetailsJS) JavaScriptObject.createObject();
+    contactDetailsJS.setId(contactDetailsDTO.getId());
+    contactDetailsJS.setContactModel(contactModelJS);
+	contactDetailsJS.setLayout(contactDetailsDTO.getLayout());
+    return contactDetailsJS;
+  }
+  
   public static ContactDetailsJS toJavaScript(ContactDetailsDTO contactDetailsDTO) {
     ContactDetailsJS contactDetailsJS = (ContactDetailsJS) JavaScriptObject.createObject();
     contactDetailsJS.setId(contactDetailsDTO.getId());
@@ -45,6 +53,14 @@ public final class ContactDetailsJS extends JavaScriptObject {
     contactDetailsDTO.setContactModel(getContactModelDTO());
     contactDetailsDTO.setLayout(getLayoutDTO());
     return contactDetailsDTO;
+  }
+
+  public ContactDetailsDTO toDTO(ContactModelDTO contactModel) {
+	    ContactDetailsDTO contactDetailsDTO = new ContactDetailsDTO();
+	    contactDetailsDTO.setId(getId());
+	    contactDetailsDTO.setContactModel(contactModel);
+	    contactDetailsDTO.setLayout(getLayoutDTO());
+	    return contactDetailsDTO;
   }
 
   public native int getId() /*-{
@@ -80,7 +96,7 @@ public final class ContactDetailsJS extends JavaScriptObject {
   }-*/;
 
   public void setLayout(LayoutDTO layout) {
-    setLayout(LayoutJS.toJavaScript(layout));
+	setLayout(LayoutJS.toJavaScript(layout));
   }
 
   public native void setLayout(LayoutJS layout) /*-{

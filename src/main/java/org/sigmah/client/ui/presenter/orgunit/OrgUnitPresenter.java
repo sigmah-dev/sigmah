@@ -24,6 +24,9 @@ package org.sigmah.client.ui.presenter.orgunit;
 
 
 import org.sigmah.client.dispatch.CommandResultHandler;
+import org.sigmah.client.dispatch.monitor.LoadingMask;
+import org.sigmah.client.event.UpdateEvent;
+import org.sigmah.client.event.handler.UpdateHandler;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.PageRequest;
@@ -140,6 +143,24 @@ public class OrgUnitPresenter extends AbstractPresenter<OrgUnitPresenter.View> i
 			}
 
 		});
+
+		// --
+		// Project banner update event handler.
+		// --
+		registerHandler(eventBus.addHandler(UpdateEvent.getType(), new UpdateHandler() {
+
+			@Override
+			public void onUpdate(final UpdateEvent event) {
+				if (event.concern(UpdateEvent.PROJECT_BANNER_UPDATE)) {
+					refreshBanner(orgUnit);
+
+				}  else if(event.concern(UpdateEvent.CORE_VERSION_UPDATED)) {
+					// This is really harsh but it was the simplest to have to latest project revision.
+					// If too much, it is possible to set revision to revision + 1 and call loadAmendments instead.
+					eventBus.navigateRequest(injector.getPageManager().getCurrentPageRequest(), new LoadingMask(view.getOrgUnitBannerPanel()));
+				}
+			}
+		}));
 		
 		view.getSubMenuWidget().setRequiredPermissions(Page.ORGUNIT_CALENDAR, GlobalPermissionEnum.VIEW_ORG_UNIT_AGENDA);
 	}

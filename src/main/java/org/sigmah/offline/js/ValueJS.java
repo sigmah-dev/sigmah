@@ -53,7 +53,7 @@ public final class ValueJS extends JavaScriptObject {
 	public static ValueJS toJavaScript(final String value, final FlexibleElementDTO element, final int projectId) {
 		final ValueJS valueJS = Values.createJavaScriptObject(ValueJS.class);
 		
-		valueJS.setId(ValueJSIdentifierFactory.toIdentifier(element.getEntityName(), projectId, element.getId(), null));
+		valueJS.setId(ValueJSIdentifierFactory.toIdentifier(element.getEntityName(), projectId, element.getId(), null, -1));
 		valueJS.setElementEntityName(element.getEntityName());
 		valueJS.setProjectId(projectId);
 		valueJS.setElementId(element.getId());
@@ -72,7 +72,11 @@ public final class ValueJS extends JavaScriptObject {
 		valueJS.setElementEntityName(getValue.getElementEntityName());
 		valueJS.setProjectId(getValue.getProjectId());
 		valueJS.setElementId(getValue.getElementId());
-		valueJS.setIterationId(getValue.getIterationId());
+		Integer iterationId = getValue.getIterationId();
+		if(iterationId == null) {
+			iterationId = -1;
+		}
+		valueJS.setIterationId(iterationId);
 		valueJS.setAmendmentId(getValue.getAmendmentId());
 		
 		valueJS.setValue(valueResult.getValueObject());
@@ -107,7 +111,11 @@ public final class ValueJS extends JavaScriptObject {
 		valueJS.setElementEntityName(valueEventWrapper.getSourceElement().getEntityName());
 		valueJS.setProjectId(containerId);
 		valueJS.setElementId(valueEventWrapper.getSourceElement().getId());
-		valueJS.setIterationId(valueEventWrapper.getIterationId());
+		Integer iterationId = valueEventWrapper.getIterationId();
+		if(iterationId == null) {
+			iterationId = -1;
+		}
+		valueJS.setIterationId(iterationId);
 		valueJS.setAmendmentId(null);
 
 		if (originalValue != null) {

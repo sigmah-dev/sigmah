@@ -1,5 +1,56 @@
 package org.sigmah.offline.sync;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.sigmah.client.dispatch.CommandResultHandler;
+import org.sigmah.client.dispatch.DispatchAsync;
+import org.sigmah.client.i18n.I18N;
+import org.sigmah.client.page.Page;
+import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.client.ui.widget.Loadable;
+import org.sigmah.offline.dao.FileDataAsyncDAO;
+import org.sigmah.offline.dao.MonitoredPointAsyncDAO;
+import org.sigmah.offline.dao.OrgUnitAsyncDAO;
+import org.sigmah.offline.dao.ReminderAsyncDAO;
+import org.sigmah.offline.dao.TransfertAsyncDAO;
+import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
+import org.sigmah.shared.command.GetCalendar;
+import org.sigmah.shared.command.GetHistory;
+import org.sigmah.shared.command.GetLayoutGroupIterations;
+import org.sigmah.shared.command.GetOrgUnit;
+import org.sigmah.shared.command.GetProject;
+import org.sigmah.shared.command.GetProjectReport;
+import org.sigmah.shared.command.GetProjectReports;
+import org.sigmah.shared.command.GetProjects;
+import org.sigmah.shared.command.GetValue;
+import org.sigmah.shared.command.SecureNavigationCommand;
+import org.sigmah.shared.command.Synchronize;
+import org.sigmah.shared.command.base.Command;
+import org.sigmah.shared.command.result.Calendar;
+import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.command.result.SecureNavigationResult;
+import org.sigmah.shared.command.result.SynchronizeResult;
+import org.sigmah.shared.command.result.ValueResult;
+import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.dto.ProjectDTO;
+import org.sigmah.shared.dto.ProjectFundingDTO;
+import org.sigmah.shared.dto.calendar.CalendarType;
+import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
+import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.history.HistoryTokenListDTO;
+import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupIterationDTO;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
+import org.sigmah.shared.dto.referential.ContainerInformation;
+import org.sigmah.shared.dto.report.ProjectReportDTO;
+import org.sigmah.shared.dto.report.ReportReference;
+import org.sigmah.shared.util.ValueResultUtils;
+
 /*
  * #%L
  * Sigmah
@@ -24,55 +75,9 @@ package org.sigmah.offline.sync;
 
 import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.safehtml.shared.SafeHtmlBuilder;
-import java.util.List;
-import java.util.Map;
-
-import org.sigmah.client.dispatch.DispatchAsync;
-import org.sigmah.offline.dao.UpdateDiaryAsyncDAO;
-import org.sigmah.shared.command.GetHistory;
-import org.sigmah.shared.command.GetProject;
-import org.sigmah.shared.command.GetProjects;
-import org.sigmah.shared.command.GetValue;
-import org.sigmah.shared.command.base.Command;
-import org.sigmah.shared.command.result.ListResult;
-import org.sigmah.shared.command.result.ValueResult;
-import org.sigmah.shared.dto.ProjectDTO;
-import org.sigmah.shared.dto.element.FlexibleElementDTO;
-import org.sigmah.shared.dto.history.HistoryTokenListDTO;
-
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
-import org.sigmah.client.dispatch.CommandResultHandler;
-import org.sigmah.client.i18n.I18N;
-import org.sigmah.client.page.Page;
-import org.sigmah.client.ui.notif.N10N;
-import org.sigmah.client.ui.widget.Loadable;
-import org.sigmah.offline.dao.FileDataAsyncDAO;
-import org.sigmah.offline.dao.MonitoredPointAsyncDAO;
-import org.sigmah.offline.dao.OrgUnitAsyncDAO;
-import org.sigmah.offline.dao.ReminderAsyncDAO;
-import org.sigmah.offline.dao.TransfertAsyncDAO;
-import org.sigmah.shared.command.GetCalendar;
-import org.sigmah.shared.command.GetOrgUnit;
-import org.sigmah.shared.command.GetProjectReport;
-import org.sigmah.shared.command.GetProjectReports;
-import org.sigmah.shared.command.SecureNavigationCommand;
-import org.sigmah.shared.command.Synchronize;
-import org.sigmah.shared.command.result.Calendar;
-import org.sigmah.shared.command.result.SecureNavigationResult;
-import org.sigmah.shared.command.result.SynchronizeResult;
-import org.sigmah.shared.command.result.VoidResult;
-import org.sigmah.shared.dto.ProjectFundingDTO;
-import org.sigmah.shared.dto.calendar.CalendarType;
-import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
-import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
-import org.sigmah.shared.dto.referential.ContainerInformation;
-import org.sigmah.shared.dto.report.ProjectReportDTO;
-import org.sigmah.shared.dto.report.ReportReference;
 
 /**
  * Manage sync operations.
@@ -81,42 +86,44 @@ import org.sigmah.shared.dto.report.ReportReference;
  */
 @Singleton
 public class Synchronizer {
-    
-    private static final double ACCESS_RIGHTS_VALUE = 0.05;
-    private static final double GET_PROJECT_VALUE = 0.1;
-    private static final double GET_ORGUNIT_VALUE = 0.05;
-    private static final double ORGUNIT_DETAIL_VALUE = 0.3;
-    private static final double PROJECT_DETAIL_VALUE = 0.5;
-    
-    @Inject
+
+	private static final double ACCESS_RIGHTS_VALUE = 0.05;
+	private static final double GET_PROJECT_VALUE = 0.1;
+	private static final double GET_ORGUNIT_VALUE = 0.05;
+	private static final double ORGUNIT_DETAIL_VALUE = 0.3;
+	private static final double PROJECT_DETAIL_VALUE = 0.5;
+
+	@Inject
 	private UpdateDiaryAsyncDAO updateDiaryAsyncDAO;
-	
+
 	@Inject
 	private ReminderAsyncDAO reminderAsyncDAO;
-    
+
 	@Inject
 	private MonitoredPointAsyncDAO monitoredPointAsyncDAO;
-	
+
 	@Inject
 	private TransfertAsyncDAO transfertAsyncDAO;
-	
+
 	@Inject
 	private FileDataAsyncDAO fileDataAsyncDAO;
-    
-    @Inject
+
+	@Inject
 	private DispatchAsync dispatcher;
-	
+
 	@Inject
 	private OrgUnitAsyncDAO orgUnitAsyncDAO;
-	
-    /**
+
+	/**
 	 * Send to the server the modifications done offline.
 	 * 
-	 * @param callback Callback called when the push is finished or when an error occured.
+	 * @param callback
+	 *            Callback called when the push is finished or when an error
+	 *            occured.
 	 */
 	public void push(final AsyncCallback<Void> callback) {
 		final CommandQueue queue = new CommandQueue(callback, dispatcher);
-        
+
 		queue.add(new QueueEntry<Void>() {
 
 			@Override
@@ -130,29 +137,30 @@ public class Synchronizer {
 
 					@Override
 					public void onSuccess(final Map<Integer, Command> commands) {
-						queue.add(new Synchronize(new ArrayList(commands.values())), new CommandResultHandler<SynchronizeResult>() {
-
-							@Override
-							protected void onCommandSuccess(SynchronizeResult result) {
-								// Update local ids for files.
-								transfertAsyncDAO.replaceIds(result.getFiles());
-								fileDataAsyncDAO.replaceIds(result.getFiles());
-
-								// Display erros.
-								if (!result.getErrors().isEmpty()) {
-									displayErrorNotification(result);
-								}
-								
-								queue.add(new QueueEntry<VoidResult>() {
+						queue.add(new Synchronize(new ArrayList(commands.values())),
+								new CommandResultHandler<SynchronizeResult>() {
 
 									@Override
-									public void run(AsyncCallback<VoidResult> callback, Loadable... loadables) {
-										updateDiaryAsyncDAO.removeAll(commands.keySet(), callback);
+									protected void onCommandSuccess(SynchronizeResult result) {
+										// Update local ids for files.
+										transfertAsyncDAO.replaceIds(result.getFiles());
+										fileDataAsyncDAO.replaceIds(result.getFiles());
+
+										// Display erros.
+										if (!result.getErrors().isEmpty()) {
+											displayErrorNotification(result);
+										}
+
+										queue.add(new QueueEntry<VoidResult>() {
+
+											@Override
+											public void run(AsyncCallback<VoidResult> callback, Loadable... loadables) {
+												updateDiaryAsyncDAO.removeAll(commands.keySet(), callback);
+											}
+										});
 									}
 								});
-							}
-						});
-						
+
 						queue.add(new QueueEntry<VoidResult>() {
 
 							@Override
@@ -160,7 +168,7 @@ public class Synchronizer {
 								monitoredPointAsyncDAO.removeTemporaryObjects(callback);
 							}
 						});
-						
+
 						queue.add(new QueueEntry<VoidResult>() {
 
 							@Override
@@ -168,35 +176,39 @@ public class Synchronizer {
 								reminderAsyncDAO.removeTemporaryObjects(callback);
 							}
 						});
-						
+
 						callback.onSuccess(null);
 					}
 				});
 			}
 		});
-		
-        queue.run();
+
+		queue.run();
 	}
-	
+
 	/**
 	 * Store server data inside the local database.
 	 * 
-	 * @param progressListener Progress listener.
+	 * @param progressListener
+	 *            Progress listener.
 	 */
 	public void pull(final SynchroProgressListener progressListener) {
 		pull(progressListener, false);
 	}
-	
+
 	/**
 	 * Store server data inside the local database.
 	 * 
-	 * @param progressListener Progress listener.
-	 * @param withHistory <code>true</code> to retrieve history, <code>false</code> to ignore it.
+	 * @param progressListener
+	 *            Progress listener.
+	 * @param withHistory
+	 *            <code>true</code> to retrieve history, <code>false</code> to
+	 *            ignore it.
 	 */
 	public void pull(final SynchroProgressListener progressListener, final boolean withHistory) {
-        final double[] progress = {0.0};
-        
-        // Called if the synchronization failed or when it is completed.
+		final double[] progress = { 0.0 };
+
+		// Called if the synchronization failed or when it is completed.
 		final CommandQueue queue = new CommandQueue(new AsyncCallback<Void>() {
 
 			@Override
@@ -209,73 +221,79 @@ public class Synchronizer {
 				progressListener.onComplete();
 			}
 		}, dispatcher);
-		
-        // Storing access rights
-        final double pageAccessProgress = ACCESS_RIGHTS_VALUE / Page.values().length;
-        for(final Page page : Page.values()) {
+
+		// Storing access rights
+		final double pageAccessProgress = ACCESS_RIGHTS_VALUE / Page.values().length;
+		for (final Page page : Page.values()) {
 			queue.add(new SecureNavigationCommand(page), new CommandResultHandler<SecureNavigationResult>() {
 
 				@Override
 				protected void onCommandSuccess(SecureNavigationResult result) {
-                    updateProgress(pageAccessProgress, progress, progressListener);
-                }
-                
-            });
-        }
-        
-        // Storing favorites projects
+					updateProgress(pageAccessProgress, progress, progressListener);
+				}
+
+			});
+		}
+
+		// Storing favorites projects
 		final GetProjects getProjects = new GetProjects(Collections.<Integer>emptyList(), ProjectDTO.Mode.WITH_RELATED_PROJECTS);
-        getProjects.setFavoritesOnly(true);
+		getProjects.setFavoritesOnly(true);
+
 		queue.add(getProjects, new CommandResultHandler<ListResult<ProjectDTO>>() {
-			
+
 			@Override
 			protected void onCommandSuccess(ListResult<ProjectDTO> result) {
-                updateProgress(GET_PROJECT_VALUE, progress, progressListener);
-                
-				if(result == null || result.isEmpty()) {
+				updateProgress(GET_PROJECT_VALUE, progress, progressListener);
+
+				if (result == null || result.isEmpty()) {
 					// If nothing has been found.
 					updateProgress(PROJECT_DETAIL_VALUE, progress, progressListener);
 					return;
 				}
-				
-                final HashSet<ProjectDTO> projects = new HashSet<ProjectDTO>();
-                projects.addAll(result.getList());
-                
-                 // Also fetching related projects
-                for(final ProjectDTO project : result.getList()) { 
-                    for(final ProjectFundingDTO funding : project.getFunding()) {
-                        projects.add(funding.getFunding());
-                    }
-                    for(final ProjectFundingDTO funded : project.getFunded()) {
-                        projects.add(funded.getFunded());
-                    }
-                }
-				
+
+				final HashSet<ProjectDTO> projects = new HashSet<ProjectDTO>();
+				projects.addAll(result.getList());
+
+				// Also fetching related projects
+				for (final ProjectDTO project : result.getList()) {
+					for (final ProjectFundingDTO funding : project.getFunding()) {
+						projects.add(funding.getFunding());
+					}
+					for (final ProjectFundingDTO funded : project.getFunded()) {
+						projects.add(funded.getFunded());
+					}
+				}
+
 				final double projectProgress = PROJECT_DETAIL_VALUE / projects.size();
-                
-				for(final ProjectDTO project : projects) {
+
+				for (final ProjectDTO project : projects) {
 					final Integer projectId = project.getId();
-					
-					if(projectId != null) {
+					if (projectId != null) {
+
 						queue.add(new GetProject(projectId, null), new CommandResultHandler<ProjectDTO>() {
 
 							@Override
 							protected void onCommandSuccess(ProjectDTO result) {
-								if(result != null && result.getProjectModel() != null) {
+
+								if (result != null && result.getProjectModel() != null) {
+
 									final List<FlexibleElementDTO> elements = result.getProjectModel().getAllElements();
-									queueDetails(queue, projectId, result.getCalendarId(), elements, projectProgress, progress, progressListener, withHistory);
+
+									queueDetails(queue, projectId, result.getCalendarId(), elements, projectProgress,
+											progress, progressListener, withHistory);
 								} else {
 									Log.warn("Project '" + projectId + "' was not found on the server.");
 								}
 							}
 						});
+
 					} else {
 						Log.warn("Null project id encountered while pulling data.");
 					}
 				}
 			}
 		});
-		
+
 		// Storing org units data
 		queue.add(new QueueEntry<Void>() {
 
@@ -291,25 +309,26 @@ public class Synchronizer {
 					@Override
 					public void onSuccess(final ListResult<OrgUnitDTO> result) {
 						updateProgress(GET_ORGUNIT_VALUE, progress, progressListener);
-						
-						if(result == null || result.isEmpty()) {
+
+						if (result == null || result.isEmpty()) {
 							// If nothing has been found.
 							updateProgress(ORGUNIT_DETAIL_VALUE, progress, progressListener);
 							return;
 						}
-						
+
 						final double orgUnitProgress = ORGUNIT_DETAIL_VALUE / result.getSize();
-						
-						for(final OrgUnitDTO orgUnit : result.getList()) {
-							if(orgUnit != null && orgUnit.getId() != null) {
+
+						for (final OrgUnitDTO orgUnit : result.getList()) {
+							if (orgUnit != null && orgUnit.getId() != null) {
 								final Integer orgUnitId = orgUnit.getId();
-							
+
 								queue.add(new GetOrgUnit(orgUnitId, null), new CommandResultHandler<OrgUnitDTO>() {
 
 									@Override
 									protected void onCommandSuccess(OrgUnitDTO result) {
-										// BUGFIX #795: Checking if an actual org unit exists for the given id.
-										if(result != null && result.getOrgUnitModel() != null) {
+										// BUGFIX #795: Checking if an actual
+										// org unit exists for the given id.
+										if (result != null && result.getOrgUnitModel() != null) {
 											final List<FlexibleElementDTO> elements = result.getOrgUnitModel().getAllElements();
 											queueDetails(queue, orgUnitId, result.getCalendarId(), elements, orgUnitProgress, progress, progressListener, withHistory);
 										} else {
@@ -321,38 +340,40 @@ public class Synchronizer {
 								Log.warn("Null org unit encountered while pulling data.");
 							}
 						}
-						
+
 						callback.onSuccess(null);
 					}
 				});
 			}
 		});
-		
+
 		queue.run();
 	}
-	
+
 	/**
-	 * Adds the operations required to download the details of a project/orgunit.
+	 * Adds the operations required to download the details of a
+	 * project/orgunit.
 	 * 
 	 * @param queue
-     *          Command queue.
+	 *            Command queue.
 	 * @param containerId
-     *          Identifier of the project/orgunit.
+	 *            Identifier of the project/orgunit.
 	 * @param calendarId
-     *          Identifier of the calendar of the project/orgunit (may be null).
+	 *            Identifier of the calendar of the project/orgunit (may be
+	 *            null).
 	 * @param elements
-     *          Full list of flexibles elements.
+	 *            Full list of flexibles elements.
 	 * @param categoryProgress
-     *          Percentage of progress for the given element.
+	 *            Percentage of progress for the given element.
 	 * @param progress
-     *          Current progress.
+	 *            Current progress.
 	 * @param progressListener
-     *          Listener to call to update the progress bar.
+	 *            Listener to call to update the progress bar.
 	 */
-	private void queueDetails(final CommandQueue queue, int containerId, final Integer calendarId, 
-		List<FlexibleElementDTO> elements, double categoryProgress, final double[] progress, 
-		final SynchroProgressListener progressListener, final boolean withHistory) {
-		
+	private void queueDetails(final CommandQueue queue, final int containerId, final Integer calendarId,
+			List<FlexibleElementDTO> elements, double categoryProgress, final double[] progress,
+			final SynchroProgressListener progressListener, final boolean withHistory) {
+
 		final double flexibleElementCount = elements.size();
 		final double historyCount = withHistory ? elements.size() : 0;
 		final double calendarCount = calendarId != null ? 1.0 : 0.0;
@@ -361,19 +382,49 @@ public class Synchronizer {
 		final double elementProgress = categoryProgress / (flexibleElementCount + historyCount + calendarCount + projectReports);
 
 		// Fetching flexible elements and their history
-		for(final FlexibleElementDTO element : elements) {
-			// Caching element value
-			final GetValue getValue =  new GetValue(containerId, element.getId(), element.getEntityName());
-			queue.add(getValue, new CommandResultHandler<ValueResult>() {
-				@Override
-				protected void onCommandSuccess(ValueResult result) {
-					// Success
-					updateProgress(elementProgress, progress, progressListener);
-				}
-			});
+		for (final FlexibleElementDTO element : elements) {
+
+			// Caching element group iteration
+
+			if (element.getGroup() != null && element.getGroup().getHasIterations()) {
+				
+				GetLayoutGroupIterations getIterations = new GetLayoutGroupIterations(element.getGroup().getId(),containerId, -1);
+				queue.add(getIterations, new CommandResultHandler<ListResult<LayoutGroupIterationDTO>>() {
+					@Override
+					protected void onCommandSuccess(ListResult<LayoutGroupIterationDTO> result) {
+						for (LayoutGroupIterationDTO iteration : result.getList()) {
+							for (LayoutConstraintDTO constraint : iteration.getLayoutGroup().getConstraints()) {
+								
+								// Caching element value
+								final FlexibleElementDTO elementGroup = constraint.getFlexibleElementDTO();
+								final GetValue getValue = new GetValue(containerId, elementGroup.getId(), elementGroup.getEntityName(), null, iteration.getId());
+								queue.add(getValue, new CommandResultHandler<ValueResult>() {
+									@Override
+									protected void onCommandSuccess(ValueResult result) {
+										// Success
+										updateProgress(elementProgress, progress, progressListener);
+									}
+								});
+							}
+						}
+					}
+				});
+
+			} else {
+				
+				// Caching element value
+				final GetValue getValue = new GetValue(containerId, element.getId(), element.getEntityName());
+				queue.add(getValue, new CommandResultHandler<ValueResult>() {
+					@Override
+					protected void onCommandSuccess(ValueResult result) {
+						// Success
+						updateProgress(elementProgress, progress, progressListener);
+					}
+				});
+			}
 
 			// Caching value history
-			if(withHistory) {
+			if (withHistory) {
 				final GetHistory getHistory = new GetHistory(element.getId(), containerId);
 				queue.add(getHistory, new CommandResultHandler<ListResult<HistoryTokenListDTO>>() {
 					@Override
@@ -386,7 +437,7 @@ public class Synchronizer {
 		}
 
 		// Fetching the calendar
-		if(calendarId != null) {
+		if (calendarId != null) {
 			final PersonalCalendarIdentifier identifier = new PersonalCalendarIdentifier(calendarId);
 			queue.add(new GetCalendar(CalendarType.Personal, identifier), new CommandResultHandler<Calendar>() {
 
@@ -403,85 +454,96 @@ public class Synchronizer {
 
 			@Override
 			protected void onCommandSuccess(ListResult<ReportReference> result) {
-				if(result == null || result.isEmpty()) {
+				if (result == null || result.isEmpty()) {
 					// No reports
 					updateProgress(elementProgress, progress, progressListener);
-					
+
 				} else {
 					final double reportProgress = elementProgress / result.getSize();
 
 					// Fetching actuals reports
-					for(final ReportReference reportReference : result.getList()) {
-						queue.add(new GetProjectReport(reportReference.getId()), new CommandResultHandler<ProjectReportDTO>() {
+					for (final ReportReference reportReference : result.getList()) {
+						queue.add(new GetProjectReport(reportReference.getId()),
+								new CommandResultHandler<ProjectReportDTO>() {
 
-							@Override
-							protected void onCommandSuccess(ProjectReportDTO result) {
-								// Success
-								updateProgress(reportProgress, progress, progressListener);
-							}
-						});
+									@Override
+									protected void onCommandSuccess(ProjectReportDTO result) {
+										// Success
+										updateProgress(reportProgress, progress, progressListener);
+									}
+								});
 					}
 				}
 			}
 		});
 	}
-    
+
+	public static Set<Integer> parseValue(ValueResult result) {
+		if (result == null || result.getValueObject() == null) {
+			return Collections.emptySet();
+		}
+
+		Set<Integer> ids = new HashSet<Integer>();
+		for (String serializedId : result.getValueObject().split(ValueResultUtils.DEFAULT_VALUE_SEPARATOR)) {
+			ids.add(Integer.parseInt(serializedId));
+		}
+		return ids;
+	}
+	
 	/**
 	 * Update the current progress and refresh the progress bar.
 	 * 
 	 * @param progress
-     *          Progression.
+	 *            Progression.
 	 * @param total
-     *          Total progression.
+	 *            Total progression.
 	 * @param progressListener
-     *          Listener to call to refresh the progress bar.
+	 *            Listener to call to refresh the progress bar.
 	 */
-    private void updateProgress(double progress, double[] total, SynchroProgressListener progressListener) {
-        
-        total[0] += progress;
-		if(total[0] > 1.0) {
+	private void updateProgress(double progress, double[] total, SynchroProgressListener progressListener) {
+
+		total[0] += progress;
+		if (total[0] > 1.0) {
 			total[0] = 1.0;
 		}
-        progressListener.onProgress(total[0]);
-    }
-    
-    /**
-     * Display an error message built from the returned errors.
-     * 
-     * @param result 
-     *          Result of a synchronization.
-     */
-    private void displayErrorNotification(final SynchronizeResult result) {
-        
-        final SafeHtmlBuilder errorBuilder = new SafeHtmlBuilder();
+		progressListener.onProgress(total[0]);
+	}
 
-        for(final Map.Entry<ContainerInformation, List<String>> entry : result.getErrors().entrySet()) {
-            final ContainerInformation information = entry.getKey();
+	/**
+	 * Display an error message built from the returned errors.
+	 * 
+	 * @param result
+	 *            Result of a synchronization.
+	 */
+	private void displayErrorNotification(final SynchronizeResult result) {
 
-            if (information.isProject()) {
-                errorBuilder.appendHtmlConstant(I18N.CONSTANTS.project());
-            } else {
-                errorBuilder.appendHtmlConstant(I18N.CONSTANTS.orgunit());
-            }
+		final SafeHtmlBuilder errorBuilder = new SafeHtmlBuilder();
 
-            errorBuilder.appendHtmlConstant(" ")
-                    .appendEscaped(information.getName())
-                    .appendHtmlConstant(" - ")
-                    .appendEscaped(information.getFullName())
-                    .appendHtmlConstant("<ul style=\"margin:0.5em 0 1em 1.5em;list-style:disc\">");
+		for (final Map.Entry<ContainerInformation, List<String>> entry : result.getErrors().entrySet()) {
+			final ContainerInformation information = entry.getKey();
 
-            for (final String error : entry.getValue()) {
-                errorBuilder.appendHtmlConstant("<li>").appendEscapedLines(error).appendHtmlConstant("</li>");
-            }
-            errorBuilder.appendHtmlConstant("</ul>");
-        }
+			if (information.isProject()) {
+				errorBuilder.appendHtmlConstant(I18N.CONSTANTS.project());
+			} else {
+				errorBuilder.appendHtmlConstant(I18N.CONSTANTS.orgunit());
+			}
 
-        if(result.isErrorConcernFiles()) {
-            errorBuilder.appendHtmlConstant(I18N.MESSAGES.conflictFiles());
-        }
+			errorBuilder.appendHtmlConstant(" ").appendEscaped(information.getName()).appendHtmlConstant(" - ")
+					.appendEscaped(information.getFullName())
+					.appendHtmlConstant("<ul style=\"margin:0.5em 0 1em 1.5em;list-style:disc\">");
 
-        errorBuilder.appendHtmlConstant(I18N.MESSAGES.conflictSentByMail());
+			for (final String error : entry.getValue()) {
+				errorBuilder.appendHtmlConstant("<li>").appendEscapedLines(error).appendHtmlConstant("</li>");
+			}
+			errorBuilder.appendHtmlConstant("</ul>");
+		}
 
-        N10N.error(errorBuilder.toSafeHtml().asString());
-    }
+		if (result.isErrorConcernFiles()) {
+			errorBuilder.appendHtmlConstant(I18N.MESSAGES.conflictFiles());
+		}
+
+		errorBuilder.appendHtmlConstant(I18N.MESSAGES.conflictSentByMail());
+
+		N10N.error(errorBuilder.toSafeHtml().asString());
+	}
 }

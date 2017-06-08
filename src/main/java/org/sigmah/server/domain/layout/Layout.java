@@ -106,6 +106,7 @@ public class Layout extends AbstractEntityId<Integer> {
 				final LayoutGroup group = new LayoutGroup();
 				group.setRow(row);
 				group.setColumn(col);
+				group.setHasIterations(false);
 				group.setTitle("Group " + groups.size());
 
 				group.setParentLayout(this);
