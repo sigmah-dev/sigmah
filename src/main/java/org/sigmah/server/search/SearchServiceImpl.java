@@ -14,4 +14,10 @@ public class SearchServiceImpl extends RemoteServiceServlet implements SearchSer
 	public ArrayList<SearchResultsDTO> search(String searchStr){
 		return SolrSearcher.getInstance().search(searchStr);
 	}
+	
+	@Override
+	public Boolean index() {
+		// TODO Auto-generated method stub
+		return SolrSearcher.getInstance().FullDataImport();
+	}
 }

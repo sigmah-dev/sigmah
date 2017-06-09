@@ -9,4 +9,5 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 public interface SearchServiceAsync {
 
 	public void search(String searchStr, AsyncCallback<ArrayList<SearchResultsDTO>> callback);
+	public void index(AsyncCallback<Boolean> callback);
 }

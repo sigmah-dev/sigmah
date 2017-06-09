@@ -51,6 +51,7 @@ import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.Style.Scroll;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -58,6 +59,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Label;
+import com.extjs.gxt.ui.client.widget.Layout;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -67,6 +69,7 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -89,14 +92,11 @@ import org.sigmah.client.ui.presenter.DashboardPresenter.ReminderOrMonitoredPoin
  */
 @Singleton
 public class SearchResultsView extends AbstractView implements SearchResultsPresenter.View {
-
-	/**
-	 * Reminders expected date label style name.
-	 */
-	private static final String EXPECTED_DATE_LABEL_STYLE = "points-date-exceeded";
+	
 	private String searchText;
 
-	private ContentPanel remindersPanel;
+	private ContentPanel searchResultsPanel;
+	
 	private ListStore<ReminderDTO> remindersStore;
 	private LayoutContainer centerContainer;
    
@@ -109,11 +109,12 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		//default
 	}
 	
-	public void initialize(final String searchText) {
+	public void initialize(String searchText) {
 		this.searchText = searchText;
 		centerContainer = Layouts.vBox();
 		Window.alert("Searchtext set to " + searchText );
-		centerContainer.add(createRemindersPanel(), Layouts.vBoxData(Margin.BOTTOM));
+		createSearchResultsPanel();
+		centerContainer.add(searchResultsPanel, Layouts.vBoxData(Margin.BOTTOM));
 		add(centerContainer);
 	}
 
@@ -130,108 +131,45 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	 * 
 	 * @return The reminders component widget.
 	 */
-	private Component createRemindersPanel() {
-
-		remindersStore = new ListStore<ReminderDTO>();
-		Grid<ReminderDTO> reminderGrid = new Grid<ReminderDTO>(remindersStore, new ColumnModel(createRemindersGridColumns()));
-		reminderGrid.getView().setForceFit(true);
-		reminderGrid.setAutoExpandColumn(ReminderDTO.LABEL);
+	private void createSearchResultsPanel() {
 
 		//Window.alert("Searchtext is currently " + searchText );
-		remindersPanel = Panels.content("Search results for \"" + searchText + "\"");
+		setContentPanel("Search results for \"" + searchText + "\"", false, null, null );
 		//remindersPanel.repaint();
-		remindersPanel.add(reminderGrid);
 
-		return remindersPanel;
 	}
+	
+	public void setContentPanel(String title, boolean collapsible, Layout layout, Scroll scroll, String... stylenames) {
 
-	/**
-	 * Builds the reminders grid columns configuration.
-	 * 
-	 * @return The reminders grid columns list.
-	 */
-	private static List<ColumnConfig> createRemindersGridColumns() {
+		searchResultsPanel = new ContentPanel(layout != null ? layout : new FitLayout());
 
-		final DateTimeFormat format = DateUtils.DATE_SHORT;
-		final Date now = new Date();
+		searchResultsPanel.setHeadingHtml(ClientUtils.isNotBlank(title) ? title : null);
+		searchResultsPanel.setHeaderVisible(ClientUtils.isNotBlank(title));
+		searchResultsPanel.setCollapsible(collapsible);
 
-		// Icon column.
-		final ColumnConfig iconColumn = new ColumnConfig();
-		iconColumn.setId("icon");
-		iconColumn.setHeaderHtml("");
-		iconColumn.setWidth(16);
-		iconColumn.setResizable(false);
-		iconColumn.setRenderer(new GridCellRenderer<ReminderDTO>() {
-
-			@Override
-			public Object render(final ReminderDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-					final ListStore<ReminderDTO> store, final Grid<ReminderDTO> grid) {
-
-				if (DateUtils.DAY_COMPARATOR.compare(now, model.getExpectedDate()) > 0) {
-					return IconImageBundle.ICONS.overdueReminder().createImage();
-				} else {
-					return IconImageBundle.ICONS.openedReminder().createImage();
+		if (ClientUtils.isNotEmpty(stylenames)) {
+			for (String stylename : stylenames) {
+				if (ClientUtils.isBlank(stylename)) {
+					continue;
 				}
+				searchResultsPanel.addStyleName(stylename);
 			}
-		});
+		}
 
-        // Label column.
-        final ColumnConfig labelColumn = new ColumnConfig();
-        labelColumn.setId(ReminderDTO.LABEL);
-        labelColumn.setHeaderHtml(I18N.CONSTANTS.monitoredPointLabel());
-        labelColumn.setWidth(100);
-        
-        // Ajout du HREF
-        labelColumn.setRenderer(new GridCellRenderer<ReminderDTO>() {
+		if (scroll != null) {
+			searchResultsPanel.setScrollMode(scroll);
+		}
 
-			@Override
-			public Object render(final ReminderDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<ReminderDTO> store,
-					Grid<ReminderDTO> grid) {
-
-				final com.google.gwt.user.client.ui.Label label = new com.google.gwt.user.client.ui.Label((String) model.get(property));
-                
-				label.addStyleName("hyperlink-label");
-				label.addClickHandler(new ClickHandler() {
-
-					@Override
-					public void onClick(ClickEvent event) {
-                        //handler.onLabelClickEvent(model.getProjectId());
-					}
-				});
-                
-                label.setTitle(I18N.CONSTANTS.projectLabelWithDots() + ' ' + model.getProjectCode() + " - " + model.getProjectName());
-
-				return label;
-			}
-		});
-
-		// Expected date column.
-		final ColumnConfig expectedDateColumn = new ColumnConfig();
-		expectedDateColumn.setId(ReminderDTO.EXPECTED_DATE);
-		expectedDateColumn.setHeaderHtml(I18N.CONSTANTS.monitoredPointExpectedDate());
-		expectedDateColumn.setWidth(60);
-		expectedDateColumn.setDateTimeFormat(format);
-		expectedDateColumn.setRenderer(new GridCellRenderer<ReminderDTO>() {
-
-			@Override
-			public Object render(final ReminderDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-					final ListStore<ReminderDTO> store, final Grid<ReminderDTO> grid) {
-
-				final Label label = new Label(format.format(model.getExpectedDate()));
-				if (!model.isCompleted() && DateUtils.DAY_COMPARATOR.compare(now, model.getExpectedDate()) > 0) {
-					label.addStyleName(EXPECTED_DATE_LABEL_STYLE);
-				}
-				return label;
-			}
-		});
-
-		return Arrays.asList(new ColumnConfig[] {
-				iconColumn,
-				labelColumn,
-				expectedDateColumn
-		});
 	}
-
+	
+	public void addSearchData(Object searchData){
+		if( searchData != null ){
+			Window.alert("Received search results!");
+		}else{
+			Window.alert("Failed to receive search results!");
+		}
+		
+	}
 
 }
 

@@ -83,6 +83,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 	private final SearchServiceAsync searchService = GWT.create(SearchService.class);
 	private ArrayList<SearchResultsDTO> searchResults = new ArrayList<SearchResultsDTO>();
+	private Boolean dih_success;
 
 	@Inject
 	public SearchPresenter(View view, Injector injector) {
@@ -105,6 +106,8 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		TextBox getSearchText();
 
 		Button getSearchButton();
+		
+		Button getIndexButton();
 
 	}
 
@@ -123,21 +126,15 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 	@Override
 	public void onBind() {
 
-		view.getSearchButton().addKeyUpHandler( new KeyUpHandler() {
-			
+		view.getSearchText().addKeyUpHandler(new KeyUpHandler() {
+
 			@Override
 			public void onKeyUp(KeyUpEvent event) {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
+					
 					String searchText = view.getSearchText().getText();
 					if (searchText.length() > 0) {
-//						final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
-//						request.addData(RequestParameter.HEADER, searchText);
-//						request.addData(RequestParameter.TITLE, searchText);
-//						request.addParameter(RequestParameter.ID, searchText.replaceAll("\\W", ""));
-//						request.addParameter(RequestParameter.CONTENT, searchText);
-//						request.addParameter(RequestParameter.HEADER, searchText);
-//						request.addParameter(RequestParameter.TITLE, searchText);
-						// Log.error("Title set to " +
+						/// Log.error("Title set to " +
 						// request.getData(RequestParameter.TITLE));
 						// Window.alert("Title set to " +
 						// request.getData(RequestParameter.TITLE));
@@ -146,32 +143,31 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 						// Window.alert("Header set to " +
 						// request.getData(RequestParameter.HEADER));
 						search();
-//						eventBus.navigateRequest(request);
+						if (searchResults != null) {
+							final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
+							// request.addData(RequestParameter.HEADER,
+							// searchText);
+							request.addData(RequestParameter.TITLE, searchText);
+							request.addData(RequestParameter.CONTENT, searchResults);
+							request.addParameter(RequestParameter.ID, searchText.replaceAll("\\W", ""));
+							// request.addParameter(RequestParameter.HEADER,
+							// searchText);
+							request.addParameter(RequestParameter.TITLE, searchText);
+							eventBus.navigateRequest(request);
+						}
 					}
 				}
 			}
-			
+
 		});
-	
 
 		view.getSearchButton().addClickHandler(new ClickHandler() {
 
 			@Override
 			public void onClick(ClickEvent event) {
-
-				// have to add a request param here so that it opens a tab with
-				// a new title
-				// request.addParameter(RequestParameter.HEADER,
-				// view.getSearchText());
+				
 				String searchText = view.getSearchText().getText();
 				if (searchText.length() > 0) {
-//					final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
-//					request.addData(RequestParameter.HEADER, searchText);
-//					request.addData(RequestParameter.TITLE, searchText);
-//					request.addParameter(RequestParameter.ID, searchText.replaceAll("\\W", ""));
-//					request.addParameter(RequestParameter.CONTENT, searchText);
-//					request.addParameter(RequestParameter.HEADER, searchText);
-//					request.addParameter(RequestParameter.TITLE, searchText);
 					// Log.error("Title set to " +
 					// request.getData(RequestParameter.TITLE));
 					// Window.alert("Title set to " +
@@ -181,14 +177,31 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 					// Window.alert("Header set to " +
 					// request.getData(RequestParameter.HEADER));
 					search();
-//					eventBus.navigateRequest(request);
+					if (searchResults != null) {
+						final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
+						// request.addData(RequestParameter.HEADER, searchText);
+						request.addData(RequestParameter.TITLE, searchText);
+						request.addData(RequestParameter.CONTENT, searchResults);
+						request.addParameter(RequestParameter.ID, searchText.replaceAll("\\W", ""));
+						// request.addParameter(RequestParameter.HEADER,searchText);
+						request.addParameter(RequestParameter.TITLE, searchText);
+						eventBus.navigateRequest(request);
+					}
 
 				}
 			}
 
 		});
+		
+		view.getIndexButton().addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				index();
+			}
+		});
 
 	}
+	
+
 	private void search() {
 
 		String textToServer = view.getSearchText().getText();
@@ -202,8 +215,26 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 			public void onSuccess(ArrayList<SearchResultsDTO> result) {
 				searchResults = result;
-				for( SearchResultsDTO doc : searchResults ){
+				for (SearchResultsDTO doc : searchResults) {
 					Window.alert(doc.getResult().toString());
+				}
+			}
+		});
+	}
+	
+	private void index() {
+		searchService.index(new AsyncCallback<Boolean>() {
+			public void onFailure(Throwable caught) {
+				Window.alert("Failure on the server side!");
+				caught.printStackTrace();
+			}
+
+			public void onSuccess(Boolean result) {
+				dih_success = result;
+				if( dih_success == true ){
+					Window.alert("Successfully completed Full Import!");
+				}else{
+					Window.alert("Failed to complete Full Import!");
 				}
 			}
 		});

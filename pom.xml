@@ -1049,7 +1049,7 @@
 			<properties>
 
 				<!-- Overrride properties for your local profile here... -->
-				<sigmah.database.url>jdbc:postgresql://localhost:5432/sigmah</sigmah.database.url>
+				<sigmah.database.url>jdbc:postgresql://localhost:5432/sigmah_demo</sigmah.database.url>
 				<sigmah.database.user>sigmah</sigmah.database.user>
 				<sigmah.database.password>hamsig</sigmah.database.password>
 				<files.repository.name>/home/sigmah_dev</files.repository.name>

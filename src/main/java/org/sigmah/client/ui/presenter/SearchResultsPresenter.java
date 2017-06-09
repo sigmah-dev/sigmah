@@ -117,8 +117,9 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 	 * View interface.
 	 */
 	@ImplementedBy(SearchResultsView.class)
-	public static interface View extends ViewInterface {
-		void initialize( String searchText );
+	public interface View extends ViewInterface {
+		void initialize(String searchText);
+		void addSearchData(Object searchData);
 	}
 	
 	/**
@@ -146,14 +147,10 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 	public void onPageRequest(PageRequest request){
 		// TODO Auto-generated method stub
 		//view.initialize() is default
-		String title = (String)request.getData(RequestParameter.TITLE);
-		//Window.alert("Title is " + title );
+		String title = request.getData(RequestParameter.TITLE).toString();
+		Window.alert("Title is " + title );
 		view.initialize(title);
-//		SearchResultsDTO search_res = new SearchResultsDTO();
-//		Map<String, Object> results = search_res.getResult();
-//		for (Map.Entry<String, Object> entry : results.entrySet()){
-//		    Window.alert(entry.getKey() + "/" + entry.getValue());
-//		}
+		view.addSearchData(request.getData(RequestParameter.CONTENT));
 	}
 
 	

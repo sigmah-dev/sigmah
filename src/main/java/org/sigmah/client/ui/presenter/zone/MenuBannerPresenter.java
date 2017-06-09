@@ -293,17 +293,17 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 		
 		// Adds the tab.
 		view.getTabBar().addTab(tab);
-		Window.alert("Added tab!");
+		//Window.alert("Added tab!");
 		requests.put(tab.getId(), new PageRequest(request)); // Important: create a new instance.
-
-		// Sets the first title.
-		final String pageTitle = Page.getTitle(request.getPage());
-		//Window.alert("pageTitle is " + pageTitle );
-		final String tabTitle = ClientUtils.isNotBlank(pageTitle) && !PropertyName.isErrorKey(pageTitle) ? pageTitle : I18N.CONSTANTS.loading();
+		
 		if(request.getPage()==Page.SEARCH_RESULTS){
 			view.getTabBar().updateTitle(tab.getId(), "\""+ searchTabTitle + "\"");
 			Window.alert("Updated search tab title!");
 		}else{
+			// Sets the first title.
+			final String pageTitle = Page.getTitle(request.getPage());
+			//Window.alert("pageTitle is " + pageTitle );
+			final String tabTitle = ClientUtils.isNotBlank(pageTitle) && !PropertyName.isErrorKey(pageTitle) ? pageTitle : I18N.CONSTANTS.loading();
 			view.getTabBar().updateTitle(tab.getId(), tabTitle);
 		}
 		//Window.alert("tabTitle is " + tabTitle );

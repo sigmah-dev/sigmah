@@ -13,6 +13,7 @@ import org.apache.solr.client.solrj.request.QueryRequest;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
+import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.util.NamedList;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
 
@@ -36,7 +37,7 @@ public class SolrSearcher {
 	}
 
 	public static SolrSearcher getInstance() { // Singleton
-		
+
 		if (instance == null) {
 			instance = new SolrSearcher();
 			try {
@@ -54,7 +55,7 @@ public class SolrSearcher {
 	private void loadServer() throws MalformedURLException {
 		urlString = "http://localhost:8983/solr/Test_Sigmah";
 		solrServer = new HttpSolrClient.Builder(urlString).build();
-		//Window.alert("Successful solr connection!");
+		// Window.alert("Successful solr connection!");
 		System.out.println("GUBI SOLR CONNECTION CONNECTED");
 		Log.error("GUBI SOLR CONNECTION CONNECTED");
 	}
@@ -69,7 +70,7 @@ public class SolrSearcher {
 			Log.error("GUBI SOLR QUERY HAPPENED");
 			SolrDocumentList list = response.getResults();
 			for (SolrDocument doc : response.getResults()) {
-				//Window.alert(doc.toString());
+				// Window.alert(doc.toString());
 			}
 			return list;
 		} catch (SolrServerException e) {
@@ -93,10 +94,10 @@ public class SolrSearcher {
 		ArrayList<SearchResultsDTO> searchList = new ArrayList<SearchResultsDTO>();
 
 		SolrQuery query = new SolrQuery();
-		query.setQuery("*:*");
+		query.setQuery(searchStr);
 
-		//query.addSortField("weight", ORDER.desc);
-		
+		// query.addSortField("weight", ORDER.desc);
+
 		QueryResponse rsp = null;
 
 		try {
@@ -116,20 +117,41 @@ public class SolrSearcher {
 			while (iter.hasNext()) {
 				SearchResultsDTO descriptor = new SearchResultsDTO();
 				SolrDocument resultDoc = (SolrDocument) iter.next();
-				
-				//Will make this more specific later
-//				Map<String, Object> results = resultDoc.getFieldValueMap();
-//				for (Map.Entry<String, Object> entry : results.entrySet()){
-//				    descriptor.getResult().add(entry.getKey().toString() + " ::: " + entry.getValue().toString());
-//				}
+
+				// Will make this more specific later
+				// Map<String, Object> results = resultDoc.getFieldValueMap();
+				// for (Map.Entry<String, Object> entry : results.entrySet()){
+				// descriptor.getResult().add(entry.getKey().toString() + " :::
+				// " + entry.getValue().toString());
+				// }
 				descriptor.setResult(resultDoc.toString());
 				searchList.add(descriptor);
 
 			}
-			
+
 		}
 
 		return searchList;
 	}
-	
+
+	public Boolean FullDataImport() {
+		ModifiableSolrParams params = new ModifiableSolrParams();
+		params.set("qt", "/dataimport");
+		params.set("command", "full-import");
+		try {
+			QueryResponse response = solrServer.query(params);
+			if (response != null) {
+				System.out.println("Successful FULL DATA IMPORT!");
+				return true;
+			} else {
+				System.out.println("Failure in FULL  DATA IMPORT!");
+				return false;
+			}
+		} catch (SolrServerException | IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+			return false;
+		}
+	}
+
 }

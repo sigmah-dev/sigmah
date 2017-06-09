@@ -10,4 +10,5 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
 public interface SearchService extends RemoteService {
 	//TODO Add method stubs here
 	ArrayList<SearchResultsDTO> search(String searchStr);
+	Boolean index();
 }
