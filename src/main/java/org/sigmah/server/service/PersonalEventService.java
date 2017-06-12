@@ -41,7 +41,7 @@ import com.google.inject.Singleton;
 /**
  * {@link PersonalEvent} policy implementation.
  * 
- * @author Raphaël Calabro (rcalabro@ideia.fr)
+ * @author RaphaГ«l Calabro (rcalabro@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
 @Singleton
@@ -96,11 +96,11 @@ public class PersonalEventService extends AbstractEntityService<PersonalEvent, I
 		final Serializable startHourSerialized = properties.get(Event.START_TIME);
 		final Serializable endHourSerialized = properties.get(Event.END_TIME);
 
-		if (startHourSerialized instanceof Long) {
+                        if (startHourSerialized != null && startHourSerialized instanceof Long) {
 			final Date startHour = new Date((Long) startHourSerialized);
 			event.setStartDate(startHour);
 			
-			if (endHourSerialized instanceof Long) {
+			if (endHourSerialized != null && endHourSerialized instanceof Long) {
 				final Date endHour = new Date((Long) endHourSerialized);
 				event.setEndDate(endHour);
 			} else {
