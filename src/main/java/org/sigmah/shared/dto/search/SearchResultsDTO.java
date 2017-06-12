@@ -3,8 +3,12 @@ package org.sigmah.shared.dto.search;
 import java.io.Serializable;
 import java.util.ArrayList;
 
-public class SearchResultsDTO implements Serializable{
+import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
+
+public class SearchResultsDTO extends AbstractModelDataEntityDTO<Integer> implements Serializable
+{
 	
+	//public static final String ENTITY_NAME = "search.SearchResults";
 	/**
 	 * Serial version UID.
 	 */
@@ -22,6 +26,12 @@ public class SearchResultsDTO implements Serializable{
 
 	public void setResult(String result) {
 		this.result = result;
+	}
+
+	@Override
+	public String getEntityName() {
+		// TODO Auto-generated method stub
+		return null;
 	}
 	
 }

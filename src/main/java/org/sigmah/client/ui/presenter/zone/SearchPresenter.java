@@ -215,9 +215,9 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 			public void onSuccess(ArrayList<SearchResultsDTO> result) {
 				searchResults = result;
-				for (SearchResultsDTO doc : searchResults) {
-					Window.alert(doc.getResult().toString());
-				}
+//				for (SearchResultsDTO doc : searchResults) {
+//					Window.alert(doc.getResult().toString());
+//				}
 			}
 		});
 	}
