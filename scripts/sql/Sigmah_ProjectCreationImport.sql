@@ -2,7 +2,7 @@
 --
 -- Functions to easily create or import projects
 --
--- Note: designed for Sigmah database v2.1
+-- Note: designed for Sigmah database v2.2
 --
 
 
@@ -227,6 +227,10 @@ BEGIN
 			THEN 'QUESTION'
 		WHEN p_field_id IN (SELECT id_flexible_element FROM files_list_element)
 			THEN 'FILES'
+		WHEN p_field_id IN (SELECT id_flexible_element FROM checkbox_element)
+			THEN 'CHECKBOX'
+		WHEN p_field_id IN (SELECT id_flexible_element FROM computation_element)
+			THEN 'COMPUTATION'
 		WHEN p_field_id IN (SELECT id_flexible_element FROM textarea_element)
 			THEN CASE (SELECT type FROM textarea_element WHERE id_flexible_element=p_field_id)
 				WHEN 'D'
@@ -261,10 +265,13 @@ $$ LANGUAGE plpgsql;
 --   - ORG_UNIT : partner id like '602'
 --   - SPENT, RECEIVED, PLANNED: budget sub-field value like '25080' or '78450.23'
 --   - DATE : date format like '25/12/2015'
+--   - CHECKBOX : 'true' or 'false'
+--   - QUESTION : question_choice_element id like '325'
+--          for multiple choices, multiple ids must be separatd by ~ like '325~328'
 --   - NUMBER : number like '25080' or '78450.23'
 --   - TEXT : text like 'plusieurs mots'
 --   - PARAGRAPH : one more more lines of text, each line of text must be separated only by a NEWLINE (ASCII code 10) character, like 'first line' || chr(10) || ' and second important line'
-CREATE OR REPLACE FUNCTION update_field(p_field_id integer, p_field_value text, p_project_id integer, p_author_id integer, p_history_comment character varying(255)) RETURNS boolean AS $$
+CREATE OR REPLACE FUNCTION update_field(p_field_id integer, p_field_value text, p_project_id integer, p_author_id integer, p_history_comment character varying(255), p_layout_group_iteration_id integer DEFAULT NULL) RETURNS boolean AS $$
 DECLARE
 	v_type character varying(20);
 	v_history_last_change_record RECORD;
@@ -281,12 +288,14 @@ BEGIN
 		SELECT change_type, history_date
 			INTO v_history_last_change_record 
 			FROM history_token
-			WHERE id_element = v_budget_field_id and id_project = p_project_id;
+			WHERE id_element = v_budget_field_id and id_project = p_project_id
+				and (p_layout_group_iteration_id is NULL or id_layout_group_iteration = p_layout_group_iteration_id);
 	ELSE
 		SELECT change_type, history_date
 			INTO v_history_last_change_record 
 			FROM history_token
-			WHERE id_element = p_field_id and id_project = p_project_id;
+			WHERE id_element = p_field_id and id_project = p_project_id
+				and (p_layout_group_iteration_id is NULL or id_layout_group_iteration = p_layout_group_iteration_id);
 	END IF;
 	IF(v_history_last_change_record IS NULL)
 	THEN
@@ -311,18 +320,18 @@ BEGIN
 				WHERE u.databaseid = p_project_id;
 			--no management of the "core_version" column because the column is only filled when validating a core version from the User Interface
 			INSERT INTO history_token(id_history_token, history_date, id_element, id_project, 
-					change_type, value, id_user, comment) 
+					change_type, value, id_user, comment, id_layout_group_iteration) 
 				SELECT nextval('hibernate_sequence'), v_history_date, p_field_id, p_project_id, 
-					v_history_change_type as change_type, CAST(ROUND(EXTRACT(EPOCH FROM DATE(p_field_value))*1000) AS text), p_author_id, p_history_comment;
+					v_history_change_type as change_type, CAST(ROUND(EXTRACT(EPOCH FROM DATE(p_field_value))*1000) AS text), p_author_id, p_history_comment, p_layout_group_iteration_id;
 		WHEN 'CODE'
 			THEN 
 			UPDATE userdatabase u SET name = CAST(p_field_value AS character varying(50)) 
 				WHERE u.databaseid = p_project_id;
 			--no management of the "core_version" column because the column is only filled when validating a core version from the User Interface
 			INSERT INTO history_token(id_history_token, history_date, id_element, id_project, 
-					change_type, value, id_user, comment) 
+					change_type, value, id_user, comment, id_layout_group_iteration) 
 				SELECT nextval('hibernate_sequence'), v_history_date, p_field_id, p_project_id, 
-					v_history_change_type as change_type, p_field_value, p_author_id, p_history_comment;
+					v_history_change_type as change_type, p_field_value, p_author_id, p_history_comment, p_layout_group_iteration_id;
 		WHEN 'COUNTRY'
 			THEN 
 			RETURN false;
@@ -332,36 +341,36 @@ BEGIN
 				WHERE databaseid = p_project_id;
 			--no management of the "core_version" column because the column is only filled when validating a core version from the User Interface
 			INSERT INTO history_token(id_history_token, history_date, id_element, id_project, 
-					change_type, value, id_user, comment) 
+					change_type, value, id_user, comment, id_layout_group_iteration) 
 				SELECT nextval('hibernate_sequence'), v_history_date, p_field_id, p_project_id, 
-					v_history_change_type as change_type, CAST(ROUND(EXTRACT(EPOCH FROM DATE(p_field_value))*1000) AS text), p_author_id, p_history_comment;
+					v_history_change_type as change_type, CAST(ROUND(EXTRACT(EPOCH FROM DATE(p_field_value))*1000) AS text), p_author_id, p_history_comment, p_layout_group_iteration_id;
 		WHEN 'MANAGER'
 			THEN 
 			UPDATE project SET id_manager = CAST(p_field_value AS integer) 
 				WHERE databaseid = p_project_id;
 			--no management of the "core_version" column because the column is only filled when validating a core version from the User Interface
 			INSERT INTO history_token(id_history_token, history_date, id_element, id_project, 
-					change_type, value, id_user, comment) 
+					change_type, value, id_user, comment, id_layout_group_iteration) 
 				SELECT nextval('hibernate_sequence'), v_history_date, p_field_id, p_project_id, 
-					v_history_change_type as change_type, p_field_value, p_author_id, p_history_comment;
+					v_history_change_type as change_type, p_field_value, p_author_id, p_history_comment, p_layout_group_iteration_id;
 		WHEN 'ORG_UNIT'
 			THEN 
 			UPDATE partnerindatabase SET partnerid = CAST(p_field_value AS integer) 
 				WHERE databaseid = p_project_id;
 			--no management of the "core_version" column because the column is only filled when validating a core version from the User Interface
 			INSERT INTO history_token(id_history_token, history_date, id_element, id_project, 
-					change_type, value, id_user, comment) 
+					change_type, value, id_user, comment, id_layout_group_iteration) 
 				SELECT nextval('hibernate_sequence'), v_history_date, p_field_id, p_project_id, 
-					v_history_change_type as change_type, p_field_value, p_author_id, p_history_comment;
+					v_history_change_type as change_type, p_field_value, p_author_id, p_history_comment, p_layout_group_iteration_id;
 		WHEN 'TITLE'
 			THEN 
 			UPDATE userdatabase u SET fullname = CAST(p_field_value AS character varying(500)) 
 				WHERE u.databaseid = p_project_id;
 			--no management of the "core_version" column because the column is only filled when validating a core version from the User Interface
 			INSERT INTO history_token(id_history_token, history_date, id_element, id_project, 
-					change_type, value, id_user, comment) 
+					change_type, value, id_user, comment, id_layout_group_iteration) 
 				SELECT nextval('hibernate_sequence'), v_history_date, p_field_id, p_project_id, 
-					v_history_change_type as change_type, p_field_value, p_author_id, p_history_comment;
+					v_history_change_type as change_type, p_field_value, p_author_id, p_history_comment, p_layout_group_iteration_id;
 		WHEN 'BUDGET'
 			THEN RETURN false;
 		WHEN 'SPENT', 'RECEIVED', 'PLANNED'
@@ -374,20 +383,21 @@ BEGIN
 			THEN
 				INSERT INTO value(
 					    id_value, id_project, action_last_modif, date_last_modif, value, 
-					    id_flexible_element, id_user_last_modif)
+					    id_flexible_element, id_user_last_modif, id_layout_group_iteration)
 				    SELECT nextval('hibernate_sequence'), p_project_id, v_action_last_modif, localtimestamp, v_value,
-						v_budget_field_id, p_author_id;
+						v_budget_field_id, p_author_id, p_layout_group_iteration_id;
 			ELSE
-				UPDATE value  SET action_last_modif = 'U', date_last_modif = localtimestamp,
+				UPDATE value SET action_last_modif = 'U', date_last_modif = localtimestamp,
 					value = v_value, id_user_last_modif = p_author_id 
-					WHERE id_flexible_element = v_budget_field_id and id_project = p_project_id;
+					WHERE id_flexible_element = v_budget_field_id and id_project = p_project_id 
+						and (p_layout_group_iteration_id is NULL or id_layout_group_iteration = p_layout_group_iteration_id);
 			END IF;
 			
 			--no management of the "core_version" column because the column is only filled when validating a core version from the User Interface
 			INSERT INTO history_token(id_history_token, history_date, id_element, id_project, 
-					change_type, value, id_user, comment) 
+					change_type, value, id_user, comment, id_layout_group_iteration) 
 				SELECT nextval('hibernate_sequence'), v_history_date, v_budget_field_id, p_project_id, 
-					v_history_change_type, v_value, p_author_id, p_history_comment;
+					v_history_change_type, v_value, p_author_id, p_history_comment, p_layout_group_iteration_id;
 		WHEN 'OWNER'
 			THEN 
 			RETURN false;
@@ -398,38 +408,40 @@ BEGIN
 			THEN
 				INSERT INTO value(
 					    id_value, id_project, action_last_modif, date_last_modif, value, 
-					    id_flexible_element, id_user_last_modif)
+					    id_flexible_element, id_user_last_modif, id_layout_group_iteration)
 				    SELECT nextval('hibernate_sequence'), p_project_id, v_action_last_modif, localtimestamp, v_value,
-						p_field_id, p_author_id;
+						p_field_id, p_author_id, p_layout_group_iteration_id;
 			ELSE
 				UPDATE value  SET action_last_modif = 'U', date_last_modif = localtimestamp,
 					value = v_value, id_user_last_modif = p_author_id 
-					WHERE id_flexible_element = p_field_id and id_project = p_project_id;
+					WHERE id_flexible_element = p_field_id and id_project = p_project_id 
+						and (p_layout_group_iteration_id is NULL or id_layout_group_iteration = p_layout_group_iteration_id);
 			END IF;
 			--no management of the "core_version" column because the column is only filled when validating a core version from the User Interface
 			INSERT INTO history_token(id_history_token, history_date, id_element, id_project, 
-					change_type, value, id_user, comment) 
+					change_type, value, id_user, comment, id_layout_group_iteration) 
 				SELECT nextval('hibernate_sequence'), v_history_date, p_field_id, p_project_id, 
-					v_history_change_type, v_value, p_author_id, p_history_comment;
-		WHEN 'NUMBER', 'TEXT', 'PARAGRAPH'
+					v_history_change_type, v_value, p_author_id, p_history_comment, p_layout_group_iteration_id;
+		WHEN 'NUMBER', 'TEXT', 'PARAGRAPH', 'CHECKBOX', 'QUESTION'
 			THEN 
 			IF( v_action_last_modif = 'C')
 			THEN
 				INSERT INTO value(
 					    id_value, id_project, action_last_modif, date_last_modif, value, 
-					    id_flexible_element, id_user_last_modif)
+					    id_flexible_element, id_user_last_modif, id_layout_group_iteration)
 				    SELECT nextval('hibernate_sequence'), p_project_id, v_action_last_modif, localtimestamp, p_field_value,
-						p_field_id, p_author_id;
+						p_field_id, p_author_id, p_layout_group_iteration_id;
 			ELSE
 				UPDATE value  SET action_last_modif = 'U', date_last_modif = localtimestamp,
 					value = p_field_value, id_user_last_modif = p_author_id 
-					WHERE id_flexible_element = p_field_id and id_project = p_project_id;
+					WHERE id_flexible_element = p_field_id and id_project = p_project_id 
+						and (p_layout_group_iteration_id is NULL or id_layout_group_iteration = p_layout_group_iteration_id);
 			END IF;
 			--no management of the "core_version" column because the column is only filled when validating a core version from the User Interface
 			INSERT INTO history_token(id_history_token, history_date, id_element, id_project, 
-					change_type, value, id_user, comment) 
+					change_type, value, id_user, comment, id_layout_group_iteration) 
 				SELECT nextval('hibernate_sequence'), v_history_date, p_field_id, p_project_id, 
-					v_history_change_type, p_field_value, p_author_id, p_history_comment;
+					v_history_change_type, p_field_value, p_author_id, p_history_comment, p_layout_group_iteration_id;
 		ELSE
 			return false;
 	END CASE;
@@ -598,10 +610,191 @@ END;
 $$ LANGUAGE plpgsql;
 
 
+
+--
+-- Create a new group iteration in a project and import values into it
+--
+CREATE OR REPLACE FUNCTION create_new_iteration(p_organization_id integer, p_project_model_id integer, p_project_code character varying(50), p_layout_group_id integer, p_iteration_title character varying(30), p_author_id integer, p_history_comment character varying(255), p_fieldid_value_array text[][]) RETURNS INTEGER AS $$
+DECLARE
+	v_project_id integer;	
+	v_layout_group_iteration_id integer;
+	v_fieldid_value_pair text[];
+BEGIN
+	SELECT count(*)
+		INTO v_project_id
+		FROM userdatabase udb
+			inner join project prj on prj.databaseid = udb.databaseid
+		WHERE udb.datedeleted is null 
+			and udb.name = p_project_code and prj.id_project_model = p_project_model_id;
+	IF( v_project_id != 0 )
+	THEN
+		SELECT udb.databaseid
+		INTO v_project_id
+		FROM userdatabase udb
+			inner join project prj on prj.databaseid = udb.databaseid
+		WHERE udb.datedeleted is null 
+			and udb.name = p_project_code and prj.id_project_model = p_project_model_id;
+			
+		-- create iteration
+		SELECT nextval('hibernate_sequence') INTO v_layout_group_iteration_id;
+		INSERT INTO layout_group_iteration (id_layout_group_iteration, id_layout_group, id_container, name) 
+			VALUES (v_layout_group_iteration_id, p_layout_group_id, v_project_id, p_iteration_title);
+		
+		-- fill iteration with given values
+		FOREACH v_fieldid_value_pair SLICE 1 IN ARRAY p_fieldid_value_array LOOP
+			perform update_field(CAST(v_fieldid_value_pair[1] AS integer), v_fieldid_value_pair[2], v_project_id , p_author_id, p_history_comment, v_layout_group_iteration_id);
+		END LOOP;
+	END IF;
+	
+
+	RETURN v_layout_group_iteration_id;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+--
+--
+-- Get project if from project code
+--
+-- Handy function to get a project id from a project code
+CREATE OR REPLACE FUNCTION get_project_id_from_code(p_project_code character varying(50)) RETURNS integer AS $$
+DECLARE
+	v_result integer;
+BEGIN
+	SELECT databaseid
+	INTO v_result
+	FROM userdatabase
+	WHERE name = p_project_code
+	ORDER BY databaseid;
+
+	RETURN v_result;
+END;
+$$ LANGUAGE plpgsql;
+
+
+--
+-- Edit project link
+--
+-- Parameters:
+--	p_funding_code : project code of funding project
+--	p_funded_code : project code of funded project
+--	p_percentage : funded project budget funding percentage
+--	p_remove : true to remove the project link
+--	p_duplicates_management : in case of duplicates on one or two the project codes, 'a' to update all projects, 'n' to update none
+--
+CREATE OR REPLACE FUNCTION edit_project_link(p_funding_code character varying(50), p_funded_code character varying(50), p_percentage double precision, p_remove boolean default false, p_duplicates_management character default 'n') RETURNS boolean AS $$
+DECLARE
+	v_id_funding integer;
+	v_id_project_funding integer;
+	v_id_project_funded integer;
+	v_matchingprojects_count integer;
+	cur_matching_fundingprojects CURSOR FOR 
+		SELECT databaseid FROM userdatabase WHERE name = p_funding_code;
+	cur_matching_fundedprojects CURSOR FOR 
+		SELECT databaseid FROM userdatabase WHERE name = p_funded_code;
+	rec_matching_fundingprojects RECORD;
+	rec_matching_fundedprojects RECORD;
+	v_result boolean;
+BEGIN
+	v_id_funding := 0;
+	v_result := true;
+	v_id_project_funding := get_project_id_from_code(p_funding_code);
+	v_id_project_funded := get_project_id_from_code(p_funded_code);
+
+	IF (v_id_project_funding IS NULL)
+	THEN
+		RAISE NOTICE 'No project found for project code "%"', p_funding_code;
+		v_result := false;
+	END IF;
+
+	IF (v_id_project_funded IS NULL)
+	THEN
+		RAISE NOTICE 'No project found for project code "%"', p_funded_code;
+		v_result := false;
+	END IF;
+
+	-- Continue only if all code match with existing projects
+	IF (v_result)
+	THEN
+		SELECT count(*)
+		INTO v_matchingprojects_count
+		FROM userdatabase udb
+		WHERE udb.name IN (p_funding_code, p_funded_code);
+
+		IF (v_matchingprojects_count > 2)
+		THEN
+			-- Duplicates exist for given project codes
+			IF (p_duplicates_management = 'n')
+			THEN
+				RAISE NOTICE 'Duplicates found for given project codes (%, %), so no update because "update none" duplicates management policy requested.', p_funding_code, p_funded_code;
+				RETURN false;
+			ELSIF (p_duplicates_management = 'a')
+			THEN
+				RAISE NOTICE 'Duplicates found for given project codes (%, %), so all duplicates will be updated because "update all" duplicates management policy requested.', p_funding_code, p_funded_code;
+			ELSE
+				RAISE NOTICE 'Duplicates found for given project codes (%, %), and no update because no valid duplicates management policy ("a" or "n") requested!', p_funding_code, p_funded_code;
+				RETURN false;
+			END IF;
+		END IF;
+		
+		FOR rec_matching_fundingprojects IN cur_matching_fundingprojects
+		LOOP
+			v_id_project_funding := rec_matching_fundingprojects.databaseid;
+			FOR rec_matching_fundedprojects IN cur_matching_fundedprojects
+			LOOP
+				v_id_project_funded := rec_matching_fundedprojects.databaseid;
+				IF (p_remove)
+				THEN
+					-- Remove project link
+					DELETE FROM project_funding
+					WHERE id_project_funded = v_id_project_funded
+						and id_project_funding = v_id_project_funding;
+					RAISE NOTICE 'Project link "%"(id:%)=>"%"(id:%) successfully removed.', p_funding_code, v_id_project_funding, p_funded_code, v_id_project_funded;
+				ELSE
+					-- Create or Update project link
+					SELECT id_funding
+					INTO v_id_funding
+					FROM project_funding
+					WHERE id_project_funded = v_id_project_funded
+						and id_project_funding = v_id_project_funding;
+					IF (v_id_funding IS NULL)
+					THEN
+						-- no project link exists yet => Create it
+						INSERT INTO project_funding(
+							id_funding, percentage, id_project_funded, id_project_funding)
+						SELECT nextval('hibernate_sequence'), p_percentage, v_id_project_funded, v_id_project_funding;
+						RAISE NOTICE 'Project link "%"(id:%)=>"%"(id:%)(% %%) successfully created.', p_funding_code, v_id_project_funding, p_funded_code, v_id_project_funded, p_percentage;
+					ELSE
+						-- a project link already exists => Update it
+						UPDATE project_funding
+							SET percentage = p_percentage
+						WHERE id_project_funded = v_id_project_funded
+							and id_project_funding = v_id_project_funding;				
+						RAISE NOTICE 'Project link "%"(id:%)=>"%"(id:%) percentage value successfully updated to % %%.', p_funding_code, v_id_project_funding, p_funded_code, v_id_project_funded, p_percentage;
+					END IF;
+				END IF;
+			END LOOP;
+		END LOOP;
+	END IF;
+
+	RETURN v_result;
+END;
+$$ LANGUAGE plpgsql;
+
+
+
+
+
+
+
 -- DROPS
 -- drop function create_project(integer, integer, character varying(50), character varying(500), numeric(2), integer, integer, character varying(255));
 -- drop function get_updated_budget_string(integer, integer, text);
--- drop function update_field(integer, text, integer, integer, character varying(255));
+-- drop function update_field(integer, text, integer, integer, character varying(255), integer);
 -- drop function import_new_project(integer, integer, character varying(50), character varying(500), integer, integer, character varying(255), text[][]);
 -- drop function update_project(integer, integer, character varying(50), integer, character varying(255), text[][], timestamp without time zone);
 -- drop function create_or_update_project(integer, integer, character varying(50), character varying(500), integer, integer, character varying(255), text[][]);
+-- drop function create_new_iteration(integer, integer, character varying(50), integer, character varying(30), integer, character varying(255),  text[][]);
+-- drop function get_project_id_from_code(character varying(50));
+-- drop function edit_project_link(character varying(50), character varying(50), double precision, boolean, character);
