@@ -129,7 +129,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
         Radio getRadioMonthlySameDayOfWeek();
 
-        void setShowAddEventView(boolean showAddEventView);
+       // void setShowAddEventView(boolean showAddEventView);
     }
 
     /**
@@ -225,7 +225,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         if (creation) {
             // view.getForm().clearState();
             // view.initialize();
-            view.setShowAddEventView(true);
+            //view.setShowAddEventView(true);
             if (view.getRepeatEventPeriodRG() != null) {
                 view.getRepeatEventPeriodRG().enable();
                 view.getRepeatEventPeriodRG().show();
@@ -237,24 +237,24 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             }
             view.getEventStartTimeField().show();
             view.getEventEndTimeField().show();
-            
-                view.getYearlyVariantRG().enable();
-                view.getMontlyVariantRG().enable();
-                view.getRepeatEventPeriodRG().enable();
-                view.getMonthlyRepeatRB().enable();
-                view.getYearlySameDateRB().enable();
-                view.getYearlySameDayOfWeekRB().enable();
-                view.getRadioMonthlySameDate().enable();
-                view.getRadioMonthlySameDayOfWeek().enable();
-                
-                view.getYearlyVariantRG().show();
-                view.getMontlyVariantRG().show();
-                view.getRepeatEventPeriodRG().show();
-                view.getMonthlyRepeatRB().show();
-                view.getYearlySameDateRB().show();
-                view.getYearlySameDayOfWeekRB().show();
-                view.getRadioMonthlySameDate().show();
-                view.getRadioMonthlySameDayOfWeek().show();
+
+            view.getYearlyVariantRG().enable();
+            view.getMontlyVariantRG().enable();
+            view.getRepeatEventPeriodRG().enable();
+            view.getMonthlyRepeatRB().enable();
+            view.getYearlySameDateRB().enable();
+            view.getYearlySameDayOfWeekRB().enable();
+            view.getRadioMonthlySameDate().enable();
+            view.getRadioMonthlySameDayOfWeek().enable();
+
+            view.getYearlyVariantRG().show();
+            view.getMontlyVariantRG().show();
+            view.getRepeatEventPeriodRG().show();
+            view.getMonthlyRepeatRB().show();
+            view.getYearlySameDateRB().show();
+            view.getYearlySameDayOfWeekRB().show();
+            view.getRadioMonthlySameDate().show();
+            view.getRadioMonthlySameDayOfWeek().show();
             // view.getRepeatEventPeriodRG().show();
             // return;
             //view.getRepeatEventPeriodRG().show();
@@ -264,7 +264,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             //--->>               }
 
             this.calendarWrapper = new CalendarWrapper(event.getParent());
-            view.setShowAddEventView(false);
+            //view.setShowAddEventView(false);
             view.getForm().clearState();
             view.getEventSummaryField().setValue(event.getSummary());
             view.getEventDateStartField().setValue(event.getKey());
@@ -289,7 +289,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 view.getYearlySameDayOfWeekRB().hide();
                 view.getRadioMonthlySameDate().hide();
                 view.getRadioMonthlySameDayOfWeek().hide();
-
             }
 //                if(creation) {
 //                    view.getIsAllDayCheckbox().hide();
@@ -334,22 +333,20 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         final Map<String, Serializable> properties = new HashMap<String, Serializable>();
         properties.put(Event.CALENDAR_ID, calendarWrapper);
         properties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
+        
+        String eventSummary = view.getEventSummaryField().getValue();
+        String eventDescription = view.getEventDescriptionField().getValue();
 
-        final Date date = view.getEventDateStartField().getValue();
-        properties.put(Event.DATE, date);
-//              properties.put("YYYYYYY", (view.getMontlyVariantRG().getValue().toString()?"true":"false"));
-//		Radio getMontlyVariantRG = view.getMontlyVariantRG()!=null? view.getMontlyVariantRG().getValue():null;
-//              Boolean getDailyRepeatRB = view.getDailyRepeatRB()!=null? view.getDailyRepeatRB().getValue(): Boolean.FALSE;
-//              Boolean getOnceRepeatRB = view.getOnceRepeatRB().getValue();
-//              Boolean getYearlyRepeatRB = view.getYearlyRepeatRB().getValue();
-//                //properties.put("getYearlyRepeatRB", (view.getYearlyRepeatRB().getValue()?"true":"false"));
-//              Boolean getYearlySameDayOfWeekRB = view.getYearlySameDayOfWeekRB().getValue();
-
+        final Date beginEventIntervalDate = view.getEventDateStartField().getValue();
+        properties.put(Event.DATE, beginEventIntervalDate);
+        
+        final Date endEventIntervalDate = view.getEventDateEndField().getValue();
+        
         final Date startDate = view.getEventStartTimeField().getDateValue();
         if (startDate != null) {
-            startDate.setYear(date.getYear());
-            startDate.setMonth(date.getMonth());
-            startDate.setDate(date.getDate());
+            startDate.setYear(beginEventIntervalDate.getYear());
+            startDate.setMonth(beginEventIntervalDate.getMonth());
+            startDate.setDate(beginEventIntervalDate.getDate());
             properties.put(Event.START_TIME, startDate.getTime());
         } else {
             properties.put(Event.START_TIME, null);
@@ -357,9 +354,9 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
         final Date endDate = view.getEventEndTimeField().getDateValue();
         if (endDate != null) {
-            endDate.setYear(date.getYear());
-            endDate.setMonth(date.getMonth());
-            endDate.setDate(date.getDate());
+            endDate.setYear(beginEventIntervalDate.getYear());
+            endDate.setMonth(beginEventIntervalDate.getMonth());
+            endDate.setDate(beginEventIntervalDate.getDate());
             properties.put(Event.END_TIME, endDate.getTime());
         } else {
             properties.put(Event.END_TIME, null);
@@ -368,31 +365,107 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         properties.put(Event.DESCRIPTION, view.getEventDescriptionField().getValue());
 
         if (event == null) {
-            addPersonalEvent(properties);
+            Boolean isOnceRepeatEvent = view.getOnceRepeatRB().getValue();
+            if(!isOnceRepeatEvent.booleanValue()){
             //Here process properties and define repetable events dates
             /*take parameters from View 
- Start Date, get End date, period settings like Once, Daily, Monthly etc
- process values to prepare new properties for new event
- if needed calculate same day of week for Monthly or Yearly
- if needed compare if the Date exist in Month  (like 29 30 31 Febr etc)
- if needed define weekends
- after that in cycle add new events
+                    Start Date, get End beginEventIntervalDate, period settings like Once, Daily, Monthly etc
+                    process values to prepare new properties for new event
+                    if needed calculate same day of week for Monthly or Yearly
+                    if needed compare if the Date exist in Month  (like 29 30 31 Febr etc)
+                    if needed define weekends
+                    after that in cycle add new events
              */
 
-            Date theDate = (Date) properties.get(Event.DATE);
-//                      long theStartTime =  ((Long)properties.get(Event.START_TIME)).longValue();
-//                        long theEndTime = ((Long) properties.get(Event.END_TIME)).longValue();
-            Date dayAfter = new Date(theDate.getTime() + (24 * 60 * 60 * 1000));
-            long theStartTimeNext = startDate.getTime() + (24 * 60 * 60 * 1000);
-            long theEndTimeNext = endDate.getTime() + (24 * 60 * 60 * 1000);
-            //LocalDateTime.from(theDate.toInstant().atZone(ZoneId.of("UTC"))).plusDays(1);
-            properties.put(Event.DATE, dayAfter);
-            properties.put(Event.START_TIME, theStartTimeNext);
-            properties.put(Event.END_TIME, theEndTimeNext);
-            String newSummary = (String) properties.get(Event.SUMMARY);
-            newSummary += " (repeat + 1 day)";
-            properties.put(Event.SUMMARY, newSummary);
-            properties.put(Event.SUMMARY, properties.get(Event.SUMMARY) + " (This is repeated Daily event.)");
+            Boolean isAllDayEvent = view.getAllDayCheckbox().getValue();
+            Boolean isDailyRepeatEvent = view.getDailyRepeatRB() != null ? view.getDailyRepeatRB().getValue() : Boolean.FALSE;
+            Boolean isWeeklyRepeatEvent = view.getWeeklyRepeatRB().getValue();
+            Boolean isMonthlyRepeatEvent = view.getMonthlyRepeatRB().getValue();
+            Boolean isYearlyRepeatEvent = view.getYearlyRepeatRB().getValue();
+            
+            Boolean isMonthlySameDayOfWeek = view.getRadioMonthlySameDayOfWeek().getValue();
+            Boolean isMonthlySameDate = view.getRadioMonthlySameDate().getValue();
+            
+            Boolean isYearlySameDayOfWeek = view.getYearlySameDayOfWeekRB().getValue();
+            Boolean isYearlySameDate = view.getYearlySameDateRB().getValue();  
+           
+            if(isDailyRepeatEvent.booleanValue()){
+//                        Map<String, Serializable> dailyProperties = new HashMap<String, Serializable>();
+//                        dailyProperties.put(Event.CALENDAR_ID, calendarWrapper);
+//                        dailyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
+///
+                /*
+                1. find number of days between start and end
+                2. in cycle create new event
+                */
+                int daysInterval = 0;
+                                
+                long milisPerDay = 86400000; //24 * 60 * 60 * 1000)
+                long diff = endEventIntervalDate.getTime() - beginEventIntervalDate.getTime();
+
+                long daysDiff = diff / milisPerDay + 1;
+                daysInterval = (int) daysDiff;    
+//                java.util.Calendar  is not supported by GWT !!!
+//                java.util.Calendar calNextEventDate = java.util.Calendar.getInstance();
+//                calNextEventDate.setTime(beginEventIntervalDate);
+//                
+//                java.util.Calendar calNextEventStartTime = java.util.Calendar.getInstance();
+//                calNextEventStartTime.setTime(startDate);
+//             
+//                java.util.Calendar calNextEventEndTime = java.util.Calendar.getInstance();
+//                calNextEventEndTime.setTime(endDate);
+                
+                long calBeginNextEventDateLong = beginEventIntervalDate.getTime();
+                Date calBeginNextEventDate = beginEventIntervalDate;
+                long calNextEventStartTime = startDate.getTime();
+                long calNextEventEndTime = endDate.getTime();
+                
+                if(daysInterval>1){
+                    properties.put(Event.SUMMARY, (String)properties.get(Event.SUMMARY)+ " (Daily event 1 of " + daysInterval + ")");
+                    properties.put(Event.DESCRIPTION, (String)properties.get(Event.DESCRIPTION)+ " (Daily event 1 of " + daysInterval + ")");
+                }
+                
+                for (int i = 1; i < daysInterval; i++) {
+                   
+                    calBeginNextEventDateLong += milisPerDay;
+                    calBeginNextEventDate = new Date(calBeginNextEventDateLong);
+                    calNextEventStartTime += milisPerDay;
+                    calNextEventEndTime += milisPerDay;
+
+                    Map<String, Serializable> dailyProperties = new HashMap<String, Serializable>();
+                    dailyProperties.put(Event.CALENDAR_ID, calendarWrapper);
+                    dailyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
+
+                    dailyProperties.put(Event.DATE, calBeginNextEventDate);
+                    dailyProperties.put(Event.START_TIME, calNextEventStartTime);
+                    dailyProperties.put(Event.END_TIME, calNextEventEndTime);
+//                    java.util.Calendar  is not supported by GWT !!!                    
+//                    calNextEventDate.add(java.util.Calendar.DATE, 1);
+//                    nextEventDate = calNextEventDate.getTime();
+//                    
+//                    calNextEventStartTime.add(java.util.Calendar.DATE, 1);
+//                    nextEventStartTime = calNextEventStartTime.getTime();
+//                    
+//                    calNextEventEndTime.add(java.util.Calendar.DATE, 1);
+//                    nextEventEndTime = calNextEventEndTime.getTime();
+//                    
+// //Date beginEventIntervalDate = view.getEventDateStartField().getValue();
+//                    dailyProperties.put(Event.DATE, nextEventDate);
+//                    dailyProperties.put(Event.START_TIME, nextEventStartTime);
+//                    dailyProperties.put(Event.END_TIME, nextEventEndTime);
+
+                    String newSummary = eventSummary;
+                    String newDescription = eventDescription;
+                    newSummary += " (Daily event " + (i+1) + " of " + daysInterval + ")";
+                    newDescription += " (Daily event " + (i+1) + " of " + daysInterval + ")";
+                    dailyProperties.put(Event.SUMMARY, newSummary);
+                    dailyProperties.put(Event.DESCRIPTION, newDescription);
+
+                    addPersonalEvent(dailyProperties);  
+                }
+            }
+            }
+            //add first event
             addPersonalEvent(properties);
 //Here process properties and define repetable events dates
         } else {

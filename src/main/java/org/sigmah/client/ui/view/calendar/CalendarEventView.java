@@ -43,7 +43,6 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.CheckBoxGroup;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.google.inject.Singleton;
 import com.google.gwt.user.client.Window;
@@ -86,19 +85,19 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     // private CheckBoxGroup allDayCheckboxGr;
 
     private RadioGroup RepeatEventPeriodRG;
-    private boolean showAddEventView = true;
+    //private boolean showAddEventView = true;
 
-    public boolean isShowAddEventView() {
-        return showAddEventView;
-    }
+//    public boolean isShowAddEventView() {
+//        return showAddEventView;
+//    }
 
-    /**
-     * {@inheritDoc}
-     */
-    // @Override
-    public void setShowAddEventView(boolean showAddEventView) {
-        this.showAddEventView = showAddEventView;
-    }
+//    /**
+//     * {@inheritDoc}
+//     */
+//    // @Override
+//    public void setShowAddEventView(boolean showAddEventView) {
+//        this.showAddEventView = showAddEventView;
+//    }
 
     /**
      * Builds the view.
@@ -114,13 +113,13 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     public void initialize() {
         form = Forms.panel();
         //setShowAddEventView(Forms.panel().getTitle().equalsIgnoreCase(I18N.CONSTANTS.calendarAddEvent()));  
-        if (form.getTitle() != null) {
-            //   Window.alert( form.getTitle()+ " !!");
-            setShowAddEventView(Forms.panel().getTitle().equalsIgnoreCase(I18N.CONSTANTS.calendarAddEvent()));
-        } else {
-            Window.alert("setShowAddEventView(false)");
-            setShowAddEventView(false);
-        }
+//        if (form.getTitle() != null) {
+//            //   Window.alert( form.getTitle()+ " !!");
+//            setShowAddEventView(Forms.panel().getTitle().equalsIgnoreCase(I18N.CONSTANTS.calendarAddEvent()));
+//        } else {
+//            Window.alert("setShowAddEventView(false)");
+//            setShowAddEventView(false);
+//        }
         // Window.alert("111");
         //      if(isShowAddEventView()){
        // Window.alert(isShowAddEventView() + "isShowAddEventView 3");
@@ -134,7 +133,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         eventSummaryField = Forms.text(I18N.CONSTANTS.calendarEventObject(), true);
         eventSummaryField.setName(Event.SUMMARY);
 
-        eventDateStartField = Forms.date(I18N.CONSTANTS.calendarEventDate(), true);
+        eventDateStartField = Forms.date(I18N.CONSTANTS.calendarEventDate()+ " start", true);
         eventDateStartField.setName(Event.DATE);
         //eventDateStartField.setAllowBlank(true);
 
@@ -146,7 +145,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         eventEndTimeField.setName(Event.END_TIME);
         eventEndTimeField.setTriggerAction(TriggerAction.ALL);
 
-        eventDateEndField = Forms.date(I18N.CONSTANTS.calendarEventDate(), false);
+        eventDateEndField = Forms.date(I18N.CONSTANTS.calendarEventDate() + " end", false);
         eventDateEndField.setName(Event.DATE + "888end");
 
         eventDescriptionField = Forms.textarea(I18N.CONSTANTS.calendarEventDescription(), false);
@@ -226,7 +225,10 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
 
                 getPanelYearly().setVisible(!onceRepeatRB.getValue());
                 getPanelMonthly().setVisible(!onceRepeatRB.getValue());
-                eventDateStartField.setAllowBlank(true);
+                eventStartTimeField.setVisible(!dailyRepeatRB.getValue());
+                eventEndTimeField.setVisible(!dailyRepeatRB.getValue());
+//                eventDateStartField.setAllowBlank(false);
+//                eventDateStartField.setAllowBlank(true);
                 ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(" The Once event.");
                 Window.alert(getOnceRepeatRB().getBoxLabel() + " is checked  Listener OnChange on ONCE radio");
             }
@@ -244,9 +246,9 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
             @Override
             public void handleEvent(FieldEvent event) {
                 ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(" The Daily event.");
-                eventStartTimeField.setVisible(!dailyRepeatRB.getValue());
-                eventEndTimeField.setVisible(!dailyRepeatRB.getValue());
-                eventDateStartField.setAllowBlank(false);
+//                eventStartTimeField.setVisible(!dailyRepeatRB.getValue());
+//                eventEndTimeField.setVisible(!dailyRepeatRB.getValue());
+//                eventDateStartField.setAllowBlank(false);
                 getPanelYearly().setVisible(!dailyRepeatRB.getValue());
                 getPanelMonthly().setVisible(!dailyRepeatRB.getValue());
                 Window.alert(getDailyRepeatRB().getBoxLabel() + " is checked  Listener OnChange on DAILY radio");
