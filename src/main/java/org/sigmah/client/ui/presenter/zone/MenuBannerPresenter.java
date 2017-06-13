@@ -164,6 +164,7 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 
 			@Override
 			public void tabActivated(TabBar bar, Tab tab) {
+				Window.alert("Activating tab!");
 				eventBus.navigateRequest(requests.get(tab.getId()));
 			}
 
@@ -288,7 +289,7 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 			searchTabTitle = request.getData(RequestParameter.TITLE);
 			tab.setTitle(searchTabTitle);
 			Window.alert("Search Results title is " +  tab.getTitle());
-			//tab.getElement().setId(SEARCH_RESULTS_TAB_ID + Num_Search_Res_Tabs);
+			Window.alert(request.getPage().toString());
 		}
 		
 		// Adds the tab.

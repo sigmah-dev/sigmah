@@ -84,6 +84,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 	private final SearchServiceAsync searchService = GWT.create(SearchService.class);
 	private ArrayList<SearchResultsDTO> searchResults = new ArrayList<SearchResultsDTO>();
 	private Boolean dih_success;
+	String textToServer;
 
 	@Inject
 	public SearchPresenter(View view, Injector injector) {
@@ -132,8 +133,8 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 			public void onKeyUp(KeyUpEvent event) {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
 					
-					String searchText = view.getSearchText().getText();
-					if (searchText.length() > 0) {
+					textToServer = view.getSearchText().getText();
+					if (textToServer.length() > 0) {
 						/// Log.error("Title set to " +
 						// request.getData(RequestParameter.TITLE));
 						// Window.alert("Title set to " +
@@ -143,18 +144,18 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 						// Window.alert("Header set to " +
 						// request.getData(RequestParameter.HEADER));
 						search();
-						if (searchResults != null) {
-							final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
-							// request.addData(RequestParameter.HEADER,
-							// searchText);
-							request.addData(RequestParameter.TITLE, searchText);
-							request.addData(RequestParameter.CONTENT, searchResults);
-							request.addParameter(RequestParameter.ID, searchText.replaceAll("\\W", ""));
-							// request.addParameter(RequestParameter.HEADER,
-							// searchText);
-							request.addParameter(RequestParameter.TITLE, searchText);
-							eventBus.navigateRequest(request);
-						}
+//						if (searchResults != null) {
+//							final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
+//							// request.addData(RequestParameter.HEADER,
+//							// searchText);
+//							request.addData(RequestParameter.TITLE, searchText);
+//							request.addData(RequestParameter.CONTENT, searchResults);
+//							request.addParameter(RequestParameter.ID, searchText.replaceAll("\\W", ""));
+//							// request.addParameter(RequestParameter.HEADER,
+//							// searchText);
+//							request.addParameter(RequestParameter.TITLE, searchText);
+//							eventBus.navigateRequest(request);
+//						}
 					}
 				}
 			}
@@ -166,8 +167,8 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 			@Override
 			public void onClick(ClickEvent event) {
 				
-				String searchText = view.getSearchText().getText();
-				if (searchText.length() > 0) {
+				textToServer = view.getSearchText().getText();
+				if (textToServer.length() > 0) {
 					// Log.error("Title set to " +
 					// request.getData(RequestParameter.TITLE));
 					// Window.alert("Title set to " +
@@ -177,16 +178,16 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 					// Window.alert("Header set to " +
 					// request.getData(RequestParameter.HEADER));
 					search();
-					if (searchResults != null) {
-						final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
-						// request.addData(RequestParameter.HEADER, searchText);
-						request.addData(RequestParameter.TITLE, searchText);
-						request.addData(RequestParameter.CONTENT, searchResults);
-						request.addParameter(RequestParameter.ID, searchText.replaceAll("\\W", ""));
-						// request.addParameter(RequestParameter.HEADER,searchText);
-						request.addParameter(RequestParameter.TITLE, searchText);
-						eventBus.navigateRequest(request);
-					}
+//					if (searchResults != null) {
+//						final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
+//						// request.addData(RequestParameter.HEADER, searchText);
+//						request.addData(RequestParameter.TITLE, searchText);
+//						request.addData(RequestParameter.CONTENT, searchResults);
+//						request.addParameter(RequestParameter.ID, searchText.replaceAll("\\W", ""));
+//						// request.addParameter(RequestParameter.HEADER,searchText);
+//						request.addParameter(RequestParameter.TITLE, searchText);
+//						eventBus.navigateRequest(request);
+//					}
 
 				}
 			}
@@ -204,8 +205,6 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 	private void search() {
 
-		String textToServer = view.getSearchText().getText();
-
 		// Send the input to the server.
 		searchService.search(textToServer, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
 			public void onFailure(Throwable caught) {
@@ -218,6 +217,19 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 //				for (SearchResultsDTO doc : searchResults) {
 //					Window.alert(doc.getResult().toString());
 //				}
+				
+				if (searchResults != null) {
+					PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
+					// request.addData(RequestParameter.HEADER, searchText);
+					request.addData(RequestParameter.TITLE, textToServer );
+					request.addData(RequestParameter.CONTENT, searchResults);
+					request.addParameter(RequestParameter.ID, textToServer.replaceAll("\\W", ""));
+					// request.addParameter(RequestParameter.HEADER,searchText);
+					request.addParameter(RequestParameter.TITLE, textToServer);
+					eventBus.navigateRequest(request);
+				}
+				
+				
 			}
 		});
 	}

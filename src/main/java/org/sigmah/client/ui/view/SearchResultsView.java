@@ -25,7 +25,6 @@ import java.util.ArrayList;
  * #L%
  */
 
-
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
@@ -86,52 +85,56 @@ import com.google.inject.Inject;
 import com.google.inject.Provider;
 import com.google.inject.Singleton;
 
-import org.sigmah.client.ui.presenter.DashboardPresenter.ReminderOrMonitoredPointHandler;
-
-
 /**
  * Dashboard view.
  * 
  * @author Tom Miette (tmiette@ideia.fr)
  * @author Denis Colliot (dcolliot@ideia.fr)
  */
-@Singleton
+
 public class SearchResultsView extends AbstractView implements SearchResultsPresenter.View {
-	
+
 	private String searchText;
-	
-	private static final String EXPECTED_DATE_LABEL_STYLE = "points-date-exceeded";
 
 	private ContentPanel searchResultsPanel;
+
 	ListStore<SearchResultsDTO> searchResultsStore;
-	
+
 	private LayoutContainer centerContainer;
 
-//	private ContentPanel resultsShowPanel;
-//	private ListStore<SearchResultsDTO> remindersStore;
-   
-    
+	private ContentPanel resultsShowPanel;
+	// private ListStore<SearchResultsDTO> remindersStore;
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void initialize() {
-		//default
+		// default
 	}
 	
+	public ContentPanel getSearchResultsPanel() {
+		return searchResultsPanel;
+	}
+
+	public ListStore<SearchResultsDTO> getSearchResultsStore() {
+		return searchResultsStore;
+	}
+
+	public LayoutContainer getCenterContainer() {
+		return centerContainer;
+	}
+
 	public void initialize(String searchText) {
 		this.searchText = searchText;
 		centerContainer = Layouts.vBox();
-		Window.alert("Searchtext set to " + searchText );
+		Window.alert("Searchtext set to " + searchText);
 		createSearchResultsPanel();
-		addResultsPanel();
 		centerContainer.add(searchResultsPanel, Layouts.vBoxData(Margin.TOP));
-		//centerContainer.add(addResultsPanel(), Layouts.vBoxData(Margin.BOTTOM));
+		// centerContainer.add(addResultsPanel(),
+		// Layouts.vBoxData(Margin.BOTTOM));
 		add(centerContainer);
 	}
-
-
-
 
 	// -------------------------------------------------------------------------------------------
 	//
@@ -141,19 +144,19 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 
 	private void createSearchResultsPanel() {
 
-		//Window.alert("Searchtext is currently " + searchText );
-		setContentPanel("Search results for \"" + searchText + "\"", false, null, null );
+		// Window.alert("Searchtext is currently " + searchText );
+		setContentPanel("Search results for \"" + searchText + "\"", false, null, null);
 
 	}
-	
+
 	public void setContentPanel(String title, boolean collapsible, Layout layout, Scroll scroll, String... stylenames) {
-		
-//		searchResultsPanel = new VerticalPanel();
+
+		// searchResultsPanel = new VerticalPanel();
 
 		searchResultsPanel = new ContentPanel(layout != null ? layout : new FitLayout());
 
-		searchResultsPanel.setHeadingHtml(ClientUtils.isNotBlank(title) ? title : null);
-		searchResultsPanel.setHeaderVisible(ClientUtils.isNotBlank(title));
+		searchResultsPanel.setHeadingHtml(title);
+		searchResultsPanel.setHeaderVisible(true);
 		searchResultsPanel.setCollapsible(collapsible);
 
 		if (ClientUtils.isNotEmpty(stylenames)) {
@@ -170,56 +173,62 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		}
 
 	}
-	
+
 	private static List<ColumnConfig> createSearchResultsGridColumns() {
 
-//		final DateTimeFormat format = DateUtils.DATE_SHORT;
-//		final Date now = new Date();
+		// final DateTimeFormat format = DateUtils.DATE_SHORT;
+		// final Date now = new Date();
 
 		// Icon column.
-//		final ColumnConfig iconColumn = new ColumnConfig();
-//		iconColumn.setId("icon");
-//		iconColumn.setHeaderHtml("");
-//		iconColumn.setWidth(16);
-//		iconColumn.setResizable(false);
-//		iconColumn.setRenderer(new GridCellRenderer<ReminderDTO>() {
-//
-//			@Override
-//			public Object render(final ReminderDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-//					final ListStore<ReminderDTO> store, final Grid<ReminderDTO> grid) {
-//
-//				if (DateUtils.DAY_COMPARATOR.compare(now, model.getExpectedDate()) > 0) {
-//					return IconImageBundle.ICONS.overdueReminder().createImage();
-//				} else {
-//					return IconImageBundle.ICONS.openedReminder().createImage();
-//				}
-//			}
-//		});
+		// final ColumnConfig iconColumn = new ColumnConfig();
+		// iconColumn.setId("icon");
+		// iconColumn.setHeaderHtml("");
+		// iconColumn.setWidth(16);
+		// iconColumn.setResizable(false);
+		// iconColumn.setRenderer(new GridCellRenderer<ReminderDTO>() {
+		//
+		// @Override
+		// public Object render(final ReminderDTO model, final String property,
+		// final ColumnData config, final int rowIndex, final int colIndex,
+		// final ListStore<ReminderDTO> store, final Grid<ReminderDTO> grid) {
+		//
+		// if (DateUtils.DAY_COMPARATOR.compare(now, model.getExpectedDate()) >
+		// 0) {
+		// return IconImageBundle.ICONS.overdueReminder().createImage();
+		// } else {
+		// return IconImageBundle.ICONS.openedReminder().createImage();
+		// }
+		// }
+		// });
 
-        // Label column.
-        final ColumnConfig labelColumn = new ColumnConfig();
-        labelColumn.setId("label");
-        labelColumn.setHeaderHtml("Label");
-        labelColumn.setWidth(100);
-        
-        // Add link
-        labelColumn.setRenderer(new GridCellRenderer<SearchResultsDTO>() {
+		// Label column.
+		ColumnConfig labelColumn = new ColumnConfig();
+		labelColumn.setId("label");
+		labelColumn.setHeaderHtml("Label");
+		labelColumn.setWidth(100);
+
+		// Add link
+		labelColumn.setRenderer(new GridCellRenderer<SearchResultsDTO>() {
 
 			@Override
-			public Object render(final SearchResultsDTO model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<SearchResultsDTO> store,
-					Grid<SearchResultsDTO> grid) {
+			public Object render(SearchResultsDTO model, String property, ColumnData config, int rowIndex, int colIndex,
+					ListStore<SearchResultsDTO> store, Grid<SearchResultsDTO> grid) {
 
-				final com.google.gwt.user.client.ui.Label label = new com.google.gwt.user.client.ui.Label(model.getResult());
+				com.google.gwt.user.client.ui.Label label = new com.google.gwt.user.client.ui.Label(model.getResult());
+				Window.alert("Label is : " + model.getResult() + 
+						"\n property: " + property + "\nconfig: " + config.toString() + "\nrowindex: " + rowIndex + 
+						"\ncolIndex:" + colIndex );
 				label.addStyleName("hyperlink-label");
 				label.addClickHandler(new ClickHandler() {
 
 					@Override
 					public void onClick(ClickEvent event) {
-//                        handler.onLabelClickEvent(model.getProjectId());
+						// handler.onLabelClickEvent(model.getProjectId());
 					}
 				});
-                
-                //label.setTitle(I18N.CONSTANTS.projectLabelWithDots() + ' ' + model.getProjectCode() + " - " + model.getProjectName());
+
+				// label.setTitle(I18N.CONSTANTS.projectLabelWithDots() + ' ' +
+				// model.getProjectCode() + " - " + model.getProjectName());
 				label.setTitle(model.getResult());
 				return label;
 			}
@@ -227,70 +236,84 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		});
 
 		// Expected date column.
-//		final ColumnConfig expectedDateColumn = new ColumnConfig();
-//		expectedDateColumn.setId(ReminderDTO.EXPECTED_DATE);
-//		expectedDateColumn.setHeaderHtml(I18N.CONSTANTS.monitoredPointExpectedDate());
-//		expectedDateColumn.setWidth(60);
-//		expectedDateColumn.setDateTimeFormat(format);
-//		expectedDateColumn.setRenderer(new GridCellRenderer<ReminderDTO>() {
-//
-//			@Override
-//			public Object render(final ReminderDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-//					final ListStore<ReminderDTO> store, final Grid<ReminderDTO> grid) {
-//
-//				final Label label = new Label(format.format(model.getExpectedDate()));
-//				if (!model.isCompleted() && DateUtils.DAY_COMPARATOR.compare(now, model.getExpectedDate()) > 0) {
-//					label.addStyleName(EXPECTED_DATE_LABEL_STYLE);
-//				}
-//				return label;
-//			}
-//		});
+		// final ColumnConfig expectedDateColumn = new ColumnConfig();
+		// expectedDateColumn.setId(ReminderDTO.EXPECTED_DATE);
+		// expectedDateColumn.setHeaderHtml(I18N.CONSTANTS.monitoredPointExpectedDate());
+		// expectedDateColumn.setWidth(60);
+		// expectedDateColumn.setDateTimeFormat(format);
+		// expectedDateColumn.setRenderer(new GridCellRenderer<ReminderDTO>() {
+		//
+		// @Override
+		// public Object render(final ReminderDTO model, final String property,
+		// final ColumnData config, final int rowIndex, final int colIndex,
+		// final ListStore<ReminderDTO> store, final Grid<ReminderDTO> grid) {
+		//
+		// final Label label = new
+		// Label(format.format(model.getExpectedDate()));
+		// if (!model.isCompleted() && DateUtils.DAY_COMPARATOR.compare(now,
+		// model.getExpectedDate()) > 0) {
+		// label.addStyleName(EXPECTED_DATE_LABEL_STYLE);
+		// }
+		// return label;
+		// }
+		// });
 
 		return Arrays.asList(new ColumnConfig[] {
-				//iconColumn,
-				labelColumn,
-				//expectedDateColumn
+				// iconColumn,
+				labelColumn
+				// expectedDateColumn
 		});
 	}
-	
-	private void addResultsPanel() {
 
-		Grid<SearchResultsDTO> searchResultsGrid = new Grid<SearchResultsDTO>(searchResultsStore, new ColumnModel(createSearchResultsGridColumns()));
+	public void addResultsPanel() {
+
+		Grid<SearchResultsDTO> searchResultsGrid = new Grid<SearchResultsDTO>(searchResultsStore,
+				new ColumnModel(createSearchResultsGridColumns()));
 		searchResultsGrid.getView().setForceFit(true);
-		searchResultsGrid.setAutoExpandColumn("Label");
+		searchResultsGrid.setAutoExpandColumn("label");
 
-//		remindersPanel = Panels.content(I18N.CONSTANTS.reminderPoints());
-		//resultsShowPanel = setContentPanel("Search Results", false, null, null);
+		// remindersPanel = Panels.content(I18N.CONSTANTS.reminderPoints());
+		// resultsShowPanel = setContentPanel("Search Results", false, null,
+		// null);
 		searchResultsPanel.add(searchResultsGrid);
 
 	}
-	
-	public void addSearchData(Object searchData){
-		if( searchData != null ){
+
+	public void addSearchData(Object searchData) {
+		if (searchData != null) {
 			Window.alert("Received search results!: \n" + searchData.toString());
 			searchResultsStore = new ListStore<SearchResultsDTO>();
-			for (Object object : (ArrayList)searchData ) {
-			    searchResultsStore.add(object != null ? (SearchResultsDTO)object : null);
-			    //Window.alert("Received search result!: \n" + object.getResult());
+			for (Object object : (ArrayList) searchData) {
+				searchResultsStore.add(object != null ? (SearchResultsDTO) object : null);
+				// Window.alert("Received search result!: \n" +
+				// object.getResult());
 			}
-			
-//			for( SearchResultsDTO element: searchResultsStore ){
-//				
-//				Window.alert("Received search result!: \n" + element.getResult());
-//				
-////				Widget widget = new Widget();
-////				HorizontalPanel panel = new HorizontalPanel();
-////				HTML html = new HTML("---------------------------------------------------\n" + 
-////				element.getResult() + "---------------------------------------------------\n");
-////				panel.add(html);
-////				searchResultsPanel.add(panel);
-//			}
-		}else{
+
+			// for( SearchResultsDTO element: searchResultsStore ){
+			//
+			// Window.alert("Received search result!: \n" +
+			// element.getResult());
+			//
+			//// Widget widget = new Widget();
+			//// HorizontalPanel panel = new HorizontalPanel();
+			//// HTML html = new
+			// HTML("---------------------------------------------------\n" +
+			//// element.getResult() +
+			// "---------------------------------------------------\n");
+			//// panel.add(html);
+			//// searchResultsPanel.add(panel);
+			// }
+		} else {
 			Window.alert("Failed to receive search results!");
 		}
-		
+
+	}
+	
+	@Override
+	public void onViewRevealed() {
+		// Default implementation does nothing.
+		// Can be overridden by sub views implementations.
+		Window.alert("Overriding onViewReavealed!");
 	}
 
 }
-
-

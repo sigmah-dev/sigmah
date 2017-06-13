@@ -73,6 +73,7 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -105,12 +106,11 @@ import org.sigmah.shared.dto.profile.ExecutionDTO;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
 
 /**
- * Dashboard page presenter.
+ *Search Results page presenter.
  * 
- * @author Tom Miette (tmiette@ideia.fr)
- * @author Denis Colliot (dcolliot@ideia.fr)
+ * 
  */
-@Singleton
+
 public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsPresenter.View> {
     
 	/**
@@ -120,6 +120,8 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 	public interface View extends ViewInterface {
 		void initialize(String searchText);
 		void addSearchData(Object searchData);
+		void addResultsPanel();
+		ContentPanel getSearchResultsPanel();
 	}
 	
 	/**
@@ -131,8 +133,9 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 	 *          Injected client injector.
 	 */
 	@Inject
-	public SearchResultsPresenter(final View view, final Injector injector) {
+	public SearchResultsPresenter(View view, Injector injector) {
 		super(view, injector);
+		//injector.getPageManager().registerPage(this, isPopupView());
 	}
 
 	/**
@@ -151,6 +154,16 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		Window.alert("Title is " + title );
 		view.initialize(title);
 		view.addSearchData(request.getData(RequestParameter.CONTENT));
+		view.addResultsPanel();
+	}
+	
+	@Override
+	protected void onViewRevealed() {
+
+		// --
+		// Updates search results page
+		view.onViewRevealed();
+		view.getSearchResultsPanel().repaint();
 	}
 
 	
