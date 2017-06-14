@@ -428,7 +428,7 @@ public class ApplicationView implements ApplicationPresenter.View, HasPageMessag
 			viewport = new ApplicationViewport(headerWidgets);
 			contentPanel.add(viewport);
 		}
-
+		
 		viewport.add(presenterWidget.asWidget());
 		viewport.layout();
 	}

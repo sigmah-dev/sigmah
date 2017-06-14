@@ -118,7 +118,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 	 */
 	@ImplementedBy(SearchResultsView.class)
 	public interface View extends ViewInterface {
-		void initialize(String searchText);
+		void setSearchString(String searchText);
 		void addSearchData(Object searchData);
 		void addResultsPanel();
 		ContentPanel getSearchResultsPanel();
@@ -151,20 +151,10 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		// TODO Auto-generated method stub
 		//view.initialize() is default
 		String title = request.getData(RequestParameter.TITLE).toString();
-		Window.alert("Title is " + title );
-		view.initialize(title);
+		//Window.alert("Executing onPageRequest, title is " + title );
+		view.setSearchString(title);
 		view.addSearchData(request.getData(RequestParameter.CONTENT));
 		view.addResultsPanel();
 	}
-	
-	@Override
-	protected void onViewRevealed() {
 
-		// --
-		// Updates search results page
-		view.onViewRevealed();
-		view.getSearchResultsPanel().repaint();
-	}
-
-	
 }

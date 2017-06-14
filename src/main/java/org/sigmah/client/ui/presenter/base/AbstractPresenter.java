@@ -225,7 +225,7 @@ public abstract class AbstractPresenter<V extends ViewInterface> implements Pres
 
 			placeHolder.removeAll();
 			placeHolder.add(Widget.asWidgetOrNull(getView()));
-
+			
 			injector.getApplicationPresenter().showPresenter(parentPresenter);
 
 			placeHolder.layout();
