@@ -54,6 +54,8 @@ import org.sigmah.shared.dto.calendar.PersonalEventDTO;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
+//import com.extjs.gxt.ui.client.widget.Window;
+import com.google.gwt.user.client.Window;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
@@ -413,15 +415,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 long daysDiff = diffInMilis / milisPerDay + 1;
                 daysInterval = (int) daysDiff;    
 //                java.util.Calendar  is not supported by GWT !!!
-//                java.util.Calendar calNextEventDate = java.util.Calendar.getInstance();
-//                calNextEventDate.setTime(beginEventIntervalDate);
-//                
-//                java.util.Calendar calNextEventStartTime = java.util.Calendar.getInstance();
-//                calNextEventStartTime.setTime(startDate);
-//             
-//                java.util.Calendar calNextEventEndTime = java.util.Calendar.getInstance();
-//                calNextEventEndTime.setTime(endDate);
-                
+              
                 long calBeginNextEventDateLong = beginEventIntervalDate.getTime();
                 Date calBeginNextEventDate = beginEventIntervalDate;
                 long calNextEventStartTime = startDate.getTime();
@@ -446,20 +440,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                     dailyProperties.put(Event.DATE, calBeginNextEventDate);
                     dailyProperties.put(Event.START_TIME, calNextEventStartTime);
                     dailyProperties.put(Event.END_TIME, calNextEventEndTime);
-//                    java.util.Calendar  is not supported by GWT !!!                    
-//                    calNextEventDate.add(java.util.Calendar.DATE, 1);
-//                    nextEventDate = calNextEventDate.getTime();
-//                    
-//                    calNextEventStartTime.add(java.util.Calendar.DATE, 1);
-//                    nextEventStartTime = calNextEventStartTime.getTime();
-//                    
-//                    calNextEventEndTime.add(java.util.Calendar.DATE, 1);
-//                    nextEventEndTime = calNextEventEndTime.getTime();
-//                    
-// //Date beginEventIntervalDate = view.getEventDateStartField().getValue();
-//                    dailyProperties.put(Event.DATE, nextEventDate);
-//                    dailyProperties.put(Event.START_TIME, nextEventStartTime);
-//                    dailyProperties.put(Event.END_TIME, nextEventEndTime);
 
                     String newSummary = eventSummary;
                     String newDescription = eventDescription;
@@ -509,8 +489,10 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
                     addPersonalEvent(weeklyProperties); 
                 }
-            } /*else if (isMonthlyRepeatEvent){
+            } else if (isMonthlyRepeatEvent){
 
+Window.alert("MONTHLY : " + (isMonthlySameDayOfWeek?"Same Day of Week":"")+(isMonthlySameDate?"Sane DATE":""));
+        
                 int yearStart = beginEventIntervalDate.getYear();
                 int yearEnd = endEventIntervalDate.getYear();
                 int yearInterval = yearEnd - yearStart;
@@ -519,17 +501,17 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 int monthEnd = endEventIntervalDate.getMonth();
                 int monthInterval = 0;
                 if (yearInterval > 0){
-                    monthInterval = (yearInterval-1)*12 + (11-monthStart) + (monthEnd + 0);
+                    monthInterval = (yearInterval-1)*12 + (12-monthStart) + (monthEnd + 1);
                 }else{
-                    monthInterval = monthEnd - monthStart;
+                    monthInterval = monthEnd - monthStart + 1;
                 }
                 
                 
-                int dateStart = beginEventIntervalDate.getDate();
-                int dateEnd = endEventIntervalDate.getDate();
+                //int dateStart = beginEventIntervalDate.getDate();
+               // int dateEnd = endEventIntervalDate.getDate();
 
-                int dayStart = beginEventIntervalDate.getDay();//day of week
-                int dayEnd = endEventIntervalDate.getDay();
+                //int dayStart = beginEventIntervalDate.getDay();//day of week
+               // int dayEnd = endEventIntervalDate.getDay();
 
         
                 if(monthInterval>1){
@@ -537,27 +519,58 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                     properties.put(Event.DESCRIPTION, (String)properties.get(Event.DESCRIPTION)+ " (Monthly event 1 of " + monthInterval + ")");
                 }
                 
-                long calBeginNextEventDateLong = beginEventIntervalDate.getTime();
+                
+                //long calBeginNextEventDateLong = beginEventIntervalDate.getTime();
                 Date calBeginNextEventDate = beginEventIntervalDate;
-                long calNextEventStartTime = startDate.getTime();
-                long calNextEventEndTime = endDate.getTime();
+               // long calNextEventStartTime = startDate.getTime();
+               // long calNextEventEndTime = endDate.getTime();
                 
                 for (int i = 1; i < monthInterval; i++) {
-               //////////////////////////////////
-               if (calBeginNextEventDate.getMonth())
-                    calBeginNextEventDateLong += milisPerWeek;
-                    calBeginNextEventDate = new Date(calBeginNextEventDateLong);
-                    calNextEventStartTime += milisPerWeek;
-                    calNextEventEndTime += milisPerWeek;
+                    calBeginNextEventDate = getMonthlySameDate(beginEventIntervalDate, calBeginNextEventDate, i);
 
                     Map<String, Serializable> monthlyProperties = new HashMap<String, Serializable>();
                     monthlyProperties.put(Event.CALENDAR_ID, calendarWrapper);
                     monthlyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
 
                     monthlyProperties.put(Event.DATE, calBeginNextEventDate);
-                    monthlyProperties.put(Event.START_TIME, calNextEventStartTime);
-                    monthlyProperties.put(Event.END_TIME, calNextEventEndTime);
 
+//                    if (startDate != null) {
+//                        startDate.setYear(calBeginNextEventDate.getYear());
+//                        startDate.setDate(10);// to prevent month slip past (f.e. 31 jan -> 3 march instead of 29 febr)
+//                        startDate.setMonth(calBeginNextEventDate.getMonth());
+//                        startDate.setDate(calBeginNextEventDate.getDate());
+//                          monthlyProperties.put(Event.START_TIME, startDate.getTime());
+//                    } else {
+//                        monthlyProperties.put(Event.START_TIME, null);
+//                    }
+                    if (startDate != null) {
+                    calBeginNextEventDate.setHours(startDate.getHours());
+                    calBeginNextEventDate.setMinutes(startDate.getMinutes());
+                    monthlyProperties.put(Event.START_TIME, calBeginNextEventDate.getTime());
+                    }else{
+                        monthlyProperties.put(Event.START_TIME, null);
+                    }
+                
+
+                    if (endDate != null) {
+                    calBeginNextEventDate.setHours(endDate.getHours());
+                    calBeginNextEventDate.setMinutes(endDate.getMinutes());
+                    monthlyProperties.put(Event.END_TIME, calBeginNextEventDate.getTime());
+                    }else{
+                        monthlyProperties.put(Event.END_TIME, null);
+                    }
+                    
+                    
+//                    if (endDate != null) {
+//                        endDate.setYear(calBeginNextEventDate.getYear());
+//                        endDate.setDate(10);// to prevent month slip past (f.e. 31 jan -> 3 march instead of 29 febr)
+//                        endDate.setMonth(calBeginNextEventDate.getMonth());
+//                        endDate.setDate(calBeginNextEventDate.getDate());
+//                        monthlyProperties.put(Event.END_TIME, endDate.getTime());
+//                    } else {
+//                        monthlyProperties.put(Event.END_TIME, null);
+//                    }
+ 
                     String newSummary = eventSummary;
                     String newDescription = eventDescription;
                     newSummary += " (Monthly event " + (i + 1) + " of " + monthInterval + ")";
@@ -566,11 +579,10 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                     monthlyProperties.put(Event.DESCRIPTION, newDescription);
 
                     addPersonalEvent(monthlyProperties);
-               //////////////////////////////////
                 }
 
             }////////////ELSE IF MONTHLY
-            */
+            
             //add first event
             addPersonalEvent(properties);
         }
@@ -732,4 +744,105 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 .getYear() != event.getDtend().getYear());
     }
 
+    @SuppressWarnings({"deprecation"})
+    private Date getMonthlySameDayOfWeek(Date dateObject, int numberMonths) {
+        Date firstDate = new Date();
+        firstDate.setYear(dateObject.getYear());
+        firstDate.setMonth(dateObject.getMonth());
+        firstDate.setDate(dateObject.getDate());
+
+//	     int   n = dateObject.getDate();
+        dateObject.setDate(10);// to prevent month slip past (f.e. 31 jan -> 3 march instead of 29 febr)
+//	    dateObject.setMonth(dateObject.getMonth() + numberMonths);
+        dateObject.setMonth(dateObject.getMonth() + 1);
+        //dateObject.setDate(Math.min(n, getDaysInMonth(dateObject.getYear(), dateObject.getMonth())));
+
+        int daysInStartDate = getDaysInMonth(firstDate.getYear(), firstDate.getMonth());
+        //&& daysInStartDate  >= getDaysInMonth(dateObject.getYear(),dateObject.getMonth())
+        if (firstDate.getDate() == daysInStartDate) {//if last day of the month
+            dateObject.setDate(getDaysInMonth(dateObject.getYear(), dateObject.getMonth()));
+//	    	dateObject.setMonth(dateObject.getMonth() + 1);
+        } else {
+//	    	dateObject.setMonth(dateObject.getMonth() + 1);
+            //dateObject.setDate(dateObject.getDate());//??
+            dateObject.setDate(firstDate.getDate());//??
+
+        }
+
+        //Calculate same day of week
+        int dayOfFirst = firstDate.getDay();
+
+        int dayOfCurrent = dateObject.getDay();
+
+        Date newDate = new Date();
+        Date curDate = dateObject;
+        int mil = 86400000;
+
+        if (dayOfFirst > dayOfCurrent) {
+            newDate = new Date(curDate.getTime() + (dayOfFirst - dayOfCurrent) * mil);
+            if (newDate.getMonth() != curDate.getMonth()) { //>
+                newDate = new Date(curDate.getTime() - (7 - (dayOfFirst - dayOfCurrent)) * mil);
+            }
+
+        } else if (dayOfFirst < dayOfCurrent) {//<
+            newDate = new Date(curDate.getTime() - (dayOfCurrent - dayOfFirst) * mil);
+            if (newDate.getMonth() != curDate.getMonth()) {
+                newDate = new Date(curDate.getTime() + (7 - (dayOfFirst - dayOfCurrent)) * mil);
+            }
+        } else {
+            newDate = new Date(curDate.getTime());
+        }
+
+        Window.alert("Date start: Month:" + firstDate.getMonth() + " | " + firstDate.getDay() + "| Date:" + getDaysInMonth(firstDate.getYear(), firstDate.getMonth()) + "  ; " + firstDate.toLocaleString() + " : month " + numberMonths + ": Result " + " | " + dateObject.getDay() + " | " + dateObject.toLocaleString()
+                + " || " + newDate.getDay() + " || " + newDate.toLocaleString());
+
+        return newDate;
+    }
+
+    @SuppressWarnings({"deprecation", "empty-statement"})
+    public Date getMonthlySameDate(Date firstDate, Date dateObject, int numberMonths) {
+        Date nextDate = new Date();
+        Date newDate = new Date();
+        nextDate.setYear(dateObject.getYear());
+        nextDate.setMonth(dateObject.getMonth() + 1);
+        nextDate.setDate(1);// to prevent month slip past (f.e. 31 jan -> 3 march instead of 29 febr)
+        newDate.setYear(dateObject.getYear());
+
+        int daysInNextDate = getDaysInMonth(nextDate.getYear(), nextDate.getMonth());
+
+        if (firstDate.getDate() <= daysInNextDate) {//if last day of the month
+            newDate.setMonth(0);
+            newDate.setDate(firstDate.getDate());
+            newDate.setMonth(dateObject.getMonth() + 1);
+
+        } else {
+            newDate.setDate(daysInNextDate);
+            newDate.setMonth(dateObject.getMonth() + 1);
+
+        }
+
+        Window.alert("Date start: Month:" + firstDate.getMonth()
+                + " | " + firstDate.getDay() + "| Date:" + getDaysInMonth(nextDate.getYear(), nextDate.getMonth())
+                + "  ; " + firstDate.toLocaleString() + " : month " + numberMonths
+                + ": Result " + " | " + newDate.getDay() + " | " + newDate.toLocaleString());
+
+        return newDate;
+    }
+        
+    private int getDaysInMonth(int year, int month) {
+        int daysInMonth;
+
+        if (month == 3 || month == 5 || month == 8 || month == 10) {
+            return daysInMonth = 30;
+        } else if (month == 1) {
+
+            return daysInMonth = (isLeapYear(year)) ? 29 : 28;
+        } else {
+            return daysInMonth = 31;
+        }
+    }
+                
+    private boolean isLeapYear(int year) {
+        return (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0));
+    }
 }

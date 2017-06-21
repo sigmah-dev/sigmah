@@ -359,13 +359,14 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         radioMonthlySameDayOfWeek.setName("radioMonthlySameDayOfWeek");
         radioMonthlySameDayOfWeek.setValue(Boolean.FALSE);
         radioMonthlySameDayOfWeek.setOriginalValue(Boolean.FALSE);
+        radioMonthlySameDayOfWeek.setToolTip("Every next month at the same day of week. (with autochange to ...h)");
 
         //Radio radioMonthlySameDate = new Radio();
-        //Radio
         radioMonthlySameDate = Forms.radio("Same date");
         radioMonthlySameDate.setBoxLabel("Same date");
         radioMonthlySameDate.setName("radioMonthlySameDate");
         radioMonthlySameDate.setValue(Boolean.FALSE);
+        radioMonthlySameDate.setToolTip("Every next month at the same date. (with autochange to last day of month)");
 
         //montlyVariantRG= new RadioGroup();
         montlyVariantRG = Forms.radioGroup("Montly settings 999");
