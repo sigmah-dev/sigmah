@@ -720,8 +720,7 @@ Window.alert("MONTHLY : " + (isMonthlySameDayOfWeek?"Same DAY of a Week":"")
                 .getYear() != event.getDtend().getYear());
     }
 
-    @SuppressWarnings({"deprecation"})
-
+@SuppressWarnings({"deprecation"})
 private Date getMonthlySameDayOfWeek(Date dateObject, int numberMonths) {
         Date firstDate = new Date();
         firstDate.setYear(dateObject.getYear());

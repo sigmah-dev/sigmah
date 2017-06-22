@@ -353,7 +353,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         panelMonthly.setVisible(false);
 
         //Radio radioMonthlySameDayOfWeek = new Radio();
-        //Radio
+
         radioMonthlySameDayOfWeek = Forms.radio("Same day of week");
         //radioMonthlySameDayOfWeek.setBoxLabel("Same day of week");
         radioMonthlySameDayOfWeek.setName("radioMonthlySameDayOfWeek");
