@@ -24,7 +24,6 @@ import java.io.IOException;
  * #L%
  */
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,6 +40,7 @@ import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.search.SearchService;
 import org.sigmah.client.search.SearchServiceAsync;
+import org.sigmah.client.ui.presenter.DashboardPresenter.ReminderOrMonitoredPointHandler;
 import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
 import org.sigmah.client.ui.presenter.contact.dashboardlist.ContactsListWidget;
 import org.sigmah.client.ui.presenter.project.treegrid.ProjectsListWidget;
@@ -106,36 +106,47 @@ import org.sigmah.shared.dto.profile.ExecutionDTO;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
 
 /**
- *Search Results page presenter.
+ * Search Results page presenter.
  * 
  * 
  */
 
 public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsPresenter.View> {
-    
+
 	/**
 	 * View interface.
+	 * 
 	 */
+	
+	public static interface ReminderOrMonitoredPointHandler{
+        public void onLabelClickEvent(Integer projectId);
+    }
 	@ImplementedBy(SearchResultsView.class)
 	public interface View extends ViewInterface {
+		
+		void setReminderOrMonitoredPointHandler(ReminderOrMonitoredPointHandler handler);
+		
 		void setSearchString(String searchText);
+
 		void addSearchData(Object searchData);
+
 		void addResultsPanel();
+
 		ContentPanel getSearchResultsPanel();
 	}
-	
+
 	/**
 	 * Presenters's initialization.
 	 * 
 	 * @param view
-	 *          Presenter's view interface.
+	 *            Presenter's view interface.
 	 * @param injector
-	 *          Injected client injector.
+	 *            Injected client injector.
 	 */
 	@Inject
 	public SearchResultsPresenter(View view, Injector injector) {
 		super(view, injector);
-		//injector.getPageManager().registerPage(this, isPopupView());
+		// injector.getPageManager().registerPage(this, isPopupView());
 	}
 
 	/**
@@ -147,12 +158,23 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 	}
 
 	@Override
-	public void onPageRequest(PageRequest request){
+	public void onPageRequest(PageRequest request) {
 		// TODO Auto-generated method stub
-		//view.initialize() is default
+		// view.initialize() is default
 		String title = request.getData(RequestParameter.TITLE).toString();
-		//Window.alert("Executing onPageRequest, title is " + title );
+		// Window.alert("Executing onPageRequest, title is " + title );
 		view.setSearchString(title);
+		view.setReminderOrMonitoredPointHandler(new ReminderOrMonitoredPointHandler() {
+			@Override
+			public void onLabelClickEvent(Integer projectId) {
+//				Profiler.INSTANCE.startScenario(Scenario.OPEN_PROJECT);
+				Window.alert("Opening project " + projectId );
+//				eventBus.navigateRequest(Page.SEARCH_RESULTS.requestWith(RequestParameter.ID, projectId));
+				PageRequest request = new PageRequest(Page.PROJECT_DASHBOARD);
+				request.addParameter(RequestParameter.ID, projectId );
+				eventBus.navigateRequest(request);
+			}
+		});
 		view.addSearchData(request.getData(RequestParameter.CONTENT));
 		view.addResultsPanel();
 	}

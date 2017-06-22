@@ -18,6 +18,8 @@ import org.apache.solr.common.util.NamedList;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
@@ -113,6 +115,7 @@ public class SolrSearcher {
 		}
 
 		if (rsp != null) {
+			Gson gson = new Gson();
 			Iterator iter = rsp.getResults().iterator();
 			while (iter.hasNext()) {
 				SearchResultsDTO descriptor = new SearchResultsDTO();
@@ -124,7 +127,8 @@ public class SolrSearcher {
 				// descriptor.getResult().add(entry.getKey().toString() + " :::
 				// " + entry.getValue().toString());
 				// }
-				descriptor.setResult(resultDoc.toString());
+				//System.out.println(gson.toJson(resultDoc).toString());
+				descriptor.setResult(gson.toJson(resultDoc).toString());
 				searchList.add(descriptor);
 
 			}

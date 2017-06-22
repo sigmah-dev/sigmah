@@ -15,10 +15,7 @@ public class SearchResultsDTO extends AbstractModelDataEntityDTO<Integer> implem
 	private static final long serialVersionUID = -1227917435084017780L;
 	
 	private String result;
-	
-	public SearchResultsDTO(){
-		
-	}
+	private String DTOid;
 
 	public String getResult() {
 		return result;
@@ -32,6 +29,14 @@ public class SearchResultsDTO extends AbstractModelDataEntityDTO<Integer> implem
 	public String getEntityName() {
 		// TODO Auto-generated method stub
 		return null;
+	}
+
+	public String getDTOid() {
+		return DTOid;
+	}
+
+	public void setDTOid(String dTOid) {
+		DTOid = dTOid;
 	}
 	
 }
