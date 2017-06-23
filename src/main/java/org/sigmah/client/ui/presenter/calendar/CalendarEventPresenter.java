@@ -558,6 +558,70 @@ Window.alert("MONTHLY : " + (isMonthlySameDayOfWeek?"Same DAY of a Week":"")
                 }
 
             }////////////ELSE IF MONTHLY
+             else if (isYearlyRepeatEvent){
+
+Window.alert("YEARLY : " + (isYearlySameDayOfWeek?"Same DAY of a Week":"")
+        +(isYearlySameDate?"Same DATE":""));//temp for checker
+        
+                int yearStart = beginEventIntervalDate.getYear();
+                int yearEnd = endEventIntervalDate.getYear();
+                int yearInterval = yearEnd - yearStart + 1;
+                
+                int monthStart = beginEventIntervalDate.getMonth();//0 Jan 11 Dec
+                int monthEnd = endEventIntervalDate.getMonth();
+                int monthInterval = 0;
+                if (yearInterval > 0){
+                    monthInterval = (yearInterval-1)*12 + (12-monthStart) + (monthEnd + 1);
+                }else{
+                    monthInterval = monthEnd - monthStart + 1;
+                }
+
+                if(yearInterval>1){
+                    properties.put(Event.SUMMARY, (String)properties.get(Event.SUMMARY)+ " (Yearly event 1 of " + yearInterval + ")");
+                    properties.put(Event.DESCRIPTION, (String)properties.get(Event.DESCRIPTION)+ " (Yearly event 1 of " + yearInterval + ")");
+                }
+
+                Date calBeginNextEventDate = beginEventIntervalDate;
+                
+                for (int i = 1; i < yearInterval; i++) {
+                    //calBeginNextEventDate = getMonthlySameDate(beginEventIntervalDate, calBeginNextEventDate, i);
+                    //calBeginNextEventDate =  getMonthlySameDayOfWeek2(beginEventIntervalDate, calBeginNextEventDate, i, isMonthlySameDayOfWeek);
+                    calBeginNextEventDate =  getYearlySameDayOfWeek(beginEventIntervalDate, calBeginNextEventDate, i, isYearlySameDayOfWeek);                    
+
+                    Map<String, Serializable> yearlyProperties = new HashMap<String, Serializable>();
+                    yearlyProperties.put(Event.CALENDAR_ID, calendarWrapper);
+                    yearlyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
+
+                    yearlyProperties.put(Event.DATE, calBeginNextEventDate);
+
+                    if (startDate != null) {
+                    calBeginNextEventDate.setHours(startDate.getHours());
+                    calBeginNextEventDate.setMinutes(startDate.getMinutes());
+                    yearlyProperties.put(Event.START_TIME, calBeginNextEventDate.getTime());
+                    }else{
+                        yearlyProperties.put(Event.START_TIME, null);
+                    }
+                
+
+                    if (endDate != null) {
+                    calBeginNextEventDate.setHours(endDate.getHours());
+                    calBeginNextEventDate.setMinutes(endDate.getMinutes());
+                    yearlyProperties.put(Event.END_TIME, calBeginNextEventDate.getTime());
+                    }else{
+                        yearlyProperties.put(Event.END_TIME, null);
+                    }
+ 
+                    String newSummary = eventSummary;
+                    String newDescription = eventDescription;
+                    newSummary += " (Yearly event " + (i + 1) + " of " + monthInterval + ")";
+                    newDescription += " (Yearly "+(isYearlySameDayOfWeek?"same Day of a week ":"same Date ")+"event " + (i + 1) + " of " + yearInterval + ")";
+                    yearlyProperties.put(Event.SUMMARY, newSummary);
+                    yearlyProperties.put(Event.DESCRIPTION, newDescription);
+
+                    addPersonalEvent(yearlyProperties);
+                }
+
+            }
             
             //add first event
             addPersonalEvent(properties);
@@ -839,7 +903,8 @@ private Date getMonthlySameDayOfWeek(Date dateObject, int numberMonths) {
             } else if (dayOfFirst < dayOfCurrent) {//<
                 newDate2 = new Date(curDate.getTime() - (dayOfCurrent - dayOfFirst) * mil);
                 if (newDate2.getMonth() != curDate.getMonth()) {
-                    newDate2 = new Date(curDate.getTime() + (7 - (dayOfFirst - dayOfCurrent)) * mil);
+                    //newDate2 = new Date(curDate.getTime() + (7 - (dayOfFirst - dayOfCurrent)) * mil);
+                     newDate2 = new Date(curDate.getTime() + (7 - (dayOfCurrent - dayOfFirst)) * mil);
                 }
             } else {
                 newDate2 = new Date(curDate.getTime());
@@ -848,7 +913,7 @@ private Date getMonthlySameDayOfWeek(Date dateObject, int numberMonths) {
             //return newDate2;
             newDate = newDate2;
         }
-        Window.alert((isSameDayOfWeek ? "Same week DAY " : "Same DATE ") + "Date start: Month:" + firstDate.getMonth() + " | " + firstDate.getDay()
+        Window.alert("Monthly " + (isSameDayOfWeek ? "Same week DAY " : "Same DATE ") + "Date start: Month:" + firstDate.getMonth() + " | " + firstDate.getDay()
                 + "| " + getDaysInMonth(firstDate.getYear(), firstDate.getMonth())
                 + " | " + firstDate.toLocaleString() + " | i= " + numberMonths + " | RESULT  | Prev | "
                 + dateObject.getDay() + " | " + dateObject.toLocaleString()
@@ -857,6 +922,89 @@ private Date getMonthlySameDayOfWeek(Date dateObject, int numberMonths) {
         return newDate;
     }
     
+    @SuppressWarnings({"deprecation"})
+    public Date getYearlySameDayOfWeek(Date firstDate, Date dateObject, int numberMonths, boolean isSameDayOfWeek) {
+//	    Date firstDate = new Date();
+//	    firstDate.setYear(dateObject.getYear());;
+//	    firstDate.setMonth(dateObject.getMonth());
+//	    firstDate.setDate(dateObject.getDate());
+//	    
+
+        Date nextDate = new Date();
+        nextDate.setYear(dateObject.getYear());;
+        nextDate.setMonth(dateObject.getMonth());
+        nextDate.setDate(dateObject.getDate());
+
+        nextDate.setDate(1);
+//		nextDate.setMonth(dateObject.getMonth());
+        nextDate.setYear(dateObject.getYear() + 1);
+        
+        
+//        Date nextDate = new Date();
+//        Date newDate = new Date();
+//        nextDate.setYear(dateObject.getYear());
+//        nextDate.setMonth(dateObject.getMonth() + 1);
+//        nextDate.setDate(1);// to prevent month slip past (f.e. 31 jan -> 3 march instead of 29 febr)
+//        newDate.setYear(dateObject.getYear());
+
+        int daysInNextDate = getDaysInMonth(nextDate.getYear(), nextDate.getMonth());
+
+        if (firstDate.getDate() >= daysInNextDate) {//if last day of the month
+            //nextDate.setDate(firstDate.getDate());//??
+            //nextDate.setDate(getDaysInMonth(dateObject.getYear(),dateObject.getMonth()));
+            nextDate.setDate(daysInNextDate);
+
+        } else {
+            //nextDate.setDate(getDaysInMonth(dateObject.getYear(),dateObject.getMonth()));
+            //nextDate.setDate(firstDate.getDate());//??
+            nextDate.setDate(firstDate.getDate());
+
+        }
+
+        if (isSameDayOfWeek) {
+
+
+        //Calculate same day of week
+        int dayOfFirst = firstDate.getDay();
+
+        int dayOfCurrent = nextDate.getDay();
+
+        Date newDate = new Date();
+        Date curDate = nextDate;
+        int mil = 86400000;
+
+        if (dayOfFirst > dayOfCurrent) {
+            newDate = new Date(curDate.getTime() + (dayOfFirst - dayOfCurrent)
+                    * mil);
+            if (newDate.getMonth() != curDate.getMonth()) { // >
+                newDate = new Date(curDate.getTime()
+                        - (7 - (dayOfFirst - dayOfCurrent)) * mil);
+            }
+
+        } else if (dayOfFirst < dayOfCurrent) {// <
+            newDate = new Date(curDate.getTime() - (dayOfCurrent - dayOfFirst)
+                    * mil);
+            if (newDate.getMonth() != curDate.getMonth()) {
+                int dif = (dayOfFirst - dayOfCurrent) < 0 ? -(dayOfFirst - dayOfCurrent) : (dayOfFirst - dayOfCurrent);
+                newDate = new Date(curDate.getTime()
+                        + (7 - dif) * mil);
+            }
+        } else {
+            newDate = new Date(curDate.getTime());
+        }
+
+            nextDate = newDate;
+        }
+
+        Window.alert("Yearly " + (isSameDayOfWeek ? "Same week DAY " : "Same DATE ") + "Date start: Month:" + firstDate.getMonth() + " | " + firstDate.getDay()
+                + "| " + getDaysInMonth(firstDate.getYear(), firstDate.getMonth())
+                + " | " + firstDate.toLocaleString() + " | i= " + numberMonths + " | RESULT  | Prev | "
+                + dateObject.getDay() + " | " + dateObject.toLocaleString()
+                + " || New | " + nextDate.getDay() + " | " + nextDate.toLocaleString());//temp for checker
+
+        return nextDate;
+    }
+        
     private int getDaysInMonth(int year, int month) {
         int daysInMonth;
 
