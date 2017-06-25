@@ -322,93 +322,108 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         // Loading event on view (if edition).
         // --
         if (creation) {
-            // view.getForm().clearState();
-            // view.initialize();
-            //view.setShowAddEventView(true);
-            if (view.getRepeatEventPeriodRG() != null) {
-                view.getRepeatEventPeriodRG().enable();
-                view.getRepeatEventPeriodRG().show();
-                view.getOnceRepeatRB().setValue(true);
-                view.getPanelMonthly().hide();
-                view.getPanelYearly().hide();
-                //view.getMontlyVariantRG().show();
-                //view.getYearlyVariantRG().show();
-            }
-            view.getEventStartTimeField().show();
-            view.getEventEndTimeField().show();
+            prepareAddView();
+        } else {
+            prepareEditView();
+        }
+    }
 
-            view.getYearlyVariantRG().enable();
-            view.getMontlyVariantRG().enable();
-            view.getRepeatEventPeriodRG().enable();
-            view.getMonthlyRepeatRB().enable();
-            view.getYearlySameDateRB().enable();
-            view.getYearlySameDayOfWeekRB().enable();
-            view.getRadioMonthlySameDate().enable();
-            view.getRadioMonthlySameDayOfWeek().enable();
+    /**
+     *
+     */
+    private void prepareEditView() {
+        // EDIST EXISTING EVENT
+        //view.setShowAddEventView(false);
+        //view.getRepeatEventPeriodRG().hide();
+        //--->>               }
 
-            view.getYearlyVariantRG().show();
-            view.getMontlyVariantRG().show();
-            view.getRepeatEventPeriodRG().show();
-            view.getMonthlyRepeatRB().show();
-            view.getYearlySameDateRB().show();
-            view.getYearlySameDayOfWeekRB().show();
-            view.getRadioMonthlySameDate().show();
-            view.getRadioMonthlySameDayOfWeek().show();
-            // view.getRepeatEventPeriodRG().show();
-            // return;
-            //view.getRepeatEventPeriodRG().show();
-        } else {// EDIST EXISTING EVENT
-            //view.setShowAddEventView(false);
-            //view.getRepeatEventPeriodRG().hide();
-            //--->>               }
+        this.calendarWrapper = new CalendarWrapper(event.getParent());
+        //view.setShowAddEventView(false);
+        view.getForm().clearState();
+        view.getEventSummaryField().setValue(event.getSummary());
+        view.getEventDateStartField().setValue(event.getKey());
+        if (view.getRepeatEventPeriodRG() != null) {
+            view.getRepeatEventPeriodRG().clear();
+            view.getRepeatEventPeriodRG().clearInvalid();
+            view.getRepeatEventPeriodRG().clearState();
+            view.getRepeatEventPeriodRG().setSelectionRequired(false);
+            view.getRepeatEventPeriodRG().hide();
 
-            this.calendarWrapper = new CalendarWrapper(event.getParent());
-            //view.setShowAddEventView(false);
-            view.getForm().clearState();
-            view.getEventSummaryField().setValue(event.getSummary());
-            view.getEventDateStartField().setValue(event.getKey());
-            if (view.getRepeatEventPeriodRG() != null) {
-                view.getRepeatEventPeriodRG().clear();
-                view.getRepeatEventPeriodRG().clearInvalid();
-                view.getRepeatEventPeriodRG().clearState();
-                view.getRepeatEventPeriodRG().setSelectionRequired(false);
-                view.getRepeatEventPeriodRG().hide();
+            view.getPanelMonthly().hide();
+            view.getMontlyVariantRG().hide();
 
-                view.getPanelMonthly().hide();
-                view.getMontlyVariantRG().hide();
+            view.getPanelYearly().hide();
+            view.getYearlyVariantRG().hide();
 
-                view.getPanelYearly().hide();
-                view.getYearlyVariantRG().hide();
-
-                view.getYearlyVariantRG().hide();
-                view.getMontlyVariantRG().hide();
-                view.getRepeatEventPeriodRG().hide();
-                view.getMonthlyRepeatRB().hide();
-                view.getYearlySameDateRB().hide();
-                view.getYearlySameDayOfWeekRB().hide();
-                view.getRadioMonthlySameDate().hide();
-                view.getRadioMonthlySameDayOfWeek().hide();
-            }
+            view.getYearlyVariantRG().hide();
+            view.getMontlyVariantRG().hide();
+            view.getRepeatEventPeriodRG().hide();
+            view.getMonthlyRepeatRB().hide();
+            view.getYearlySameDateRB().hide();
+            view.getYearlySameDayOfWeekRB().hide();
+            view.getRadioMonthlySameDate().hide();
+            view.getRadioMonthlySameDayOfWeek().hide();
+        }
 //                if(creation) {
 //                    view.getIsAllDayCheckbox().hide();
 //                } else {// CREATE NEW EVENT NEW BELOW
 //                    view.getRepeatEventPeriodRG().hide();
 //                }
-            view.getEventStartTimeField().show();
-            view.getEventEndTimeField().show();
+        view.getEventStartTimeField().show();
+        view.getEventEndTimeField().show();
 
-            if (!isFullDayEvent(event)) {
+        if (!isFullDayEvent(event)) {
 
-                final Time startTime = event.getDtstart() != null ? view.getEventStartTimeField().findModel(event.getDtstart()) : null;
-                view.getEventStartTimeField().setValue(startTime);
+            final Time startTime = event.getDtstart() != null ? view.getEventStartTimeField().findModel(event.getDtstart()) : null;
+            view.getEventStartTimeField().setValue(startTime);
 
-                final Time endTime = event.getDtend() != null ? view.getEventEndTimeField().findModel(event.getDtend()) : null;
-                view.getEventEndTimeField().setValue(endTime);
+            final Time endTime = event.getDtend() != null ? view.getEventEndTimeField().findModel(event.getDtend()) : null;
+            view.getEventEndTimeField().setValue(endTime);
 
-            }
-
-            view.getEventDescriptionField().setValue(event.getDescription());
         }
+
+        view.getEventDescriptionField().setValue(event.getDescription());
+    }
+
+    /**
+     *
+     */
+    private void prepareAddView() {
+        // view.getForm().clearState();
+        // view.initialize();
+        //view.setShowAddEventView(true);
+        if (view.getRepeatEventPeriodRG() != null) {
+            view.getRepeatEventPeriodRG().enable();
+            view.getRepeatEventPeriodRG().show();
+            view.getOnceRepeatRB().setValue(true);
+            view.getPanelMonthly().hide();
+            view.getPanelYearly().hide();
+            //view.getMontlyVariantRG().show();
+            //view.getYearlyVariantRG().show();
+        }
+        view.getEventStartTimeField().show();
+        view.getEventEndTimeField().show();
+
+        view.getYearlyVariantRG().enable();
+        view.getMontlyVariantRG().enable();
+        view.getRepeatEventPeriodRG().enable();
+        view.getMonthlyRepeatRB().enable();
+        view.getYearlySameDateRB().enable();
+        view.getYearlySameDayOfWeekRB().enable();
+        view.getRadioMonthlySameDate().enable();
+        view.getRadioMonthlySameDayOfWeek().enable();
+
+        view.getYearlyVariantRG().show();
+        view.getMontlyVariantRG().show();
+        view.getRepeatEventPeriodRG().show();
+        view.getMonthlyRepeatRB().show();
+        view.getYearlySameDateRB().show();
+        view.getYearlySameDayOfWeekRB().show();
+        view.getRadioMonthlySameDate().show();
+        view.getRadioMonthlySameDayOfWeek().show();
+        // view.getRepeatEventPeriodRG().show();
+        // return;
+        //view.getRepeatEventPeriodRG().show();
     }
 
     // ---------------------------------------------------------------------------------------------------------------
@@ -614,7 +629,7 @@ if(isDailyRepeatEvent){
         long calBeginNextEventDateLong = beginEventIntervalDate.getTime();
         Date calBeginNextEventDate = beginEventIntervalDate;
        // 
-       long calNextEventStartTime ;//= startDate.getTime();
+      // long calNextEventStartTime ;//= startDate.getTime();
        // long calNextEventEndTime = endDate.getTime();
 
         if (daysInterval > 1) {
@@ -626,7 +641,7 @@ if(isDailyRepeatEvent){
 
             calBeginNextEventDateLong += milisPerDay;
             calBeginNextEventDate = new Date(calBeginNextEventDateLong);
-            calNextEventStartTime = calBeginNextEventDateLong;
+            long calNextEventStartTime = calBeginNextEventDateLong;
             // calNextEventStartTime += milisPerDay;
             // calNextEventEndTime += milisPerDay;
 
