@@ -505,8 +505,13 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      * @param eventDescription the value of eventDescription
      */
     private void processAddEvent(Date endEventIntervalDate, final Date beginEventIntervalDate, Date startDate, Date endDate, final Map<String, Serializable> properties, String eventSummary, String eventDescription) {
+        long milisPerDay = 86400000; //24 * 60 * 60 * 1000)
+        long milisPerWeek = 7 * milisPerDay; //7 days * (24hour * 60minutes * 60seconds * 1000mili seconds)
+        long diffInMilis = endEventIntervalDate.getTime() - beginEventIntervalDate.getTime();
+
         Boolean isOnceRepeatEvent = view.getOnceRepeatRB().getValue();
-        Window.alert("isOnceRepeatEvent=" + isOnceRepeatEvent);//temp for checker
+        // Window.alert("isOnceRepeatEvent=" + isOnceRepeatEvent);//temp for checker
+
         //if(!isOnceRepeatEvent.booleanValue()){
         //Here process properties and define repetable events dates
         /*take parameters from View
@@ -516,43 +521,36 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         if needed compare if the Date exist in Month  (like 29 30 31 Febr etc)
         if needed define weekends
         after that in cycle add new events
-        */
-        
+         */
 //            Boolean isAllDayEvent = view.getAllDayCheckbox().getValue();
 //
 //            Window.alert("isAllDayEvent=" + isAllDayEvent);//temp for checker
+        Boolean isDailyRepeatEvent = view.getDailyRepeatRB() != null ? view.getDailyRepeatRB().getValue() : Boolean.FALSE;
+        Boolean isWeeklyRepeatEvent = view.getWeeklyRepeatRB().getValue();
+        Boolean isMonthlyRepeatEvent = view.getMonthlyRepeatRB().getValue();
+        Boolean isYearlyRepeatEvent = view.getYearlyRepeatRB().getValue();
 
-Boolean isDailyRepeatEvent = view.getDailyRepeatRB() != null ? view.getDailyRepeatRB().getValue() : Boolean.FALSE;
-Boolean isWeeklyRepeatEvent = view.getWeeklyRepeatRB().getValue();
-Boolean isMonthlyRepeatEvent = view.getMonthlyRepeatRB().getValue();
-Boolean isYearlyRepeatEvent = view.getYearlyRepeatRB().getValue();
+        Boolean isMonthlySameDayOfWeek = view.getRadioMonthlySameDayOfWeek().getValue();
+        Boolean isMonthlySameDate = view.getRadioMonthlySameDate().getValue();
 
-Boolean isMonthlySameDayOfWeek = view.getRadioMonthlySameDayOfWeek().getValue();
-Boolean isMonthlySameDate = view.getRadioMonthlySameDate().getValue();
+        Boolean isYearlySameDayOfWeek = view.getYearlySameDayOfWeekRB().getValue();
+        Boolean isYearlySameDate = view.getYearlySameDateRB().getValue();
 
-Boolean isYearlySameDayOfWeek = view.getYearlySameDayOfWeekRB().getValue();
-Boolean isYearlySameDate = view.getYearlySameDateRB().getValue();
-
-Window.alert("isYearlySameDayOfWeek=" + isYearlySameDayOfWeek);//temp for checker
-Window.alert("isYearlySameDate=" + isYearlySameDate);//temp for checker
-
-long milisPerDay = 86400000; //24 * 60 * 60 * 1000)
-long milisPerWeek = 7 * milisPerDay; //7 days * (24hour * 60minutes * 60seconds * 1000mili seconds)
-long diffInMilis = endEventIntervalDate.getTime() - beginEventIntervalDate.getTime();
-
-if(isDailyRepeatEvent){
-    processDailyEvents(diffInMilis, milisPerDay, beginEventIntervalDate, startDate, endDate, properties, eventSummary, eventDescription);
-} else if (isWeeklyRepeatEvent){
-    processWeeklyEvents(diffInMilis, milisPerWeek, beginEventIntervalDate, startDate, endDate, properties, eventSummary, eventDescription);
-} else if (isMonthlyRepeatEvent){
-    Window.alert("MONTHLY : " + (isMonthlySameDayOfWeek?"Same DAY of a Week":"")
-            +(isMonthlySameDate?"Same DATE":""));//temp for checker
-    processMonthlyEvents(beginEventIntervalDate, endEventIntervalDate, properties, isMonthlySameDayOfWeek, startDate, endDate, eventSummary, eventDescription);
-} else if (isYearlyRepeatEvent) {
-    Window.alert("YEARLY : " + (isYearlySameDayOfWeek ? "Same DAY of a Week" : "")
-            + (isYearlySameDate ? "Same DATE" : ""));//temp for checker
-    processYearEvents(beginEventIntervalDate, endEventIntervalDate, properties, isYearlySameDayOfWeek, startDate, endDate, eventSummary, eventDescription);
-}
+//Window.alert("isYearlySameDayOfWeek=" + isYearlySameDayOfWeek);//temp for checker
+//Window.alert("isYearlySameDate=" + isYearlySameDate);//temp for checker
+        if (isDailyRepeatEvent) {
+            processDailyEvents(diffInMilis, milisPerDay, beginEventIntervalDate, startDate, endDate, properties, eventSummary, eventDescription);
+        } else if (isWeeklyRepeatEvent) {
+            processWeeklyEvents(diffInMilis, milisPerWeek, beginEventIntervalDate, startDate, endDate, properties, eventSummary, eventDescription);
+        } else if (isMonthlyRepeatEvent) {
+//    Window.alert("MONTHLY : " + (isMonthlySameDayOfWeek?"Same DAY of a Week":"")
+//            +(isMonthlySameDate?"Same DATE":""));//temp for checker
+            processMonthlyEvents(beginEventIntervalDate, endEventIntervalDate, properties, isMonthlySameDayOfWeek, startDate, endDate, eventSummary, eventDescription);
+        } else if (isYearlyRepeatEvent) {
+//    Window.alert("YEARLY : " + (isYearlySameDayOfWeek ? "Same DAY of a Week" : "")
+//            + (isYearlySameDate ? "Same DATE" : ""));//temp for checker
+            processYearEvents(beginEventIntervalDate, endEventIntervalDate, properties, isYearlySameDayOfWeek, startDate, endDate, eventSummary, eventDescription);
+        }
     }
 
     /**
@@ -641,7 +639,7 @@ if(isDailyRepeatEvent){
 
             calBeginNextEventDateLong += milisPerDay;
             calBeginNextEventDate = new Date(calBeginNextEventDateLong);
-            long calNextEventStartTime = calBeginNextEventDateLong;
+           // long calNextEventStartTime = calBeginNextEventDateLong;
             // calNextEventStartTime += milisPerDay;
             // calNextEventEndTime += milisPerDay;
 
@@ -684,7 +682,7 @@ if(isDailyRepeatEvent){
 
         long calBeginNextEventDateLong = beginEventIntervalDate.getTime();
         Date calBeginNextEventDate = beginEventIntervalDate;
-        long calNextEventStartTime;// = startDate.getTime();
+        //long calNextEventStartTime;// = startDate.getTime();
         //long calNextEventEndTime = endDate.getTime();
 
         if (weeksInterval > 1) {
@@ -697,7 +695,7 @@ if(isDailyRepeatEvent){
             calBeginNextEventDateLong += milisPerWeek;
             calBeginNextEventDate = new Date(calBeginNextEventDateLong);
 
-            calNextEventStartTime = calBeginNextEventDateLong;
+            //calNextEventStartTime = calBeginNextEventDateLong;
             // calNextEventStartTime += milisPerWeek;
             //calNextEventEndTime += milisPerWeek;
 
@@ -994,7 +992,7 @@ if(isDailyRepeatEvent){
                 && (event.getDtstart().getDate() != event.getDtend().getDate() || event.getDtstart().getMonth() != event.getDtend().getMonth() || event.getDtstart()
                 .getYear() != event.getDtend().getYear());
     }
-
+/*
     @SuppressWarnings({"deprecation"})
     private Date getMonthlySameDayOfWeek(Date dateObject, int numberMonths) {
         Date firstDate = new Date();
@@ -1021,7 +1019,7 @@ if(isDailyRepeatEvent){
 
         return newDate;
     }
-
+*/
     /**
      *
      * @param firstDate
@@ -1190,7 +1188,7 @@ if(isDailyRepeatEvent){
         }
         return newDate;
     }
-    
+/*    
         private Date getSameWeekDay22(Date firstDate, Date nextDate) {
         //Calculate same day of week
         int dayOfFirst = firstDate.getDay();
@@ -1243,7 +1241,15 @@ if(isDailyRepeatEvent){
         }
         return newDate;
     }
-        
+ */       
+
+    /**
+     *
+     * @param year the value of year
+     * @param month the value of month
+     * @return the int
+     */
+       
     private int getDaysInMonth(int year, int month) {
         int daysInMonth = 31;
 
