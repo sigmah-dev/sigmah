@@ -363,6 +363,9 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             view.getYearlySameDayOfWeekRB().hide();
             view.getRadioMonthlySameDate().hide();
             view.getRadioMonthlySameDayOfWeek().hide();
+            
+            view.getEventDateEndField().clear();
+            view.getEventDateEndField().hide();
         }
 //                if(creation) {
 //                    view.getIsAllDayCheckbox().hide();
@@ -424,6 +427,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         // view.getRepeatEventPeriodRG().show();
         // return;
         //view.getRepeatEventPeriodRG().show();
+        view.getEventDateEndField().show();
     }
 
     // ---------------------------------------------------------------------------------------------------------------
@@ -455,7 +459,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         properties.put(Event.DATE, beginEventIntervalDate);
         
         //final 
-        Date endEventIntervalDate = view.getEventDateEndField().getValue();
+        Date endEventIntervalDate = (view.getEventDateEndField()!=null?view.getEventDateEndField().getValue():null);
         if(endEventIntervalDate == null){
             endEventIntervalDate = beginEventIntervalDate;
         }
