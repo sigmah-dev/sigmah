@@ -509,7 +509,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         long milisPerWeek = 7 * milisPerDay; //7 days * (24hour * 60minutes * 60seconds * 1000mili seconds)
         long diffInMilis = endEventIntervalDate.getTime() - beginEventIntervalDate.getTime();
 
-        Boolean isOnceRepeatEvent = view.getOnceRepeatRB().getValue();
+        //Boolean isOnceRepeatEvent = view.getOnceRepeatRB().getValue();
         // Window.alert("isOnceRepeatEvent=" + isOnceRepeatEvent);//temp for checker
 
         //if(!isOnceRepeatEvent.booleanValue()){
@@ -531,10 +531,10 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         Boolean isYearlyRepeatEvent = view.getYearlyRepeatRB().getValue();
 
         Boolean isMonthlySameDayOfWeek = view.getRadioMonthlySameDayOfWeek().getValue();
-        Boolean isMonthlySameDate = view.getRadioMonthlySameDate().getValue();
+        //Boolean isMonthlySameDate = view.getRadioMonthlySameDate().getValue();
 
         Boolean isYearlySameDayOfWeek = view.getYearlySameDayOfWeekRB().getValue();
-        Boolean isYearlySameDate = view.getYearlySameDateRB().getValue();
+       // Boolean isYearlySameDate = view.getYearlySameDateRB().getValue();
 
 //Window.alert("isYearlySameDayOfWeek=" + isYearlySameDayOfWeek);//temp for checker
 //Window.alert("isYearlySameDate=" + isYearlySameDate);//temp for checker
@@ -585,7 +585,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
     private Date createEndDateProperty(Boolean isAllDayEvent, final Date beginEventIntervalDate, final Map<String, Serializable> properties) {
         //final
         Date endDate = null;//view.getEventEndTimeField().getDateValue();
-        if (isAllDayEvent) {
+        if (!isAllDayEvent) {
             //endDate = null;
             endDate = view.getEventEndTimeField().getDateValue();
         }
