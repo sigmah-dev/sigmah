@@ -38,7 +38,10 @@ import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.search.SearchService;
 import org.sigmah.client.search.SearchServiceAsync;
 import org.sigmah.client.ui.presenter.SearchResultsPresenter;
-import org.sigmah.client.ui.presenter.SearchResultsPresenter.ReminderOrMonitoredPointHandler;
+import org.sigmah.client.ui.presenter.SearchResultsPresenter.ContactResultsClickHandler;
+import org.sigmah.client.ui.presenter.SearchResultsPresenter.OrgUnitResultsClickHandler;
+import org.sigmah.client.ui.presenter.SearchResultsPresenter.ProjectResultsClickHandler;
+import org.sigmah.client.ui.presenter.SearchResultsPresenter.SearchResultsClickHandler;
 import org.sigmah.client.ui.presenter.contact.dashboardlist.ContactsListWidget;
 import org.sigmah.client.ui.presenter.project.treegrid.ProjectsListWidget;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
@@ -116,9 +119,9 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 
 	// private Map<String, Integer> ProjectIDTo
 
-	private static ReminderOrMonitoredPointHandler handler;
+	private static SearchResultsClickHandler handler;
 
-	final ReminderOrMonitoredPointHandler getReminderOrMonitoredPointHandler() {
+	final SearchResultsClickHandler getSearchResultsClickHandler() {
 		return handler;
 	}
 
@@ -126,7 +129,17 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void setReminderOrMonitoredPointHandler(final ReminderOrMonitoredPointHandler handler) {
+	public void setProjectClickHandler(final ProjectResultsClickHandler handler) {
+		this.handler = handler;
+	}
+
+	@Override
+	public void setContactClickHandler(final ContactResultsClickHandler handler) {
+		this.handler = handler;
+	}
+
+	@Override
+	public void setOrgUnitClickHandler(final OrgUnitResultsClickHandler handler) {
 		this.handler = handler;
 	}
 
@@ -210,19 +223,25 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 					int colIndex, ListStore<SearchResultsDTO> store, Grid<SearchResultsDTO> grid) {
 
 				Map<String, String> retMap = toMap(model.getResult());
+				
+				model.setDTOtype(retMap.get("doc_type").toString());
 
 				if (retMap.get("doc_type").toString().equals("PROJECT")) {
 					model.setDTOid(retMap.get("databaseid").toString());
-					Window.alert("Set the id = " + model.getDTOid());
+					// Window.alert("Set the id = " + model.getDTOid());
+				} else if (retMap.get("doc_type").toString().equals("CONTACT")) {
+					model.setDTOid(retMap.get("id_contact").toString());
+				} else if (retMap.get("doc_type").toString().equals("ORG_UNIT")) {
+					model.setDTOid(retMap.get("org_unit_id").toString());
 				}
-				
+
 				if (retMap != null) {
 					listMaps.add(retMap);
 					// Window.alert(retMap.entrySet().toString());
 				}
 
-				Window.alert(retMap.get("doc_type").toString());
-				Window.alert(retMap.get("doc_id").toString());
+				// Window.alert(retMap.get("doc_type").toString());
+				// Window.alert(retMap.get("doc_id").toString());
 
 				com.google.gwt.user.client.ui.Label label = new com.google.gwt.user.client.ui.Label(model.getResult());
 				// HTML h = new HTML();
@@ -235,8 +254,25 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 				label.addStyleName("hyperlink-label");
 				// label.setHeight("");
 				if (retMap.get("doc_type").toString().equals("PROJECT")) {
-					Window.alert("Adding project " + model.getDTOid());
-					Window.alert("Integer " + Integer.parseInt(model.getDTOid()));
+					// Window.alert("Adding project " + model.getDTOid());
+					// Window.alert("Integer " +
+					// Integer.parseInt(model.getDTOid()));
+					// final Integer project_id =
+					// Integer.parseInt(retMap.get("databaseid"));
+					label.addClickHandler(new ClickHandler() {
+
+						@Override
+						public void onClick(ClickEvent event) {
+							((ProjectResultsClickHandler) handler)
+									.onLabelClickEvent(Integer.parseInt(model.getDTOid()));
+						}
+					});
+				}
+
+				if (retMap.get("doc_type").toString().equals("CONTACT")) {
+					// Window.alert("Adding project " + model.getDTOid());
+					// Window.alert("Integer " +
+					// Integer.parseInt(model.getDTOid()));
 					// final Integer project_id =
 					// Integer.parseInt(retMap.get("databaseid"));
 					label.addClickHandler(new ClickHandler() {
@@ -244,9 +280,25 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 						@Override
 						public void onClick(ClickEvent event) {
 							// handler.onLabelClickEvent(project_id);
-							handler.onLabelClickEvent(Integer.parseInt(model.getDTOid()));
-							// PageRequest request = new PageRequest(Page.PROJECT_DASHBOARD);
-							//request.addParameter(RequestParameter.ID, Integer.parseInt(model.getDTOid()) );
+							((ContactResultsClickHandler) handler)
+									.onLabelClickEvent(Integer.parseInt(model.getDTOid()));
+						}
+					});
+				}
+
+				if (retMap.get("doc_type").toString().equals("ORG_UNIT")) {
+					// Window.alert("Adding project " + model.getDTOid());
+					// Window.alert("Integer " +
+					// Integer.parseInt(model.getDTOid()));
+					// final Integer project_id =
+					// Integer.parseInt(retMap.get("databaseid"));
+					label.addClickHandler(new ClickHandler() {
+
+						@Override
+						public void onClick(ClickEvent event) {
+							// handler.onLabelClickEvent(project_id);
+							((OrgUnitResultsClickHandler) handler)
+									.onLabelClickEvent(Integer.parseInt(model.getDTOid()));
 						}
 					});
 				}
@@ -258,6 +310,7 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		});
 
 		return Arrays.asList(new ColumnConfig[] { labelColumn });
+
 	}
 
 	public void addResultsPanel() {

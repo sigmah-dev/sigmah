@@ -40,7 +40,9 @@ import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.search.SearchService;
 import org.sigmah.client.search.SearchServiceAsync;
-import org.sigmah.client.ui.presenter.DashboardPresenter.ReminderOrMonitoredPointHandler;
+import org.sigmah.client.ui.presenter.SearchResultsPresenter.ContactResultsClickHandler;
+import org.sigmah.client.ui.presenter.SearchResultsPresenter.OrgUnitResultsClickHandler;
+import org.sigmah.client.ui.presenter.SearchResultsPresenter.ProjectResultsClickHandler;
 import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
 import org.sigmah.client.ui.presenter.contact.dashboardlist.ContactsListWidget;
 import org.sigmah.client.ui.presenter.project.treegrid.ProjectsListWidget;
@@ -118,13 +120,23 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 	 * 
 	 */
 	
-	public static interface ReminderOrMonitoredPointHandler{
+	public static interface SearchResultsClickHandler{
+    }
+	
+	public static interface ProjectResultsClickHandler extends SearchResultsClickHandler{
         public void onLabelClickEvent(Integer projectId);
     }
+	
+	public static interface ContactResultsClickHandler extends SearchResultsClickHandler{
+        public void onLabelClickEvent(Integer contactId);
+    }
+	
+	public static interface OrgUnitResultsClickHandler extends SearchResultsClickHandler{
+        public void onLabelClickEvent(Integer orgUnitId);
+    }
+	
 	@ImplementedBy(SearchResultsView.class)
 	public interface View extends ViewInterface {
-		
-		void setReminderOrMonitoredPointHandler(ReminderOrMonitoredPointHandler handler);
 		
 		void setSearchString(String searchText);
 
@@ -133,6 +145,12 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		void addResultsPanel();
 
 		ContentPanel getSearchResultsPanel();
+
+		void setProjectClickHandler(ProjectResultsClickHandler handler);
+
+		void setContactClickHandler(ContactResultsClickHandler handler);
+
+		void setOrgUnitClickHandler(OrgUnitResultsClickHandler handler);
 	}
 
 	/**
@@ -164,7 +182,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		String title = request.getData(RequestParameter.TITLE).toString();
 		// Window.alert("Executing onPageRequest, title is " + title );
 		view.setSearchString(title);
-		view.setReminderOrMonitoredPointHandler(new ReminderOrMonitoredPointHandler() {
+		view.setProjectClickHandler(new ProjectResultsClickHandler() {
 			@Override
 			public void onLabelClickEvent(Integer projectId) {
 //				Profiler.INSTANCE.startScenario(Scenario.OPEN_PROJECT);
@@ -172,6 +190,28 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 //				eventBus.navigateRequest(Page.SEARCH_RESULTS.requestWith(RequestParameter.ID, projectId));
 				PageRequest request = new PageRequest(Page.PROJECT_DASHBOARD);
 				request.addParameter(RequestParameter.ID, projectId );
+				eventBus.navigateRequest(request);
+			}
+		});
+		view.setContactClickHandler(new ContactResultsClickHandler() {
+			@Override
+			public void onLabelClickEvent(Integer contactId) {
+//				Profiler.INSTANCE.startScenario(Scenario.OPEN_PROJECT);
+				Window.alert("Opening Contact " + contactId );
+//				eventBus.navigateRequest(Page.SEARCH_RESULTS.requestWith(RequestParameter.ID, projectId));
+				PageRequest request = new PageRequest(Page.CONTACT_DASHBOARD);
+				request.addParameter(RequestParameter.ID, contactId );
+				eventBus.navigateRequest(request);
+			}
+		});
+		view.setOrgUnitClickHandler(new OrgUnitResultsClickHandler() {
+			@Override
+			public void onLabelClickEvent(Integer orgUnitId) {
+//				Profiler.INSTANCE.startScenario(Scenario.OPEN_PROJECT);
+				Window.alert("Opening OrgUnit " + orgUnitId );
+//				eventBus.navigateRequest(Page.SEARCH_RESULTS.requestWith(RequestParameter.ID, projectId));
+				PageRequest request = new PageRequest(Page.ORGUNIT_DASHBOARD);
+				request.addParameter(RequestParameter.ID, orgUnitId );
 				eventBus.navigateRequest(request);
 			}
 		});

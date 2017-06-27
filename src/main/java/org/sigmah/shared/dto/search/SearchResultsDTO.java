@@ -16,6 +16,7 @@ public class SearchResultsDTO extends AbstractModelDataEntityDTO<Integer> implem
 	
 	private String result;
 	private String DTOid;
+	private String DTOtype;
 
 	public String getResult() {
 		return result;
@@ -38,5 +39,14 @@ public class SearchResultsDTO extends AbstractModelDataEntityDTO<Integer> implem
 	public void setDTOid(String dTOid) {
 		DTOid = dTOid;
 	}
+
+	public String getDTOtype() {
+		return DTOtype;
+	}
+
+	public void setDTOtype(String dTOtype) {
+		DTOtype = dTOtype;
+	}
+	
 	
 }
