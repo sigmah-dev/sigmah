@@ -212,7 +212,7 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		// Label column.
 		ColumnConfig labelColumn = new ColumnConfig();
 		labelColumn.setId("label");
-		labelColumn.setHeaderHtml("Label");
+		labelColumn.setHeaderHtml("Sort");
 		labelColumn.setWidth(100);
 
 		// Add link
@@ -225,6 +225,9 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 				Map<String, String> retMap = toMap(model.getResult());
 				
 				model.setDTOtype(retMap.get("doc_type").toString());
+				HTML h = new HTML(getNiceText(retMap));
+				
+				//Window.alert(getNiceText(retMap));
 
 				if (retMap.get("doc_type").toString().equals("PROJECT")) {
 					model.setDTOid(retMap.get("databaseid").toString());
@@ -237,13 +240,9 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 
 				if (retMap != null) {
 					listMaps.add(retMap);
-					// Window.alert(retMap.entrySet().toString());
 				}
 
-				// Window.alert(retMap.get("doc_type").toString());
-				// Window.alert(retMap.get("doc_id").toString());
-
-				com.google.gwt.user.client.ui.Label label = new com.google.gwt.user.client.ui.Label(model.getResult());
+				com.google.gwt.user.client.ui.Label label = new com.google.gwt.user.client.ui.Label();
 				// HTML h = new HTML();
 				// h.setText(model.getResult());
 
@@ -254,12 +253,9 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 				label.addStyleName("hyperlink-label");
 				// label.setHeight("");
 				if (retMap.get("doc_type").toString().equals("PROJECT")) {
-					// Window.alert("Adding project " + model.getDTOid());
-					// Window.alert("Integer " +
-					// Integer.parseInt(model.getDTOid()));
-					// final Integer project_id =
-					// Integer.parseInt(retMap.get("databaseid"));
-					label.addClickHandler(new ClickHandler() {
+					
+					//label.setText(model.getResult());
+					h.addClickHandler(new ClickHandler() {
 
 						@Override
 						public void onClick(ClickEvent event) {
@@ -270,12 +266,8 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 				}
 
 				if (retMap.get("doc_type").toString().equals("CONTACT")) {
-					// Window.alert("Adding project " + model.getDTOid());
-					// Window.alert("Integer " +
-					// Integer.parseInt(model.getDTOid()));
-					// final Integer project_id =
-					// Integer.parseInt(retMap.get("databaseid"));
-					label.addClickHandler(new ClickHandler() {
+					//label.setText(model.getResult());
+					h.addClickHandler(new ClickHandler() {
 
 						@Override
 						public void onClick(ClickEvent event) {
@@ -287,12 +279,8 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 				}
 
 				if (retMap.get("doc_type").toString().equals("ORG_UNIT")) {
-					// Window.alert("Adding project " + model.getDTOid());
-					// Window.alert("Integer " +
-					// Integer.parseInt(model.getDTOid()));
-					// final Integer project_id =
-					// Integer.parseInt(retMap.get("databaseid"));
-					label.addClickHandler(new ClickHandler() {
+					//label.setText(model.getResult());
+					h.addClickHandler(new ClickHandler() {
 
 						@Override
 						public void onClick(ClickEvent event) {
@@ -303,14 +291,60 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 					});
 				}
 
-				label.setTitle(model.getResult());
-				return label;
+				//label.setTitle(model.getResult());
+				return h;
 			}
 
 		});
 
 		return Arrays.asList(new ColumnConfig[] { labelColumn });
 
+	}
+	
+	public String getNiceText( Map<String,String> resultsMap ){
+		String htmlBuilder = "";
+		if(resultsMap.get("doc_type").toString().equals("PROJECT")){
+			htmlBuilder+="<br><div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">" + 
+					"<h4>" + resultsMap.get("project_name") + " - " + resultsMap.get("project_fullname") + 
+					"</h4></div>";
+			htmlBuilder+="<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
+			htmlBuilder+="<p>";
+			htmlBuilder+="<br>Active Phase: " + resultsMap.get("phase_model_name");
+			htmlBuilder+="<br>Organisational Unit: " + resultsMap.get("project_org_unit_name") + " - " + resultsMap.get("project_org_unit_fullname");
+			htmlBuilder+="<br>Amendment Status: " + resultsMap.get("amendment_status");
+			htmlBuilder+="<br>Project Model: " + resultsMap.get("pmodel_name");
+			htmlBuilder+="</p></div><br>";
+		}
+		if(resultsMap.get("doc_type").toString().equals("ORG_UNIT")){
+			htmlBuilder+="<br><div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">" + 
+					"<h4>" + resultsMap.get("org_unit_name") + " - " + resultsMap.get("org_unit_fullname") +
+					"</h4></div>";
+			htmlBuilder+="<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
+			htmlBuilder+="<p>";
+			htmlBuilder+="<br>Model: " + resultsMap.get("org_unit_model_name");
+			htmlBuilder+="<br>" + "Country: " + resultsMap.get("org_unit_country_iso2") + " - " + resultsMap.get("org_unit_country_name");
+			htmlBuilder+="</p></div><br>";
+		}
+		if(resultsMap.get("doc_type").toString().equals("CONTACT")){
+			htmlBuilder+="<br><div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">" + 
+					"<h4>";
+			if( resultsMap.get("user_firstname") != null ){
+				htmlBuilder+= resultsMap.get("user_firstname") + " - " + resultsMap.get("user_name");
+				htmlBuilder+="</h4></div>";
+			}
+			else{
+				//for organization contacts
+				htmlBuilder+= resultsMap.get("organization_name");
+				htmlBuilder+="</h4></div><br>";
+				return htmlBuilder;
+			}
+			htmlBuilder+="<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
+			htmlBuilder+="<p>";
+			htmlBuilder+="<br>Email ID: " + resultsMap.get("user_email");
+			htmlBuilder+="<br>Locale: " + resultsMap.get("user_locale");
+			htmlBuilder+="</p></div><br>";
+		}
+		return htmlBuilder;
 	}
 
 	public void addResultsPanel() {
