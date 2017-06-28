@@ -11,8 +11,8 @@ import org.sigmah.shared.dto.search.SearchResultsDTO;
 public class SearchServiceImpl extends RemoteServiceServlet implements SearchService{
 	//implementation of the Search Methods
 	@Override
-	public ArrayList<SearchResultsDTO> search(String searchStr){
-		return SolrSearcher.getInstance().search(searchStr);
+	public ArrayList<SearchResultsDTO> search(String searchStr, String filter){
+		return SolrSearcher.getInstance().search(searchStr, filter);
 	}
 	
 	@Override

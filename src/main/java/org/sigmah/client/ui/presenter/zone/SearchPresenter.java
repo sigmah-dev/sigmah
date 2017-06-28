@@ -84,7 +84,9 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 	private final SearchServiceAsync searchService = GWT.create(SearchService.class);
 	private ArrayList<SearchResultsDTO> searchResults = new ArrayList<SearchResultsDTO>();
 	private Boolean dih_success;
-	String textToServer;
+	String textToServer = "default search text";
+	String filter = "All";
+	boolean firstsearch = true;
 
 	@Inject
 	public SearchPresenter(View view, Injector injector) {
@@ -107,7 +109,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		TextBox getSearchText();
 
 		Button getSearchButton();
-		
+
 		Button getIndexButton();
 
 	}
@@ -132,30 +134,12 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 			@Override
 			public void onKeyUp(KeyUpEvent event) {
 				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-					
+
 					textToServer = view.getSearchText().getText();
+					int sel_ind = view.getSearchOptions().getSelectedIndex();
+					filter = view.getSearchOptions().getValue(sel_ind);
 					if (textToServer.length() > 0) {
-						/// Log.error("Title set to " +
-						// request.getData(RequestParameter.TITLE));
-						// Window.alert("Title set to " +
-						// request.getData(RequestParameter.TITLE));
-						// Log.error("Header set to " +
-						// request.getData(RequestParameter.HEADER));
-						// Window.alert("Header set to " +
-						// request.getData(RequestParameter.HEADER));
 						search();
-//						if (searchResults != null) {
-//							final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
-//							// request.addData(RequestParameter.HEADER,
-//							// searchText);
-//							request.addData(RequestParameter.TITLE, searchText);
-//							request.addData(RequestParameter.CONTENT, searchResults);
-//							request.addParameter(RequestParameter.ID, searchText.replaceAll("\\W", ""));
-//							// request.addParameter(RequestParameter.HEADER,
-//							// searchText);
-//							request.addParameter(RequestParameter.TITLE, searchText);
-//							eventBus.navigateRequest(request);
-//						}
 					}
 				}
 			}
@@ -166,34 +150,17 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 			@Override
 			public void onClick(ClickEvent event) {
-				
-				textToServer = view.getSearchText().getText();
-				if (textToServer.length() > 0) {
-					// Log.error("Title set to " +
-					// request.getData(RequestParameter.TITLE));
-					// Window.alert("Title set to " +
-					// request.getData(RequestParameter.TITLE));
-					// Log.error("Header set to " +
-					// request.getData(RequestParameter.HEADER));
-					// Window.alert("Header set to " +
-					// request.getData(RequestParameter.HEADER));
-					search();
-//					if (searchResults != null) {
-//						final PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
-//						// request.addData(RequestParameter.HEADER, searchText);
-//						request.addData(RequestParameter.TITLE, searchText);
-//						request.addData(RequestParameter.CONTENT, searchResults);
-//						request.addParameter(RequestParameter.ID, searchText.replaceAll("\\W", ""));
-//						// request.addParameter(RequestParameter.HEADER,searchText);
-//						request.addParameter(RequestParameter.TITLE, searchText);
-//						eventBus.navigateRequest(request);
-//					}
 
+				textToServer = view.getSearchText().getText();
+				int sel_ind = view.getSearchOptions().getSelectedIndex();
+				filter = view.getSearchOptions().getValue(sel_ind);
+				if (textToServer.length() > 0) {
+					search();
 				}
 			}
 
 		});
-		
+
 		view.getIndexButton().addClickHandler(new ClickHandler() {
 			public void onClick(ClickEvent event) {
 				index();
@@ -201,39 +168,53 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		});
 
 	}
-	
 
 	private void search() {
 
+		if (firstsearch) {
+			// dummy call just to make connection
+			searchService.search(textToServer, filter, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
+				public void onFailure(Throwable caught) {
+					//Window.alert("Could not make connection!");
+					caught.printStackTrace();
+				}
+
+				public void onSuccess(ArrayList<SearchResultsDTO> result) {
+					//Window.alert("Excellent, solr connection up!");
+					firstsearch = false;
+				}
+			});
+		}
 		// Send the input to the server.
-		searchService.search(textToServer, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
+		//Window.alert("Filter is: " + filter);
+		searchService.search(textToServer, filter, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
 			public void onFailure(Throwable caught) {
 				Window.alert("Failure on the server side!");
+				firstsearch = true; //will try to set up a connnection again
 				caught.printStackTrace();
 			}
 
 			public void onSuccess(ArrayList<SearchResultsDTO> result) {
 				searchResults = result;
-//				for (SearchResultsDTO doc : searchResults) {
-//					Window.alert(doc.getResult().toString());
-//				}
-				
+				// for (SearchResultsDTO doc : searchResults) {
+				// Window.alert(doc.getResult().toString());
+				// }
+
 				if (searchResults != null) {
 					PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
 					// request.addData(RequestParameter.HEADER, searchText);
-					request.addData(RequestParameter.TITLE, textToServer );
+					request.addData(RequestParameter.TITLE, textToServer);
 					request.addData(RequestParameter.CONTENT, searchResults);
 					request.addParameter(RequestParameter.ID, textToServer.replaceAll("\\W", ""));
 					// request.addParameter(RequestParameter.HEADER,searchText);
 					request.addParameter(RequestParameter.TITLE, textToServer);
 					eventBus.navigateRequest(request);
 				}
-				
-				
+
 			}
 		});
 	}
-	
+
 	private void index() {
 		searchService.index(new AsyncCallback<Boolean>() {
 			public void onFailure(Throwable caught) {
@@ -243,9 +224,9 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 			public void onSuccess(Boolean result) {
 				dih_success = result;
-				if( dih_success == true ){
+				if (dih_success == true) {
 					Window.alert("Successfully completed Full Import!");
-				}else{
+				} else {
 					Window.alert("Failed to complete Full Import!");
 				}
 			}

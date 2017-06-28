@@ -91,13 +91,18 @@ public class SolrSearcher {
 
 	}
 
-	public ArrayList<SearchResultsDTO> search(String searchStr) {
+	public ArrayList<SearchResultsDTO> search(String searchStr, String filter) {
 
 		ArrayList<SearchResultsDTO> searchList = new ArrayList<SearchResultsDTO>();
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery(searchStr);
-
+		if( filter.equals("Projects"))
+			query.set("fq", "PROJECT");
+		else if(filter.equals("Contacts"))
+			query.set("fq", "CONTACT");
+		else if(filter.equals("OrgUnits"))
+			query.set("fq", "ORG_UNIT");
 		// query.addSortField("weight", ORDER.desc);
 
 		QueryResponse rsp = null;
