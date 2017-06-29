@@ -127,10 +127,12 @@ public class UpdateContactAsyncHandler implements AsyncCommandHandler<UpdateCont
           valueAsyncDAO.saveOrUpdate(command, valueEventWrapper, result, new AsyncCallback<VoidResult>() {
             @Override
             public void onFailure(Throwable caught) {
+              Log.warn("Error while updating local database for element '" + id + "'.", caught);
             }
 
             @Override
             public void onSuccess(VoidResult result) {
+              // no-op
             }
           });
         }
@@ -197,7 +199,8 @@ public class UpdateContactAsyncHandler implements AsyncCommandHandler<UpdateCont
 
     final int comparison = value.matchesConstraints(computationElement);
     if (comparison != 0) {
-      final String greaterOrLess, breachedConstraint;
+      final String greaterOrLess;
+      final String breachedConstraint;
       if (comparison < 0) {
         greaterOrLess = I18N.CONSTANTS.flexibleElementComputationLess();
         breachedConstraint = computationElement.getMinimumValue();

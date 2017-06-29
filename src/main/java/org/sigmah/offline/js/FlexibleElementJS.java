@@ -24,12 +24,10 @@ package org.sigmah.offline.js;
 
 import com.google.gwt.core.client.JavaScriptObject;
 
-import org.sigmah.server.domain.element.ContactListElement;
 import org.sigmah.shared.dto.element.CheckboxElementDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.element.ContactListElementDTO;
 import org.sigmah.shared.dto.element.CoreVersionElementDTO;
-import org.sigmah.shared.dto.element.DefaultContactFlexibleElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;

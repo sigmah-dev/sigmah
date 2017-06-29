@@ -27,8 +27,6 @@ import org.sigmah.shared.command.UpdateContact;
 import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.dto.element.event.ValueEventWrapper;
 
-import com.allen_sauer.gwt.log.client.Log;
-
 /**
  *
  * @author Raphaël Calabro (rcalabro@ideia.fr)
@@ -54,14 +52,15 @@ public final class ValueJSIdentifierFactory {
 	}
 	
 	public static String toIdentifier(String elementEntityName, int containerId, int elementId, Integer amendmentId, Integer iterationId) {
-		if(iterationId == null) {
-			iterationId = -1;
+		Integer iteration = iterationId;
+		if(iteration == null) {
+			iteration = -1;
 		}
 		return new StringBuilder()
 				.append(elementEntityName).append('-')
 				.append(containerId).append('-')
 				.append(elementId).append('-')
 				.append(amendmentId).append('-')
-				.append(iterationId).toString();
+				.append(iteration).toString();
 	}
 }

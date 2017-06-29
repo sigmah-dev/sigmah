@@ -5,17 +5,13 @@ package org.sigmah.offline.handler;
 
 import org.sigmah.client.dispatch.DispatchListener;
 import org.sigmah.offline.dao.ContactAsyncDAO;
-import org.sigmah.offline.dao.ProjectAsyncDAO;
 import org.sigmah.offline.dispatch.AsyncCommandHandler;
 import org.sigmah.offline.dispatch.OfflineExecutionContext;
 import org.sigmah.shared.command.GetContact;
-import org.sigmah.shared.command.GetProject;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.dispatch.NotCachedException;
 import org.sigmah.shared.dto.ContactDTO;
-import org.sigmah.shared.dto.ProjectDTO;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;

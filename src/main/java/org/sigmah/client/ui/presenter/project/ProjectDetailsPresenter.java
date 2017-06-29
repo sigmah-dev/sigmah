@@ -88,7 +88,6 @@ import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
 import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Grid;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
@@ -96,7 +95,6 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.sigmah.client.computation.ComputationTriggerManager;
 import org.sigmah.client.util.profiler.Profiler;
-import org.sigmah.client.util.profiler.Scenario;
 import org.sigmah.offline.status.ApplicationState;
 
 /**
@@ -385,104 +383,7 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 			// Remote call to ask for this element value.
 			GetValue getValue = new GetValue(project.getId(), elementDTO.getId(), elementDTO.getEntityName(),
 					amendmentId, iterationId);
-			queue.add(getValue, new CommandResultHandler<ValueResult>() {
-
-				@Override
-				public void onCommandFailure(final Throwable throwable) {
-					if (Log.isErrorEnabled()) {
-						Log.error("Error, element value not loaded.", throwable);
-					}
-					throw new RuntimeException(throwable);
-				}
-
-				@Override
-				public void onCommandSuccess(final ValueResult valueResult) {
-
-					if (Log.isDebugEnabled()) {
-						Log.debug("Element value(s) object : " + valueResult);
-					}
-
-					// --
-					// -- ELEMENT COMPONENT
-					// --
-
-					// Configures the flexible element for the current
-					// application state before generating its component.
-					elementDTO.setService(dispatch);
-					elementDTO.setAuthenticationProvider(injector.getAuthenticationProvider());
-					elementDTO.setEventBus(eventBus);
-					elementDTO.setCache(injector.getClientCache());
-					elementDTO.setCurrentContainerDTO(project);
-					elementDTO.setTransfertManager(injector.getTransfertManager());
-					elementDTO.assignValue(valueResult);
-					elementDTO.setTabPanel(tabPanel);
-
-					final ProjectPresenter projectPresenter = injector.getProjectPresenter();
-
-					// Generates element component (with the value).
-					elementDTO.init();
-					Component elementComponent = getElementComponent(elementDTO, valueResult);
-
-					if (elementDTO.getAmendable() && projectPresenter.projectIsLocked()
-							&& projectPresenter.canUnlockProject()
-							&& !ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
-						projectPresenter.addUnlockProjectPopup(elementDTO, elementComponent,
-								new LoadingMask(view.getMainPanel()));
-					}
-
-					// Component width.
-					final FormData formData;
-					if (elementDTO.getPreferredWidth() == 0) {
-						formData = new FormData("100%");
-					} else {
-						formData = new FormData(elementDTO.getPreferredWidth(), -1);
-					}
-
-					if (elementComponent != null) {
-						fieldSet.add(elementComponent, formData);
-					}
-					fieldSet.layout();
-
-					// --
-					// -- ELEMENT HANDLERS
-					// --
-
-					// Adds a value change handler if this element is a
-					// dependency of a ComputationElementDTO.
-					computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
-
-					// Adds a value change handler to this element.
-					elementDTO.addValueHandler(new ValueHandler() {
-
-						@Override
-						public void onValueChange(final ValueEvent event) {
-
-							if (tabPanel != null) {
-								event.setIterationId(tabPanel.getCurrentIterationId());
-							}
-
-							// TODO: Find linked computation fields if any and
-							// recompute the value.
-
-							// Stores the change to be saved later.
-							valueChanges.add(event);
-
-							if (!getParentPresenter().getCurrentDisplayedPhase().isEnded()) {
-
-								// Enables the save action.
-								view.getSaveButton().enable();
-							}
-						}
-					});
-
-					if (elementDTO.getValidates() && tabItem != null) {
-						tabItem.setElementValidity(elementDTO, elementDTO.isCorrectRequiredValue(valueResult));
-						tabItem.refreshTitle();
-						elementDTO.addRequiredValueHandler(new RequiredValueHandlerImpl(elementDTO));
-					}
-				}
-
-			}, new LoadingMask(view.getMainPanel()));
+			queue.add(getValue, new ElementCommandResultHandler(elementDTO, fieldSet, project, tabPanel, tabItem), new LoadingMask(view.getMainPanel()));
 		}
 
 		fieldSet.setCollapsible(false);
@@ -491,6 +392,120 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 		fieldSet.setHeadingHtml("");
 
 		return fieldSet;
+	}
+
+	private class ElementCommandResultHandler extends CommandResultHandler<ValueResult> {
+
+		private FlexibleElementDTO elementDTO;
+		private FieldSet fieldSet;
+		private ProjectDTO project;
+		private IterableGroupPanel tabPanel;
+		private IterableGroupItem tabItem;
+
+		public ElementCommandResultHandler(FlexibleElementDTO elementDTO, FieldSet fieldSet, ProjectDTO project,
+																			 IterableGroupPanel tabPanel, IterableGroupItem tabItem) {
+			this.elementDTO = elementDTO;
+			this.fieldSet = fieldSet;
+			this.project = project;
+			this.tabPanel = tabPanel;
+			this.tabItem = tabItem;
+		}
+
+		@Override
+		public void onCommandFailure(final Throwable throwable) {
+			if (Log.isErrorEnabled()) {
+				Log.error("Error, element value not loaded.", throwable);
+			}
+			throw new RuntimeException(throwable);
+		}
+
+		@Override
+		public void onCommandSuccess(final ValueResult valueResult) {
+
+			if (Log.isDebugEnabled()) {
+				Log.debug("Element value(s) object : " + valueResult);
+			}
+
+			// --
+			// -- ELEMENT COMPONENT
+			// --
+
+			// Configures the flexible element for the current
+			// application state before generating its component.
+			elementDTO.setService(dispatch);
+			elementDTO.setAuthenticationProvider(injector.getAuthenticationProvider());
+			elementDTO.setEventBus(eventBus);
+			elementDTO.setCache(injector.getClientCache());
+			elementDTO.setCurrentContainerDTO(project);
+			elementDTO.setTransfertManager(injector.getTransfertManager());
+			elementDTO.assignValue(valueResult);
+			elementDTO.setTabPanel(tabPanel);
+
+			final ProjectPresenter projectPresenter = injector.getProjectPresenter();
+
+			// Generates element component (with the value).
+			elementDTO.init();
+			Component elementComponent = getElementComponent(elementDTO, valueResult);
+
+			if (elementDTO.getAmendable() && projectPresenter.projectIsLocked()
+					&& projectPresenter.canUnlockProject()
+					&& !ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MODIFY_LOCKED_CONTENT)) {
+				projectPresenter.addUnlockProjectPopup(elementDTO, elementComponent,
+						new LoadingMask(view.getMainPanel()));
+			}
+
+			// Component width.
+			final FormData formData;
+			if (elementDTO.getPreferredWidth() == 0) {
+				formData = new FormData("100%");
+			} else {
+				formData = new FormData(elementDTO.getPreferredWidth(), -1);
+			}
+
+			if (elementComponent != null) {
+				fieldSet.add(elementComponent, formData);
+			}
+			fieldSet.layout();
+
+			// --
+			// -- ELEMENT HANDLERS
+			// --
+
+			// Adds a value change handler if this element is a
+			// dependency of a ComputationElementDTO.
+			computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
+
+			// Adds a value change handler to this element.
+			elementDTO.addValueHandler(new ValueHandler() {
+
+				@Override
+				public void onValueChange(final ValueEvent event) {
+
+					if (tabPanel != null) {
+						event.setIterationId(tabPanel.getCurrentIterationId());
+					}
+
+					// TODO: Find linked computation fields if any and
+					// recompute the value.
+
+					// Stores the change to be saved later.
+					valueChanges.add(event);
+
+					if (!getParentPresenter().getCurrentDisplayedPhase().isEnded()) {
+
+						// Enables the save action.
+						view.getSaveButton().enable();
+					}
+				}
+			});
+
+			if (elementDTO.getValidates() && tabItem != null) {
+				tabItem.setElementValidity(elementDTO, elementDTO.isCorrectRequiredValue(valueResult));
+				tabItem.refreshTitle();
+				elementDTO.addRequiredValueHandler(new RequiredValueHandlerImpl(elementDTO));
+			}
+		}
+
 	}
 
 	/**
@@ -726,62 +741,7 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 			break;
 
 		case BUDGET:
-			try {
-
-				final BudgetElementDTO budgetElement = (BudgetElementDTO) element;
-				final Map<Integer, String> values = ValueResultUtils.splitMapElements(value);
-
-				double plannedBudget = 0.0;
-				double spendBudget = 0.0;
-				double receivedBudget = 0.0;
-
-				for (final BudgetSubFieldDTO bf : budgetElement.getBudgetSubFields()) {
-					if (bf.getType() != null) {
-						switch (bf.getType()) {
-						case PLANNED:
-							plannedBudget = Double.parseDouble(values.get(bf.getId()));
-							break;
-						case RECEIVED:
-							receivedBudget = Double.parseDouble(values.get(bf.getId()));
-							break;
-						case SPENT:
-							spendBudget = Double.parseDouble(values.get(bf.getId()));
-							break;
-						default:
-							break;
-
-						}
-
-					}
-				}
-
-				currentProjectDTO.setPlannedBudget(plannedBudget);
-				currentProjectDTO.setSpendBudget(spendBudget);
-				currentProjectDTO.setReceivedBudget(receivedBudget);
-
-				/**
-				 * Update funding projects - Reflect to funded project in
-				 * funding projects currentProjectDTO |-- getFunding() →
-				 * <ProjectFundingDTO> // list of funding projects |--
-				 * getPercentage() // no updates from here |-- getFunded() →
-				 * ProjectDTOLight // funded project details light
-				 * |--getPlannedBudget() // update budget details
-				 */
-				final List<ProjectFundingDTO> fundingProjects = currentProjectDTO.getFunding();
-				if (ClientUtils.isNotEmpty(fundingProjects)) {
-					for (final ProjectFundingDTO projectFundingDTO : fundingProjects) {
-						final ProjectDTO fundedProject = projectFundingDTO.getFunded();
-						if (fundedProject != null && fundedProject.getId().equals(currentProjectDTO.getId())) {
-							fundedProject.setPlannedBudget(plannedBudget);
-							fundedProject.setSpendBudget(spendBudget);
-							fundedProject.setReceivedBudget(receivedBudget);
-						}
-					}
-				}
-
-			} catch (Exception e) {
-				// nothing, invalid budget.
-			}
+			updateCurrentProjectBudget(element, value, currentProjectDTO);
 			break;
 
 		case COUNTRY:
@@ -829,6 +789,65 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 		}
 
 		return currentProjectDTO;
+	}
+
+	private void updateCurrentProjectBudget(final DefaultFlexibleElementDTO element, final String value, final ProjectDTO currentProjectDTO) {
+		try {
+
+			final BudgetElementDTO budgetElement = (BudgetElementDTO) element;
+			final Map<Integer, String> values = ValueResultUtils.splitMapElements(value);
+
+			double plannedBudget = 0.0;
+			double spendBudget = 0.0;
+			double receivedBudget = 0.0;
+
+			for (final BudgetSubFieldDTO bf : budgetElement.getBudgetSubFields()) {
+				if (bf.getType() != null) {
+					switch (bf.getType()) {
+						case PLANNED:
+							plannedBudget = Double.parseDouble(values.get(bf.getId()));
+							break;
+						case RECEIVED:
+							receivedBudget = Double.parseDouble(values.get(bf.getId()));
+							break;
+						case SPENT:
+							spendBudget = Double.parseDouble(values.get(bf.getId()));
+							break;
+						default:
+							break;
+
+					}
+
+				}
+			}
+
+			currentProjectDTO.setPlannedBudget(plannedBudget);
+			currentProjectDTO.setSpendBudget(spendBudget);
+			currentProjectDTO.setReceivedBudget(receivedBudget);
+
+			/**
+			 * Update funding projects - Reflect to funded project in
+			 * funding projects currentProjectDTO |-- getFunding() →
+			 * <ProjectFundingDTO> // list of funding projects |--
+			 * getPercentage() // no updates from here |-- getFunded() →
+			 * ProjectDTOLight // funded project details light
+			 * |--getPlannedBudget() // update budget details
+			 */
+			final List<ProjectFundingDTO> fundingProjects = currentProjectDTO.getFunding();
+			if (ClientUtils.isNotEmpty(fundingProjects)) {
+				for (final ProjectFundingDTO projectFundingDTO : fundingProjects) {
+					final ProjectDTO fundedProject = projectFundingDTO.getFunded();
+					if (fundedProject != null && fundedProject.getId().equals(currentProjectDTO.getId())) {
+						fundedProject.setPlannedBudget(plannedBudget);
+						fundedProject.setSpendBudget(spendBudget);
+						fundedProject.setReceivedBudget(receivedBudget);
+					}
+				}
+			}
+
+		} catch (Exception e) {
+			// nothing, invalid budget.
+		}
 	}
 
 }

@@ -5,7 +5,6 @@ package org.sigmah.offline.handler;
 
 import org.sigmah.client.dispatch.DispatchListener;
 import org.sigmah.offline.dao.ContactAsyncDAO;
-import org.sigmah.offline.dao.OrgUnitAsyncDAO;
 import org.sigmah.offline.dispatch.AsyncCommandHandler;
 import org.sigmah.offline.dispatch.OfflineExecutionContext;
 import org.sigmah.shared.command.GetContacts;
@@ -13,7 +12,6 @@ import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.ContactDTO;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -55,7 +53,7 @@ public class GetContactsAsyncHandler implements AsyncCommandHandler<GetContacts,
 	private final ContactAsyncDAO contactAsyncDAO;
 	
 	@Inject
-	public GetContactsAsyncHandler(Authentication authentication, ContactAsyncDAO contactAsyncDAO, OrgUnitAsyncDAO orgUnitAsyncDAO) {
+	public GetContactsAsyncHandler(ContactAsyncDAO contactAsyncDAO) {
 		this.contactAsyncDAO = contactAsyncDAO;
 	}
 

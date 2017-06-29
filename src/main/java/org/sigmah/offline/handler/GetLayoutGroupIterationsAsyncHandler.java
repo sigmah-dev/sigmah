@@ -27,15 +27,11 @@ import com.google.inject.Inject;
 import com.google.inject.Singleton;
 import org.sigmah.client.dispatch.DispatchListener;
 import org.sigmah.offline.dao.LayoutGroupIterationsAsyncDAO;
-import org.sigmah.offline.dao.ProjectAsyncDAO;
 import org.sigmah.offline.dispatch.AsyncCommandHandler;
 import org.sigmah.offline.dispatch.OfflineExecutionContext;
 import org.sigmah.shared.command.GetLayoutGroupIterations;
-import org.sigmah.shared.command.GetProject;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.command.result.ListResult;
-import org.sigmah.shared.dispatch.NotCachedException;
-import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupIterationDTO;
 
 @Singleton

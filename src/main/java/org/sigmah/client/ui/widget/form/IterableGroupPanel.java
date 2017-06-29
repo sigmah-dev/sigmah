@@ -25,7 +25,6 @@ package org.sigmah.client.ui.widget.form;
 import java.util.HashMap;
 import java.util.Map;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.core.El;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -33,7 +32,6 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.event.TabPanelEvent;
 import com.extjs.gxt.ui.client.widget.ComponentHelper;
-import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.Layout;
 import com.extjs.gxt.ui.client.widget.TabItem;
 import com.extjs.gxt.ui.client.widget.TabPanel;
@@ -42,7 +40,6 @@ import com.extjs.gxt.ui.client.widget.form.*;
 import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-import com.google.gwt.user.client.ui.FlowPanel;
 
 import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.dispatch.DispatchQueue;

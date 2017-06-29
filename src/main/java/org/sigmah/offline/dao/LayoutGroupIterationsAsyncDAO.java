@@ -25,9 +25,6 @@ import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 
 import java.util.ArrayList;
-import java.util.List;
-
-import javax.persistence.TypedQuery;
 
 import org.sigmah.offline.indexeddb.Cursor;
 import org.sigmah.offline.indexeddb.ObjectStore;
@@ -36,10 +33,7 @@ import org.sigmah.offline.indexeddb.Store;
 import org.sigmah.offline.indexeddb.Transaction;
 import org.sigmah.offline.js.LayoutGroupIterationJS;
 import org.sigmah.offline.js.UpdateLayoutGroupIterationsJS;
-import org.sigmah.offline.js.Values;
 import org.sigmah.offline.sync.SuccessCallback;
-import org.sigmah.server.domain.IterationHistoryToken;
-import org.sigmah.server.domain.layout.LayoutGroupIteration;
 import org.sigmah.shared.command.UpdateLayoutGroupIterations;
 import org.sigmah.shared.command.UpdateLayoutGroupIterations.IterationChange;
 import org.sigmah.shared.command.result.ListResult;
@@ -84,10 +78,8 @@ public class LayoutGroupIterationsAsyncDAO extends AbstractUserDatabaseAsyncDAO<
 						final Cursor cursor = result.getResult();
 						if (cursor != null) {
 							final LayoutGroupIterationJS js = cursor.getValue();
-							if(js != null) {
-								if(amendmentId == -1 && containerId == js.getContainerId() && layoutGroupId == js.getLayoutGroup().getId()) {
-									ts.add(js.toDTO());									
-								}
+							if(js != null && amendmentId == -1 && containerId == js.getContainerId() && layoutGroupId == js.getLayoutGroup().getId()) {
+							  ts.add(js.toDTO());
 							}
 							cursor.next();
 						} else {

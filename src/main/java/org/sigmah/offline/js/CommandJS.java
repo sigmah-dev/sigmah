@@ -1,7 +1,5 @@
 package org.sigmah.offline.js;
 
-import com.allen_sauer.gwt.log.client.Log;
-
 /*
  * #%L
  * Sigmah
