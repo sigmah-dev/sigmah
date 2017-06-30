@@ -45,6 +45,9 @@ import org.sigmah.client.ui.presenter.SearchResultsPresenter.SearchResultsClickH
 import org.sigmah.client.ui.presenter.contact.dashboardlist.ContactsListWidget;
 import org.sigmah.client.ui.presenter.project.treegrid.ProjectsListWidget;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
+import org.sigmah.client.ui.res.icon.dashboard.funding.FundingIconProvider;
+import org.sigmah.client.ui.res.icon.dashboard.funding.FundingIconProvider.IconSize;
+import org.sigmah.client.ui.res.icon.orgunit.OrgUnitImageBundle;
 import org.sigmah.client.ui.view.base.AbstractView;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.Forms;
@@ -54,6 +57,8 @@ import org.sigmah.client.ui.widget.orgunit.OrgUnitTreeGrid;
 import org.sigmah.client.ui.widget.panel.Panels;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.DateUtils;
+import org.sigmah.shared.dto.referential.ContactModelType;
+import org.sigmah.shared.dto.referential.ProjectModelType;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
@@ -304,9 +309,16 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	public String getNiceText( Map<String,String> resultsMap ){
 		String htmlBuilder = "";
 		if(resultsMap.get("doc_type").toString().equals("PROJECT")){
-			htmlBuilder+="<br><div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">" + 
-					"<h4>" + resultsMap.get("project_name") + " - " + resultsMap.get("project_fullname") + 
-					"</h4></div>";
+			
+			ProjectModelType pmt = null;
+			if( resultsMap.get("type_pmodel").equals("FUNDING"))pmt = ProjectModelType.FUNDING;
+			if( resultsMap.get("type_pmodel").equals("NGO"))pmt = ProjectModelType.NGO;
+			if( resultsMap.get("type_pmodel").equals("LOCAL_PARTNER"))pmt = ProjectModelType.LOCAL_PARTNER;
+			
+			htmlBuilder+="<br><div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">" 
+					+ "<div>" + getProjectLogo(pmt).getHTML() + "</div><br>" 
+					+"<h4>" + resultsMap.get("project_name") + " - " + resultsMap.get("project_fullname") 
+					+ "</h4></div>";
 			htmlBuilder+="<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
 			htmlBuilder+="<p>";
 			htmlBuilder+="<br>Active Phase: " + resultsMap.get("phase_model_name");
@@ -316,8 +328,9 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 			htmlBuilder+="</p></div><br>";
 		}
 		if(resultsMap.get("doc_type").toString().equals("ORG_UNIT")){
-			htmlBuilder+="<br><div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">" + 
-					"<h4>" + resultsMap.get("org_unit_name") + " - " + resultsMap.get("org_unit_fullname") +
+			htmlBuilder+="<br><div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">" 
+					+ "<div>" + getOrgUnitLogo().getHTML() + "</div><br>" 
+					+"<h4>" + resultsMap.get("org_unit_name") + " - " + resultsMap.get("org_unit_fullname") +
 					"</h4></div>";
 			htmlBuilder+="<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
 			htmlBuilder+="<p>";
@@ -326,8 +339,14 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 			htmlBuilder+="</p></div><br>";
 		}
 		if(resultsMap.get("doc_type").toString().equals("CONTACT")){
-			htmlBuilder+="<br><div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">" + 
-					"<h4>";
+			
+			ContactModelType cmt = null;
+			if( resultsMap.get("contact_model_type").equals("INDIVIDUAL"))cmt = ContactModelType.INDIVIDUAL;
+			if( resultsMap.get("contact_model_type").equals("ORGANIZATION"))cmt = ContactModelType.ORGANIZATION;
+			
+			htmlBuilder+="<br><div style = \"padding-left:6px\">" + getContactLogo(cmt) + "</div><br>"; 
+			htmlBuilder+="<div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">"
+					+ "<h4>"; 
 			if( resultsMap.get("user_firstname") != null ){
 				htmlBuilder+= resultsMap.get("user_firstname") + " - " + resultsMap.get("user_name");
 				htmlBuilder+="</h4></div>";
@@ -402,6 +421,35 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 			Window.alert("Failed to receive search results!");
 		}
 
+	}
+	
+	public AbstractImagePrototype getProjectLogo(final ProjectModelType projectType) {
+
+		final AbstractImagePrototype projectIcon = FundingIconProvider.getProjectTypeIcon(projectType, IconSize.MEDIUM);
+		return projectIcon;
+	}
+	
+	public HTML getContactLogo(ContactModelType type){
+		HTML avatar = new HTML();
+	    avatar.setWidth(36 + "px");
+	    avatar.setHeight(36 + "px");
+	    avatar.setStyleName("contact-card-avatar");
+	    avatar.getElement().getStyle().clearBackgroundImage();
+	    switch (type) {
+	      case INDIVIDUAL:
+	        avatar.addStyleName("contact-card-avatar-individual");
+	        break;
+	      case ORGANIZATION:
+	        avatar.addStyleName("contact-card-avatar-organization");
+	        break;
+	      default:
+	        throw new IllegalStateException("Unknown ContactModelType : " + type);
+	    }
+	    return avatar;
+	}
+	
+	public AbstractImagePrototype getOrgUnitLogo(){
+		return OrgUnitImageBundle.ICONS.orgUnitSmall();
 	}
 
 }

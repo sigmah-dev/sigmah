@@ -182,7 +182,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		view.setProjectClickHandler(new ProjectResultsClickHandler() {
 			@Override
 			public void onLabelClickEvent(Integer projectId) {
-				Window.alert("Opening project " + projectId );
+				//Window.alert("Opening project " + projectId );
 				PageRequest request = new PageRequest(Page.PROJECT_DASHBOARD);
 				request.addParameter(RequestParameter.ID, projectId );
 				eventBus.navigateRequest(request);
@@ -191,7 +191,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		view.setContactClickHandler(new ContactResultsClickHandler() {
 			@Override
 			public void onLabelClickEvent(Integer contactId) {
-				Window.alert("Opening Contact " + contactId );
+				//Window.alert("Opening Contact " + contactId );
 				PageRequest request = new PageRequest(Page.CONTACT_DASHBOARD);
 				request.addParameter(RequestParameter.ID, contactId );
 				eventBus.navigateRequest(request);
@@ -200,7 +200,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		view.setOrgUnitClickHandler(new OrgUnitResultsClickHandler() {
 			@Override
 			public void onLabelClickEvent(Integer orgUnitId) {
-				Window.alert("Opening OrgUnit " + orgUnitId );
+				//Window.alert("Opening OrgUnit " + orgUnitId );
 				PageRequest request = new PageRequest(Page.ORGUNIT_DASHBOARD);
 				request.addParameter(RequestParameter.ID, orgUnitId );
 				eventBus.navigateRequest(request);

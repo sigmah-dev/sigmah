@@ -176,6 +176,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 			searchService.search(textToServer, filter, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
 				public void onFailure(Throwable caught) {
 					//Window.alert("Could not make connection!");
+					firstsearch = false;
 					caught.printStackTrace();
 				}
 
@@ -190,7 +191,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		searchService.search(textToServer, filter, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
 			public void onFailure(Throwable caught) {
 				Window.alert("Failure on the server side!");
-				firstsearch = true; //will try to set up a connnection again
+				//firstsearch = true; //will try to set up a connnection again
 				caught.printStackTrace();
 			}
 
@@ -203,11 +204,11 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 				if (searchResults != null) {
 					PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
 					// request.addData(RequestParameter.HEADER, searchText);
-					request.addData(RequestParameter.TITLE, textToServer);
+					request.addData(RequestParameter.TITLE, textToServer.replaceAll("[^a-zA-Z0-9\\s]", ""));
 					request.addData(RequestParameter.CONTENT, searchResults);
-					request.addParameter(RequestParameter.ID, textToServer.replaceAll("\\W", ""));
+					request.addParameter(RequestParameter.ID, textToServer.replaceAll("[^a-zA-Z0-9\\s]", "").replaceAll(" ", "-"));
 					// request.addParameter(RequestParameter.HEADER,searchText);
-					request.addParameter(RequestParameter.TITLE, textToServer);
+					//request.addParameter(RequestParameter.TITLE, textToServer);
 					eventBus.navigateRequest(request);
 				}
 
