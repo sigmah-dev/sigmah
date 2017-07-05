@@ -3,6 +3,11 @@ package org.sigmah.server.search;
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 
 import java.util.ArrayList;
+
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpSession;
+
 import org.sigmah.client.search.SearchService;
 import org.sigmah.server.search.SolrSearcher;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
@@ -11,8 +16,11 @@ import org.sigmah.shared.dto.search.SearchResultsDTO;
 public class SearchServiceImpl extends RemoteServiceServlet implements SearchService{
 	//implementation of the Search Methods
 	@Override
-	public ArrayList<SearchResultsDTO> search(String searchStr, String filter){
-		return SolrSearcher.getInstance().search(searchStr, filter);
+	public ArrayList<SearchResultsDTO> search(String searchStr, String filter, Integer userID){
+//		HttpServletRequest request = this.getThreadLocalRequest();
+//		HttpSession session = request.getSession();
+//		ServletContext context = session.getServletContext();
+		return SolrSearcher.getInstance().search(searchStr, filter, userID);
 	}
 	
 	@Override

@@ -91,7 +91,7 @@ public class SolrSearcher {
 
 	}
 
-	public ArrayList<SearchResultsDTO> search(String searchStr, String filter) {
+	public ArrayList<SearchResultsDTO> search(String searchStr, String filter, Integer userID) {
 
 		ArrayList<SearchResultsDTO> searchList = new ArrayList<SearchResultsDTO>();
 
@@ -121,6 +121,9 @@ public class SolrSearcher {
 
 		if (rsp != null) {
 			Gson gson = new Gson();
+			System.out.println("UserID is " + userID);
+			//SolrDocFilter docFilter = new SolrDocFilter(userID);
+			System.out.println("Initialized");
 			Iterator iter = rsp.getResults().iterator();
 			while (iter.hasNext()) {
 				SearchResultsDTO descriptor = new SearchResultsDTO();
@@ -134,7 +137,15 @@ public class SolrSearcher {
 				// }
 				//System.out.println(gson.toJson(resultDoc).toString());
 				descriptor.setResult(gson.toJson(resultDoc).toString());
+				
+				//here, i have to do some sort of filtering based on the current user and permissions
+				//i.e early binding
+				System.out.println("Hi there!");
 				searchList.add(descriptor);
+//				if( docFilter.doFilter(resultDoc) ){
+//					System.out.println("Going to add :" + descriptor.toString());
+//					searchList.add(descriptor);
+//				}
 
 			}
 

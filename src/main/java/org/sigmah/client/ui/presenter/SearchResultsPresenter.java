@@ -25,6 +25,8 @@ import java.io.IOException;
  */
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -57,8 +59,10 @@ import org.sigmah.client.ui.widget.tab.TabId;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.shared.command.GetMonitoredPoints;
 import org.sigmah.shared.command.GetOrgUnits;
+import org.sigmah.shared.command.GetProjects;
 import org.sigmah.shared.command.GetReminders;
 import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
@@ -148,6 +152,8 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		void setContactClickHandler(ContactResultsClickHandler handler);
 
 		void setOrgUnitClickHandler(OrgUnitResultsClickHandler handler);
+		
+		void setProjectIdsForFiltering(Set<Integer> projectIdsForFiltering); 
 	}
 
 	/**
@@ -206,8 +212,12 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 				eventBus.navigateRequest(request);
 			}
 		});
+		//getProjectsForFiltering();
+		view.setProjectIdsForFiltering((Set<Integer>) request.getData(RequestParameter.FILTER_PROJECT_IDS));
 		view.addSearchData(request.getData(RequestParameter.CONTENT));
+		//Window.alert("Completed addSearchData!");
 		view.addResultsPanel();
+		//Window.alert("Completed addResultsPanel!");
 	}
 
 }

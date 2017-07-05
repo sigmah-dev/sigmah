@@ -1,9 +1,14 @@
 package org.sigmah.client.ui.presenter.zone;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
+import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.event.handler.UpdateHandler;
 import org.sigmah.client.i18n.I18N;
@@ -24,7 +29,11 @@ import org.sigmah.client.ui.widget.tab.TabBar.TabBarListener;
 import org.sigmah.client.ui.zone.Zone;
 import org.sigmah.client.ui.zone.ZoneRequest;
 import org.sigmah.client.util.ClientUtils;
+import org.sigmah.shared.command.GetProjects;
+import org.sigmah.shared.command.result.Authentication;
+import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.conf.PropertyName;
+import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -87,6 +96,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 	String textToServer = "default search text";
 	String filter = "All";
 	boolean firstsearch = true;
+	private Integer userID;
 
 	@Inject
 	public SearchPresenter(View view, Injector injector) {
@@ -170,10 +180,18 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 	}
 
 	private void search() {
-
+		
+		Authentication auth = auth();
+		
+		userID = auth.getUserId();
+//		Window.alert("User ID of current user is: " + userID );
+//		Window.alert("Project IDs in which user is a member" + auth.getMemberOfProjectIds().toString());
+//		Window.alert("OrgUnit IDs in which user is a member" + auth.getOrgUnitIds().toString());
+//		Window.alert("Sec OrgUnit IDs" + auth.getSecondaryOrgUnitIds().toString());
+		
 		if (firstsearch) {
 			// dummy call just to make connection
-			searchService.search(textToServer, filter, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
+			searchService.search(textToServer, filter, userID, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
 				public void onFailure(Throwable caught) {
 					//Window.alert("Could not make connection!");
 					firstsearch = false;
@@ -188,7 +206,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		}
 		// Send the input to the server.
 		//Window.alert("Filter is: " + filter);
-		searchService.search(textToServer, filter, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
+		searchService.search(textToServer, filter, userID, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
 			public void onFailure(Throwable caught) {
 				Window.alert("Failure on the server side!");
 				//firstsearch = true; //will try to set up a connnection again
@@ -200,18 +218,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 				// for (SearchResultsDTO doc : searchResults) {
 				// Window.alert(doc.getResult().toString());
 				// }
-
-				if (searchResults != null) {
-					PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
-					// request.addData(RequestParameter.HEADER, searchText);
-					request.addData(RequestParameter.TITLE, textToServer.replaceAll("[^a-zA-Z0-9\\s]", ""));
-					request.addData(RequestParameter.CONTENT, searchResults);
-					request.addParameter(RequestParameter.ID, textToServer.replaceAll("[^a-zA-Z0-9\\s]", "").replaceAll(" ", "-"));
-					// request.addParameter(RequestParameter.HEADER,searchText);
-					//request.addParameter(RequestParameter.TITLE, textToServer);
-					eventBus.navigateRequest(request);
-				}
-
+				filterAndPageRequest();
 			}
 		});
 	}
@@ -231,6 +238,42 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 					Window.alert("Failed to complete Full Import!");
 				}
 			}
+		});
+	}
+	
+	private void filterAndPageRequest() {
+		Integer[] orgUnitsIds = auth().getOrgUnitIds().toArray(new Integer[auth().getOrgUnitIds().size()]);
+		List<Integer> orgUnitsIdsAsList = orgUnitsIds != null ? Arrays.asList(orgUnitsIds) : null;
+		//Window.alert("OrgUnitIds: " +orgUnitsIdsAsList.toString());
+		GetProjects cmd = new GetProjects(orgUnitsIdsAsList, null);
+		cmd.setMappingMode(ProjectDTO.Mode._USE_PROJECT_MAPPER);
+		final Set<Integer> projectIdsForFiltering = new HashSet<Integer>();
+		
+		dispatch.execute(cmd, new CommandResultHandler<ListResult<ProjectDTO>>() {
+
+			@Override
+			public void onCommandSuccess(final ListResult<ProjectDTO> result) {
+				
+				List<ProjectDTO> projectsForFiltering = result.getList();
+				//applyProjectFilters();
+				for( ProjectDTO projDTO: projectsForFiltering ){
+					//Window.alert("Project ID?: " + projDTO.getId() + " Proj Name: " + projDTO.getName());
+					projectIdsForFiltering.add(projDTO.getId());
+				}
+				//Window.alert("Completed getting the project for filtering: " + projectIdsForFiltering.toString());
+				if (searchResults != null) {
+					PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
+					// request.addData(RequestParameter.HEADER, searchText);
+					request.addData(RequestParameter.TITLE, textToServer);
+					request.addData(RequestParameter.CONTENT, searchResults);
+					request.addData(RequestParameter.FILTER_PROJECT_IDS, projectIdsForFiltering);
+					request.addParameter(RequestParameter.ID, textToServer.replaceAll("[^a-zA-Z0-9\\s]", "").replaceAll(" ", "-"));
+					// request.addParameter(RequestParameter.HEADER,searchText);
+					//request.addParameter(RequestParameter.TITLE, textToServer);
+					eventBus.navigateRequest(request);
+				}
+			}
+
 		});
 	}
 

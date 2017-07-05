@@ -28,8 +28,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.Page;
@@ -57,6 +59,7 @@ import org.sigmah.client.ui.widget.orgunit.OrgUnitTreeGrid;
 import org.sigmah.client.ui.widget.panel.Panels;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.DateUtils;
+import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.dto.referential.ProjectModelType;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
@@ -111,6 +114,10 @@ import com.google.inject.Singleton;
  */
 
 public class SearchResultsView extends AbstractView implements SearchResultsPresenter.View {
+	
+	private List<ProjectDTO> projectsForFiltering;
+	
+	private Set<Integer> projectIdsForFiltering;
 
 	private String searchText;
 
@@ -173,12 +180,82 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		this.searchText = searchText;
 		// Window.alert("Searchtext set to " + searchText);
 	}
+	
+	public List<ProjectDTO> getProjectsForFiltering() {
+		return projectsForFiltering;
+	}
+
+	public void setProjectsForFiltering(List<ProjectDTO> projectsForFiltering) {
+		this.projectsForFiltering = projectsForFiltering;
+		for( ProjectDTO projDTO: projectsForFiltering ){
+			//Window.alert("Project ID?: " + projDTO.getId() + " Proj Name: " + projDTO.getName());
+			projectIdsForFiltering.add(projDTO.getId());
+		}
+		//Window.alert(projectIdsForFiltering.toString());
+	}
+	
+	public Set<Integer> getProjectIdsForFiltering() {
+		return projectIdsForFiltering;
+	}
+
+	public void setProjectIdsForFiltering(Set<Integer> projectIdsForFiltering) {
+		this.projectIdsForFiltering = projectIdsForFiltering;
+	}
 
 	// -------------------------------------------------------------------------------------------
 	//
 	// UTILITY METHODS.
 	//
 	// -------------------------------------------------------------------------------------------
+	
+	
+
+	public void addSearchData(Object searchData) {
+		if (searchData != null) {
+			// Window.alert("Received search results!: \n" +
+			// searchData.toString());
+			searchResultsStore = new ListStore<SearchResultsDTO>();
+			for (Object object : (ArrayList) searchData) {
+				
+				SearchResultsDTO temp = object != null ? (SearchResultsDTO) object : null;
+				if( filter(temp)) {
+					searchResultsStore.add(temp);
+				}
+
+				// Window.alert("Received search result!: \n" +
+				// object.getResult());
+			}
+		} else {
+			Window.alert("Failed to receive search results!");
+		}
+	}
+	
+	public void addResultsPanel() {
+
+		//Window.alert("Started addResultsPanel!");
+		if (centerContainer == null) {
+			centerContainer = Layouts.vBox();
+			centerContainer.layout();
+		} else {
+			centerContainer.removeAll();
+			centerContainer.layout();
+		}
+		createSearchResultsPanel();
+		searchResultsPanel.layout();
+		ColumnModel columns = new ColumnModel(createSearchResultsGridColumns());
+		
+		Grid<SearchResultsDTO> searchResultsGrid = new Grid<SearchResultsDTO>(searchResultsStore, columns);
+		searchResultsGrid.getView().setForceFit(false);
+		searchResultsGrid.getView().setAutoFill(true);
+		searchResultsGrid.setAutoExpandColumn("label");
+		searchResultsPanel.add(searchResultsGrid);
+		searchResultsPanel.layout();
+
+		centerContainer.add(searchResultsPanel, Layouts.vBoxData(Margin.TOP));
+		centerContainer.layout();
+		add(centerContainer);
+
+	}
 
 	private void createSearchResultsPanel() {
 
@@ -187,12 +264,15 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 
 	}
 
-	public void setContentPanel(String title, boolean collapsible, Layout layout, Scroll scroll, String... stylenames) {
+	private void setContentPanel(String title, boolean collapsible, Layout layout, Scroll scroll, String... stylenames) {
 
+		//Window.alert("Started setContentPanel!");
 		searchResultsPanel = new ContentPanel(layout != null ? layout : new FitLayout());
 		searchResultsPanel.layout();
 
+		//Window.alert("Hello!");
 		searchResultsPanel.setHeadingHtml(title);
+		//Window.alert("Hello!");
 		searchResultsPanel.layout();
 		searchResultsPanel.setHeaderVisible(true);
 		searchResultsPanel.setCollapsible(collapsible);
@@ -209,10 +289,14 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		if (scroll != null) {
 			searchResultsPanel.setScrollMode(scroll);
 		}
+		
+		//Window.alert("Ended setContentPanel!");
 
 	}
 
 	private List<ColumnConfig> createSearchResultsGridColumns() {
+			
+		//Window.alert("Started createSearchResultsGridColumns!");
 
 		// Label column.
 		ColumnConfig labelColumn = new ColumnConfig();
@@ -228,35 +312,14 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 					int colIndex, ListStore<SearchResultsDTO> store, Grid<SearchResultsDTO> grid) {
 
 				Map<String, String> retMap = toMap(model.getResult());
-				
-				model.setDTOtype(retMap.get("doc_type").toString());
 				HTML h = new HTML(getNiceText(retMap));
 				
 				//Window.alert(getNiceText(retMap));
 
-				if (retMap.get("doc_type").toString().equals("PROJECT")) {
-					model.setDTOid(retMap.get("databaseid").toString());
-					// Window.alert("Set the id = " + model.getDTOid());
-				} else if (retMap.get("doc_type").toString().equals("CONTACT")) {
-					model.setDTOid(retMap.get("id_contact").toString());
-				} else if (retMap.get("doc_type").toString().equals("ORG_UNIT")) {
-					model.setDTOid(retMap.get("org_unit_id").toString());
-				}
+//				if (retMap != null) {
+//					listMaps.add(retMap);
+//				}
 
-				if (retMap != null) {
-					listMaps.add(retMap);
-				}
-
-				com.google.gwt.user.client.ui.Label label = new com.google.gwt.user.client.ui.Label();
-				// HTML h = new HTML();
-				// h.setText(model.getResult());
-
-				// Window.alert("Label is : " + model.getResult() +
-				// "\n property: " + property + "\nconfig: " + config.toString()
-				// + "\nrowindex: " + rowIndex +
-				// "\ncolIndex:" + colIndex );
-				label.addStyleName("hyperlink-label");
-				// label.setHeight("");
 				if (retMap.get("doc_type").toString().equals("PROJECT")) {
 					
 					//label.setText(model.getResult());
@@ -301,9 +364,31 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 			}
 
 		});
-
+		
+		//Window.alert("Completed createSearchResultsGridColumns!");
 		return Arrays.asList(new ColumnConfig[] { labelColumn });
-
+	}
+	
+	public boolean filter(SearchResultsDTO dto){
+		
+		if(dto == null) return false;
+		
+		Map<String, String> retMap = toMap(dto.getResult());
+		dto.setDTOtype(retMap.get("doc_type").toString());
+		
+		if (retMap.get("doc_type").toString().equals("PROJECT")) {
+			dto.setDTOid(retMap.get("databaseid").toString());
+			if(!projectIdsForFiltering.contains( Integer.parseInt(dto.getDTOid())) ) {
+				//Window.alert("Found project not to be included!");
+				return false;
+			}
+			
+		} else if (retMap.get("doc_type").toString().equals("CONTACT")) {
+			dto.setDTOid(retMap.get("id_contact").toString());
+		} else if (retMap.get("doc_type").toString().equals("ORG_UNIT")) {
+			dto.setDTOid(retMap.get("org_unit_id").toString());
+		}
+		return true;
 	}
 	
 	public String getNiceText( Map<String,String> resultsMap ){
@@ -366,31 +451,6 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		return htmlBuilder;
 	}
 
-	public void addResultsPanel() {
-
-		if (centerContainer == null) {
-			centerContainer = Layouts.vBox();
-			centerContainer.layout();
-		} else {
-			centerContainer.removeAll();
-			centerContainer.layout();
-		}
-		createSearchResultsPanel();
-		searchResultsPanel.layout();
-
-		Grid<SearchResultsDTO> searchResultsGrid = new Grid<SearchResultsDTO>(searchResultsStore,
-				new ColumnModel(createSearchResultsGridColumns()));
-		searchResultsGrid.getView().setForceFit(false);
-		searchResultsGrid.getView().setAutoFill(true);
-		searchResultsGrid.setAutoExpandColumn("label");
-		searchResultsPanel.add(searchResultsGrid);
-		searchResultsPanel.layout();
-
-		centerContainer.add(searchResultsPanel, Layouts.vBoxData(Margin.TOP));
-		centerContainer.layout();
-		add(centerContainer);
-
-	}
 
 	public static Map<String, String> toMap(String jsonStr) {
 		Map<String, String> map = new HashMap<String, String>();
@@ -404,23 +464,6 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		}
 
 		return map;
-	}
-
-	public void addSearchData(Object searchData) {
-		if (searchData != null) {
-			// Window.alert("Received search results!: \n" +
-			// searchData.toString());
-			searchResultsStore = new ListStore<SearchResultsDTO>();
-			for (Object object : (ArrayList) searchData) {
-				searchResultsStore.add(object != null ? (SearchResultsDTO) object : null);
-
-				// Window.alert("Received search result!: \n" +
-				// object.getResult());
-			}
-		} else {
-			Window.alert("Failed to receive search results!");
-		}
-
 	}
 	
 	public AbstractImagePrototype getProjectLogo(final ProjectModelType projectType) {
