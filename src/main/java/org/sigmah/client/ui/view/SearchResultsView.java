@@ -115,9 +115,11 @@ import com.google.inject.Singleton;
 
 public class SearchResultsView extends AbstractView implements SearchResultsPresenter.View {
 	
-	private List<ProjectDTO> projectsForFiltering;
-	
 	private Set<Integer> projectIdsForFiltering;
+	
+	private Set<Integer> orgUnitIdsForFiltering;
+	
+	private Set<Integer> contactIdsForFiltering;
 
 	private String searchText;
 
@@ -126,10 +128,6 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	ListStore<SearchResultsDTO> searchResultsStore;
 
 	private LayoutContainer centerContainer;
-
-	private ArrayList<Map<String, String>> listMaps = new ArrayList<Map<String, String>>();
-
-	// private Map<String, Integer> ProjectIDTo
 
 	private static SearchResultsClickHandler handler;
 
@@ -181,19 +179,6 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		// Window.alert("Searchtext set to " + searchText);
 	}
 	
-	public List<ProjectDTO> getProjectsForFiltering() {
-		return projectsForFiltering;
-	}
-
-	public void setProjectsForFiltering(List<ProjectDTO> projectsForFiltering) {
-		this.projectsForFiltering = projectsForFiltering;
-		for( ProjectDTO projDTO: projectsForFiltering ){
-			//Window.alert("Project ID?: " + projDTO.getId() + " Proj Name: " + projDTO.getName());
-			projectIdsForFiltering.add(projDTO.getId());
-		}
-		//Window.alert(projectIdsForFiltering.toString());
-	}
-	
 	public Set<Integer> getProjectIdsForFiltering() {
 		return projectIdsForFiltering;
 	}
@@ -201,14 +186,28 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	public void setProjectIdsForFiltering(Set<Integer> projectIdsForFiltering) {
 		this.projectIdsForFiltering = projectIdsForFiltering;
 	}
+	
+	public Set<Integer> getOrgUnitIdsForFiltering() {
+		return orgUnitIdsForFiltering;
+	}
 
+	public void setOrgUnitIdsForFiltering(Set<Integer> orgUnitIdsForFiltering) {
+		this.orgUnitIdsForFiltering = orgUnitIdsForFiltering;
+	}
+	
+	public Set<Integer> getContactIdsForFiltering() {
+		return contactIdsForFiltering;
+	}
+
+	public void setContactIdsForFiltering(Set<Integer> contactIdsForFiltering) {
+		this.contactIdsForFiltering = contactIdsForFiltering;
+	}
+    
 	// -------------------------------------------------------------------------------------------
 	//
 	// UTILITY METHODS.
 	//
 	// -------------------------------------------------------------------------------------------
-	
-	
 
 	public void addSearchData(Object searchData) {
 		if (searchData != null) {
@@ -313,16 +312,9 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 
 				Map<String, String> retMap = toMap(model.getResult());
 				HTML h = new HTML(getNiceText(retMap));
-				
-				//Window.alert(getNiceText(retMap));
-
-//				if (retMap != null) {
-//					listMaps.add(retMap);
-//				}
 
 				if (retMap.get("doc_type").toString().equals("PROJECT")) {
 					
-					//label.setText(model.getResult());
 					h.addClickHandler(new ClickHandler() {
 
 						@Override
@@ -334,7 +326,7 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 				}
 
 				if (retMap.get("doc_type").toString().equals("CONTACT")) {
-					//label.setText(model.getResult());
+					
 					h.addClickHandler(new ClickHandler() {
 
 						@Override
@@ -347,19 +339,18 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 				}
 
 				if (retMap.get("doc_type").toString().equals("ORG_UNIT")) {
-					//label.setText(model.getResult());
+					
 					h.addClickHandler(new ClickHandler() {
 
 						@Override
 						public void onClick(ClickEvent event) {
-							// handler.onLabelClickEvent(project_id);
+							
 							((OrgUnitResultsClickHandler) handler)
 									.onLabelClickEvent(Integer.parseInt(model.getDTOid()));
 						}
 					});
 				}
-
-				//label.setTitle(model.getResult());
+				
 				return h;
 			}
 
@@ -385,8 +376,16 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 			
 		} else if (retMap.get("doc_type").toString().equals("CONTACT")) {
 			dto.setDTOid(retMap.get("id_contact").toString());
+			if(!contactIdsForFiltering.contains( Integer.parseInt(dto.getDTOid())) ) {
+				Window.alert("Found Contact not to be included: " + dto.getDTOid() );
+				return false;
+			}
 		} else if (retMap.get("doc_type").toString().equals("ORG_UNIT")) {
 			dto.setDTOid(retMap.get("org_unit_id").toString());
+			if(!orgUnitIdsForFiltering.contains( Integer.parseInt(dto.getDTOid())) ) {
+				//Window.alert("Found OrgUnit not to be included!");
+				return false;
+			}
 		}
 		return true;
 	}

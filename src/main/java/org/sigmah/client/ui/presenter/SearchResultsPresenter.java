@@ -154,6 +154,10 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		void setOrgUnitClickHandler(OrgUnitResultsClickHandler handler);
 		
 		void setProjectIdsForFiltering(Set<Integer> projectIdsForFiltering); 
+		
+		void setOrgUnitIdsForFiltering(Set<Integer> orgUnitIdsForFiltering);
+		
+		void setContactIdsForFiltering(Set<Integer> orgUnitIdsForFiltering);
 	}
 
 	/**
@@ -214,6 +218,8 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		});
 		//getProjectsForFiltering();
 		view.setProjectIdsForFiltering((Set<Integer>) request.getData(RequestParameter.FILTER_PROJECT_IDS));
+		view.setOrgUnitIdsForFiltering((Set<Integer>) request.getData(RequestParameter.FILTER_ORGUNIT_IDS));
+		view.setContactIdsForFiltering((Set<Integer>) request.getData(RequestParameter.FILTER_CONTACT_IDS));
 		view.addSearchData(request.getData(RequestParameter.CONTENT));
 		//Window.alert("Completed addSearchData!");
 		view.addResultsPanel();
