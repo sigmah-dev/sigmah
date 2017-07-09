@@ -214,7 +214,7 @@
 		<hibernate.dialect>org.hibernate.dialect.PostgreSQLDialect</hibernate.dialect>
 		<hibernate.connection.driver_class>org.postgresql.Driver</hibernate.connection.driver_class>
 		<hibernate.hbm2ddl.auto>update</hibernate.hbm2ddl.auto>
-		<hibernate.show_sql>false</hibernate.show_sql>
+		<hibernate.show_sql>true</hibernate.show_sql>
 		<hibernate.format_sql>true</hibernate.format_sql>
 		<hibernate.connection.url>${sigmah.database.url}</hibernate.connection.url>
 		<hibernate.connection.username>${sigmah.database.user}</hibernate.connection.username>
@@ -253,6 +253,12 @@
 		<!-- Maps API properties. -->
 
 		<maps.key>ABQIAAAAaKyZGjYsJ9quclBfsnGc-xRxtna0S6DNUYSvLTUdQl9eB6x9_xQH4P0V3CSFEY_MypecLWSdS3Q8IQ</maps.key>
+		
+		<!-- Solr Server Properties -->
+		
+		<solr.server.ip></solr.server.ip>
+		<solr.core.name>Test_Sigmah</solr.core.name>
+		<solr.core.url>http://localhost:8983/solr/${solr.core.name}</solr.core.url>
 
 	</properties>
 
@@ -1048,13 +1054,6 @@
 			<id>sigmah-dev</id>
 			<properties>
 
-				<!-- Overrride properties for your local profile here... -->
-				<sigmah.database.url>jdbc:postgresql://localhost:5432/sigmah_demo</sigmah.database.url>
-				<sigmah.database.user>sigmah</sigmah.database.user>
-				<sigmah.database.password>hamsig</sigmah.database.password>
-				<files.repository.name>/home/sigmah_dev</files.repository.name>
-				<archives.repository.name>/home/sigmah_dev/archives</archives.repository.name>
-
 				<gwt.style>PRETTY</gwt.style>
 
 				<!-- Logger properties. -->
@@ -1063,7 +1062,7 @@
 
 				<!-- Hibernate properties. -->
 
-				<hibernate.show_sql>false</hibernate.show_sql>
+				<hibernate.show_sql>true</hibernate.show_sql>
 				
 				<!-- Mailer properties. -->
 

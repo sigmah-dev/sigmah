@@ -15,6 +15,9 @@ import org.apache.solr.common.SolrDocument;
 import org.apache.solr.common.SolrDocumentList;
 import org.apache.solr.common.params.ModifiableSolrParams;
 import org.apache.solr.common.util.NamedList;
+import org.sigmah.server.conf.BasicProperties;
+import org.sigmah.server.conf.Properties;
+import org.sigmah.shared.conf.PropertyKey;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -23,10 +26,14 @@ import com.google.gson.JsonObject;
 import com.google.gwt.json.client.JSONArray;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.user.client.Window;
+import com.google.inject.Inject;
+
 import java.net.*;
 
 public class SolrSearcher {
 
+	private Properties properties = new BasicProperties();
+	
 	private String urlString;
 	private static SolrClient solrServer;
 	private static SolrSearcher instance;
@@ -54,7 +61,9 @@ public class SolrSearcher {
 	}
 
 	private void loadServer() throws MalformedURLException {
-		urlString = "http://localhost:8983/solr/Test_Sigmah";
+		//urlString = "http://localhost:8983/solr/Test_Sigmah";
+		urlString = properties.getProperty(PropertyKey.SOLR_CORE_URL);
+		System.out.println("SOLR CONNECTING TO: " + urlString);
 		solrServer = new HttpSolrClient.Builder(urlString).build();
 		// Window.alert("Successful solr connection!");
 		System.out.println("SOLR CONNECTION CONNECTED");
@@ -75,11 +84,11 @@ public class SolrSearcher {
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.out.println("GUBI SOLR SERVER EXCEPTION Failed");
+			System.out.println("SOLR SERVER EXCEPTION Failed");
 			return null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			System.out.println("GUBI SOLR SERVER EXCEPTION Failed");
+			System.out.println("SOLR SERVER EXCEPTION Failed");
 			e.printStackTrace();
 			return null;
 		}
