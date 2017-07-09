@@ -11,4 +11,5 @@ public interface SearchService extends RemoteService {
 	//TODO Add method stubs here
 	ArrayList<SearchResultsDTO> search(String searchStr, String filter, Integer UserID);
 	Boolean index();
+	Boolean autoIndex();
 }

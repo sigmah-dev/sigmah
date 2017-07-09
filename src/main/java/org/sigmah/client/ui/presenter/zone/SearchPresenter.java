@@ -265,6 +265,11 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		cmd.setMappingMode(ProjectDTO.Mode._USE_PROJECT_MAPPER);
 
 		dispatch.execute(cmd, new CommandResultHandler<ListResult<ProjectDTO>>() {
+			
+			@Override
+			public void onCommandFailure(final Throwable e) {
+				//Window.alert("Error while getting contacts.");
+			}
 
 			@Override
 			public void onCommandSuccess(final ListResult<ProjectDTO> result) {
@@ -299,6 +304,12 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		orgUnitIds.addAll(auth().getOrgUnitIds());
 		dispatch.execute(new GetOrgUnits(orgUnitIds, OrgUnitDTO.Mode.WITH_TREE),
 				new CommandResultHandler<ListResult<OrgUnitDTO>>() {
+
+					@Override
+					public void onCommandFailure(final Throwable e) {
+						// Window.alert("Error while getting contacts.");
+					}
+
 					@Override
 					public void onCommandSuccess(final ListResult<OrgUnitDTO> result) {
 						orgUnitIdsForFiltering = new HashSet<Integer>();
@@ -320,20 +331,21 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 			@Override
 			public void onCommandFailure(final Throwable e) {
-				Window.alert("Error while getting contacts.");
+				// Window.alert("Error while getting contacts.");
 			}
 
 			@Override
 			public void onCommandSuccess(final ListResult<ContactDTO> result) {
 
 				contactIdsForFiltering = new HashSet<Integer>();
-				
+
 				if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS)) {
 					List<ContactDTO> contactsForFiltering = result.getData();
 					for (ContactDTO dto : contactsForFiltering) {
 						contactIdsForFiltering.add(dto.getId());
 					}
-					Window.alert("Contacts for filtering: " + contactIdsForFiltering.toString());
+					// Window.alert("Contacts for filtering: " +
+					// contactIdsForFiltering.toString());
 				}
 				doPageRequest();
 			}

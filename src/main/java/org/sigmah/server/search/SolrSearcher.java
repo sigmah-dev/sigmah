@@ -28,7 +28,7 @@ import java.net.*;
 public class SolrSearcher {
 
 	private String urlString;
-	private SolrClient solrServer;
+	private static SolrClient solrServer;
 	private static SolrSearcher instance;
 
 	public String getUrlString() {
@@ -46,8 +46,7 @@ public class SolrSearcher {
 				instance.loadServer();
 			} catch (MalformedURLException e) {
 				// TODO Auto-generated catch block
-				System.out.println("GUBI SOLR CONNECTION FAILED");
-				Log.error("GUBI SOLR CONNECTION FAILED");
+				System.out.println("SOLR CONNECTION FAILED");
 				e.printStackTrace();
 			}
 		}
@@ -58,8 +57,7 @@ public class SolrSearcher {
 		urlString = "http://localhost:8983/solr/Test_Sigmah";
 		solrServer = new HttpSolrClient.Builder(urlString).build();
 		// Window.alert("Successful solr connection!");
-		System.out.println("GUBI SOLR CONNECTION CONNECTED");
-		Log.error("GUBI SOLR CONNECTION CONNECTED");
+		System.out.println("SOLR CONNECTION CONNECTED");
 	}
 
 	public SolrDocumentList SolrTestQuery() {
@@ -68,8 +66,7 @@ public class SolrSearcher {
 		QueryResponse response;
 		try {
 			response = solrServer.query(query);
-			System.out.println("GUBI SOLR QUERY HAPPENED");
-			Log.error("GUBI SOLR QUERY HAPPENED");
+			System.out.println("SOLR QUERY HAPPENED");
 			SolrDocumentList list = response.getResults();
 			for (SolrDocument doc : response.getResults()) {
 				// Window.alert(doc.toString());
@@ -78,13 +75,11 @@ public class SolrSearcher {
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-			System.out.println("GUBI SOLR SERVER EXCEPTION HAPPENED");
-			Log.error("GUBI SOLR SERVER EXCEPTION HAPPENED");
+			System.out.println("GUBI SOLR SERVER EXCEPTION Failed");
 			return null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			System.out.println("GUBI SOLR SERVER EXCEPTION HAPPENED");
-			Log.error("GUBI SOLR SERVER EXCEPTION HAPPENED");
+			System.out.println("GUBI SOLR SERVER EXCEPTION Failed");
 			e.printStackTrace();
 			return null;
 		}
@@ -150,17 +145,17 @@ public class SolrSearcher {
 		return searchList;
 	}
 
-	public Boolean FullDataImport() {
+	public static Boolean FullDataImport() {
 		ModifiableSolrParams params = new ModifiableSolrParams();
 		params.set("qt", "/dataimport");
 		params.set("command", "full-import");
 		try {
 			QueryResponse response = solrServer.query(params);
 			if (response != null) {
-				System.out.println("Successful FULL DATA IMPORT!");
+				System.out.println("Successful FULL DATA IMPORT! " + System.currentTimeMillis());
 				return true;
 			} else {
-				System.out.println("Failure in FULL  DATA IMPORT!");
+				System.out.println("Failure in FULL  DATA IMPORT! " + System.currentTimeMillis());
 				return false;
 			}
 		} catch (SolrServerException | IOException e) {

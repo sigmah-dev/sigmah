@@ -35,6 +35,8 @@ import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.page.RequestParameter;
+import org.sigmah.client.search.SearchService;
+import org.sigmah.client.search.SearchServiceAsync;
 import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
 import org.sigmah.client.ui.presenter.contact.dashboardlist.ContactsListWidget;
 import org.sigmah.client.ui.presenter.project.treegrid.ProjectsListWidget;
@@ -64,6 +66,8 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
+import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.inject.ImplementedBy;
@@ -94,6 +98,8 @@ import org.sigmah.shared.dto.profile.ExecutionDTO;
  */
 @Singleton
 public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter.View> {
+	
+	private final SearchServiceAsync searchServiceForAutoIndex = GWT.create(SearchService.class);
 
     public static interface ReminderOrMonitoredPointHandler{
         public void onLabelClickEvent(Integer projectId);
@@ -271,6 +277,26 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 				initializeMenuButtons(event.getState());
 			}
 		});
+		
+		
+		//related to search auto indexing
+		searchServiceForAutoIndex.autoIndex(new AsyncCallback<Boolean>(){
+
+			@Override
+			public void onFailure(Throwable caught) {
+				// TODO Auto-generated method stub
+				//Window.alert("Failed to start/continue auto indexing!");
+			}
+
+			@Override
+			public void onSuccess(Boolean result) {
+				// TODO Auto-generated method stub
+//				if( result ) Window.alert("Started/continued auto indexing!");
+//				else Window.alert("Failed to start/continue auto indexing! ( back end issue )");
+			}
+			
+		});
+			
 	}
 
 	/**

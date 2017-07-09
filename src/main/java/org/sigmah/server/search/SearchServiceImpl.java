@@ -28,4 +28,12 @@ public class SearchServiceImpl extends RemoteServiceServlet implements SearchSer
 		// TODO Auto-generated method stub
 		return SolrSearcher.getInstance().FullDataImport();
 	}
+
+	@Override
+	public Boolean autoIndex() {
+		// TODO Auto-generated method stub
+		if( SolrIndexJobActivator.getSolrIndexJobActivator() == null )
+			return false;
+		return true;
+	}
 }
