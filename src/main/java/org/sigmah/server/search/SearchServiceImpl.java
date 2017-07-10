@@ -16,11 +16,11 @@ import org.sigmah.shared.dto.search.SearchResultsDTO;
 public class SearchServiceImpl extends RemoteServiceServlet implements SearchService{
 	//implementation of the Search Methods
 	@Override
-	public ArrayList<SearchResultsDTO> search(String searchStr, String filter, Integer userID){
+	public ArrayList<SearchResultsDTO> search(String searchStr, String filter){
 //		HttpServletRequest request = this.getThreadLocalRequest();
 //		HttpSession session = request.getSession();
 //		ServletContext context = session.getServletContext();
-		return SolrSearcher.getInstance().search(searchStr, filter, userID);
+		return SolrSearcher.getInstance().search(searchStr, filter);
 	}
 	
 	@Override

@@ -192,20 +192,10 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 	private void search() {
 
-		Authentication auth = auth();
-
-		userID = auth.getUserId();
-		// Window.alert("User ID of current user is: " + userID );
-		// Window.alert("Project IDs in which user is a member" +
-		// auth.getMemberOfProjectIds().toString());
-		// Window.alert("OrgUnit IDs in which user is a member" +
-		// auth.getOrgUnitIds().toString());
-		// Window.alert("Sec OrgUnit IDs" +
-		// auth.getSecondaryOrgUnitIds().toString());
-
+		
 		if (firstsearch) {
 			// dummy call just to make connection
-			searchService.search(textToServer, filter, userID, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
+			searchService.search(textToServer, filter, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
 				public void onFailure(Throwable caught) {
 					// Window.alert("Could not make connection!");
 					firstsearch = false;
@@ -220,7 +210,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		}
 		// Send the input to the server.
 		// Window.alert("Filter is: " + filter);
-		searchService.search(textToServer, filter, userID, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
+		searchService.search(textToServer, filter, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
 
 			public void onFailure(Throwable caught) {
 				Window.alert("Failure on the server side!");

@@ -8,7 +8,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 
 public interface SearchServiceAsync {
 
-	public void search(String searchStr, String filter, Integer UserID, AsyncCallback<ArrayList<SearchResultsDTO>> callback);
+	public void search(String searchStr, String filter, AsyncCallback<ArrayList<SearchResultsDTO>> callback);
 	public void index(AsyncCallback<Boolean> callback);
 	public void autoIndex(AsyncCallback<Boolean> callback);
 }

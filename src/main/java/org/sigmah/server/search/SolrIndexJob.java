@@ -15,8 +15,8 @@ public class SolrIndexJob implements Job{
 
 	@Override
 	public void execute(JobExecutionContext context) throws JobExecutionException {
+		
 		SolrSearcher.getInstance();
-		// TODO Auto-generated method stub
 		SolrSearcher.FullDataImport();
 	}
 

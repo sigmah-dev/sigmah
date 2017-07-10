@@ -95,7 +95,7 @@ public class SolrSearcher {
 
 	}
 
-	public ArrayList<SearchResultsDTO> search(String searchStr, String filter, Integer userID) {
+	public ArrayList<SearchResultsDTO> search(String searchStr, String filter) {
 
 		ArrayList<SearchResultsDTO> searchList = new ArrayList<SearchResultsDTO>();
 
@@ -125,26 +125,11 @@ public class SolrSearcher {
 
 		if (rsp != null) {
 			Gson gson = new Gson();
-			//System.out.println("UserID is " + userID);
-			//SolrDocFilter docFilter = new SolrDocFilter(userID);
-			//System.out.println("Initialized");
 			Iterator iter = rsp.getResults().iterator();
 			while (iter.hasNext()) {
 				SearchResultsDTO descriptor = new SearchResultsDTO();
 				SolrDocument resultDoc = (SolrDocument) iter.next();
-
-				// Will make this more specific later
-				// Map<String, Object> results = resultDoc.getFieldValueMap();
-				// for (Map.Entry<String, Object> entry : results.entrySet()){
-				// descriptor.getResult().add(entry.getKey().toString() + " :::
-				// " + entry.getValue().toString());
-				// }
-				//System.out.println(gson.toJson(resultDoc).toString());
 				descriptor.setResult(gson.toJson(resultDoc).toString());
-				
-				//here, i have to do some sort of filtering based on the current user and permissions
-				//i.e early binding
-				//System.out.println("Hi there!");
 				searchList.add(descriptor);
 
 			}
