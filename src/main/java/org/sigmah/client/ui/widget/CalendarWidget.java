@@ -77,6 +77,8 @@ public class CalendarWidget extends Composite {
 		void edit(Event event, CalendarWidget calendarWidget);
 
 		void delete(Event event, CalendarWidget calendarWidget);
+                
+                void deleteChain(Event event, CalendarWidget calendarWidget);
 
 	}
 
@@ -727,7 +729,7 @@ public class CalendarWidget extends Composite {
 
 			final DecoratedPopupPanel detailPopup = new DecoratedPopupPanel(true);
 
-			final Grid popupContent = new Grid(event.getParent().isEditable() ? 5 : 3, 1);
+			final Grid popupContent = new Grid(event.getParent().isEditable() ? 6 : 3, 1);
 			popupContent.setText(0, 0, event.getSummary());
 			popupContent.getCellFormatter().addStyleName(0, 0, "calendar-popup-header");
 
@@ -766,8 +768,19 @@ public class CalendarWidget extends Composite {
 					}
 				});
 
+				final Anchor deleteChainAnchor = new Anchor("Delete chain");
+				deleteChainAnchor.addClickHandler(new ClickHandler() {
+
+					@Override
+					public void onClick(ClickEvent clickEvent) {
+                                            	delegate.deleteChain(event, CalendarWidget.this);
+						detailPopup.hide();        
+					}
+				});
+                                
 				popupContent.setWidget(3, 0, editAnchor);
 				popupContent.setWidget(4, 0, deleteAnchor);
+                                popupContent.setWidget(5, 0, deleteChainAnchor);
 			}
 
 			detailPopup.setWidget(popupContent);

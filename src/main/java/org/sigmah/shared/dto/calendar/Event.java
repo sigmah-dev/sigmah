@@ -47,24 +47,30 @@ public class Event implements Serializable {
 	public static final String START_TIME = "startDate";
 	public static final String END_TIME = "endDate";
 	public static final String DESCRIPTION = "description";
-
+	public static final String REFERENCE_ID = "referenceid";
+        public static final String EVENT_TYPE = "eventtype";
+        
+        private String eventtype;
 	private Integer identifier;
 	private String summary;
 	private String description;
 	private Date dtstart;
 	private Date dtend;
 	private Calendar parent;
+        private Integer referenceid;
 
 	public Event() {
 		// Serialization.
 	}
 
-	public Event(String summary, String description, Date dtstart, Date dtend, Calendar parent) {
+	public Event(String summary, String description, Date dtstart, Date dtend, Calendar parent, String eventtype, Integer referenceid) {
 		this.summary = summary;
 		this.description = description;
 		this.dtstart = dtstart;
 		this.dtend = dtend;
 		this.parent = parent;
+                this.eventtype = eventtype;
+                this.referenceid = referenceid;
 	}
 
 	/**
@@ -102,7 +108,9 @@ public class Event implements Serializable {
 
 		setSummary((String) values.get(Event.SUMMARY));
 		setDescription((String) values.get(Event.DESCRIPTION));
-
+                setEventType((String) values.get(Event.EVENT_TYPE));
+                setReferenceId((Integer) values.get(Event.REFERENCE_ID));
+                
 		final Date day = (Date) values.get(Event.DATE);
 		final Object startHourSerialized = values.get(Event.START_TIME);
 		final Object endHourSerialized = values.get(Event.END_TIME);
@@ -164,6 +172,22 @@ public class Event implements Serializable {
 		this.summary = summary;
 	}
 
+        public String getEventType() {
+		return eventtype;
+	}
+
+	public void setEventType(String eventtype) {
+		this.eventtype = eventtype;
+	}
+        
+        public Integer getReferenceId() {
+		return referenceid;
+	}
+
+	public void setReferenceId(Integer referenceid) {
+		this.referenceid = referenceid;
+	}
+        
 	public Calendar getParent() {
 		return parent;
 	}

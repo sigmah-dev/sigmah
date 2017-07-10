@@ -100,6 +100,8 @@ public class PersonalCalendarHandler implements CalendarHandler {
 				calendarEvent.setSummary(event.getSummary());
 				calendarEvent.setDescription(event.getDescription());
 				calendarEvent.setDtstart(new Date(event.getStartDate().getTime()));
+                                calendarEvent.setReferenceId(event.getReferenceId());
+                                calendarEvent.setEventType(event.getEventType());
 				if (event.getEndDate() != null)
 					calendarEvent.setDtend(new Date(event.getEndDate().getTime()));
 

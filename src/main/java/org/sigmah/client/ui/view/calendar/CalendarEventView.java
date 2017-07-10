@@ -107,7 +107,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         eventSummaryField = Forms.text(I18N.CONSTANTS.calendarEventObject(), true);
         eventSummaryField.setName(Event.SUMMARY);
 
-        eventDateStartField = Forms.date(I18N.CONSTANTS.calendarEventDate()+ " start", true);
+        eventDateStartField = Forms.date(I18N.CONSTANTS.calendar_addEvent_dateStart_label(), true);
         eventDateStartField.setName(Event.DATE);
         //eventDateStartField.setAllowBlank(true);
 
@@ -119,7 +119,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         eventEndTimeField.setName(Event.END_TIME);
         eventEndTimeField.setTriggerAction(TriggerAction.ALL);
 
-        eventDateEndField = Forms.date(I18N.CONSTANTS.calendarEventDate() + " end", false);
+        eventDateEndField = Forms.date(I18N.CONSTANTS.calendar_addEvent_dateEnd_label(), false);
         eventDateEndField.setName(Event.DATE + "888end");
 
         eventDescriptionField = Forms.textarea(I18N.CONSTANTS.calendarEventDescription(), false);
@@ -152,7 +152,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
 
     private CheckBox createAllDayCheckbox() {
 
-        allDayCheckbox = Forms.checkbox(I18N.CONSTANTS.calendar_addEvent_isAllDayCB_boxLabel(), "All day name", false);
+        allDayCheckbox = Forms.checkbox(I18N.CONSTANTS.calendar_addEvent_isAllDayCB_boxLabel(), I18N.CONSTANTS.calendar_addEvent_isAllDayCB_allDayName(), false);
         allDayCheckbox.setFieldLabel(I18N.CONSTANTS.calendar_addEvent_allDayCbGr_label());
         // allDayCheckbox.setBoxLabel(I18N.CONSTANTS.calendar_addEvent_isAllDayCB_boxLabel());
         allDayCheckbox.validate(false);
@@ -161,7 +161,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
             public void handleEvent(FieldEvent event) {
                 eventStartTimeField.setVisible(!allDayCheckbox.getValue());
                 eventEndTimeField.setVisible(!allDayCheckbox.getValue());
-                Window.alert(getAllDayCheckbox().getBoxLabel() + " is checked");
+              //  Window.alert(getAllDayCheckbox().getBoxLabel() + " is checked = " + getAllDayCheckbox().getValue());
             }
         });
         
@@ -176,7 +176,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         createYearlyRb();
 
         RepeatEventPeriodRG = Forms.radioGroup(I18N.CONSTANTS.calendar_addEvent_repeatPeriodRG_label(),
-                "Repeat event 999",
+                I18N.CONSTANTS.calendar_addEvent_repeatPeriodRG_name(),
                 Style.Orientation.HORIZONTAL,
                 onceRepeatRB,
                 dailyRepeatRB,
@@ -191,7 +191,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         //final Radio
 // yearlyRepeatRB = Forms.radio("yearlyRepeatRB label", "yearlyRepeatRB name", Boolean.FALSE);
 //yearlyRepeatRB = new Radio();
-        yearlyRepeatRB = Forms.radio("yearly", "yearly", Boolean.FALSE);
+        yearlyRepeatRB = Forms.radio(I18N.CONSTANTS.calendar_addEvent_repeatYearlyRB_label(), I18N.CONSTANTS.calendar_addEvent_repeatYearlyRB_label(), Boolean.FALSE);
         yearlyRepeatRB.setToolTip(I18N.CONSTANTS.calendar_addEvent_repeatYearlyRB_toolTip());
 //		yearlyRepeatRB.setBoxLabel("yearly");
 //		yearlyRepeatRB.setName("yearly");
@@ -201,7 +201,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
             public void handleEvent(FieldEvent event) {
                 //eventStartTimeField.setVisible(!yearlyRepeatRB.getValue());
                 // eventEndTimeField.setVisible(!yearlyRepeatRB.getValue());
-                ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(" The Yearly event.");
+                ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_yearly());
                 getPanelYearly().setVisible(getYearlyRepeatRB().getValue());
                 getPanelMonthly().setVisible(!yearlyRepeatRB.getValue());
 
@@ -209,13 +209,13 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
                 getYearlySameDayOfWeekRB().show();
                 getYearlySameDateRB().setValue(true);
                 eventDateStartField.setAllowBlank(false);
-                Window.alert(getYearlyRepeatRB().getBoxLabel() + " is checked Listener OnChange on Yearly radio");
+            //    Window.alert(getYearlyRepeatRB().getBoxLabel() + " is checked Listener OnChange on Yearly radio");
             }
         });
     }
 
     private void createMonthlyRb() {
-        monthlyRepeatRB = Forms.radio("monthly", "monthly", Boolean.FALSE);
+        monthlyRepeatRB = Forms.radio(I18N.CONSTANTS.calendar_addEvent_repeatMonthlyRB_label(), I18N.CONSTANTS.calendar_addEvent_repeatMonthlyRB_label(), Boolean.FALSE);
         monthlyRepeatRB.setToolTip(I18N.CONSTANTS.calendar_addEvent_repeatMonthlyRB_toolTip());
 //		monthlyRepeatRB.setBoxLabel("monthly");
 //		monthlyRepeatRB.setName("monthly");
@@ -225,20 +225,20 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
             public void handleEvent(FieldEvent event) {
                 //eventStartTimeField.setVisible(!yearlyRepeatRB.getValue());
                 // eventEndTimeField.setVisible(!yearlyRepeatRB.getValue());
-                ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(" The Monthly event.");
+                ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_monthly());
                 getPanelYearly().setVisible(!monthlyRepeatRB.getValue());
                 getPanelMonthly().setVisible(getMonthlyRepeatRB().getValue());
                 eventDateStartField.setAllowBlank(false);
                 getRadioMonthlySameDate().show();
                 getRadioMonthlySameDayOfWeek().show();
                 getRadioMonthlySameDayOfWeek().setValue(true);
-                Window.alert(getMonthlyRepeatRB().getBoxLabel() + " is checked Listener OnChange on monthly radio");
+            //    Window.alert(getMonthlyRepeatRB().getBoxLabel() + " is checked Listener OnChange on monthly radio");
             }
         });
     }
 
     private void createWeeklyRb() {
-        weeklyRepeatRB = Forms.radio("weekly", "weekly", Boolean.FALSE);
+        weeklyRepeatRB = Forms.radio(I18N.CONSTANTS.calendar_addEvent_repeatWeeklyRB_label(), I18N.CONSTANTS.calendar_addEvent_repeatWeeklyRB_label(), Boolean.FALSE);
         weeklyRepeatRB.setToolTip(I18N.CONSTANTS.calendar_addEvent_repeatWeeklyRB_toolTip());
 //		weeklyRepeatRB.setBoxLabel("weekly");
 //		weeklyRepeatRB.setName("weekly");
@@ -248,12 +248,12 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
             public void handleEvent(FieldEvent event) {
                 //eventStartTimeField.setVisible(!yearlyRepeatRB.getValue());
                 // eventEndTimeField.setVisible(!yearlyRepeatRB.getValue());
-                ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(" The Weekly event.");
+                ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_weekly());
                 getPanelYearly().setVisible(!weeklyRepeatRB.getValue());
                 getPanelMonthly().setVisible(!weeklyRepeatRB.getValue());
 
                 eventDateStartField.setAllowBlank(false);
-                Window.alert(getWeeklyRepeatRB().getBoxLabel() + " is checked Listener OnChange on weekly radio");
+            //    Window.alert(getWeeklyRepeatRB().getBoxLabel() + " is checked Listener OnChange on weekly radio");
             }
         });
     }
@@ -264,26 +264,26 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     private void createDailyRb() {
         //final Radio
 //dailyRepeatRB = new Radio();
-        dailyRepeatRB = Forms.radio("daily", "daily", Boolean.FALSE);
+        dailyRepeatRB = Forms.radio(I18N.CONSTANTS.calendar_addEvent_repeatDailyRB_label(), I18N.CONSTANTS.calendar_addEvent_repeatDailyRB_label(), Boolean.FALSE);
 //		dailyRepeatRB.setBoxLabel("daily");
 //		dailyRepeatRB.setName("daily");
 //		dailyRepeatRB.setValue(false);
         dailyRepeatRB.addListener(Events.OnChange, new Listener<FieldEvent>() {
             @Override
             public void handleEvent(FieldEvent event) {
-                ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(" The Daily event.");
+                ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_daily());
 //                eventStartTimeField.setVisible(!dailyRepeatRB.getValue());
 //                eventEndTimeField.setVisible(!dailyRepeatRB.getValue());
 //                eventDateStartField.setAllowBlank(false);
                 getPanelYearly().setVisible(!dailyRepeatRB.getValue());
                 getPanelMonthly().setVisible(!dailyRepeatRB.getValue());
-                Window.alert(getDailyRepeatRB().getBoxLabel() + " is checked  Listener OnChange on DAILY radio");
+             //   Window.alert(getDailyRepeatRB().getBoxLabel() + " is checked  Listener OnChange on DAILY radio");
             }
         });
     }
 
     private void createOnceRb() {
-        onceRepeatRB = Forms.radio("once", "onceRepeatRBname", Boolean.FALSE);
+        onceRepeatRB = Forms.radio(I18N.CONSTANTS.calendar_addEvent_repeatOnceRB_label(), I18N.CONSTANTS.calendar_addEvent_repeatOnceRB_name(), Boolean.FALSE);
         onceRepeatRB.setOriginalValue(Boolean.TRUE);
         onceRepeatRB.setToolTip(I18N.CONSTANTS.calendar_addEvent_repeatOnceRB_toolTip());
 
@@ -293,12 +293,12 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
 
                 getPanelYearly().setVisible(!onceRepeatRB.getValue());
                 getPanelMonthly().setVisible(!onceRepeatRB.getValue());
-                eventStartTimeField.setVisible(!dailyRepeatRB.getValue());
-                eventEndTimeField.setVisible(!dailyRepeatRB.getValue());
+             //   eventStartTimeField.setVisible(!dailyRepeatRB.getValue());
+               // eventEndTimeField.setVisible(!dailyRepeatRB.getValue());
 //                eventDateStartField.setAllowBlank(false);
 //                eventDateStartField.setAllowBlank(true);
-                ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(" The Once event.");
-                Window.alert(getOnceRepeatRB().getBoxLabel() + " is checked  Listener OnChange on ONCE radio");
+                ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_once());
+             //   Window.alert(getOnceRepeatRB().getBoxLabel() + " is checked  Listener OnChange on ONCE radio");
             }
         });
     }
@@ -308,7 +308,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         panelMonthly.setExpanded(true);
         //panelMonthly.setTitle("Montly panel title");
         panelMonthly.setBorders(true);
-        panelMonthly.setHeadingHtml("Montly repeats settings");
+        panelMonthly.setHeadingHtml(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_headingHtml_monthly());
         // panelMonthly.setCollapsible(true);
         panelMonthly.setAutoHeight(true);
         //panelMonthly.setToolTip("Set Monthly event repeats options.");
@@ -316,22 +316,22 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
 
         //Radio radioMonthlySameDayOfWeek = new Radio();
 
-        radioMonthlySameDayOfWeek = Forms.radio("Same day of week");
+        radioMonthlySameDayOfWeek = Forms.radio(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_SameDayOfWeekRB_label());
         //radioMonthlySameDayOfWeek.setBoxLabel("Same day of week");
-        radioMonthlySameDayOfWeek.setName("radioMonthlySameDayOfWeek");
+        radioMonthlySameDayOfWeek.setName(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_SameDayOfWeekRB_monthly_name());
         radioMonthlySameDayOfWeek.setValue(Boolean.FALSE);
         radioMonthlySameDayOfWeek.setOriginalValue(Boolean.FALSE);
-        radioMonthlySameDayOfWeek.setToolTip("Every next month at the same day of week. (with autochange to ...h)");
+        radioMonthlySameDayOfWeek.setToolTip(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_SameDayOfWeekRB_monthly_toolTip());
 
         //Radio radioMonthlySameDate = new Radio();
-        radioMonthlySameDate = Forms.radio("Same date");
-        radioMonthlySameDate.setBoxLabel("Same date");
-        radioMonthlySameDate.setName("radioMonthlySameDate");
+        radioMonthlySameDate = Forms.radio(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_SameDateRB_label());
+        radioMonthlySameDate.setBoxLabel(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_SameDateRB_label());
+        radioMonthlySameDate.setName(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_SameDateRB_monthly_name());
         radioMonthlySameDate.setValue(Boolean.FALSE);
-        radioMonthlySameDate.setToolTip("Every next month at the same date. (with autochange to last day of month)");
+        radioMonthlySameDate.setToolTip(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_SameDateRB_monthly_toolTip());
 
         //montlyVariantRG= new RadioGroup();
-        montlyVariantRG = Forms.radioGroup("Montly settings 999");
+        montlyVariantRG = Forms.radioGroup(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_radioGroup_monthly_settings());
         //montlyVariantRG.setSelectionRequired(Boolean.TRUE);
         montlyVariantRG.setSelectionRequired(Boolean.FALSE);
         montlyVariantRG.setOrientation(Style.Orientation.HORIZONTAL);
@@ -347,26 +347,27 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         panelYearly.setExpanded(true);
         //panelYearly.setTitle("Yearly panel title");
         panelYearly.setBorders(true);
-        panelYearly.setHeadingHtml("Yearly repeats settings");
+        panelYearly.setHeadingHtml(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_headingHtml_yearly());
         // panelYearly.setCollapsible(true);
         panelYearly.setAutoHeight(true);
         // panelYearly.setToolTip("Set Yearly event repeats options");
         panelYearly.setVisible(false);
 
-        yearlySameDayOfWeekRB = Forms.radio("Same day of week", Boolean.FALSE);
-        yearlySameDayOfWeekRB.setToolTip("Repeat Calendar event at the same DAY of week annually");
+        yearlySameDayOfWeekRB = Forms.radio(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_SameDayOfWeekRB_label(), Boolean.FALSE);
+        yearlySameDayOfWeekRB.setToolTip(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_SameDayOfWeekRB_yearly_toolTip());
         yearlySameDayOfWeekRB.setOriginalValue(Boolean.TRUE);
         //yearlySameDayOfWeekRB.setBoxLabel("Same day of week");
-        yearlySameDayOfWeekRB.setName("radioYearlySameDayOfWeek");
+        yearlySameDayOfWeekRB.setName(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_SameDayOfWeekRB_yearly_name());
         yearlySameDayOfWeekRB.setValue(Boolean.TRUE);
 
         //yearlySameDateRB = new Radio();
-        yearlySameDateRB = Forms.radio("Same date", Boolean.FALSE);
+        yearlySameDateRB = Forms.radio(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_SameDateRB_label(), Boolean.FALSE);
         //yearlySameDateRB.setBoxLabel("Same date");
-        yearlySameDateRB.setName("radioYearlySameDate");
+        yearlySameDateRB.setName(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_SameDateRB_yearly_name());
         //yearlySameDateRB.setValue(false);
 
-        yearlyVariantRG = Forms.radioGroup("Yearly settings 888", "Yearly settings name",
+        yearlyVariantRG = Forms.radioGroup(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_radioGroup_yearly_settings(), 
+                I18N.CONSTANTS.calendar_addEvent_repeatsSettings_radioGroup_yearly_settings_name(),
                 Style.Orientation.HORIZONTAL,
                 yearlySameDayOfWeekRB,
                 yearlySameDateRB);

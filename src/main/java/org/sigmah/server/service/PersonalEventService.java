@@ -91,7 +91,9 @@ public class PersonalEventService extends AbstractEntityService<PersonalEvent, I
 
 		event.setSummary((String) properties.get(Event.SUMMARY));
 		event.setDescription((String) properties.get(Event.DESCRIPTION));
-
+                event.setEventType((String) properties.get(Event.EVENT_TYPE));
+                event.setReferenceId((Integer) properties.get(Event.REFERENCE_ID));
+                
 		final Date day = (Date) properties.get(Event.DATE);
 		final Serializable startHourSerialized = properties.get(Event.START_TIME);
 		final Serializable endHourSerialized = properties.get(Event.END_TIME);

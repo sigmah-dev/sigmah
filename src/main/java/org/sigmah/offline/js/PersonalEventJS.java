@@ -43,7 +43,9 @@ public final class PersonalEventJS extends JavaScriptObject {
 		personalEventJS.setDescription(event.getDescription());
 		personalEventJS.setDtstart(Values.toJsDate(event.getDtstart()));
 		personalEventJS.setDtend(Values.toJsDate(event.getDtend()));
-		
+                personalEventJS.setEventType(event.getEventType());
+		personalEventJS.setReferenceId(event.getReferenceId());
+                
 		return personalEventJS;
 	}
 	
@@ -55,7 +57,8 @@ public final class PersonalEventJS extends JavaScriptObject {
 		event.setDescription(getDescription());
 		event.setDtstart(Values.toDate(getDtstart()));
 		event.setDtend(Values.toDate(getDtend()));
-		
+		event.setEventType(getEventType());
+                event.setReferenceId(getReferenceId());       
 		return event;
 	}
 
@@ -97,5 +100,21 @@ public final class PersonalEventJS extends JavaScriptObject {
 
 	public native void setDtend(JsDate dtend) /*-{
 		this.dtend = dtend;
+	}-*/;
+        
+        public native void setEventType(String eventtype) /*-{
+		this.eventtype = eventtype;
+	}-*/;
+        
+        public native String getEventType() /*-{
+		return this.eventtype;
+	}-*/;
+        
+        public native void setReferenceId(Integer referenceid) /*-{
+		this.referenceid = referenceid;
+	}-*/;
+        
+        public native Integer getReferenceId() /*-{
+		return this.referenceid;
 	}-*/;
 }
