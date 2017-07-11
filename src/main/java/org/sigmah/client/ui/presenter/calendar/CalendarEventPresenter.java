@@ -453,14 +453,13 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         Date endDate = createEndDateProperty(isFullDayEvent, beginEventIntervalDate, properties);
 
         properties.put(Event.DESCRIPTION, view.getEventDescriptionField().getValue());
+      
 
         if (event == null) {
-            // process properties and define repetable events dates
             processAddEvent(endEventIntervalDate, beginEventIntervalDate, startDate, endDate, properties, eventSummary, eventDescription);
-            //add first event, to include in properties  updated description and summary with event period type
-            //the first event is added last - after processing previous events
-            //addPersonalEvent(properties);
         } else {
+        properties.put(Event.EVENT_TYPE, event.getEventType());
+        properties.put(Event.REFERENCE_ID, event.getReferenceId());  
             editPersonalEvent(event, properties);
         }
     }
