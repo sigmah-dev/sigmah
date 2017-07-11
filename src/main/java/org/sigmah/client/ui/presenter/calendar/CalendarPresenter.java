@@ -49,29 +49,20 @@ import org.sigmah.shared.dto.calendar.CalendarType;
 import org.sigmah.shared.dto.calendar.CalendarWrapper;
 import org.sigmah.shared.dto.calendar.Event;
 import org.sigmah.shared.dto.calendar.PersonalEventDTO;
-import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
-import org.sigmah.shared.util.ProfileUtils;
-
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.selection.AbstractStoreSelectionModel;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import java.util.Date;
-import java.util.Iterator;
 import org.sigmah.client.ui.presenter.reminder.ReminderType;
 import org.sigmah.client.util.profiler.Profiler;
 import org.sigmah.client.util.profiler.Scenario;
-import org.sigmah.server.dao.PersonalEventDAO;
-import org.sigmah.server.domain.calendar.PersonalEvent;
 import org.sigmah.shared.dto.calendar.CalendarIdentifier;
 import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
-import org.sigmah.shared.util.ProjectUtils;
 
 /**
  * Calendar widget presenter.
@@ -181,7 +172,39 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                     }
                 });
             }
+  
+            public void deleteEventFunction1(final Event next, Integer parentId, final Map<Date, List<Event>> eventMap, final Date key) {
+                dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, next.getIdentifier(), parentId), new CommandResultHandler<VoidResult>() {
 
+                    @Override
+                    public void onCommandFailure(final Throwable caught) {
+                        N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarDeleteEventError());
+                    }
+
+                    @Override
+                    public void onCommandSuccess(final VoidResult result) {
+                        eventMap.get(key).remove(next);
+                        calendar.refresh();
+                    }
+                });
+            }
+            
+            public void deleteEventFunction2(final Event next, Integer parentId, final Map<Date, List<Event>> eventMap, final Date key, int mainId) {
+                dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, mainId, parentId), new CommandResultHandler<VoidResult>() {
+
+                    @Override
+                    public void onCommandFailure(final Throwable caught) {
+                        N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarDeleteEventError());
+                    }
+
+                    @Override
+                    public void onCommandSuccess(final VoidResult result) {
+                        eventMap.get(key).remove(next);
+                        calendar.refresh();
+                    }
+                });
+            }
+            
             @Override
             public void deleteChain(final Event event, final CalendarWidget calendarWidget) {
                 final CalendarIdentifier calendarIdentifier = event.getParent().getIdentifier();
@@ -201,66 +224,17 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                         for (final Event next : eventMap.get(key)) {
                             if (refId != 0) {
                                 if (next.getReferenceId() != null && (next.getReferenceId().intValue() == refId)) {
-                                    dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, next.getIdentifier(), parentId), new CommandResultHandler<VoidResult>() {
-
-                                        @Override
-                                        public void onCommandFailure(final Throwable caught) {
-                                            N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarDeleteEventError());
-                                        }
-
-                                        @Override
-                                        public void onCommandSuccess(final VoidResult result) {
-                                            eventMap.get(key).remove(next);
-                                            calendar.refresh();
-                                        }
-                                    });
-                                    break;
+                                    deleteEventFunction1(next, parentId, eventMap, key);
                                 }
                                 else if((next.getReferenceId() == null) && (next.getIdentifier().intValue() == refId)){
-                                    dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, next.getIdentifier(), parentId), new CommandResultHandler<VoidResult>() {
-
-                                        @Override
-                                        public void onCommandFailure(final Throwable caught) {
-                                            N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarDeleteEventError());
-                                        }
-
-                                        @Override
-                                        public void onCommandSuccess(final VoidResult result) {
-                                            eventMap.get(key).remove(next);
-                                            calendar.refresh();
-                                        }
-                                    });  
+                                    deleteEventFunction1(next, parentId, eventMap, key);
                                 }
                             } else {
                                 if (next.getReferenceId() != null && (next.getReferenceId().intValue() == mainId)) {
-                                    dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, next.getIdentifier(), parentId), new CommandResultHandler<VoidResult>() {
-
-                                        @Override
-                                        public void onCommandFailure(final Throwable caught) {
-                                            N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarDeleteEventError());
-                                        }
-
-                                        @Override
-                                        public void onCommandSuccess(final VoidResult result) {
-                                            eventMap.get(key).remove(next);
-                                            calendar.refresh();
-                                        }
-                                    });
+                                    deleteEventFunction1(next, parentId, eventMap, key);
                                 }
                                 else if(next.getReferenceId() == null && next.getIdentifier().intValue() == mainId){
-                                    dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, mainId, parentId), new CommandResultHandler<VoidResult>() {
-
-                                        @Override
-                                        public void onCommandFailure(final Throwable caught) {
-                                            N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarDeleteEventError());
-                                        }
-
-                                        @Override
-                                        public void onCommandSuccess(final VoidResult result) {
-                                            eventMap.get(key).remove(next);
-                                            calendar.refresh();
-                                        }
-                                    });  
+                                    deleteEventFunction2(next, parentId, eventMap, key, mainId);  
                                 }
                             }
                         }
