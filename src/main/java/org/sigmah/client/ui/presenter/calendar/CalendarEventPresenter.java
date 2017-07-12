@@ -74,7 +74,8 @@ import com.google.inject.Singleton;
  */
 @Singleton
 public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventPresenter.View> {
-
+    private Event event;
+    private CalendarWrapper calendarWrapper;
     /**
      * Description of the view managed by this presenter.
      */
@@ -231,9 +232,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
     /**
      * The edited calendar event, or {@code null} if creation.
      */
-    private Event event;
 
-    private CalendarWrapper calendarWrapper;
 
     /**
      * Presenters's initialization.
@@ -444,7 +443,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
         Boolean isFullDayEvent = view.getAllDayCheckbox().getValue();
 
-        Window.alert("isAllDayEvent=" + isFullDayEvent);//temp for checker
+     //   Window.alert("isAllDayEvent=" + isFullDayEvent);//temp for checker
 
         Date startDate = createStartDateProperty(isFullDayEvent, beginEventIntervalDate, properties);
         Date endDate = createEndDateProperty(isFullDayEvent, beginEventIntervalDate, properties);
@@ -569,7 +568,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         daysInterval = (int) daysDiff;
 
         long calBeginNextEventDateLong = beginEventIntervalDate.getTime();
-        Date calBeginNextEventDate = beginEventIntervalDate;
+        //Date calBeginNextEventDate = beginEventIntervalDate;
 
         if (daysInterval > 1) {
             properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY) + " ( 1 of " + daysInterval + ")");
@@ -588,10 +587,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
             @Override
             public void onCommandFailure(final Throwable caught) {
-                if (Log.isErrorEnabled()) {
-                    Log.error(I18N.CONSTANTS.calendarAddEventError(), caught);
-                }
-                N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarAddEventError());
+                processAddEventError(caught);
             }
 
             @Override
@@ -607,21 +603,28 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         }, view.getCancelButton(), view.getSaveButton());
     }
 
+    private void processAddEventError(final Throwable caught) {
+        if (Log.isErrorEnabled()) {
+            Log.error(I18N.CONSTANTS.calendarAddEventError(), caught);
+        }
+        N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarAddEventError());
+    }
+
     private void addDailySeriesEvent(String ids, int daysInterval, long calBeginNextEventDateLong, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
-        Date calBeginNextEventDate;
+        //Date calBeginNextEventDate;
 
         for (int i = 1; i < daysInterval; i++) {
 
             calBeginNextEventDateLong += milisPerDay;
-            calBeginNextEventDate = new Date(calBeginNextEventDateLong);
+            //calBeginNextEventDate = new Date(calBeginNextEventDateLong);
 
             Map<String, Serializable> dailyProperties = new HashMap<String, Serializable>();
             dailyProperties.put(Event.CALENDAR_ID, calendarWrapper);
             dailyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
 
-            dailyProperties.put(Event.DATE, calBeginNextEventDate);
+            dailyProperties.put(Event.DATE, new Date(calBeginNextEventDateLong));
 
-            setFullDayEvent(startDate, endDate, calBeginNextEventDate, dailyProperties);
+            setFullDayEvent(startDate, endDate, new Date(calBeginNextEventDateLong), dailyProperties);
 
             String newSummary = eventSummary;
             String newDescription = eventDescription;
@@ -652,7 +655,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         int weeksInterval = (int) weekDiff;
 
         long calBeginNextEventDateLong = beginEventIntervalDate.getTime();
-        Date calBeginNextEventDate = beginEventIntervalDate;
+        //Date calBeginNextEventDate = beginEventIntervalDate;
 
         if (weeksInterval > 1) {
             properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY) + " (Weekly event 1 of " + weeksInterval + ")");
@@ -671,10 +674,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
             @Override
             public void onCommandFailure(final Throwable caught) {
-                if (Log.isErrorEnabled()) {
-                    Log.error(I18N.CONSTANTS.calendarAddEventError(), caught);
-                }
-                N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarAddEventError());
+                processAddEventError(caught);
             }
 
             @Override
@@ -691,20 +691,20 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
     }
 
     private void addWeeklySeriesEvent(String ids, int weeksInterval, long calBeginNextEventDateLong, long milisPerWeek, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
-        Date calBeginNextEventDate;
+        //Date calBeginNextEventDate;
 
         for (int i = 1; i < weeksInterval; i++) {
 
             calBeginNextEventDateLong += milisPerWeek;
-            calBeginNextEventDate = new Date(calBeginNextEventDateLong);
+           // calBeginNextEventDate = new Date(calBeginNextEventDateLong);
 
             Map<String, Serializable> weeklyProperties = new HashMap<String, Serializable>();
             weeklyProperties.put(Event.CALENDAR_ID, calendarWrapper);
             weeklyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
 
-            weeklyProperties.put(Event.DATE, calBeginNextEventDate);
+            weeklyProperties.put(Event.DATE, new Date(calBeginNextEventDateLong));
 
-            setFullDayEvent(startDate, endDate, calBeginNextEventDate, weeklyProperties);
+            setFullDayEvent(startDate, endDate, new Date(calBeginNextEventDateLong), weeklyProperties);
 
             String newSummary = eventSummary;
             String newDescription = eventDescription;
@@ -780,21 +780,19 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 properties.put(Event.EVENT_TYPE, "M2");
             }
         }
-        addPersonalEventMonthly(properties, monthInterval, beginEventIntervalDate, endEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
+        //addPersonalEventMonthly(properties, monthInterval, beginEventIntervalDate, endEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
+        addPersonalEventMonthly(properties, monthInterval, beginEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
     }
 
-    private void addPersonalEventMonthly(final Map<String, Serializable> properties, final int monthInterval, final Date beginEventIntervalDate, final Date endEventIntervalDate, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription, final boolean isMonthlySameDayOfWeek) {
-
+    //private void addPersonalEventMonthly(final Map<String, Serializable> properties, final int monthInterval, final Date beginEventIntervalDate, final Date endEventIntervalDate, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription, final boolean isMonthlySameDayOfWeek) {
+    private void addPersonalEventMonthly(final Map<String, Serializable> properties, final int monthInterval, final Date beginEventIntervalDate, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription, final boolean isMonthlySameDayOfWeek) {
         final CreateEntity createEntity = new CreateEntity(PersonalEventDTO.ENTITY_NAME, properties);
 
         dispatch.execute(createEntity, new CommandResultHandler<CreateResult>() {
 
             @Override
             public void onCommandFailure(final Throwable caught) {
-                if (Log.isErrorEnabled()) {
-                    Log.error(I18N.CONSTANTS.calendarAddEventError(), caught);
-                }
-                N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarAddEventError());
+                processAddEventError(caught);
             }
 
             @Override
@@ -806,12 +804,14 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 properties.put(Event.REFERENCE_ID, (Integer) result.getEntity().getId());
                 updateEvent(event, properties);
                 //  properties.put(Event.REFERENCE_ID, (Integer) result.getEntity().getId());
-                addMonthlySeriesEvent((String) result.getEntity().getId(), monthInterval, beginEventIntervalDate, endEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
+                //addMonthlySeriesEvent((String) result.getEntity().getId(), monthInterval, beginEventIntervalDate, endEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
+                addMonthlySeriesEvent((String) result.getEntity().getId(), monthInterval, beginEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
             }
         }, view.getCancelButton(), view.getSaveButton());
     }
 
-    private void addMonthlySeriesEvent(String ids, int monthInterval, Date beginEventIntervalDate, Date endEventIntervalDate, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final boolean isMonthlySameDayOfWeek) {
+    //private void addMonthlySeriesEvent(String ids, int monthInterval, Date beginEventIntervalDate, Date endEventIntervalDate, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final boolean isMonthlySameDayOfWeek) {
+    private void addMonthlySeriesEvent(String ids, int monthInterval, Date beginEventIntervalDate, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final boolean isMonthlySameDayOfWeek) {
         Date calBeginNextEventDate = beginEventIntervalDate;
         for (int i = 1; i < monthInterval; i++) {
             //calBeginNextEventDate = getMonthlySameDate(beginEventIntervalDate, calBeginNextEventDate, i);
@@ -879,21 +879,22 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
             @Override
             public void onCommandFailure(final Throwable caught) {
-                if (Log.isErrorEnabled()) {
-                    Log.error(I18N.CONSTANTS.calendarAddEventError(), caught);
-                }
-                N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarAddEventError());
+                processAddEventError(caught);
             }
 
             @Override
             public void onCommandSuccess(final CreateResult result) {
 
+                createNewEvent(result);
+                addYearlySeriesEvent((String) result.getEntity().getId(), yearInterval, beginEventIntervalDate, endEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isYearlySameDayOfWeek);
+            }
+
+            private void createNewEvent(final CreateResult result) {
                 // Creating events.
                 final Event event = new Event();
                 event.setIdentifier((Integer) result.getEntity().getId());
                 properties.put(Event.REFERENCE_ID, (Integer) result.getEntity().getId());
                 updateEvent(event, properties);
-                addYearlySeriesEvent((String) result.getEntity().getId(), yearInterval, beginEventIntervalDate, endEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isYearlySameDayOfWeek);
             }
         }, view.getCancelButton(), view.getSaveButton());
     }
@@ -940,10 +941,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
             @Override
             public void onCommandFailure(final Throwable caught) {
-                if (Log.isErrorEnabled()) {
-                    Log.error(I18N.CONSTANTS.calendarAddEventError(), caught);
-                }
-                N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarAddEventError());
+                processAddEventError(caught);
             }
 
             @Override
@@ -971,10 +969,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
             @Override
             public void onCommandFailure(final Throwable caught) {
-                if (Log.isErrorEnabled()) {
-                    Log.error(I18N.CONSTANTS.calendarAddEventError(), caught);
-                }
-                N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarAddEventError());
+                processAddEventError(caught);
             }
 
             @Override
@@ -1099,11 +1094,11 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
         }
 
-        Window.alert("Date start: Month:" + firstDate.getMonth()
+ /*       Window.alert("Date start: Month:" + firstDate.getMonth()
                 + " | " + firstDate.getDay() + "| Date:" + getDaysInMonth(nextDateNew.getYear(), nextDateNew.getMonth())
                 + "  ; " + firstDate.toLocaleString() + " : month " + numberMonths
                 + ": Result " + " | " + newDate.getDay() + " | " + newDate.toLocaleString());//temp for checker
-
+*/
         return newDate;
     }
 
@@ -1145,12 +1140,12 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             //return newDate;
             newDate = newDate2;
         }
-        Window.alert("Monthly " + (isSameDayOfWeek ? "Same week DAY " : "Same DATE ") + "Date start: Month:" + firstDate.getMonth() + " | " + firstDate.getDay()
+  /*      Window.alert("Monthly " + (isSameDayOfWeek ? "Same week DAY " : "Same DATE ") + "Date start: Month:" + firstDate.getMonth() + " | " + firstDate.getDay()
                 + "| " + getDaysInMonth(firstDate.getYear(), firstDate.getMonth())
                 + " | " + firstDate.toLocaleString() + " | i= " + numberMonths + " | RESULT  | Prev | "
                 + nextDateNew.getDay() + " | " + nextDateNew.toLocaleString()
                 + " || New | " + newDate.getDay() + " | " + newDate.toLocaleString());//temp for checker
-
+*/
         return newDate;
     }
 
@@ -1195,12 +1190,12 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             nextDateNew = newDate;
         }
 
-        Window.alert("Yearly " + (isSameDayOfWeek ? "Same week DAY " : "Same DATE ") + "Date start: Month:" + firstDate.getMonth() + " | " + firstDate.getDay()
+    /*    Window.alert("Yearly " + (isSameDayOfWeek ? "Same week DAY " : "Same DATE ") + "Date start: Month:" + firstDate.getMonth() + " | " + firstDate.getDay()
                 + "| " + getDaysInMonth(firstDate.getYear(), firstDate.getMonth())
                 + " | " + firstDate.toLocaleString() + " | i= " + numberMonths + " | RESULT  | Prev | "
                 + nextDateOld.getDay() + " | " + nextDateOld.toLocaleString()
                 + " || New | " + nextDateNew.getDay() + " | " + nextDateNew.toLocaleString());//temp for checker
-
+*/
         return nextDateNew;
     }
 
