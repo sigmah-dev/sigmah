@@ -63,6 +63,7 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Time;
 import com.extjs.gxt.ui.client.widget.form.TimeField;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -158,6 +159,12 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
          *
          * @return
          */
+        FieldSet getPanelWeekly();
+
+        /**
+         *
+         * @return
+         */
         Radio getOnceRepeatRB();
 
         /**
@@ -225,7 +232,12 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
          * @return
          */
         Radio getRadioMonthlySameDayOfWeek();
-
+        
+        /**
+         *
+         * @return
+         */
+        ListBox getListBoxWeekly();
         // void setShowAddEventView(boolean showAddEventView);
     }
 
@@ -391,6 +403,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             view.getOnceRepeatRB().setValue(true);
             view.getPanelMonthly().hide();
             view.getPanelYearly().hide();
+            view.getPanelWeekly().hide();
         }
         view.getEventStartTimeField().show();
         view.getEventEndTimeField().show();
@@ -714,8 +727,9 @@ int []count = new int[100];
                 event.setIdentifier((Integer) result.getEntity().getId());
                 updateEvent(event, properties);
                 properties.put(Event.REFERENCE_ID, (Integer) result.getEntity().getId());
-                int daysInterval = 4;
-               
+                int daysInterval=0;
+                daysInterval = Integer.parseInt(view.getListBoxWeekly().getItemText(view.getListBoxWeekly().getSelectedIndex()));
+             //   Window.alert("DaysInterval = "+daysInterval);
                 addDailySeriesEventNew2((Integer)properties.get(Event.REFERENCE_ID), weeksInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
 
            addWeeklySeriesEvent(properties, (String) result.getEntity().getId(), daysInterval, weeksInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);

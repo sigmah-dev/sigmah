@@ -43,7 +43,9 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.google.gwt.user.client.ui.ListBox;
 import com.google.inject.Singleton;
 
 /**
@@ -70,7 +72,8 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     private RadioGroup montlyVariantRG;
     private FieldSet panelYearly;
     private FieldSet panelMonthly;
-
+    private FieldSet panelWeekly;
+    
     private Radio yearlySameDayOfWeekRB;
     private Radio yearlySameDateRB;
 
@@ -81,6 +84,9 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     private Radio yearlyRepeatRB;
     private Radio radioMonthlySameDate;
     private Radio radioMonthlySameDayOfWeek;
+    
+    private ListBox listBoxWeekly;
+    
     // private CheckBoxGroup allDayCheckboxGr;
 
     private RadioGroup RepeatEventPeriodRG;
@@ -101,8 +107,11 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
 
         createYearlyPanel();
         createMonthlyPanel();
+        createWeeklyPanel();
         createRepeatEventPeriodRadioGroup();
-
+        
+        listBoxWeekly.setName("listBoxWeekly");
+        
         eventSummaryField = Forms.text(I18N.CONSTANTS.calendarEventObject(), true);
         eventSummaryField.setName(Event.SUMMARY);
 
@@ -138,6 +147,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         form.add(RepeatEventPeriodRG);
         form.add(panelYearly);
         form.add(panelMonthly);
+        form.add(panelWeekly);
         form.add(eventDescriptionField);
 
         form.addButton(cancelButton);
@@ -189,6 +199,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
             public void handleEvent(FieldEvent event) {
                 ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_yearly());
                 getPanelYearly().setVisible(getYearlyRepeatRB().getValue());
+                getPanelWeekly().setVisible(!yearlyRepeatRB.getValue());
                 getPanelMonthly().setVisible(!yearlyRepeatRB.getValue());
 
                 getYearlySameDateRB().show();
@@ -206,6 +217,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
             @Override
             public void handleEvent(FieldEvent event) {
                 ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_monthly());
+                getPanelWeekly().setVisible(!monthlyRepeatRB.getValue());
                 getPanelYearly().setVisible(!monthlyRepeatRB.getValue());
                 getPanelMonthly().setVisible(getMonthlyRepeatRB().getValue());
                 eventDateStartField.setAllowBlank(false);
@@ -225,7 +237,8 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
                 ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_weekly());
                 getPanelYearly().setVisible(!weeklyRepeatRB.getValue());
                 getPanelMonthly().setVisible(!weeklyRepeatRB.getValue());
-
+                getPanelWeekly().setVisible(getWeeklyRepeatRB().getValue());
+                
                 eventDateStartField.setAllowBlank(false);
             }
         });
@@ -242,6 +255,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
                 ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_daily());
                 getPanelYearly().setVisible(!dailyRepeatRB.getValue());
                 getPanelMonthly().setVisible(!dailyRepeatRB.getValue());
+                getPanelWeekly().setVisible(!dailyRepeatRB.getValue());
             }
         });
     }
@@ -257,11 +271,26 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
 
                 getPanelYearly().setVisible(!onceRepeatRB.getValue());
                 getPanelMonthly().setVisible(!onceRepeatRB.getValue());
+                getPanelWeekly().setVisible(!onceRepeatRB.getValue());
                 ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_once());
             }
         });
     }
+    
+    private void createWeeklyPanel() {
+        panelWeekly = new FieldSet();
+        panelWeekly.setExpanded(true);
+        panelWeekly.setBorders(true);
+        panelWeekly.setHeadingHtml("Weekly repeats settings");
+        panelWeekly.setAutoHeight(true);
+        panelWeekly.setVisible(false);
 
+        listBoxWeekly = new ListBox();
+        for(int i=1;i<=7;i++) listBoxWeekly.addItem(""+i);
+                               
+        panelWeekly.add(listBoxWeekly);
+    }
+    
     private void createMonthlyPanel() {
         panelMonthly = new FieldSet();
         panelMonthly.setExpanded(true);
@@ -288,7 +317,12 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         montlyVariantRG.add(radioMonthlySameDayOfWeek);
         montlyVariantRG.add(radioMonthlySameDate);
 
+       // ListBox lb = new ListBox();
+       // lb.addItem("day(s)");
+       // lb.addItem("week(s)");
+
         panelMonthly.add(montlyVariantRG);
+       // panelMonthly.add(lb);
     }
 
     private void createYearlyPanel() {
@@ -404,6 +438,11 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         return panelMonthly;
     }
 
+    @Override
+    public FieldSet getPanelWeekly() {
+        return panelWeekly;
+    }    
+    
     /**
      *
      * @return
@@ -443,6 +482,11 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         return montlyVariantRG;
     }
 
+    @Override    
+    public ListBox getListBoxWeekly() {
+        return listBoxWeekly;
+    }
+    
     @Override
     public Radio getYearlySameDayOfWeekRB() {
         return yearlySameDayOfWeekRB;
@@ -457,11 +501,11 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     public RadioGroup getRepeatEventPeriodRG() {
         return RepeatEventPeriodRG;
     }
-
+    @Override
     public Radio getRadioMonthlySameDate() {
         return radioMonthlySameDate;
     }
-
+    @Override
     public Radio getRadioMonthlySameDayOfWeek() {
         return radioMonthlySameDayOfWeek;
     }
