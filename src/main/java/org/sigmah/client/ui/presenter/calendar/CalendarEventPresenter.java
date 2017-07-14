@@ -358,10 +358,16 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             view.getEventDateEndField().clear();
             view.getEventDateEndField().hide();
         }
-
+        if(event.getDtend().getDate() - event.getDtstart().getDate() == 1){
+        view.getAllDayCheckbox().setValue(true);
+        view.getEventStartTimeField().hide();
+        view.getEventEndTimeField().hide();
+        }
+        else{
+        view.getAllDayCheckbox().setValue(false);
         view.getEventStartTimeField().show();
-        view.getEventEndTimeField().show();
-
+        view.getEventEndTimeField().show();        
+        }
         if (!isFullDayEvent(event)) {
 
             final Time startTime = event.getDtstart() != null ? view.getEventStartTimeField().findModel(event.getDtstart()) : null;
@@ -407,6 +413,9 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         view.getRadioMonthlySameDate().show();
         view.getRadioMonthlySameDayOfWeek().show();
         view.getEventDateEndField().show();
+        view.getAllDayCheckbox().setValue(true);
+        view.getEventStartTimeField().hide();
+        view.getEventEndTimeField().hide();
     }
 
     // ---------------------------------------------------------------------------------------------------------------
@@ -578,6 +587,22 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         addPersonalEventDaily(properties, daysInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
 
     }
+    
+        private void processDailyEventsNew(int daysInterval, long milisPerDay, final Date beginEventIntervalDate, final Date startDate, final Date endDate, final Map<String, Serializable> properties, String eventSummary, String eventDescription) {
+
+        long calBeginNextEventDateLong = beginEventIntervalDate.getTime();
+        //Date calBeginNextEventDate = beginEventIntervalDate;
+
+//        if (daysInterval > 1) {
+//            properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY) + " ( 1 of " + daysInterval + ")");
+//            properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION) + " (Daily event 1 of " + daysInterval + ")");
+//            properties.put(Event.EVENT_TYPE, "D");
+//        }
+        addPersonalEventDaily(properties, daysInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
+
+    }
+    
+    
 
     private void addPersonalEventDaily(final Map<String, Serializable> properties, final int daysInterval, final long calBeginNextEventDateLong, final long milisPerDay, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription) {
 
@@ -598,7 +623,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 event.setIdentifier((Integer) result.getEntity().getId());
                 properties.put(Event.REFERENCE_ID, (Integer) result.getEntity().getId());
                 updateEvent(event, properties);
-                addDailySeriesEvent((String) result.getEntity().getId(), daysInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
+                addDailySeriesEvent((Integer) result.getEntity().getId(), daysInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
             }
         }, view.getCancelButton(), view.getSaveButton());
     }
@@ -610,9 +635,9 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarAddEventError());
     }
 
-    private void addDailySeriesEvent(String ids, int daysInterval, long calBeginNextEventDateLong, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
+    private void addDailySeriesEvent(Integer ids, int daysInterval, long calBeginNextEventDateLong, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
         //Date calBeginNextEventDate;
-
+ 
         for (int i = 1; i < daysInterval; i++) {
 
             calBeginNextEventDateLong += milisPerDay;
@@ -634,6 +659,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             dailyProperties.put(Event.DESCRIPTION, newDescription);
             dailyProperties.put(Event.EVENT_TYPE, "D");
             dailyProperties.put(Event.REFERENCE_ID, ids);
+           
             addPersonalEvent(dailyProperties);
         }
     }
@@ -657,16 +683,18 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         long calBeginNextEventDateLong = beginEventIntervalDate.getTime();
         //Date calBeginNextEventDate = beginEventIntervalDate;
 
-        if (weeksInterval > 1) {
+      //  if (weeksInterval > 1) {
             properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY) + " (Weekly event 1 of " + weeksInterval + ")");
             properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION) + " (Weekly event 1 of " + weeksInterval + ")");
             properties.put(Event.EVENT_TYPE, "W");
-        }
+        //}
         addPersonalEventWeekly(properties, weeksInterval, calBeginNextEventDateLong, milisPerWeek, startDate, endDate, eventSummary, eventDescription);
 
     }
 
-    private void addPersonalEventWeekly(final Map<String, Serializable> properties, final int daysInterval, final long calBeginNextEventDateLong, final long milisPerDay, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription) {
+int evLen=3;
+int []count = new int[100];
+    private void addPersonalEventWeekly(final Map<String, Serializable> properties, final int weeksInterval, final long calBeginNextEventDateLong, final long milisPerDay, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription) {
 
         final CreateEntity createEntity = new CreateEntity(PersonalEventDTO.ENTITY_NAME, properties);
 
@@ -681,43 +709,92 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             public void onCommandSuccess(final CreateResult result) {
 
                 // Creating events.
+            
                 final Event event = new Event();
                 event.setIdentifier((Integer) result.getEntity().getId());
-                properties.put(Event.REFERENCE_ID, (Integer) result.getEntity().getId());
                 updateEvent(event, properties);
-                addWeeklySeriesEvent((String) result.getEntity().getId(), daysInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
+                properties.put(Event.REFERENCE_ID, (Integer) result.getEntity().getId());
+                int daysInterval = 4;
+               
+                addDailySeriesEventNew2((Integer)properties.get(Event.REFERENCE_ID), weeksInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
+
+           addWeeklySeriesEvent(properties, (String) result.getEntity().getId(), daysInterval, weeksInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
             }
         }, view.getCancelButton(), view.getSaveButton());
     }
 
-    private void addWeeklySeriesEvent(String ids, int weeksInterval, long calBeginNextEventDateLong, long milisPerWeek, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
-        //Date calBeginNextEventDate;
-
-        for (int i = 1; i < weeksInterval; i++) {
-
-            calBeginNextEventDateLong += milisPerWeek;
-           // calBeginNextEventDate = new Date(calBeginNextEventDateLong);
+    private void addWeeklySeriesEvent(final Map<String, Serializable> properties, String ids, int daysInterval, int weeksInterval, long calBeginNextEventDateLong, long milisPerWeek, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
+           for (int i = 0; i < weeksInterval; i++) {
+             long milisPerDay = 86400000;
 
             Map<String, Serializable> weeklyProperties = new HashMap<String, Serializable>();
             weeklyProperties.put(Event.CALENDAR_ID, calendarWrapper);
             weeklyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
+            weeklyProperties.put(Event.EVENT_TYPE, "W");
+            weeklyProperties.put(Event.REFERENCE_ID, ids);
+          //int daysInterval = 4;
+           // addPersonalEvent(weeklyProperties);
+           
+            addDailySeriesEventNew((Integer)properties.get(Event.REFERENCE_ID), daysInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription, i, weeksInterval);
+            calBeginNextEventDateLong += milisPerWeek;
+        }
+    }
+        private void addDailySeriesEventNew2(Integer ids, int daysInterval, long calBeginNextEventDateLong, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
+        //Date calBeginNextEventDate;
+ 
+        for (int i = 1; i < daysInterval; i++) {
 
-            weeklyProperties.put(Event.DATE, new Date(calBeginNextEventDateLong));
+            calBeginNextEventDateLong += milisPerDay;
+            //calBeginNextEventDate = new Date(calBeginNextEventDateLong);
 
-            setFullDayEvent(startDate, endDate, new Date(calBeginNextEventDateLong), weeklyProperties);
+            Map<String, Serializable> dailyProperties = new HashMap<String, Serializable>();
+            dailyProperties.put(Event.CALENDAR_ID, calendarWrapper);
+            dailyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
+
+            dailyProperties.put(Event.DATE, new Date(calBeginNextEventDateLong));
+
+            setFullDayEvent(startDate, endDate, new Date(calBeginNextEventDateLong), dailyProperties);
 
             String newSummary = eventSummary;
             String newDescription = eventDescription;
-            newSummary += " (Weekly event " + (i + 1) + " of " + weeksInterval + ")";
-            newDescription += " (Weekly event " + (i + 1) + " of " + weeksInterval + ")";
-            weeklyProperties.put(Event.SUMMARY, newSummary);
-            weeklyProperties.put(Event.DESCRIPTION, newDescription);
-            weeklyProperties.put(Event.EVENT_TYPE, "W");
-            weeklyProperties.put(Event.REFERENCE_ID, ids);
-            addPersonalEvent(weeklyProperties);
+            newSummary += " (Weekly event " + (i + 1) + " of " + daysInterval + ")";
+            newDescription += " (Weekly event " + (i + 1) + " of " + daysInterval + ")";
+            dailyProperties.put(Event.SUMMARY, newSummary);
+            dailyProperties.put(Event.DESCRIPTION, newDescription);
+            dailyProperties.put(Event.EVENT_TYPE, "W");
+            dailyProperties.put(Event.REFERENCE_ID, ids);
+           
+            addPersonalEvent(dailyProperties);
         }
     }
+    private void addDailySeriesEventNew(Integer ids, int daysInterval, long calBeginNextEventDateLong, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final int j, final int weeksInterval) {
+        //Date calBeginNextEventDate;
+ 
+        for (int i = 1; i < daysInterval; i++) {
 
+            calBeginNextEventDateLong += milisPerDay;
+            //calBeginNextEventDate = new Date(calBeginNextEventDateLong);
+
+            Map<String, Serializable> dailyProperties = new HashMap<String, Serializable>();
+            dailyProperties.put(Event.CALENDAR_ID, calendarWrapper);
+            dailyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
+
+            dailyProperties.put(Event.DATE, new Date(calBeginNextEventDateLong));
+
+            setFullDayEvent(startDate, endDate, new Date(calBeginNextEventDateLong), dailyProperties);
+
+            String newSummary = eventSummary;
+            String newDescription = eventDescription;
+            newSummary += " (Weekly event " + (j + 1) + " of " + weeksInterval + ")";
+            newDescription += " (Weekly event " + (j + 1) + " of " + weeksInterval + ")";
+            dailyProperties.put(Event.SUMMARY, newSummary);
+            dailyProperties.put(Event.DESCRIPTION, newDescription);
+            dailyProperties.put(Event.EVENT_TYPE, "W");
+            dailyProperties.put(Event.REFERENCE_ID, ids);
+           
+            addPersonalEvent(dailyProperties);
+        }
+    }
     /**
      * Set date and time values for Full day events.
      *
