@@ -22,6 +22,7 @@ package org.sigmah.client.ui.view.calendar;
  * #L%
  */
 import com.extjs.gxt.ui.client.Style;
+import com.extjs.gxt.ui.client.data.ChangeListener;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
@@ -45,6 +46,8 @@ import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.google.gwt.event.dom.client.ChangeEvent;
+import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.ListBox;
 import com.google.inject.Singleton;
 
@@ -86,7 +89,10 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     private Radio radioMonthlySameDayOfWeek;
     
     private ListBox listBoxWeekly;
-    
+    private ListBox listBoxMonthly1;
+    private ListBox listBoxMonthly2;
+    private ListBox listBoxYearly1;
+    private ListBox listBoxYearly2;   
     // private CheckBoxGroup allDayCheckboxGr;
 
     private RadioGroup RepeatEventPeriodRG;
@@ -111,6 +117,10 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         createRepeatEventPeriodRadioGroup();
         
         listBoxWeekly.setName("listBoxWeekly");
+        listBoxMonthly1.setName("listBoxMonthly1");
+        listBoxMonthly2.setName("listBoxMonthly2");
+        listBoxYearly1.setName("listBoxYearly1");
+        listBoxYearly2.setName("listBoxYearly2");
         
         eventSummaryField = Forms.text(I18N.CONSTANTS.calendarEventObject(), true);
         eventSummaryField.setName(Event.SUMMARY);
@@ -238,7 +248,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
                 getPanelYearly().setVisible(!weeklyRepeatRB.getValue());
                 getPanelMonthly().setVisible(!weeklyRepeatRB.getValue());
                 getPanelWeekly().setVisible(getWeeklyRepeatRB().getValue());
-                
+                Window.alert("Test");
                 eventDateStartField.setAllowBlank(false);
             }
         });
@@ -276,6 +286,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
             }
         });
     }
+   
     
     private void createWeeklyPanel() {
         panelWeekly = new FieldSet();
@@ -316,13 +327,20 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         montlyVariantRG.setOrientation(Style.Orientation.HORIZONTAL);
         montlyVariantRG.add(radioMonthlySameDayOfWeek);
         montlyVariantRG.add(radioMonthlySameDate);
-
-       // ListBox lb = new ListBox();
-       // lb.addItem("day(s)");
-       // lb.addItem("week(s)");
-
         panelMonthly.add(montlyVariantRG);
-       // panelMonthly.add(lb);
+        
+        listBoxMonthly1 = new ListBox();
+        listBoxMonthly1.addItem("day(s)");
+        listBoxMonthly1.addItem("week(s)");
+        panelMonthly.add(listBoxMonthly1);
+        
+
+        
+        listBoxMonthly2 = new ListBox();
+        for(int i=1;i<=30;i++) listBoxMonthly2.addItem(""+i);                       
+        panelMonthly.add(listBoxMonthly2);
+
+
     }
 
     private void createYearlyPanel() {
@@ -349,6 +367,18 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         yearlyVariantRG.setSelectionRequired(Boolean.FALSE);
 
         panelYearly.add(yearlyVariantRG);
+        
+        listBoxYearly1 = new ListBox();
+        listBoxYearly1.addItem("day(s)");
+        listBoxYearly1.addItem("week(s)");
+        listBoxYearly1.addItem("month(s)");
+        panelYearly.add(listBoxYearly1);
+        
+
+        
+        listBoxYearly2 = new ListBox();
+        for(int i=1;i<=30;i++) listBoxYearly2.addItem(""+i);                       
+        panelYearly.add(listBoxYearly2);
     }
 
     /**
@@ -482,10 +512,31 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         return montlyVariantRG;
     }
 
+    
+    
     @Override    
     public ListBox getListBoxWeekly() {
         return listBoxWeekly;
     }
+    
+        @Override    
+    public ListBox getListBoxMonthly1() {
+        return listBoxMonthly1;
+    }
+    
+        @Override    
+    public ListBox getListBoxMonthly2() {
+        return listBoxMonthly2;
+    }    
+        @Override    
+    public ListBox getListBoxYearly1() {
+        return listBoxYearly1;
+    }
+        @Override    
+    public ListBox getListBoxYearly2() {
+        return listBoxYearly2;
+    }    
+    
     
     @Override
     public Radio getYearlySameDayOfWeekRB() {
