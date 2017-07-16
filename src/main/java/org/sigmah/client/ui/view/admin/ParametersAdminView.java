@@ -43,7 +43,9 @@ import org.sigmah.shared.util.Pair;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -55,6 +57,9 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SpinnerField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
+import com.extjs.gxt.ui.client.widget.layout.FlowData;
+import com.extjs.gxt.ui.client.widget.layout.LayoutData;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -109,6 +114,11 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 	private SpinnerField frequencyField;
 	private DateField scheduledDateField;
 	private Button passwordExpirationSaveButton;
+	
+	private FormPanel solrSettingsForm;
+	private TextField<String> solrCoreUrlTextField;
+	private Button solrSaveConfigButton;
+	private Button manualIndexButton;
 
 	/**
 	 * {@inheritDoc}
@@ -124,8 +134,20 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 		// bottomContainer.add(createExportManagementPanel(), Layouts.hBoxData(Margin.HALF_RIGHT));
 		// bottomContainer.add(createPasswordExpirationManagementPanel(), Layouts.hBoxData(Margin.HALF_LEFT));
 
-		add(topContainer, Layouts.borderLayoutData(LayoutRegion.NORTH, 0.5f, Margin.BOTTOM));
-		add(createExportManagementPanel(), Layouts.borderLayoutData(LayoutRegion.CENTER, 0.5f));
+		add(topContainer, Layouts.borderLayoutData(LayoutRegion.NORTH, 0.5f, Margin.HALF_BOTTOM));
+		
+		//add()
+		
+		final LayoutContainer bottomWestContainer = Layouts.hBox();
+		bottomWestContainer.add(createExportManagementPanel(),Layouts.hBoxData(Margin.HALF_RIGHT));
+		final LayoutContainer bottomEastContainer = Layouts.hBox();
+		bottomEastContainer.add(createSolrSettingsPanel(),Layouts.hBoxData(Margin.HALF_LEFT));
+		
+		//add(createExportManagementPanel(), Layouts.borderLayoutData(LayoutRegion.WEST, 0.5f));
+		
+		add(bottomWestContainer, Layouts.borderLayoutData(LayoutRegion.WEST, 0.5f, Margin.HALF_TOP));
+		add(bottomEastContainer, Layouts.borderLayoutData(LayoutRegion.EAST, 0.5f, Margin.HALF_TOP));
+		
 	}
 
 	/**
@@ -232,7 +254,36 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 
 		return panel;
 	}
+	
+	
 
+	private ContentPanel createSolrSettingsPanel() {
+
+		final ContentPanel panel = Panels.content("Solr Search Settings", CSS_ADMIN_PARAMETERS);
+
+		solrSettingsForm = Forms.panel(150);
+
+		solrCoreUrlTextField = Forms.text("Solr Core Url", true);
+		solrSettingsForm.add(solrCoreUrlTextField);
+
+		solrSettingsForm.add(new Html("<br><br>"));
+		manualIndexButton = Forms.button("Manual Index");
+		//manualIndexButton.setAutoWidth(false);
+		
+		//manualIndexButton.setStyleAttribute("text-align", "centre");
+		//solrSettingsForm.add(new Html("<div><button style=\"" + manualIndexButton.getStylePrimaryName() + "\">" + manualIndexButton.getHtml() + "</button></div>"));
+		//solrSettingsForm.add(manualIndexButton);
+		final LayoutData buttonLayoutData = new BorderLayoutData(LayoutRegion.EAST);
+		//final LayoutData layoutData = new FlowData(0, 0, 0, 0);
+		((BorderLayoutData) buttonLayoutData).setMargins(new Margins(0, 100, 0, 100));
+		solrSettingsForm.add(manualIndexButton, buttonLayoutData);
+		solrSaveConfigButton = Forms.button(I18N.CONSTANTS.organizationManagementSaveChanges(), IconImageBundle.ICONS.save());
+		solrSettingsForm.addButton(solrSaveConfigButton);
+
+		panel.add(solrSettingsForm);
+
+		return panel;
+	}
 	/**
 	 * Creates the password expiration policy management panel.
 	 * 
@@ -434,5 +485,30 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 	public Button getExportManagementSaveButton() {
 		return exportManagementSaveButton;
 	}
+
+	public TextField<String> getSolrCoreUrlTextField() {
+		return solrCoreUrlTextField;
+	}
+
+	public void setSolrCoreUrlTextField(TextField<String> solrCoreUrlTextField) {
+		this.solrCoreUrlTextField = solrCoreUrlTextField;
+	}
+
+	public Button getSolrSaveConfigButton() {
+		return solrSaveConfigButton;
+	}
+
+	public void setSolrSaveConfigButton(Button solrSaveConfigButton) {
+		this.solrSaveConfigButton = solrSaveConfigButton;
+	}
+
+	public Button getManualIndexButton() {
+		return manualIndexButton;
+	}
+
+	public void setManualIndexButton(Button manualIndexButton) {
+		this.manualIndexButton = manualIndexButton;
+	}
+
 
 }

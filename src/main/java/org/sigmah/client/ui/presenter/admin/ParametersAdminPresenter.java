@@ -1,5 +1,7 @@
 package org.sigmah.client.ui.presenter.admin;
 
+import com.google.gwt.core.client.GWT;
+
 /*
  * #%L
  * Sigmah
@@ -25,6 +27,8 @@ package org.sigmah.client.ui.presenter.admin;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Image;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
@@ -51,6 +55,8 @@ import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.page.RequestParameter;
+import org.sigmah.client.search.SearchService;
+import org.sigmah.client.search.SearchServiceAsync;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.HasForm;
 import org.sigmah.client.ui.view.admin.ParametersAdminView;
@@ -92,6 +98,8 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 	/**
 	 * Description of the view managed by this presenter.
 	 */
+	private final SearchServiceAsync searchService = GWT.create(SearchService.class);
+	
 	@ImplementedBy(ParametersAdminView.class)
 	public static interface View extends AbstractAdminPresenter.View {
 
@@ -108,6 +116,8 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 		Image getLogoPreview();
 
 		Button getGeneralParametersSaveButton();
+		
+		Button getManualIndexButton();
 
 		// --
 		// Backup.
@@ -370,6 +380,31 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 			}
 
 		}, view.getExportManagementSaveButton());
+		
+		view.getManualIndexButton().addSelectionListener(new SelectionListener<ButtonEvent>(){
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				// TODO Auto-generated method stub
+				searchService.index(new AsyncCallback<Boolean>() {
+					public void onFailure(Throwable caught) {
+						Window.alert("Failure on the server side!");
+						caught.printStackTrace();
+					}
+
+					public void onSuccess(Boolean result) {
+						Boolean dih_success = result;
+						if (dih_success == true) {
+							Window.alert("Successfully completed Full Import!");
+						} else {
+							Window.alert("Failed to complete Full Import!");
+						}
+					}
+				});
+			}
+			
+		});
+		
 	}
 
 	/**
@@ -575,5 +610,6 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 
 		}, view.getExportManagementSaveButton());
 	}
+	
 
 }

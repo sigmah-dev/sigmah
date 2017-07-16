@@ -79,13 +79,13 @@ public class SearchView extends AbstractView implements SearchPresenter.View {
 		searchText.getElement().setPropertyString("placeholder", "Search");
 		
 		searchButton = new Button("Go");
-		indexButton = new Button("DIH");
+//		indexButton = new Button("DIH");
 		
 		//searchBarPanel.add(searchForLabel);
 		searchBarPanel.add(searchText);
 		searchBarPanel.add(searchOptions);
 		searchBarPanel.add(searchButton);
-		searchBarPanel.add(indexButton);
+//		searchBarPanel.add(indexButton);
 
 		// initWidget(); Useless
 
@@ -148,10 +148,10 @@ public class SearchView extends AbstractView implements SearchPresenter.View {
 	/**
 	 * {@inheritDoc}
 	 */
-	@Override
-	public Button getIndexButton() {
-		return indexButton;
-	}
+//	@Override
+//	public Button getIndexButton() {
+//		return indexButton;
+//	}
 
 }
 
