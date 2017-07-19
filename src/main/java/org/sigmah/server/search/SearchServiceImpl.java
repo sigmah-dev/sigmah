@@ -36,4 +36,11 @@ public class SearchServiceImpl extends RemoteServiceServlet implements SearchSer
 			return false;
 		return true;
 	}
+
+	@Override
+	public Boolean updateCore(String solrCoreUrl) {
+		// TODO Auto-generated method stub
+		if( SolrSearcher.getNewInstance(solrCoreUrl) != null ) return true;
+		return false;
+	}
 }

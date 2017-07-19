@@ -99,7 +99,7 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 	 * Description of the view managed by this presenter.
 	 */
 	private final SearchServiceAsync searchService = GWT.create(SearchService.class);
-	
+
 	@ImplementedBy(ParametersAdminView.class)
 	public static interface View extends AbstractAdminPresenter.View {
 
@@ -116,9 +116,6 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 		Image getLogoPreview();
 
 		Button getGeneralParametersSaveButton();
-		
-		Button getManualIndexButton();
-
 		// --
 		// Backup.
 		// --
@@ -129,14 +126,16 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 		 * Sets the selected backup download type.
 		 * 
 		 * @param downloadType
-		 *          The backup download type.
+		 *            The backup download type.
 		 */
 		void setSelectedBackupDownloadFormat(LoadingScope downloadType);
 
 		/**
 		 * Returns the selected backup download type.
 		 * 
-		 * @return The selected backup download type, or {@code null} if no option is selected. </ul>
+		 * @return The selected backup download type, or {@code null} if no
+		 *         option is selected.
+		 *         </ul>
 		 */
 		LoadingScope getSelectedBackupDownloadType();
 
@@ -156,11 +155,11 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 		 * Sets the selected export management format.
 		 * 
 		 * @param exportFormat
-		 *          The export management format:
-		 *          <ul>
-		 *          <li>{@link ExportFormat#XLS}</li>
-		 *          <li>{@link ExportFormat#ODS}</li>
-		 *          </ul>
+		 *            The export management format:
+		 *            <ul>
+		 *            <li>{@link ExportFormat#XLS}</li>
+		 *            <li>{@link ExportFormat#ODS}</li>
+		 *            </ul>
 		 */
 		void setSelectedExportFormat(ExportFormat exportFormat);
 
@@ -178,6 +177,16 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 
 		Button getExportManagementSaveButton();
 
+		// Solr Settings Panel
+
+		Button getManualIndexButton();
+
+		TextField<String> getSolrCoreUrlTextField();
+
+		Button getSolrSaveConfigButton();
+
+		FormPanel getSolrSettingsForm();
+
 	}
 
 	/**
@@ -186,7 +195,8 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 	private static final int BACKUP_STATUS_UPDATE_TIMER_DELAY = 5000;
 
 	/**
-	 * Timer used to regularly update the backup status once a backup process has been started.
+	 * Timer used to regularly update the backup status once a backup process
+	 * has been started.
 	 */
 	private Timer updateBackupStatusTimer;
 
@@ -196,9 +206,9 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 	 * Presenters's initialization.
 	 * 
 	 * @param view
-	 *          Presenter's view interface.
+	 *            Presenter's view interface.
 	 * @param injector
-	 *          Injected client injector.
+	 *            Injected client injector.
 	 */
 	@Inject
 	protected ParametersAdminPresenter(View view, Injector injector, ImageProvider imageProvider) {
@@ -244,7 +254,8 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 				// Updates logo preview with uploaded file.
 				displayLogo(newLogoFileName);
 
-				N10N.validNotif(I18N.CONSTANTS.organizationManagementLogoNotificationTitle(), I18N.CONSTANTS.organizationManagementLogoNotificationMessage());
+				N10N.validNotif(I18N.CONSTANTS.organizationManagementLogoNotificationTitle(),
+						I18N.CONSTANTS.organizationManagementLogoNotificationMessage());
 
 				// Launches general form save (for organization name).
 				saveGeneralParametersForm(newLogoFileName);
@@ -267,8 +278,8 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 
 				if (ClientUtils.isNotBlank(logoFileName)) {
 					// Submit logo file upload form.
-					final ServletUrlBuilder urlBuilder =
-							new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.FILE, ServletMethod.UPLOAD_ORGANIZATION_LOGO);
+					final ServletUrlBuilder urlBuilder = new ServletUrlBuilder(injector.getAuthenticationProvider(),
+							injector.getPageManager(), Servlet.FILE, ServletMethod.UPLOAD_ORGANIZATION_LOGO);
 					urlBuilder.addParameter(RequestParameter.ID, auth().getOrganizationId());
 
 					view.getGeneralParametersForm().setAction(urlBuilder.toString());
@@ -335,6 +346,25 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 			}
 		});
 
+		view.getSolrSaveConfigButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(final ButtonEvent ce) {
+
+				final String newSolrCoreUrl = view.getSolrCoreUrlTextField().getValue();
+
+				if (ClientUtils.isBlank(newSolrCoreUrl)) {
+					N10N.warn("The Solr Core Url value cannot be empty");
+					return;
+				}
+
+				view.getSolrSaveConfigButton().setLoading(true);
+
+				saveSolrSettingsForm(newSolrCoreUrl);
+
+			}
+		});
+
 	}
 
 	/**
@@ -343,7 +373,8 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 	@Override
 	public void onPageRequest(final PageRequest request) {
 
-		// 'General Parameters' form reset is processed in 'onViewRevealed()' due to 'FileUploadField' constraints.
+		// 'General Parameters' form reset is processed in 'onViewRevealed()'
+		// due to 'FileUploadField' constraints.
 		view.getBackupForm().reset();
 		view.getBackupForm().clearAll();
 		view.getExportManagementForm().reset();
@@ -354,35 +385,40 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 		displayLogo(auth().getOrganizationLogo());
 
 		// Retrieves OrgUnits and populates store.
-		dispatch.execute(new GetOrgUnits(OrgUnitDTO.Mode.WITH_TREE), new CommandResultHandler<ListResult<OrgUnitDTO>>() {
+		dispatch.execute(new GetOrgUnits(OrgUnitDTO.Mode.WITH_TREE),
+				new CommandResultHandler<ListResult<OrgUnitDTO>>() {
 
-			@Override
-			public void onCommandSuccess(final ListResult<OrgUnitDTO> result) {
-				for (OrgUnitDTO orgUnitDTO : result.getData()) {
-					// Recursily fills the store.
-					fillOrgUnitsCombobox(orgUnitDTO, view.getBackupManagementOrgUnitsComboBox().getStore());
-				}
-			}
+					@Override
+					public void onCommandSuccess(final ListResult<OrgUnitDTO> result) {
+						for (OrgUnitDTO orgUnitDTO : result.getData()) {
+							// Recursily fills the store.
+							fillOrgUnitsCombobox(orgUnitDTO, view.getBackupManagementOrgUnitsComboBox().getStore());
+						}
+					}
 
-		});
+				});
 
 		// Updates backup status.
 		updateBackupStatus(true);
 		updateBackupStatusTimer.scheduleRepeating(BACKUP_STATUS_UPDATE_TIMER_DELAY);
 
 		// Retrieves configured export format.
-		dispatch.execute(new GetGlobalExportSettings(auth().getOrganizationId(), false), new CommandResultHandler<GlobalExportSettingsDTO>() {
+		dispatch.execute(new GetGlobalExportSettings(auth().getOrganizationId(), false),
+				new CommandResultHandler<GlobalExportSettingsDTO>() {
 
-			@Override
-			public void onCommandSuccess(final GlobalExportSettingsDTO result) {
-				view.setSelectedExportFormat(result.getDefaultOrganizationExportFormat());
-				view.getExportManagementForm().resetValueHasChanged();
-			}
+					@Override
+					public void onCommandSuccess(final GlobalExportSettingsDTO result) {
+						view.setSelectedExportFormat(result.getDefaultOrganizationExportFormat());
+						view.getExportManagementForm().resetValueHasChanged();
+					}
 
-		}, view.getExportManagementSaveButton());
-		
-		view.getManualIndexButton().addSelectionListener(new SelectionListener<ButtonEvent>(){
+				}, view.getExportManagementSaveButton());
 
+		view.getSolrCoreUrlTextField().setValue(auth().getOrganizationSolrCoreUrl());
+
+		view.getManualIndexButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			// funnily this is getting fired twice on button click
 			@Override
 			public void componentSelected(ButtonEvent ce) {
 				// TODO Auto-generated method stub
@@ -402,9 +438,9 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 					}
 				});
 			}
-			
+
 		});
-		
+
 	}
 
 	/**
@@ -412,7 +448,8 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 	 */
 	@Override
 	protected void onViewRevealed() {
-		// 'FileUploadField' reset needs to be processed once view has been rendered.
+		// 'FileUploadField' reset needs to be processed once view has been
+		// rendered.
 		view.getLogoFileField().reset();
 	}
 
@@ -422,10 +459,7 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 	@Override
 	public FormPanel[] getForms() {
 		// Backup form does not not manage data to be saved.
-		return new FormPanel[] {
-														view.getGeneralParametersForm(),
-														view.getExportManagementForm()
-		};
+		return new FormPanel[] { view.getGeneralParametersForm(), view.getExportManagementForm() };
 	}
 
 	/**
@@ -446,7 +480,7 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 	 * Function to display the organization logo
 	 * 
 	 * @param organisationLogo
-	 *          File id of the logo
+	 *            File id of the logo
 	 */
 	private void displayLogo(final String organisationLogo) {
 		imageProvider.provideDataUrl(organisationLogo, new SuccessCallback<String>() {
@@ -461,38 +495,41 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 	 * Updates the backup status.
 	 * 
 	 * @param saveButtonLoading
-	 *          {@code true} to set the save button in loading mode during update, {@code false} to ignore it.
+	 *            {@code true} to set the save button in loading mode during
+	 *            update, {@code false} to ignore it.
 	 */
 	private void updateBackupStatus(final boolean saveButtonLoading) {
 
-		dispatch.execute(new BackupArchiveManagementCommand(auth().getOrganizationId()), new CommandResultHandler<BackupDTO>() {
-
-			@Override
-			public void onCommandSuccess(final BackupDTO result) {
-				view.getBackupStatus().update(result, new ClickHandler() {
+		dispatch.execute(new BackupArchiveManagementCommand(auth().getOrganizationId()),
+				new CommandResultHandler<BackupDTO>() {
 
 					@Override
-					public void onClick(final ClickEvent event) {
+					public void onCommandSuccess(final BackupDTO result) {
+						view.getBackupStatus().update(result, new ClickHandler() {
 
-						final ServletUrlBuilder builder =
-								new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.FILE, ServletMethod.DOWNLOAD_ARCHIVE);
-						builder.addParameter(RequestParameter.ID, result.getArchiveFileName());
+							@Override
+							public void onClick(final ClickEvent event) {
 
-						ClientUtils.launchDownload(builder.toString());
+								final ServletUrlBuilder builder = new ServletUrlBuilder(
+										injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.FILE,
+										ServletMethod.DOWNLOAD_ARCHIVE);
+								builder.addParameter(RequestParameter.ID, result.getArchiveFileName());
+
+								ClientUtils.launchDownload(builder.toString());
+							}
+						});
 					}
-				});
-			}
 
-		}, saveButtonLoading ? view.getBackupSaveButton() : null);
+				}, saveButtonLoading ? view.getBackupSaveButton() : null);
 	}
 
 	/**
 	 * Fills combobox with given the children of the given root org units.
 	 * 
 	 * @param unit
-	 *          The root org unit.
+	 *            The root org unit.
 	 * @param store
-	 *          The field store.
+	 *            The field store.
 	 */
 	private static void fillOrgUnitsCombobox(final OrgUnitDTO unit, final ListStore<OrgUnitDTO> store) {
 
@@ -510,7 +547,8 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 	 * Validates and saves the general parameters form.
 	 * 
 	 * @param organizationLogoFileName
-	 *          The organization logo file name (should never be {@code null}).
+	 *            The organization logo file name (should never be
+	 *            {@code null}).
 	 */
 	private void saveGeneralParametersForm(final String organizationLogoFileName) {
 
@@ -523,6 +561,7 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 		organizationDTO.setId(auth().getOrganizationId());
 		organizationDTO.setName(view.getOrganizationNameTextField().getValue());
 		organizationDTO.setLogo(organizationLogoFileName);
+		organizationDTO.setSolrCoreUrl(auth().getOrganizationSolrCoreUrl());
 
 		// Saves new organization name.
 		dispatch.execute(new UpdateOrganization(organizationDTO), new CommandResultHandler<OrganizationDTO>() {
@@ -536,7 +575,7 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 			public void onCommandSuccess(final OrganizationDTO result) {
 
 				N10N.validNotif(I18N.CONSTANTS.organizationManagementSaveChangesNotificationTitle(),
-					I18N.CONSTANTS.organizationManagementSaveChangesNotificationMessage());
+						I18N.CONSTANTS.organizationManagementSaveChangesNotificationMessage());
 
 				view.getGeneralParametersForm().resetValueHasChanged();
 
@@ -553,7 +592,8 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 			return;
 		}
 
-		if (view.getSelectedBackupDownloadType() == null || view.getBackupManagementOrgUnitsComboBox().getValue() == null) {
+		if (view.getSelectedBackupDownloadType() == null
+				|| view.getBackupManagementOrgUnitsComboBox().getValue() == null) {
 			N10N.warn(I18N.CONSTANTS.form_validation_ko());
 			return;
 		}
@@ -599,17 +639,90 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 
 			@Override
 			public void onCommandFailure(final Throwable caught) {
-				N10N.warn(I18N.CONSTANTS.saveExportConfiguration(), I18N.MESSAGES.adminStandardCreationFailure(I18N.CONSTANTS.defaultExportFormat()));
+				N10N.warn(I18N.CONSTANTS.saveExportConfiguration(),
+						I18N.MESSAGES.adminStandardCreationFailure(I18N.CONSTANTS.defaultExportFormat()));
 			}
 
 			@Override
 			public void onCommandSuccess(final VoidResult result) {
-				N10N.validNotif(I18N.CONSTANTS.exportManagementSaveChangesNotificationTitle(), I18N.CONSTANTS.exportManagementSaveChangesNotificationMessage());
+				N10N.validNotif(I18N.CONSTANTS.exportManagementSaveChangesNotificationTitle(),
+						I18N.CONSTANTS.exportManagementSaveChangesNotificationMessage());
 				view.getExportManagementForm().resetValueHasChanged();
 			}
 
 		}, view.getExportManagementSaveButton());
 	}
-	
+
+	/**
+	 * Validates and saves the solr settings form.
+	 * 
+	 * @param solrCoreUrl
+	 *            The solrCoreUrl (should never be {@code null}).
+	 */
+	private void saveSolrSettingsForm(final String solrCoreUrl) {
+
+		if (!view.getSolrSettingsForm().isValid()) {
+			view.getSolrSaveConfigButton().setLoading(false);
+			return;
+		}
+
+		final OrganizationDTO organizationDTO = new OrganizationDTO();
+		organizationDTO.setId(auth().getOrganizationId());
+		organizationDTO.setName(auth().getOrganizationName());
+		organizationDTO.setLogo(auth().getOrganizationLogo());
+		organizationDTO.setSolrCoreUrl(solrCoreUrl);
+
+		// Saves new organization name.
+		dispatch.execute(new UpdateOrganization(organizationDTO), new CommandResultHandler<OrganizationDTO>() {
+
+			@Override
+			public void onCommandFailure(final Throwable e) {
+				N10N.error(I18N.CONSTANTS.organizationManagementWebServiceNotificationError());
+			}
+
+			@Override
+			public void onCommandSuccess(final OrganizationDTO result) {
+
+				N10N.validNotif(I18N.CONSTANTS.organizationManagementSaveChangesNotificationTitle(),
+						I18N.CONSTANTS.organizationManagementSaveChangesNotificationMessage());
+
+				view.getSolrSettingsForm().resetValueHasChanged();
+				searchService.updateCore(solrCoreUrl, new AsyncCallback<Boolean>() {
+					public void onFailure(Throwable caught) {
+						Window.alert("Could not update Solr Core. Check that the url is valid!");
+						caught.printStackTrace();
+					}
+
+					public void onSuccess(Boolean result) {
+						Boolean dih_success = result;
+						if (dih_success == true) {
+							Window.alert("Successfully updated Solr Core!");
+						} else {
+							Window.alert("Failed to update Solr Core! Check that the url is valid!");
+						}
+					}
+				});
+				searchService.autoIndex(new AsyncCallback<Boolean>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						// TODO Auto-generated method stub
+						Window.alert("Failed to start/continue auto indexing!");
+					}
+
+					@Override
+					public void onSuccess(Boolean result) {
+						// TODO Auto-generated method stub
+						if (result)
+							Window.alert("Started/continued auto indexing!");
+						else
+							Window.alert("Failed to start/continue auto indexing! ( back end issue )");
+					}
+
+				});
+
+			}
+		}, view.getSolrSaveConfigButton());
+	}
 
 }

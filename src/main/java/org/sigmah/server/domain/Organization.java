@@ -69,6 +69,9 @@ public class Organization extends AbstractEntityId<Integer> {
 
 	@Column(name = EntityConstants.ORGANIZATION_COLUMN_LOGO, nullable = true, columnDefinition = EntityConstants.COLUMN_DEFINITION_TEXT)
 	private String logo;
+	
+	@Column(name = EntityConstants.ORGANIZATION_SOLRCORE_URL, nullable = true, columnDefinition = EntityConstants.COLUMN_DEFINITION_TEXT)
+	private String solrcore_url;
 
 	// constructeur
 
@@ -151,5 +154,15 @@ public class Organization extends AbstractEntityId<Integer> {
 	public void setOrgUnit(List<OrgUnit> orgUnit) {
 		this.orgUnit = orgUnit;
 	}
+
+	public String getSolrcore_url() {
+		return solrcore_url;
+	}
+
+	public void setSolrcore_url(String solrcore_url) {
+		this.solrcore_url = solrcore_url;
+	}
+	
+	
 
 }

@@ -14,7 +14,7 @@ public class SolrIndexJobActivator {
 	private static Scheduler scheduler;
 	private static SolrIndexJobActivator instance;
 	
-	public static SolrIndexJobActivator getSolrIndexJobActivator(){
+	public static SolrIndexJobActivator getSolrIndexJobActivator(){  //Singleton
 		if( instance == null ){
 			instance = new SolrIndexJobActivator();
 		}

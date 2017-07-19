@@ -33,7 +33,7 @@ import java.net.*;
 public class SolrSearcher {
 
 	private Properties properties = new BasicProperties();
-	
+
 	private String urlString;
 	private static SolrClient solrServer;
 	private static SolrSearcher instance;
@@ -60,9 +60,24 @@ public class SolrSearcher {
 		return instance;
 	}
 
+	public static SolrSearcher getNewInstance(String solrCoreUrl) { //only for use when solr core url has been updated
+
+		instance = new SolrSearcher();
+		instance.urlString = solrCoreUrl;
+		try {
+			instance.loadServer();
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("SOLR CONNECTION FAILED");
+			e.printStackTrace();
+		}
+		return instance;
+	}
+
 	private void loadServer() throws MalformedURLException {
-		//urlString = "http://localhost:8983/solr/Test_Sigmah";
-		urlString = properties.getProperty(PropertyKey.SOLR_CORE_URL);
+		// urlString = "http://localhost:8983/solr/Test_Sigmah";
+		// urlString = properties.getProperty(PropertyKey.SOLR_CORE_URL);
+		//urlString = 
 		System.out.println("SOLR CONNECTING TO: " + urlString);
 		solrServer = new HttpSolrClient.Builder(urlString).build();
 		// Window.alert("Successful solr connection!");
@@ -101,11 +116,11 @@ public class SolrSearcher {
 
 		SolrQuery query = new SolrQuery();
 		query.setQuery(searchStr);
-		if( filter.equals("Projects"))
+		if (filter.equals("Projects"))
 			query.set("fq", "PROJECT");
-		else if(filter.equals("Contacts"))
+		else if (filter.equals("Contacts"))
 			query.set("fq", "CONTACT");
-		else if(filter.equals("OrgUnits"))
+		else if (filter.equals("OrgUnits"))
 			query.set("fq", "ORG_UNIT");
 		// query.addSortField("weight", ORDER.desc);
 

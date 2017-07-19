@@ -82,6 +82,7 @@ public class UpdateOrganizationHandler extends AbstractCommandHandler<UpdateOrga
 
 		organization.setName(form.getName());
 		organization.setLogo(form.getLogo());
+		organization.setSolrcore_url(form.getSolrCoreUrl());
 
 		organizationDAO.persist(organization, context.getUser());
 

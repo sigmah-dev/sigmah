@@ -12,4 +12,5 @@ public interface SearchService extends RemoteService {
 	ArrayList<SearchResultsDTO> search(String searchStr, String filter);
 	Boolean index();
 	Boolean autoIndex();
+	Boolean updateCore(String solrCoreUrl);
 }

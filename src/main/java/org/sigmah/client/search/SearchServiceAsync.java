@@ -11,4 +11,5 @@ public interface SearchServiceAsync {
 	public void search(String searchStr, String filter, AsyncCallback<ArrayList<SearchResultsDTO>> callback);
 	public void index(AsyncCallback<Boolean> callback);
 	public void autoIndex(AsyncCallback<Boolean> callback);
+	public void updateCore(String solrCoreUrl, AsyncCallback<Boolean> callback);
 }

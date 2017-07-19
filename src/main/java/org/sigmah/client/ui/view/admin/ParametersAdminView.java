@@ -510,5 +510,12 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 		this.manualIndexButton = manualIndexButton;
 	}
 
+	public FormPanel getSolrSettingsForm() {
+		return solrSettingsForm;
+	}
 
+	public void setSolrSettingsForm(FormPanel solrSettingsForm) {
+		this.solrSettingsForm = solrSettingsForm;
+	}
+	
 }
