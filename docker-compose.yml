@@ -1,15 +1,23 @@
-postgresql:
-  image: postgres:9.3
-  ports:
-    - "5432:5432"
-  volumes:
-    - .docker/postgres:/var/lib/postgresql/data
-  environment:
-    - POSTGRES_USER=sigmah
-    - POSTGRES_PASSWORD=sigmah
-    - POSTGRES_DB=sigmah
-mailhog:
-  image: mailhog/mailhog:latest
-  ports:
-    - "1025:1025"
-    - "8025:8025"
+version: '2'
+volumes:
+  # To remove the volume, use 'docker-compose down -v'
+  data:
+
+services:
+  postgresql:
+    image: postgres:9.3
+    ports:
+     - "5432:5432"
+    volumes:
+      - data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_USER=sigmah
+      - POSTGRES_PASSWORD=sigmah
+      - POSTGRES_DB=sigmah
+    network_mode: bridge
+  mailhog:
+    image: mailhog/mailhog:latest
+    ports:
+      - "1025:1025"
+      - "8025:8025"
+    network_mode: bridge
