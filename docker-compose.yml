@@ -13,11 +13,3 @@ mailhog:
   ports:
     - "1025:1025"
     - "8025:8025"
-tomcat:
-  build: ./sigmah-docker/tomcat
-  ports:
-    - "9999:8080"
-  links:
-    - postgresql
-  volumes:
-    - ./target/sigmah-2.2-SNAPSHOT/:/usr/local/tomcat/webapps/sigmah/
