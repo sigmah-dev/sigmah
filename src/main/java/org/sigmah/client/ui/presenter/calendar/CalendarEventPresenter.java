@@ -67,6 +67,7 @@ import com.google.gwt.user.client.ui.ListBox;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import static java.lang.Integer.parseInt;
 
 /**
  * Calendar event presenter which manages the {@link CalendarEventView}.
@@ -165,6 +166,24 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
          *
          * @return
          */
+        FieldSet getPanelDaily();
+
+        /**
+         *
+         * @return
+         */
+        FieldSet getMonthlyRepSettings();
+
+        /**
+         *
+         * @return
+         */
+        FieldSet getYearlyRepSettings();
+        
+        /**
+         *
+         * @return
+         */
         Radio getOnceRepeatRB();
 
         /**
@@ -225,6 +244,12 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
          *
          * @return
          */
+        RadioGroup getRepeatMultiEventPeriodRG();
+        
+        /**
+         *
+         * @return
+         */
         Radio getRadioMonthlySameDate();
 
         /**
@@ -237,31 +262,98 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
          *
          * @return
          */
-        ListBox getListBoxWeekly();
-              
-        /**
-         *
-         * @return
-         */
-        ListBox getListBoxMonthly1();   
+        Radio getRadioRepetitionEndDate();
         
         /**
          *
          * @return
          */
-        ListBox getListBoxMonthly2();  
+        Radio getRadioNumberOfRepetitions();         
         
         /**
          *
          * @return
          */
-        ListBox getListBoxYearly1(); 
+        Radio getDailyRadioRepetitionEndDate();
         
         /**
          *
          * @return
          */
-        ListBox getListBoxYearly2();         
+        Radio getDailyRadioNumberOfRepetitions();  
+        
+        /**
+         *
+         * @return
+         */
+        Radio getWeeklyRadioRepetitionEndDate();
+        
+        /**
+         *
+         * @return
+         */
+        Radio getWeeklyRadioNumberOfRepetitions();  
+        
+        /**
+         *
+         * @return
+         */
+        Radio getYearlyRadioRepetitionEndDate();
+        
+        /**
+         *
+         * @return
+         */
+        Radio getYearlyRadioNumberOfRepetitions(); 
+        
+        /**
+         *
+         * @return
+         */
+        TextArea getNumberOfRepetitions();
+        
+        /**
+         *
+         * @return
+         */
+        DateField getRepetitionEndDate();  
+        
+        /**
+         *
+         * @return
+         */
+        TextArea getWeeklyNumberOfRepetitions();
+        
+        /**
+         *
+         * @return
+         */
+        DateField getWeeklyRepetitionEndDate(); 
+        
+        /**
+         *
+         * @return
+         */
+        TextArea getYearlyNumberOfRepetitions();
+        
+        /**
+         *
+         * @return
+         */
+        DateField getYearlyRepetitionEndDate();        
+        
+        /**
+         *
+         * @return
+         */
+        TextArea getDailyNumberOfRepetitions();
+        
+        /**
+         *
+         * @return
+         */
+        DateField getDailyRepetitionEndDate();           
+        
         // void setShowAddEventView(boolean showAddEventView);
     }
 
@@ -381,7 +473,11 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
             view.getPanelYearly().hide();
             view.getYearlyVariantRG().hide();
-
+            
+            view.getPanelWeekly().hide();
+            
+            view.getPanelDaily().hide();           
+            
             view.getYearlyVariantRG().hide();
             view.getMontlyVariantRG().hide();
             view.getRepeatEventPeriodRG().hide();
@@ -393,6 +489,30 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
             view.getEventDateEndField().clear();
             view.getEventDateEndField().hide();
+            
+            view.getRadioNumberOfRepetitions().setValue(true);
+            view.getNumberOfRepetitions().enable();
+            view.getRepetitionEndDate().disable();
+            view.getNumberOfRepetitions().setValue("1");
+            view.getRepetitionEndDate().setValue(new Date());
+
+            view.getYearlyRadioNumberOfRepetitions().setValue(true);
+            view.getYearlyNumberOfRepetitions().enable();
+            view.getYearlyRepetitionEndDate().disable();
+            view.getYearlyNumberOfRepetitions().setValue("1");
+            view.getYearlyRepetitionEndDate().setValue(new Date());
+            
+            view.getWeeklyRadioNumberOfRepetitions().setValue(true);
+            view.getWeeklyNumberOfRepetitions().enable();
+            view.getWeeklyRepetitionEndDate().disable();
+            view.getWeeklyNumberOfRepetitions().setValue("1");
+            view.getWeeklyRepetitionEndDate().setValue(new Date());
+        
+            view.getDailyRadioNumberOfRepetitions().setValue(true);
+            view.getDailyNumberOfRepetitions().enable();
+            view.getDailyRepetitionEndDate().disable();
+            view.getDailyNumberOfRepetitions().setValue("1");
+            view.getDailyRepetitionEndDate().setValue(new Date());              
         }
         if(event.getDtend().getDate() - event.getDtstart().getDate() == 1){
         view.getAllDayCheckbox().setValue(true);
@@ -428,6 +548,9 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             view.getPanelMonthly().hide();
             view.getPanelYearly().hide();
             view.getPanelWeekly().hide();
+            view.getPanelDaily().hide();
+          //  view.getMonthlyRepSettings().hide();
+          //  view.getYearlyRepSettings().hide();
         }
         view.getEventStartTimeField().show();
         view.getEventEndTimeField().show();
@@ -440,7 +563,19 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         view.getYearlySameDayOfWeekRB().enable();
         view.getRadioMonthlySameDate().enable();
         view.getRadioMonthlySameDayOfWeek().enable();
-
+        
+        view.getRepeatMultiEventPeriodRG().enable();
+        view.getRadioNumberOfRepetitions().enable();
+        view.getRadioRepetitionEndDate().enable();
+        view.getNumberOfRepetitions().enable();
+        view.getRepetitionEndDate().enable();
+        
+        view.getRepeatMultiEventPeriodRG().show();
+        view.getRadioNumberOfRepetitions().show();
+        view.getRadioRepetitionEndDate().show();
+        view.getNumberOfRepetitions().show();
+        view.getRepetitionEndDate().show();
+        
         view.getYearlyVariantRG().show();
         view.getMontlyVariantRG().show();
         view.getRepeatEventPeriodRG().show();
@@ -453,6 +588,30 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         view.getAllDayCheckbox().setValue(true);
         view.getEventStartTimeField().hide();
         view.getEventEndTimeField().hide();
+        
+        view.getRadioNumberOfRepetitions().setValue(true);
+        view.getNumberOfRepetitions().enable();
+        view.getRepetitionEndDate().disable();
+        view.getNumberOfRepetitions().setValue("1");
+        view.getRepetitionEndDate().setValue(new Date());
+        
+        view.getYearlyRadioNumberOfRepetitions().setValue(true);
+        view.getYearlyNumberOfRepetitions().enable();
+        view.getYearlyRepetitionEndDate().disable();
+        view.getYearlyNumberOfRepetitions().setValue("1");
+        view.getYearlyRepetitionEndDate().setValue(new Date());  
+        
+        view.getWeeklyRadioNumberOfRepetitions().setValue(true);
+        view.getWeeklyNumberOfRepetitions().enable();
+        view.getWeeklyRepetitionEndDate().disable();
+        view.getWeeklyNumberOfRepetitions().setValue("1");
+        view.getWeeklyRepetitionEndDate().setValue(new Date());
+
+        view.getDailyRadioNumberOfRepetitions().setValue(true);
+        view.getDailyNumberOfRepetitions().enable();
+        view.getDailyRepetitionEndDate().disable();
+        view.getDailyNumberOfRepetitions().setValue("1");
+        view.getDailyRepetitionEndDate().setValue(new Date());         
     }
 
     // ---------------------------------------------------------------------------------------------------------------
@@ -486,7 +645,9 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         if (endEventIntervalDate == null) {
             endEventIntervalDate = beginEventIntervalDate;
         }
-
+//Window.alert("Date start: " +beginEventIntervalDate.getYear()+"." +beginEventIntervalDate.getMonth()
+  //              + "." + beginEventIntervalDate.getDate() + "    |    Date end: "  +endEventIntervalDate.getYear()+"." +endEventIntervalDate.getMonth()
+    //            + "." + endEventIntervalDate.getDate());//temp for checker
         Boolean isFullDayEvent = view.getAllDayCheckbox().getValue();
 
      //   Window.alert("isAllDayEvent=" + isFullDayEvent);//temp for checker
@@ -528,17 +689,51 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         Boolean isMonthlySameDayOfWeek = view.getRadioMonthlySameDayOfWeek().getValue();
 
         Boolean isYearlySameDayOfWeek = view.getYearlySameDayOfWeekRB().getValue();
-
+       // Date endEventIntervalDate = (view.getEventDateEndField() != null ? view.getEventDateEndField().getValue() : null);
+        Date endEventIntervalDateRadio=view.getEventDateStartField().getValue();
+        
         if (isDailyRepeatEvent) {
-            processDailyEvents(diffInMilis, milisPerDay, beginEventIntervalDate, startDate, endDate, properties, eventSummary, eventDescription);
+            long count=0;
+            long lengthDailyEvent=((endEventIntervalDate.getTime()-beginEventIntervalDate.getTime())/milisPerDay)+1;
+            if(view.getDailyRadioNumberOfRepetitions().getValue() == true){
+                count = parseInt(view.getDailyNumberOfRepetitions().getValue());
+                Window.alert("Count1 = "+count);
+            }
+            else{
+            endEventIntervalDateRadio = view.getDailyRepetitionEndDate().getValue();
+            count = (((endEventIntervalDateRadio.getTime() - beginEventIntervalDate.getTime())/milisPerDay)+1)/lengthDailyEvent;
+            }
+            diffInMilis = endEventIntervalDateRadio.getTime() - beginEventIntervalDate.getTime();
+            if(count==0) count=1;
+            Window.alert("Count2 = "+count);            
+            processDailyEvents(count,lengthDailyEvent, milisPerDay, beginEventIntervalDate, endEventIntervalDateRadio, endEventIntervalDate, startDate, endDate, properties, eventSummary, eventDescription);
         } else if (isWeeklyRepeatEvent) {
-            processWeeklyEvents(diffInMilis, milisPerWeek, beginEventIntervalDate, startDate, endDate, properties, eventSummary, eventDescription);
+            if(view.getWeeklyRadioNumberOfRepetitions().getValue() == true){
+            endEventIntervalDateRadio.setDate(beginEventIntervalDate.getDate() + parseInt(view.getWeeklyNumberOfRepetitions().getValue())*7);
+            }
+            else{
+            endEventIntervalDateRadio = view.getWeeklyRepetitionEndDate().getValue();
+            }
+            diffInMilis = endEventIntervalDateRadio.getTime() - beginEventIntervalDate.getTime();
+            processWeeklyEvents(beginEventIntervalDate,endEventIntervalDate, endEventIntervalDateRadio, startDate, endDate, properties, eventSummary, eventDescription);
         } else if (isMonthlyRepeatEvent) {
-            processMonthlyEvents(beginEventIntervalDate, endEventIntervalDate, properties, isMonthlySameDayOfWeek, startDate, endDate, eventSummary, eventDescription);
+            if(view.getRadioNumberOfRepetitions().getValue() == true){
+            endEventIntervalDateRadio.setMonth(beginEventIntervalDate.getMonth() + parseInt(view.getNumberOfRepetitions().getValue()));
+            }
+            else{
+            endEventIntervalDateRadio = view.getRepetitionEndDate().getValue();
+            }
+            processMonthlyEvents(beginEventIntervalDate, endEventIntervalDate, endEventIntervalDateRadio, properties, isMonthlySameDayOfWeek, startDate, endDate, eventSummary, eventDescription);
         } else if (isYearlyRepeatEvent) {
-            processYearEvents(beginEventIntervalDate, endEventIntervalDate, properties, isYearlySameDayOfWeek, startDate, endDate, eventSummary, eventDescription);
+            if(view.getYearlyRadioNumberOfRepetitions().getValue() == true){
+            endEventIntervalDateRadio.setYear(beginEventIntervalDate.getYear() + parseInt(view.getYearlyNumberOfRepetitions().getValue()));
+            }
+            else{
+            endEventIntervalDateRadio = view.getYearlyRepetitionEndDate().getValue();
+            }
+            processYearEvents(beginEventIntervalDate, endEventIntervalDate, endEventIntervalDateRadio, properties, isYearlySameDayOfWeek, startDate, endDate, eventSummary, eventDescription);
         } else {
-            processOnceEvent(startDate, endDate, properties, eventSummary, eventDescription);
+            processOnceEvent(beginEventIntervalDate, diffInMilis, milisPerDay, startDate, endDate, properties, eventSummary, eventDescription);
         }
     }
 
@@ -590,58 +785,23 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         return endDate;
     }
 
-    private void processOnceEvent(final Date startDate, final Date endDate, final Map<String, Serializable> properties, String eventSummary, String eventDescription) {
+    private void processOnceEvent(final Date beginEventIntervalDate1, long diffInMilis, long milisPerDay, final Date startDate, final Date endDate, final Map<String, Serializable> properties, String eventSummary, String eventDescription) {
+               long daysDiff = diffInMilis / milisPerDay + 1;
+               long beginEventIntervalDate = beginEventIntervalDate1.getTime();
         properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY));
         properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION));
-        addPersonalEvent(properties);
-    }
-
-    /**
-     * Add new Daily calendar events processing.
-     *
-     * @param diffInMilis the value of diffInMilis
-     * @param milisPerDay the value of milisPerDay
-     * @param beginEventIntervalDate the value of beginEventIntervalDate
-     * @param startDate the value of startDate
-     * @param endDate the value of endDate
-     * @param properties the value of properties
-     * @param eventSummary the value of eventSummary
-     * @param eventDescription the value of eventDescription
-     */
-    private void processDailyEvents(long diffInMilis, long milisPerDay, final Date beginEventIntervalDate, final Date startDate, final Date endDate, final Map<String, Serializable> properties, String eventSummary, String eventDescription) {
-        int daysInterval = 0;
-        long daysDiff = diffInMilis / milisPerDay + 1;
-        daysInterval = (int) daysDiff;
-
-        long calBeginNextEventDateLong = beginEventIntervalDate.getTime();
-        //Date calBeginNextEventDate = beginEventIntervalDate;
-
-        if (daysInterval > 1) {
-            properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY) + " ( 1 of " + daysInterval + ")");
-            properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION) + " (Daily event 1 of " + daysInterval + ")");
-            properties.put(Event.EVENT_TYPE, "D");
+       // Window.alert("DaysDiff = "+daysDiff);
+        if(daysDiff == 1) addPersonalEvent(properties);
+        else{
+            properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY) + " (Once event 1 of " + daysDiff + ")");
+            properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION) + " (Once event 1 of " + daysDiff + ")");
+            properties.put(Event.EVENT_TYPE, "O");
+            addPersonalEventOnce(properties, daysDiff, beginEventIntervalDate, milisPerDay, startDate, endDate, eventSummary, eventDescription);
+            
+            
         }
-        addPersonalEventDaily(properties, daysInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
-
     }
-    
-        private void processDailyEventsNew(int daysInterval, long milisPerDay, final Date beginEventIntervalDate, final Date startDate, final Date endDate, final Map<String, Serializable> properties, String eventSummary, String eventDescription) {
-
-        long calBeginNextEventDateLong = beginEventIntervalDate.getTime();
-        //Date calBeginNextEventDate = beginEventIntervalDate;
-
-//        if (daysInterval > 1) {
-//            properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY) + " ( 1 of " + daysInterval + ")");
-//            properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION) + " (Daily event 1 of " + daysInterval + ")");
-//            properties.put(Event.EVENT_TYPE, "D");
-//        }
-        addPersonalEventDaily(properties, daysInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
-
-    }
-    
-    
-
-    private void addPersonalEventDaily(final Map<String, Serializable> properties, final int daysInterval, final long calBeginNextEventDateLong, final long milisPerDay, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription) {
+ private void addPersonalEventOnce(final Map<String, Serializable> properties, final long daysInterval, final long calBeginNextEventDateLong, final long milisPerDay, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription) {
 
         final CreateEntity createEntity = new CreateEntity(PersonalEventDTO.ENTITY_NAME, properties);
 
@@ -660,11 +820,120 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 event.setIdentifier((Integer) result.getEntity().getId());
                 properties.put(Event.REFERENCE_ID, (Integer) result.getEntity().getId());
                 updateEvent(event, properties);
-                addDailySeriesEvent((Integer) result.getEntity().getId(), daysInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
+                addOnceSeriesEvent((Integer) result.getEntity().getId(), daysInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
             }
         }, view.getCancelButton(), view.getSaveButton());
     }
+ 
+     private void addOnceSeriesEvent(Integer ids, long daysInterval, long calBeginNextEventDateLong, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
+        //Date calBeginNextEventDate;
+ 
+        for (int i = 1; i < daysInterval; i++) {
 
+            calBeginNextEventDateLong += milisPerDay;
+            //calBeginNextEventDate = new Date(calBeginNextEventDateLong);
+
+            Map<String, Serializable> dailyProperties = new HashMap<String, Serializable>();
+            dailyProperties.put(Event.CALENDAR_ID, calendarWrapper);
+            dailyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
+
+            dailyProperties.put(Event.DATE, new Date(calBeginNextEventDateLong));
+
+            setFullDayEvent(startDate, endDate, new Date(calBeginNextEventDateLong), dailyProperties);
+
+            String newSummary = eventSummary;
+            String newDescription = eventDescription;
+            newSummary += " (Once event " + (i + 1) + " of " + daysInterval + ")";
+            newDescription += " (Once event " + (i + 1) + " of " + daysInterval + ")";
+            dailyProperties.put(Event.SUMMARY, newSummary);
+            dailyProperties.put(Event.DESCRIPTION, newDescription);
+            dailyProperties.put(Event.EVENT_TYPE, "O");
+            dailyProperties.put(Event.REFERENCE_ID, ids);
+           
+            addPersonalEvent(dailyProperties);
+        }
+    }
+    /**
+     * Add new Daily calendar events processing.
+     *
+     * @param diffInMilis the value of diffInMilis
+     * @param milisPerDay the value of milisPerDay
+     * @param beginEventIntervalDate the value of beginEventIntervalDate
+     * @param startDate the value of startDate
+     * @param endDate the value of endDate
+     * @param properties the value of properties
+     * @param eventSummary the value of eventSummary
+     * @param eventDescription the value of eventDescription
+     */
+    private void processDailyEvents(long count, long lengthDailyEvent, long milisPerDay, final Date beginEventIntervalDate, final Date endEventIntervalDateRadio, final Date endEventIntervalDate, final Date startDate, final Date endDate, final Map<String, Serializable> properties, String eventSummary, String eventDescription) {
+        long calBeginNextEventDateLong = beginEventIntervalDate.getTime();
+        //Date calBeginNextEventDate = beginEventIntervalDate;
+
+
+            properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY) + " (Daily event 1 of " + count + ")");
+            properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION) + " (Daily event 1 of " + count + ")");
+            properties.put(Event.EVENT_TYPE, "D");
+
+        addPersonalEventDaily(properties, count, lengthDailyEvent, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
+
+    }
+        
+
+    private void addPersonalEventDaily(final Map<String, Serializable> properties, final long daysInterval,final long lengthDailyEvent, final long calBeginNextEventDateLong, final long milisPerDay, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription) {
+
+        final CreateEntity createEntity = new CreateEntity(PersonalEventDTO.ENTITY_NAME, properties);
+
+        dispatch.execute(createEntity, new CommandResultHandler<CreateResult>() {
+
+            @Override
+            public void onCommandFailure(final Throwable caught) {
+                processAddEventError(caught);
+            }
+
+            @Override
+            public void onCommandSuccess(final CreateResult result) {
+
+                // Creating events.
+                final Event event = new Event();
+                event.setIdentifier((Integer) result.getEntity().getId());
+                properties.put(Event.REFERENCE_ID, (Integer) result.getEntity().getId());
+                updateEvent(event, properties);
+                addDailySeriesEvent((Integer) result.getEntity().getId(), daysInterval, lengthDailyEvent, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
+                addDailySeriesEventNew((Integer) result.getEntity().getId(), daysInterval, lengthDailyEvent, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
+            }
+        }, view.getCancelButton(), view.getSaveButton());
+    }
+    private void addDailySeriesEventNew(Integer ids, long daysInterval, long lengthDailyEvent, long calBeginNextEventDateLong1, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
+        //Date calBeginNextEventDate;
+    long calBeginNextEventDateLong = calBeginNextEventDateLong1;
+        for (int i = 0; i < daysInterval; i++) {
+
+            for(int j=1;j<lengthDailyEvent;j++){
+            calBeginNextEventDateLong += milisPerDay;
+            //calBeginNextEventDate = new Date(calBeginNextEventDateLong);
+
+            Map<String, Serializable> dailyProperties = new HashMap<String, Serializable>();
+            dailyProperties.put(Event.CALENDAR_ID, calendarWrapper);
+            dailyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
+
+            dailyProperties.put(Event.DATE, new Date(calBeginNextEventDateLong));
+
+            setFullDayEvent(startDate, endDate, new Date(calBeginNextEventDateLong), dailyProperties);
+
+            String newSummary = eventSummary;
+            String newDescription = eventDescription;
+            newSummary += " (Daily event " + (i + 1) + " of " + daysInterval + ")";
+            newDescription += " (Daily event " + (i + 1) + " of " + daysInterval + ")";
+            dailyProperties.put(Event.SUMMARY, newSummary);
+            dailyProperties.put(Event.DESCRIPTION, newDescription);
+            dailyProperties.put(Event.EVENT_TYPE, "D");
+            dailyProperties.put(Event.REFERENCE_ID, ids);
+           
+            addPersonalEvent(dailyProperties);
+            }
+                        calBeginNextEventDateLong += milisPerDay;
+        }
+    }
     private void processAddEventError(final Throwable caught) {
         if (Log.isErrorEnabled()) {
             Log.error(I18N.CONSTANTS.calendarAddEventError(), caught);
@@ -672,12 +941,12 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarAddEventError());
     }
 
-    private void addDailySeriesEvent(Integer ids, int daysInterval, long calBeginNextEventDateLong, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
+    private void addDailySeriesEvent(Integer ids, long daysInterval, long lengthDailyEvent, long calBeginNextEventDateLong1, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
         //Date calBeginNextEventDate;
- 
+    long calBeginNextEventDateLong = calBeginNextEventDateLong1;
         for (int i = 1; i < daysInterval; i++) {
 
-            calBeginNextEventDateLong += milisPerDay;
+            calBeginNextEventDateLong += (milisPerDay*lengthDailyEvent);
             //calBeginNextEventDate = new Date(calBeginNextEventDateLong);
 
             Map<String, Serializable> dailyProperties = new HashMap<String, Serializable>();
@@ -713,11 +982,15 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      * @param eventSummary the value of eventSummary
      * @param eventDescription the value of eventDescription
      */
-    private void processWeeklyEvents(long diffInMilis, long milisPerWeek, final Date beginEventIntervalDate, final Date startDate, final Date endDate, final Map<String, Serializable> properties, String eventSummary, String eventDescription) {
-        long weekDiff = diffInMilis / milisPerWeek + 1;
+    private void processWeeklyEvents(final Date beginEventIntervalDate, final Date endEventIntervalDate, final Date endEventIntervalDateRadio, final Date startDate, final Date endDate, final Map<String, Serializable> properties, String eventSummary, String eventDescription) {
+        long milisPerDay = 86400000;
+        long weekDiff = ((endEventIntervalDateRadio.getTime() - beginEventIntervalDate.getTime()+milisPerDay) / (milisPerDay*7));
         int weeksInterval = (int) weekDiff;
-
+        if(weeksInterval == 0) weeksInterval = 1;
+      //  if(view.getWeeklyRadioNumberOfRepetitions().getValue() == true) weeksInterval--;
         long calBeginNextEventDateLong = beginEventIntervalDate.getTime();
+        long daysInterval = ((endEventIntervalDate.getTime() - beginEventIntervalDate.getTime())/milisPerDay)+1;
+        Window.alert("WeeksInterva = "+weekDiff+"   |    daysInterval = "+daysInterval);
         //Date calBeginNextEventDate = beginEventIntervalDate;
 
       //  if (weeksInterval > 1) {
@@ -725,13 +998,11 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION) + " (Weekly event 1 of " + weeksInterval + ")");
             properties.put(Event.EVENT_TYPE, "W");
         //}
-        addPersonalEventWeekly(properties, weeksInterval, calBeginNextEventDateLong, milisPerWeek, startDate, endDate, eventSummary, eventDescription);
+        addPersonalEventWeekly(properties, weeksInterval, calBeginNextEventDateLong,daysInterval, startDate, endDate, eventSummary, eventDescription);
 
     }
 
-int evLen=3;
-int []count = new int[100];
-    private void addPersonalEventWeekly(final Map<String, Serializable> properties, final int weeksInterval, final long calBeginNextEventDateLong, final long milisPerDay, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription) {
+    private void addPersonalEventWeekly(final Map<String, Serializable> properties, final int weeksInterval, final long calBeginNextEventDateLong, final long daysInterval, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription) {
 
         final CreateEntity createEntity = new CreateEntity(PersonalEventDTO.ENTITY_NAME, properties);
 
@@ -751,18 +1022,16 @@ int []count = new int[100];
                 event.setIdentifier((Integer) result.getEntity().getId());
                 updateEvent(event, properties);
                 properties.put(Event.REFERENCE_ID, (Integer) result.getEntity().getId());
-                int daysInterval=0;
-                daysInterval = Integer.parseInt(view.getListBoxWeekly().getItemText(view.getListBoxWeekly().getSelectedIndex()));
-                addDailySeriesEventNew2((Integer)properties.get(Event.REFERENCE_ID), weeksInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
+                long milisPerDay = 86400000;
+                addDailySeriesEventNew2((Integer)properties.get(Event.REFERENCE_ID), weeksInterval, calBeginNextEventDateLong, milisPerDay*7, startDate, endDate, eventSummary, eventDescription);
 
            addWeeklySeriesEvent(properties, (String) result.getEntity().getId(), daysInterval, weeksInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
             }
         }, view.getCancelButton(), view.getSaveButton());
     }
 
-    private void addWeeklySeriesEvent(final Map<String, Serializable> properties, String ids, int daysInterval, int weeksInterval, long calBeginNextEventDateLong, long milisPerWeek, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
+    private void addWeeklySeriesEvent(final Map<String, Serializable> properties, String ids, long daysInterval, int weeksInterval, long calBeginNextEventDateLong, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
            for (int i = 0; i < weeksInterval; i++) {
-             long milisPerDay = 86400000;
 
             Map<String, Serializable> weeklyProperties = new HashMap<String, Serializable>();
             weeklyProperties.put(Event.CALENDAR_ID, calendarWrapper);
@@ -773,15 +1042,15 @@ int []count = new int[100];
            // addPersonalEvent(weeklyProperties);
            
             addDailySeriesEventNew((Integer)properties.get(Event.REFERENCE_ID), daysInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription, i, weeksInterval);
-            calBeginNextEventDateLong += milisPerWeek;
+            calBeginNextEventDateLong += (milisPerDay*7);
         }
     }
-        private void addDailySeriesEventNew2(Integer ids, int daysInterval, long calBeginNextEventDateLong, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
+        private void addDailySeriesEventNew2(Integer ids, int daysInterval, long calBeginNextEventDateLong, long milisPerWeek, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
         //Date calBeginNextEventDate;
  
         for (int i = 1; i < daysInterval; i++) {
 
-            calBeginNextEventDateLong += milisPerDay;
+            calBeginNextEventDateLong += milisPerWeek;
             //calBeginNextEventDate = new Date(calBeginNextEventDateLong);
 
             Map<String, Serializable> dailyProperties = new HashMap<String, Serializable>();
@@ -804,7 +1073,7 @@ int []count = new int[100];
             addPersonalEvent(dailyProperties);
         }
     }
-    private void addDailySeriesEventNew(Integer ids, int daysInterval, long calBeginNextEventDateLong, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final int j, final int weeksInterval) {
+    private void addDailySeriesEventNew(Integer ids, long daysInterval, long calBeginNextEventDateLong, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final int j, final int weeksInterval) {
         //Date calBeginNextEventDate;
  
         for (int i = 1; i < daysInterval; i++) {
@@ -871,7 +1140,10 @@ int []count = new int[100];
      * @param eventSummary the value of eventSummary
      * @param eventDescription the value of eventDescription
      */
-    private void processMonthlyEvents(final Date beginEventIntervalDate, final Date endEventIntervalDate, final Map<String, Serializable> properties, Boolean isMonthlySameDayOfWeek, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
+    private void processMonthlyEvents(final Date beginEventIntervalDate, Date endEventIntervalDate, final Date endEventIntervalDateRadio, final Map<String, Serializable> properties, Boolean isMonthlySameDayOfWeek, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {   
+            long milisDiff =endEventIntervalDate.getTime() - beginEventIntervalDate.getTime();
+            endEventIntervalDate = endEventIntervalDateRadio;
+       // Window.alert(beginEventIntervalDate1.getDate() + "."+beginEventIntervalDate1.getMonth()+"."+beginEventIntervalDate1.getYear()+"   |   "+ endEventIntervalDate1.getDate()+"."+endEventIntervalDate1.getMonth()+"."+endEventIntervalDate1.getYear());
         int yearStart = beginEventIntervalDate.getYear();
         int yearEnd = endEventIntervalDate.getYear();
         int yearInterval = yearEnd - yearStart;
@@ -884,7 +1156,7 @@ int []count = new int[100];
         } else {
             monthInterval = monthEnd - monthStart + 1;
         }
-
+        if(view.getRadioNumberOfRepetitions().getValue() == true) monthInterval--;
             properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY) + " (Monthly event 1 of " + monthInterval + ")");
             properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION) + " (Monthly event 1 of " + monthInterval + ")");
             if (isMonthlySameDayOfWeek) {
@@ -892,13 +1164,17 @@ int []count = new int[100];
             } else {
                 properties.put(Event.EVENT_TYPE, "M2");
             }
+                   
         //addPersonalEventMonthly(properties, monthInterval, beginEventIntervalDate, endEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
-        addPersonalEventMonthly(properties, monthInterval, beginEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
+        //Window.alert("MultiEvent = "+beginEventIntervalDate1.getDate() + "."+beginEventIntervalDate1.getMonth()+"."+beginEventIntervalDate1.getYear()+"   |   "+ endEventIntervalDate1.getDate()+"."+endEventIntervalDate1.getMonth()+"."+endEventIntervalDate1.getYear());
+        //Window.alert("EndDateRadio = "+endEventIntervalDateRadio.getDate() + "."+endEventIntervalDateRadio.getMonth()+"."+endEventIntervalDateRadio.getYear());
+
+        addPersonalEventMonthly(properties, monthInterval, beginEventIntervalDate, milisDiff, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
 
     }
 
     //private void addPersonalEventMonthly(final Map<String, Serializable> properties, final int monthInterval, final Date beginEventIntervalDate, final Date endEventIntervalDate, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription, final boolean isMonthlySameDayOfWeek) {
-    private void addPersonalEventMonthly(final Map<String, Serializable> properties, final int monthInterval, final Date beginEventIntervalDate, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription, final boolean isMonthlySameDayOfWeek) {
+    private void addPersonalEventMonthly(final Map<String, Serializable> properties, final int monthInterval, final Date beginEventIntervalDate, final long milisDiff, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription, final boolean isMonthlySameDayOfWeek) {
         final CreateEntity createEntity = new CreateEntity(PersonalEventDTO.ENTITY_NAME, properties);
 
         dispatch.execute(createEntity, new CommandResultHandler<CreateResult>() {
@@ -916,9 +1192,9 @@ int []count = new int[100];
                 event.setIdentifier((Integer) result.getEntity().getId());
                 updateEvent(event, properties);
                 properties.put(Event.REFERENCE_ID, (Integer) result.getEntity().getId());
-                int daysInterval=0;
-
-                daysInterval = Integer.parseInt(view.getListBoxMonthly2().getItemText(view.getListBoxMonthly2().getSelectedIndex()));
+                long milisPerDay = 86400000;
+                long daysInterval = milisDiff/milisPerDay+1;
+                Window.alert("DaysInterval = "+daysInterval);
                // addDailySeriesEventNew4((Integer)properties.get(Event.REFERENCE_ID), milisPerDay*7, beginEventIntervalDate, milisPerDay, startDate, endDate, eventSummary, eventDescription);
                addMonthlySeriesEvent((String) result.getEntity().getId(), monthInterval, beginEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
                addMonthlySeriesEventNew((String) result.getEntity().getId(), monthInterval,daysInterval, beginEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
@@ -1032,12 +1308,14 @@ int []count = new int[100];
      * @param eventSummary the value of eventSummary
      * @param eventDescription the value of eventDescription
      */
-    private void processYearEvents(final Date beginEventIntervalDate, final Date endEventIntervalDate, final Map<String, Serializable> properties, Boolean isYearlySameDayOfWeek, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
+    private void processYearEvents(final Date beginEventIntervalDate, Date endEventIntervalDate, final Date endEventIntervalDateRadio, final Map<String, Serializable> properties, Boolean isYearlySameDayOfWeek, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
+        long milisDiff =endEventIntervalDate.getTime() - beginEventIntervalDate.getTime();
+        endEventIntervalDate = endEventIntervalDateRadio;        
         int yearStart = beginEventIntervalDate.getYear();
         int yearEnd = endEventIntervalDate.getYear();
         int yearInterval = yearEnd - yearStart + 1;
+        if(view.getYearlyRadioNumberOfRepetitions().getValue() == true) yearInterval--;
 
-        if (yearInterval > 1) {
             properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY) + " (Yearly event 1 of " + yearInterval + ")");
             properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION) + " (Yearly " + (isYearlySameDayOfWeek ? "same Day of a week " : "same Date ") + "event 1 of " + yearInterval + ")");
             if (isYearlySameDayOfWeek) {
@@ -1045,12 +1323,13 @@ int []count = new int[100];
             } else {
                 properties.put(Event.EVENT_TYPE, "Y2");
             }
-        }
-        addPersonalEventYearly(properties, yearInterval, beginEventIntervalDate, endEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isYearlySameDayOfWeek);
+  
+
+        addPersonalEventYearly(milisDiff, properties, yearInterval, beginEventIntervalDate, endEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isYearlySameDayOfWeek);
 
     }
 
-    private void addPersonalEventYearly(final Map<String, Serializable> properties, final int yearInterval, final Date beginEventIntervalDate, final Date endEventIntervalDate, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription, final boolean isYearlySameDayOfWeek) {
+    private void addPersonalEventYearly(final long milisDiff, final Map<String, Serializable> properties, final int yearInterval, final Date beginEventIntervalDate, final Date endEventIntervalDate, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription, final boolean isYearlySameDayOfWeek) {
 
         final CreateEntity createEntity = new CreateEntity(PersonalEventDTO.ENTITY_NAME, properties);
 
@@ -1068,8 +1347,8 @@ int []count = new int[100];
                 event.setIdentifier((Integer) result.getEntity().getId());
                 properties.put(Event.REFERENCE_ID, (Integer) result.getEntity().getId());
                 updateEvent(event, properties);
-                int daysInterval=0;
-                daysInterval = Integer.parseInt(view.getListBoxYearly2().getItemText(view.getListBoxYearly2().getSelectedIndex()));
+                long milisPerDay = 86400000;                
+                long daysInterval = milisDiff/milisPerDay+1;
                 
                 addYearlySeriesEvent((String) result.getEntity().getId(), yearInterval, beginEventIntervalDate, endEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isYearlySameDayOfWeek);
                 addYearlySeriesEventNew((String) result.getEntity().getId(), yearInterval,daysInterval, beginEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isYearlySameDayOfWeek);
