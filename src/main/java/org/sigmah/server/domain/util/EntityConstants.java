@@ -676,8 +676,10 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String LAYOUT_GROUP_COLUMN_COLUMN_INDEX = "column_index";
 	public static final String LAYOUT_GROUP_COLUMN_TITLE = "title";
 	public static final String LAYOUT_GROUP_COLUMN_HAS_ITERATIONS = "has_iterations";
+	public static final String LAYOUT_GROUP_COLUMN_ITERATION_TYPE = "iteration_type";
 
 	public static final int LAYOUT_GROUP_TITLE_MAX_LENGTH = 8192;
+	public static final int LAYOUT_GROUP_ITERATION_TYPE_MAX_LENGTH = 8192;
 
 	// --------------------------------------------------------------------------------
 	//
