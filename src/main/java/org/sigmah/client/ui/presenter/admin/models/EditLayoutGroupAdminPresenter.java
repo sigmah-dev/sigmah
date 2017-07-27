@@ -25,6 +25,7 @@ package org.sigmah.client.ui.presenter.admin.models;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
@@ -174,6 +175,17 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 				onDelete();
 			}
 		});
+
+		// --
+		// HasIterations checkbox listener.
+		// --
+		view.getHasIterationsField().addListener(Events.Change, new Listener<FieldEvent>() {
+			@Override
+			public void handleEvent(FieldEvent event) {
+				view.getIterationTypeField().setEnabled((Boolean) event.getValue());
+			}
+		});
+
 	}
 
 	/**
@@ -222,6 +234,12 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 			setRowFieldValues(flexibleElement.getContainerModel(), layoutGroup.getRow());
 			view.getHasIterationsField().setValue(layoutGroup.getHasIterations());
 			view.getIterationTypeField().setValue(layoutGroup.getIterationType());
+
+			// --
+			// Dis/en-able iteration type input
+			// --
+			view.getIterationTypeField().setEnabled(layoutGroup.getHasIterations());
+
 		} else {
 			layoutGroup = null;
 		}
@@ -339,7 +357,8 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		layoutGroupDTO.setColumn(column);
 		layoutGroupDTO.setHasIterations(hasIterations);
 		layoutGroupDTO.setParentLayout(container);
-		layoutGroupDTO.setIterationType(iterationType);
+		// Force null value for iterationType if not hasIterations
+		layoutGroupDTO.setIterationType(hasIterations ? iterationType : null);
 
 		final Map<String, Object> newGroupProperties = new HashMap<String, Object>();
 		newGroupProperties.put(AdminUtil.PROP_NEW_GROUP_LAYOUT, layoutGroupDTO);
