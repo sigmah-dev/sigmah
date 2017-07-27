@@ -292,7 +292,7 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 					for (final LayoutGroupIterationDTO iteration : result.getList()) {
 
 						final IterableGroupItem tab = new IterableGroupItem(tabPanel, iteration.getId(),
-								iteration.getName());
+								iteration.getName(), groupLayout.getIterationType());
 						tabPanel.addIterationTab(tab);
 
 						Layout tabLayout = Layouts.fitLayout();

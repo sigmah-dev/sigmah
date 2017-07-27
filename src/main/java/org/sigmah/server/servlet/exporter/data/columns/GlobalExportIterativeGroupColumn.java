@@ -90,7 +90,7 @@ public class GlobalExportIterativeGroupColumn extends GlobalExportDataColumn {
 		try {
 
 			if (firstLine) {
-				exportFirstLine(titles, constraints, layoutGroupsData, groupName);
+				exportFirstLine(titles, constraints, layoutGroupsData, groupName, layoutGroup.getIterationType());
 			}
 
 			final ListResult<LayoutGroupIterationDTO> iterationsResult = iterationsHandler.execute(command, null);
@@ -186,7 +186,7 @@ public class GlobalExportIterativeGroupColumn extends GlobalExportDataColumn {
 	 * @param groupName 
 	 *			Name of the current group.
 	 */
-	private void exportFirstLine(final List<ExportDataCell> titles, final List<LayoutConstraint> constraints, final Map<String, List<ExportDataCell[]>> layoutGroupsData, final String groupName) {
+	private void exportFirstLine(final List<ExportDataCell> titles, final List<LayoutConstraint> constraints, final Map<String, List<ExportDataCell[]>> layoutGroupsData, final String groupName, final String groupIterationType) {
 		
 		titles.add(new ExportStringCell(layoutGroup.getTitle()));
 		
@@ -195,7 +195,11 @@ public class GlobalExportIterativeGroupColumn extends GlobalExportDataColumn {
 		final List<ExportDataCell> columns = new ArrayList<>();
 		
 		for (final String initialColumn : initialColumns) {
-			columns.add(new ExportStringCell(i18nTranslator.t(language, initialColumn)));
+			if ("iterationName".equals(initialColumn) && groupIterationType != null) {
+				columns.add(new ExportStringCell(i18nTranslator.t(language, "iterationNameMessage", groupIterationType)));
+			} else {
+				columns.add(new ExportStringCell(i18nTranslator.t(language, initialColumn)));
+			}
 		}
 		
 		for (final LayoutConstraint constraint : constraints) {

@@ -67,17 +67,19 @@ import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 public class IterableGroupPanel extends TabPanel {
 
   public static class IterableGroupItem extends TabItem {
+    private String iterationType;
     private IterableGroupPanel parent;
     private int iterationId;
     private String iterationName;
     private Map<FlexibleElementDTO, Boolean> mandatoryElements = new HashMap<FlexibleElementDTO, Boolean>();
     private Button btnRename;
 
-    public IterableGroupItem(IterableGroupPanel parent, int iterationId, String iterationName) {
+    public IterableGroupItem(IterableGroupPanel parent, int iterationId, String iterationName, String iterationType) {
       super();
       this.parent = parent;
       this.iterationId = iterationId;
       this.iterationName = iterationName;
+      this.iterationType = iterationType;
 
       if(parent.canEdit) {
         generateToolBar();
@@ -141,7 +143,7 @@ public class IterableGroupPanel extends TabPanel {
 
       refreshRenameButton();
 
-      Button btnRemove = new Button(I18N.CONSTANTS.layoutGroupIterationRemoveButton());
+      Button btnRemove = new Button(iterationType == null ? I18N.CONSTANTS.layoutGroupIterationRemoveButton() : I18N.MESSAGES.layoutGroupIterationRemoveButton(iterationType));
       btnRemove.addSelectionListener(new SelectionListener<ButtonEvent>() {
         @Override
         public void componentSelected(ButtonEvent menuEvent) {
@@ -160,15 +162,15 @@ public class IterableGroupPanel extends TabPanel {
     private void refreshRenameButton() {
 
       if(getIterationName() == null || "".equals(getIterationName())) {
-        btnRename.setText(I18N.CONSTANTS.layoutGroupIterationSetNameButton());
+        btnRename.setText(iterationType == null ? I18N.CONSTANTS.layoutGroupIterationSetNameButton() :I18N.MESSAGES.layoutGroupIterationSetNameButton(iterationType));
       } else {
-        btnRename.setText(I18N.CONSTANTS.layoutGroupIterationRenameButton());
+        btnRename.setText(iterationType == null ? I18N.CONSTANTS.layoutGroupIterationRenameButton() : I18N.MESSAGES.layoutGroupIterationRenameButton(iterationType));
       }
     }
 
     private void renameTab() {
       final Window w = new Window();
-      w.setHeadingText(I18N.CONSTANTS.layoutGroupIterationRename());
+      w.setHeadingText(iterationType == null ? I18N.CONSTANTS.layoutGroupIterationRename() : I18N.MESSAGES.layoutGroupIterationRename(iterationType));
       w.setPlain(true);
       w.setModal(true);
       w.setBlinkModal(true);
@@ -176,7 +178,7 @@ public class IterableGroupPanel extends TabPanel {
       w.setSize(500, 100);
 
       final TextField<String> field = new TextField<String>();
-      field.setFieldLabel(I18N.CONSTANTS.layoutGroupIterationName());
+      field.setFieldLabel(iterationType == null ? I18N.CONSTANTS.layoutGroupIterationName() : I18N.MESSAGES.layoutGroupIterationName(iterationType));
       field.setValue(getIterationName());
 
       Button btn = Forms.button(I18N.CONSTANTS.ok());
@@ -205,7 +207,9 @@ public class IterableGroupPanel extends TabPanel {
     }
 
     private void removeTab() {
-      N10N.confirmation(I18N.CONSTANTS.layoutGroupIterationDelete(), I18N.CONSTANTS.layoutGroupIterationDeleteConfirm(), new ConfirmCallback() {
+      String deleteMessage = iterationType == null ? I18N.CONSTANTS.layoutGroupIterationDelete() : I18N.MESSAGES.layoutGroupIterationDelete(iterationType);
+      String confirmDeleteMessage = iterationType == null ? I18N.CONSTANTS.layoutGroupIterationDeleteConfirm() : I18N.MESSAGES.layoutGroupIterationDeleteConfirm(iterationType);
+      N10N.confirmation(deleteMessage, confirmDeleteMessage, new ConfirmCallback() {
 
         @Override
         public void onAction() {
@@ -271,7 +275,7 @@ public class IterableGroupPanel extends TabPanel {
           button.addSelectionListener(new SelectionListener<ButtonEvent>() {
             @Override
             public void componentSelected(ButtonEvent ce) {
-              addEmptyTab();
+              addEmptyTab(layoutGroup.getIterationType());
             }
           });
 
@@ -291,12 +295,12 @@ public class IterableGroupPanel extends TabPanel {
     }
   }
 
-  private void addEmptyTab() {
+  private void addEmptyTab(String iterationType) {
 
     if (delegate != null) {
 
       final Window w = new Window();
-      w.setHeadingText(I18N.CONSTANTS.layoutGroupIterationCreation());
+      w.setHeadingText(iterationType == null ? I18N.CONSTANTS.layoutGroupIterationCreation() : I18N.MESSAGES.layoutGroupIterationCreation(iterationType));
       w.setPlain(true);
       w.setModal(true);
       w.setBlinkModal(true);
@@ -304,7 +308,7 @@ public class IterableGroupPanel extends TabPanel {
       w.setSize(500, 100);
 
       final TextField<String> field = new TextField<String>();
-      field.setFieldLabel(I18N.CONSTANTS.layoutGroupIterationName());
+      field.setFieldLabel(iterationType == null ? I18N.CONSTANTS.layoutGroupIterationName() : I18N.MESSAGES.layoutGroupIterationName(iterationType));
 
       Button btn = Forms.button(I18N.CONSTANTS.ok());
       btn.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -315,7 +319,7 @@ public class IterableGroupPanel extends TabPanel {
           String tabName = field.getValue();
           int iterationId = getTemporaryIterationId();
 
-          final IterableGroupItem tab = new IterableGroupItem(IterableGroupPanel.this, iterationId, tabName);
+          final IterableGroupItem tab = new IterableGroupItem(IterableGroupPanel.this, iterationId, tabName, layoutGroup.getIterationType());
           addIterationTab(tab);
           delegate.addIterationTabItem(iterationId, tab);
 

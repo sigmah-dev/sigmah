@@ -662,7 +662,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 					for (final LayoutGroupIterationDTO iteration : result.getList()) {
 
 						final IterableGroupItem tab = new IterableGroupItem(tabPanel, iteration.getId(),
-								iteration.getName());
+								iteration.getName(), iteration.getLayoutGroup().getIterationType());
 						tabPanel.addIterationTab(tab);
 
 						Layout tabLayout = Layouts.fitLayout();

@@ -141,7 +141,12 @@ public class ContactsSynthesisUtils {
 		boolean isFirst = true;
 
 		List<ExportDataCell> iterationHeaders = new ArrayList<>();
-		iterationHeaders.add(new ExportStringCell(i18nTranslator.t(language, "iterationName")));
+		if (layoutGroup.getIterationType() == null) {
+			iterationHeaders.add(new ExportStringCell(i18nTranslator.t(language, "iterationName")));
+		} else {
+			iterationHeaders.add(new ExportStringCell(i18nTranslator.t(language, "iterationNameMessage", layoutGroup.getIterationType())));
+		}
+
 
 		for (LayoutGroupIterationDTO iteration : iterations.getList()) {
 			List<ExportDataCell> iterationValues = new ArrayList<>();

@@ -241,7 +241,7 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
 
           for(final LayoutGroupIterationDTO iteration : result.getList()) {
 
-            final IterableGroupItem tab = new IterableGroupItem(tabPanel, iteration.getId(), iteration.getName());
+            final IterableGroupItem tab = new IterableGroupItem(tabPanel, iteration.getId(), iteration.getName(), groupLayout.getIterationType());
             tabPanel.addIterationTab(tab);
 
             Layout tabLayout = Layouts.fitLayout();
