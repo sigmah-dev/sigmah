@@ -54,6 +54,7 @@ public class EditLayoutGroupAdminView extends AbstractPopupView<PopupWidget> imp
 	private ComboBox<BaseModelData> containerField;
 	private SimpleComboBox<Integer> rowField;
 	private CheckBox hasIterationsField;
+	private TextField<String> iterationTypeField;
 	private Button saveButton;
 	private Button deleteButton;
 
@@ -99,6 +100,12 @@ public class EditLayoutGroupAdminView extends AbstractPopupView<PopupWidget> imp
 		hasIterationsField = Forms.checkbox("", null, I18N.CONSTANTS.adminFlexibleGroupHasIterations(), false);
 
 		// --
+		// IterationType field.
+		// --
+
+		iterationTypeField = Forms.text(I18N.CONSTANTS.adminFlexibleGroupIterationType(), false);
+
+		// --
 		// Save button.
 		// --
 
@@ -111,6 +118,8 @@ public class EditLayoutGroupAdminView extends AbstractPopupView<PopupWidget> imp
 		
 		form.add(hasIterationsField);
 		
+		form.add(iterationTypeField);
+
 //		form.addButton(deleteButton);
 		form.addButton(saveButton);
 
@@ -155,6 +164,14 @@ public class EditLayoutGroupAdminView extends AbstractPopupView<PopupWidget> imp
 	@Override
 	public CheckBox getHasIterationsField() {
 		return hasIterationsField;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Field<String> getIterationTypeField() {
+		return iterationTypeField;
 	}
 
 	/**

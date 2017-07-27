@@ -95,6 +95,9 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		SimpleComboBox<Integer> getRowField();
 
 		CheckBox getHasIterationsField();
+
+		Field<String> getIterationTypeField();
+
 		Button getSaveButton();
 
 		Button getDeleteButton();
@@ -218,6 +221,7 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 			view.getContainerField().setValue(flexibleElement.getContainerModel());
 			setRowFieldValues(flexibleElement.getContainerModel(), layoutGroup.getRow());
 			view.getHasIterationsField().setValue(layoutGroup.getHasIterations());
+			view.getIterationTypeField().setValue(layoutGroup.getIterationType());
 		} else {
 			layoutGroup = null;
 		}
@@ -311,6 +315,7 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		final Integer row = view.getRowField().getSimpleValue();
 		final Integer column = 0;
 		final Boolean hasIterations = view.getHasIterationsField().getValue();
+		final String iterationType = view.getIterationTypeField().getValue();
 		final LayoutDTO container = getLayout(view.getContainerField().getValue());
 
   	// iterative groups cannot contain default fields nor core fields
@@ -334,6 +339,7 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		layoutGroupDTO.setColumn(column);
 		layoutGroupDTO.setHasIterations(hasIterations);
 		layoutGroupDTO.setParentLayout(container);
+		layoutGroupDTO.setIterationType(iterationType);
 
 		final Map<String, Object> newGroupProperties = new HashMap<String, Object>();
 		newGroupProperties.put(AdminUtil.PROP_NEW_GROUP_LAYOUT, layoutGroupDTO);
