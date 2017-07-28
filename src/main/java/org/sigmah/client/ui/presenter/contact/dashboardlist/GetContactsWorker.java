@@ -186,7 +186,7 @@ final class GetContactsWorker {
 		final ContactDTO nextContact = contactsList.remove(0);
 
 		// Retrieves these contacts.
-		dispatch.execute(new GetContactHistory(nextContact.getId()), new CommandResultHandler<ListResult<ContactHistory>>() {
+		dispatch.execute(new GetContactHistory(nextContact.getId(), true), new CommandResultHandler<ListResult<ContactHistory>>() {
 
 			@Override
 			public void onCommandFailure(final Throwable e) {

@@ -27,7 +27,7 @@ import org.sigmah.server.dao.base.DAO;
 import org.sigmah.server.domain.HistoryToken;
 
 public interface HistoryTokenDAO extends DAO<HistoryToken, Integer> {
-  List<HistoryToken> findByContainerIdAndFlexibleElementId(Integer containerId, Integer flexibleElementId);
+  List<HistoryToken> findByContainerIdAndFlexibleElementId(Integer containerId, Integer flexibleElementId, boolean lastOnly);
 
   /**
    * Find history tokens with a value equaled to or containing the given id.
@@ -35,5 +35,5 @@ public interface HistoryTokenDAO extends DAO<HistoryToken, Integer> {
    *   The value inside the history token can be a multivalued value.
    * </p>
    */
-  List<HistoryToken> findByIdInSerializedValue(Integer containerId);
+  List<HistoryToken> findByIdInSerializedValueAndElementType(Integer containerId, String elementTypeTableName, boolean lastOnly);
 }
