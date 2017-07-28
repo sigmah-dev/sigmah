@@ -37,6 +37,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
 import org.sigmah.server.autoExport.QuartzScheduler;
+import org.sigmah.server.search.SearchModule;
 
 /**
  * Builds the Guice injector.
@@ -81,6 +82,8 @@ public class ServletContextListener extends GuiceServletContextListener {
 			new I18nServerModule(),
 			// scheduler Module
 			new SchedulerModule());
+			// search module
+			//new SearchModule());
 	}
 
 	@Override

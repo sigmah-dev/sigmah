@@ -277,6 +277,23 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 				initializeMenuButtons(event.getState());
 			}
 		});
+		
+		
+		searchServiceForAutoIndex.updateCore(auth().getOrganizationSolrCoreUrl(), new AsyncCallback<Boolean>() {
+			public void onFailure(Throwable caught) {
+				Window.alert("Could not update Solr Core. Check that the url is valid!");
+				caught.printStackTrace();
+			}
+
+			public void onSuccess(Boolean result) {
+				Boolean dih_success = result;
+				if (dih_success == true) {
+					Window.alert("Successfully updated Solr Core!");
+				} else {
+					Window.alert("Failed to update Solr Core! Check that the url is valid!");
+				}
+			}
+		});
 
 		// related to search auto indexing
 		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MANAGE_SETTINGS)) {

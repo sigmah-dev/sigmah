@@ -1,7 +1,9 @@
 package org.sigmah.server.search;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
+import com.google.inject.Inject;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import javax.servlet.ServletContext;
@@ -14,6 +16,7 @@ import org.sigmah.shared.dto.search.SearchResultsDTO;
 
 @SuppressWarnings("serial")
 public class SearchServiceImpl extends RemoteServiceServlet implements SearchService{
+	
 	//implementation of the Search Methods
 	@Override
 	public ArrayList<SearchResultsDTO> search(String searchStr, String filter){
@@ -42,5 +45,13 @@ public class SearchServiceImpl extends RemoteServiceServlet implements SearchSer
 		// TODO Auto-generated method stub
 		if( SolrSearcher.getNewInstance(solrCoreUrl) != null ) return true;
 		return false;
+	}
+	
+	@Override
+	public Boolean filesIndex() throws IOException {
+		// TODO Auto-generated method stub
+		FilesSolrHandler filesSolrHandler = new FilesSolrHandler();
+		System.out.println("This is not supposed to be null: " + filesSolrHandler.getFileDAO());
+		return filesSolrHandler.FilesImport(SolrSearcher.getInstance());
 	}
 }

@@ -32,6 +32,7 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
+import javax.persistence.QueryTimeoutException;
 import javax.persistence.TypedQuery;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -129,6 +130,41 @@ public class FileHibernateDAO extends AbstractDAO<File, Integer> implements File
 		query.setParameter("filesIds", filesIds);
 
 		return query.getResultList();
+	}
+	
+	@Override
+	public List<FileVersion> findAllVersions(){
+		final String request;
+		//select last versions of all files which are not deleted
+//		request = "SELECT "
+//				+ "  fv "
+//				+ "FROM "
+//				+ "  File f INNER JOIN f.versions fv "
+//				+ "WHERE "
+//				+ " f.dateDeleted IS NULL "
+//				+ "  AND fv.versionNumber IN ("
+//				+ "    SELECT max(fv2.versionNumber) FROM FileVersion fv2 WHERE fv2.parentFile = f"
+//				+ "  )";
+		request = "SELECT "
+				+ "fv "
+				+ "FROM "
+				+ " FileVersion ";
+//				+ "WHERE "
+//				+ " fv.versionNumber IN ("
+//				+ "    SELECT max(fv2.versionNumber) FROM FileVersion fv2 WHERE fv2.id = fv.id"
+//				+ "  )";
+		System.out.println("GUBI " + request );
+		System.out.println("This should not be null also:" + em());
+		final TypedQuery<FileVersion> query = em().createQuery(request, FileVersion.class);
+		List<FileVersion> res = null;
+		try{
+			res = query.getResultList();
+		}catch( Exception e){
+			System.out.println("Here's an error!");
+			e.printStackTrace();
+		}
+		System.out.println("GUBI " + res.toString());
+		return res;
 	}
 
 	/**

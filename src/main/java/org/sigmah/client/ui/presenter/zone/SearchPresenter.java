@@ -1,5 +1,6 @@
 package org.sigmah.client.ui.presenter.zone;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -130,7 +131,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 		Button getSearchButton();
 
-		//Button getIndexButton();
+		Button getIndexButton();
 
 	}
 
@@ -181,11 +182,17 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 		});
 
-//		view.getIndexButton().addClickHandler(new ClickHandler() {
-//			public void onClick(ClickEvent event) {
-//				index();
-//			}
-//		});
+		view.getIndexButton().addClickHandler(new ClickHandler() {
+			public void onClick(ClickEvent event) {
+				try {
+					filesIndex();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					Window.alert("IO Exception!");
+					e.printStackTrace();
+				}
+			}
+		});
 
 	}
 
@@ -228,23 +235,23 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		});
 	}
 
-//	private void index() {
-//		searchService.index(new AsyncCallback<Boolean>() {
-//			public void onFailure(Throwable caught) {
-//				Window.alert("Failure on the server side!");
-//				caught.printStackTrace();
-//			}
-//
-//			public void onSuccess(Boolean result) {
-//				dih_success = result;
-//				if (dih_success == true) {
-//					Window.alert("Successfully completed Full Import!");
-//				} else {
-//					Window.alert("Failed to complete Full Import!");
-//				}
-//			}
-//		});
-//	}
+	private void filesIndex() throws IOException {
+		searchService.filesIndex(new AsyncCallback<Boolean>() {
+			public void onFailure(Throwable caught) {
+				Window.alert("Failure on the server side!");
+				caught.printStackTrace();
+			}
+
+			public void onSuccess(Boolean result) {
+				dih_success = result;
+				if (dih_success == true) {
+					Window.alert("Successfully completed Files Import!");
+				} else {
+					Window.alert("Failed to complete Files Import!");
+				}
+			}
+		});
+	}
 
 	private void loadProjectIdsForFiltering() {
 		Integer[] orgUnitsIds = auth().getOrgUnitIds().toArray(new Integer[auth().getOrgUnitIds().size()]);

@@ -1,5 +1,6 @@
 package org.sigmah.client.search;
 
+import java.io.IOException;
 import java.util.ArrayList;
 
 import org.sigmah.shared.dto.search.SearchResultsDTO;
@@ -13,4 +14,5 @@ public interface SearchService extends RemoteService {
 	Boolean index();
 	Boolean autoIndex();
 	Boolean updateCore(String solrCoreUrl);
+	Boolean filesIndex() throws IOException;
 }

@@ -51,6 +51,7 @@ public interface FileDAO extends DAO<File, Integer> {
 	 */
 	List<FileVersion> findVersions(Collection<Integer> filesIds, LoadingScope loadingScope);
 
+	List<FileVersion> findAllVersions();
 	/**
 	 * Retrieves the {@link FileVersion} corresponding to the given {@code versionId}.
 	 * 
