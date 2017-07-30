@@ -14,5 +14,4 @@ public interface SearchService extends RemoteService {
 	Boolean index();
 	Boolean autoIndex();
 	Boolean updateCore(String solrCoreUrl);
-	Boolean filesIndex() throws IOException;
 }

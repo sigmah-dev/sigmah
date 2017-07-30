@@ -37,7 +37,6 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
 import org.sigmah.server.autoExport.QuartzScheduler;
-import org.sigmah.server.search.SearchModule;
 
 /**
  * Builds the Guice injector.

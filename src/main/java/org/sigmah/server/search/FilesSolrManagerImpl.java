@@ -74,6 +74,7 @@ public class FilesSolrManagerImpl implements FilesSolrManager {
 		
 	}
 
+	@Override
 	public Boolean indexFile(FileVersion fv){
 		ContentStreamUpdateRequest req = new ContentStreamUpdateRequest("/update/extract");
 		try {
