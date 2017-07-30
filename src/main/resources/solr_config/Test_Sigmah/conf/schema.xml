@@ -117,7 +117,7 @@
          WARNING: The _text_ catch-all field will significantly increase your index size.
          If you don't need it, consider removing it and the corresponding copyField directive.
     -->
-    <!-- Gubi -->
+    <!-- Document Identifiers -->
 
     <field name="doc_id" type="string" />
     <field name="doc_type" type="string" />
@@ -227,6 +227,21 @@
     <field name="org_unit_model_date_maintenance" type="pdate" indexed="true" stored="true" required="false" multiValued="false" />
     <field name="org_unit_model_organization_name" type="text_general" indexed="true" stored="true" required="false" multiValued="false" />
 
+    <!--FILES -->
+
+    <field name="title" type="text_general" indexed="true" stored="true" multiValued="false"/>
+    <field name="author" type="text_general" indexed="true" stored="true" multiValued="true"/>
+    <field name="content" type="text_general" indexed="true" stored="true" multiValued="false"/>
+    <field name="file_id" type="text_general" indexed="true" stored="true" multiValued="false"/>
+    <field name="file_name" type="text_general" indexed="true" stored="true" multiValued="false"/>
+    <field name="file_ext" type="text_general" indexed="true" stored="true" multiValued="false"/>
+    <field name="file_author" type="text_general" indexed="true" stored="true" multiValued="false"/>
+    <field name="file_comments" type="text_general" indexed="true" stored="true" multiValued="false"/>
+    <field name="file_added_date" type="text_general" indexed="true" stored="true" multiValued="false"/>
+    <field name="file_version_num" type="text_general" indexed="true" stored="true" multiValued="false"/>
+    <field name="file_size" type="text_general" indexed="true" stored="true" multiValued="false"/>
+    <field name="file_author_organization" type="text_general" indexed="true" stored="true" multiValued="false"/>
+    <field name="file_author_email" type="text_general" indexed="true" stored="true" multiValued="false"/>
 
 
     <field name="_version_" type="long" indexed="false" stored="false"/>
@@ -495,6 +510,19 @@
         <filter class="solr.ASCIIFoldingFilterFactory"/>
         <filter class="solr.LowerCaseFilterFactory"/>
       </analyzer> 
+
+      <analyzer>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="/\n/g" replacement=""/>
+        <!-- charFilter class="solr.PatternReplaceCharFilterFactory" pattern="(\\n)" replacement=""/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\n" replacement=""/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\\n]" replacement=""/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="[\n]" replacement=""/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\t" replacement=""/>
+        <charFilter class="solr.PatternReplaceCharFilterFactory" pattern="\\t" replacement=""/> -->
+          <tokenizer class="solr.StandardTokenizerFactory"/>
+        <filter class="solr.LowerCaseFilterFactory"/>
+        <filter class="solr.TrimFilterFactory" />
+      </analyzer>
 
       <analyzer>
         <tokenizer class="solr.StandardTokenizerFactory"/>

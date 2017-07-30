@@ -43,9 +43,6 @@ import java.net.*;
 public class SolrSearcher {
 
 	private Properties properties = new BasicProperties();
-	
-//	@Inject
-//	private FileStorageProvider fileStorageProvider;
 
 	private String urlString;
 	public static SolrClient solrServer;

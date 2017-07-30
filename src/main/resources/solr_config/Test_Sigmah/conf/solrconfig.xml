@@ -855,13 +855,69 @@
        http://wiki.apache.org/solr/ExtractingRequestHandler 
 
     -->
+  <!--  <requestHandler name="/select" class="solr.SearchHandler"/> -->
+  <requestHandler name="/update" class="solr.UpdateRequestHandler" />
+  <!-- <requestHandler name="/admin" class="solr.admin.AdminHandlers" />
+  <requestHandler name="/analysis/field" class="solr.FieldAnalysisRequestHandler" startup="lazy"/> -->
+
   <requestHandler name="/update/extract"
                   startup="lazy"
                   class="solr.extraction.ExtractingRequestHandler" >
     <lst name="defaults">
-      <str name="lowernames">true</str>
+      <!-- <str name="lowernames">true</str> -->
       <str name="fmap.meta">ignored_</str>
-      <str name="fmap.content">_text_</str>
+      <str name="uprefix">ignored_</str>
+      <str name="fmap.a">ignored_</str>
+      <str name="fmap.div">ignored_</str>
+      <str name="fmap.content">content</str>
+      <str name="fmap.title">title</str>
+      <str name="lowernames">true</str>
+      <str name="uprefix">attr_</str>
+      <str name="captureAttr">true</str>
+      <bool name="ignoreTikaException">true</bool>
+    </lst>
+  </requestHandler>
+
+  <requestHandler name="/searchproject" class="solr.SearchHandler">
+    <lst name="defaults">
+     <str name="echoParams">explicit</str>
+     <str name="defType">dismax</str>
+     <str name="qf">
+        project_fullname^2.5 project_name^2 pmodel_name^1.5 project_org_unit_fullname^1.0 phase_model_name^1.2 project_org_unit_name^0.8 project_country_name^0.5 amendment_status ^0.5 project_country_iso2^0.2 pmodel_status^0.1
+     </str>
+     <!-- <str name="q.alt">*:*</str>
+     <str name="rows">10</str>
+     <str name="fl">*,score</str> -->
+    </lst>
+  </requestHandler>
+
+  <requestHandler name="/searchorgunit" class="solr.SearchHandler">
+    <lst name="defaults">
+     <str name="echoParams">explicit</str>
+     <str name="defType">dismax</str>
+     <str name="qf">
+        org_unit_fullname^2.5 org_unit_country_name org_unit_model_name
+     </str>
+    </lst>
+  </requestHandler>
+
+  <requestHandler name="/searchcontact" class="solr.SearchHandler">
+    <lst name="defaults">
+     <str name="echoParams">explicit</str>
+     <str name="defType">dismax</str>
+     <str name="qf">
+        project_fullname^2.5 project_name^2 pmodel_name^1.5 project_org_unit_fullname org_unit_model_status org_unit_model_title org_unit_model_organization_name
+     </str>
+    </lst>
+  </requestHandler>
+
+  <requestHandler name="/search" class="solr.SearchHandler">
+    <lst name="defaults">
+     <str name="echoParams">explicit</str>
+     <str name="defType">dismax</str>
+     <str name="qf">
+        project_fullname^2.5 project_name^2 pmodel_name^1.5 project_org_unit_fullname^1.0 phase_model_name^1.2 project_org_unit_name^0.8 project_country_name^0.5 amendment_status ^0.5 project_country_iso2^0.2 pmodel_status^0.1 
+     </str>
     </lst>
   </requestHandler>
 
@@ -1196,6 +1252,13 @@
   <updateRequestProcessorChain name="add-unknown-fields-to-the-schema">
     <!-- UUIDUpdateProcessorFactory will generate an id if none is present in the incoming document -->
     <processor class="solr.UUIDUpdateProcessorFactory" />
+    <processor class="solr.RegexReplaceProcessorFactory">
+      <str name="fieldName">content</str>
+      <str name="fieldName">title</str>
+      <str name="pattern">^[\r\n\t ]+</str>
+      <str name="replacement"></str>
+      <bool name="literalReplacement">true</bool>
+    </processor>
     <processor class="solr.RemoveBlankFieldUpdateProcessorFactory"/>
     <processor class="solr.FieldNameMutatingUpdateProcessorFactory">
       <str name="pattern">[^\w-\.]</str>
@@ -1225,7 +1288,7 @@
         <str>yyyy-MM-dd</str>
       </arr>
     </processor>
-    <processor class="solr.AddSchemaFieldsUpdateProcessorFactory">
+    <!-- <processor class="solr.AddSchemaFieldsUpdateProcessorFactory">
       <str name="defaultFieldType">strings</str>
       <lst name="typeMapping">
         <str name="valueClass">java.lang.Boolean</str>
@@ -1244,7 +1307,7 @@
         <str name="valueClass">java.lang.Number</str>
         <str name="fieldType">tdoubles</str>
       </lst>
-    </processor>
+    </processor> -->
     <processor class="solr.LogUpdateProcessorFactory"/>
     <processor class="solr.DistributedUpdateProcessorFactory"/>
     <processor class="solr.RunUpdateProcessorFactory"/>

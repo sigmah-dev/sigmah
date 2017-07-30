@@ -50,8 +50,19 @@ public class SearchServiceImpl extends RemoteServiceServlet implements SearchSer
 	@Override
 	public Boolean filesIndex() throws IOException {
 		// TODO Auto-generated method stub
-		FilesSolrHandler filesSolrHandler = new FilesSolrHandler();
-		System.out.println("This is not supposed to be null: " + filesSolrHandler.getFileDAO());
-		return filesSolrHandler.FilesImport(SolrSearcher.getInstance());
+//		System.out.println("Tryna file index, wth is happening here?");
+//		FilesSolrHandler filesSolrHandler = null;
+//		try {
+//			filesSolrHandler = new FilesSolrHandler();
+//			//injector.injectMembers(filesSolrHandler);
+//			System.out.println("Is this null: " + filesSolrHandler);
+//		} catch (RuntimeException e) {
+//			// TODO Auto-generated catch block
+//			System.out.println("HELL: " + filesSolrHandler);
+//			e.printStackTrace();
+//		}
+//		System.out.println("This is not supposed to be null: " + filesSolrHandler.getFileDAO());
+//		return filesSolrHandler.FilesImport(SolrSearcher.getInstance());
+		return true;
 	}
 }

@@ -20,6 +20,7 @@ import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.search.SearchService;
 import org.sigmah.client.search.SearchServiceAsync;
+import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.CreateProjectPresenter;
 import org.sigmah.client.ui.presenter.base.AbstractZonePresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
@@ -31,16 +32,20 @@ import org.sigmah.client.ui.widget.tab.TabBar.TabBarListener;
 import org.sigmah.client.ui.zone.Zone;
 import org.sigmah.client.ui.zone.ZoneRequest;
 import org.sigmah.client.util.ClientUtils;
+import org.sigmah.shared.command.BackupArchiveManagementCommand;
+import org.sigmah.shared.command.FilesSolrIndexCommand;
 import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.GetOrgUnits;
 import org.sigmah.shared.command.GetProjects;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.conf.PropertyName;
+import org.sigmah.shared.dto.BackupDTO;
 import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.dto.search.FilesSolrIndexDTO;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
 import org.sigmah.shared.util.ProfileUtils;
 
@@ -236,21 +241,42 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 	}
 
 	private void filesIndex() throws IOException {
-		searchService.filesIndex(new AsyncCallback<Boolean>() {
-			public void onFailure(Throwable caught) {
-				Window.alert("Failure on the server side!");
-				caught.printStackTrace();
+		
+		dispatch.execute(new FilesSolrIndexCommand(), new CommandResultHandler<FilesSolrIndexDTO>() {
+
+			@Override
+			public void onCommandSuccess(final FilesSolrIndexDTO result) {
+
+				if (result == null) {
+					Window.alert("Yeh kya ho gya!");
+
+				} else {
+					//N10N.warn(I18N.CONSTANTS.backupManagement_process_alreadyRunning());
+					if( result.isResult()){
+						Window.alert("Successfully completed files indexing!");
+					}else{
+						Window.alert("Failed to complete files indexing!");
+					}
+				}
+
 			}
 
-			public void onSuccess(Boolean result) {
-				dih_success = result;
-				if (dih_success == true) {
-					Window.alert("Successfully completed Files Import!");
-				} else {
-					Window.alert("Failed to complete Files Import!");
-				}
-			}
 		});
+//		searchService.filesIndex(new AsyncCallback<Boolean>() {
+//			public void onFailure(Throwable caught) {
+//				Window.alert("Failure on the server side!");
+//				caught.printStackTrace();
+//			}
+//
+//			public void onSuccess(Boolean result) {
+//				dih_success = result;
+//				if (dih_success == true) {
+//					Window.alert("Successfully completed Files Import!");
+//				} else {
+//					Window.alert("Failed to complete Files Import!");
+//				}
+//			}
+//		});
 	}
 
 	private void loadProjectIdsForFiltering() {

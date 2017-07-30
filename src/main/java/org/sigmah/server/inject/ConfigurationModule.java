@@ -32,7 +32,8 @@ import org.sigmah.server.file.LogoManager;
 import org.sigmah.server.file.impl.BackupArchiveManagerImpl;
 import org.sigmah.server.file.impl.LocalFileStorageProvider;
 import org.sigmah.server.file.impl.LogoManagerImpl;
-import org.sigmah.server.search.FilesSolrHandler;
+import org.sigmah.server.search.FilesSolrManager;
+import org.sigmah.server.search.FilesSolrManagerImpl;
 import org.sigmah.server.search.SolrSearcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -74,7 +75,8 @@ public class ConfigurationModule extends AbstractModule {
 		bind(BackupArchiveManager.class).to(BackupArchiveManagerImpl.class).in(Singleton.class);
 		install(new FactoryModuleBuilder().build(BackupArchiveJobFactory.class));
 		
-		//bind(FilesSolrHandler.class).in(Singleton.class);
+		//Solr Files Handler
+		bind(FilesSolrManager.class).to(FilesSolrManagerImpl.class).in(Singleton.class);
 	}
 
 }
