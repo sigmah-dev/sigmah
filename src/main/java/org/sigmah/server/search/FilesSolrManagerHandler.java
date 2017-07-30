@@ -18,25 +18,23 @@ public class FilesSolrManagerHandler extends AbstractCommandHandler<FilesSolrInd
 	/**
 	 * Injected {@link BackupArchiveManager}.
 	 */
-	private final FilesSolrManager filesSolrManager;
+	private FilesSolrManager filesSolrManager;
 	
 	
 	@Inject
-	public FilesSolrManagerHandler(final FilesSolrManager filesSolrManager) {
+	public FilesSolrManagerHandler(FilesSolrManager filesSolrManager) {
 		this.filesSolrManager = filesSolrManager;
 	}
 	
 	@Override
 	protected FilesSolrIndexDTO execute(FilesSolrIndexCommand command, UserExecutionContext context)
 			throws CommandException {
-		// TODO Auto-generated method stub
 		FilesSolrIndexDTO res = new FilesSolrIndexDTO();
 		try {
 			filesSolrManager.FilesImport(SolrSearcher.getInstance());
 			res.setResult(true);
 			
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			res.setResult(false);
 		}

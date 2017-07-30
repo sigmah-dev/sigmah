@@ -21,13 +21,6 @@ public class SearchServiceImpl extends RemoteServiceServlet implements SearchSer
 	}
 
 	@Override
-	public Boolean autoIndex() {
-		if( SolrIndexJobActivator.getSolrIndexJobActivator() == null )
-			return false;
-		return true;
-	}
-
-	@Override
 	public Boolean updateCore(String solrCoreUrl) {
 		if( SolrSearcher.getNewInstance(solrCoreUrl) != null ) return true;
 		return false;

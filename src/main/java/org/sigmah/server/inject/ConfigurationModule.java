@@ -76,7 +76,7 @@ public class ConfigurationModule extends AbstractModule {
 		install(new FactoryModuleBuilder().build(BackupArchiveJobFactory.class));
 		
 		//Solr Files Handler
-		bind(FilesSolrManager.class).to(FilesSolrManagerImpl.class).in(Singleton.class);
+		bind(FilesSolrManager.class).to(FilesSolrManagerImpl.class);
 	}
 
 }

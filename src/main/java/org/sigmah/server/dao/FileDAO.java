@@ -51,6 +51,11 @@ public interface FileDAO extends DAO<File, Integer> {
 	 */
 	List<FileVersion> findVersions(Collection<Integer> filesIds, LoadingScope loadingScope);
 
+	/**
+	 * Finds the {@link FileVersion} list corresponding to all {@code filesIds} in the database.
+	 * 
+	 * @return The {@link FileVersion} list corresponding to all {@code filesIds}in the database.
+	 */
 	List<FileVersion> findAllVersions();
 	/**
 	 * Retrieves the {@link FileVersion} corresponding to the given {@code versionId}.

@@ -262,21 +262,6 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 			}
 
 		});
-//		searchService.filesIndex(new AsyncCallback<Boolean>() {
-//			public void onFailure(Throwable caught) {
-//				Window.alert("Failure on the server side!");
-//				caught.printStackTrace();
-//			}
-//
-//			public void onSuccess(Boolean result) {
-//				dih_success = result;
-//				if (dih_success == true) {
-//					Window.alert("Successfully completed Files Import!");
-//				} else {
-//					Window.alert("Failed to complete Files Import!");
-//				}
-//			}
-//		});
 	}
 
 	private void loadProjectIdsForFiltering() {

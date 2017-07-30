@@ -130,19 +130,16 @@ public class FileHibernateDAO extends AbstractDAO<File, Integer> implements File
 		 + " SELECT max(fv2.versionNumber) FROM FileVersion fv2 WHERE"
 		 + " fv2.parentFile = f"
 		 + " )";
-		//System.out.println("GUBI " + request);
 		List<FileVersion> res = null;
 		try {
 			DomainFilters.disableUserFilter(em());
 			//hope this works to get all the files
-			System.out.println("This should not be null also:" + em());
 			final TypedQuery<FileVersion> query = em().createQuery(request, FileVersion.class);
 			res = query.getResultList();
 		} catch (RuntimeException e) {
 			System.out.println("Here's an error!" + em());
 			e.printStackTrace();
 		}
-		//System.out.println("GUBI " + res.toString());
 		return res;
 	}
 

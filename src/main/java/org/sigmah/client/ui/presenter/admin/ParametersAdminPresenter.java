@@ -67,6 +67,7 @@ import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.ImageProvider;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.BackupArchiveManagementCommand;
+import org.sigmah.shared.command.FilesSolrIndexCommand;
 import org.sigmah.shared.command.GetGlobalExportSettings;
 import org.sigmah.shared.command.GetOrgUnits;
 import org.sigmah.shared.command.UpdateGlobalExportSettingsCommand;
@@ -77,6 +78,7 @@ import org.sigmah.shared.dto.BackupDTO;
 import org.sigmah.shared.dto.GlobalExportSettingsDTO;
 import org.sigmah.shared.dto.organization.OrganizationDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
+import org.sigmah.shared.dto.search.FilesSolrIndexDTO;
 import org.sigmah.shared.dto.value.FileDTO.LoadingScope;
 import org.sigmah.shared.servlet.ServletConstants;
 import org.sigmah.shared.servlet.ServletConstants.Servlet;
@@ -416,11 +418,13 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 
 		view.getSolrCoreUrlTextField().setValue(auth().getOrganizationSolrCoreUrl());
 
-		view.getManualIndexButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+		// view.getManualIndexButton().
+		view.getManualIndexButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
 
 			// funnily this is getting fired twice on button click
+
 			@Override
-			public void componentSelected(ButtonEvent ce) {
+			public void handleEvent(ButtonEvent be) {
 				// TODO Auto-generated method stub
 				searchService.index(new AsyncCallback<Boolean>() {
 					public void onFailure(Throwable caught) {
@@ -430,10 +434,10 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 
 					public void onSuccess(Boolean result) {
 						Boolean dih_success = result;
-						if (dih_success == true) {
-							Window.alert("Successfully completed Full Import!");
+						if (dih_success) {
+							FilesImport();
 						} else {
-							Window.alert("Failed to complete Full Import!");
+							Window.alert("Failed to complete data Import!");
 						}
 					}
 				});
@@ -441,6 +445,29 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 
 		});
 
+	}
+
+	public void FilesImport() {
+		dispatch.execute(new FilesSolrIndexCommand(), new CommandResultHandler<FilesSolrIndexDTO>() {
+
+			@Override
+			public void onCommandSuccess(final FilesSolrIndexDTO result) {
+
+				if (result == null) {
+					Window.alert("Unsuccessful files indexing!");
+
+				} else {
+					// N10N.warn(I18N.CONSTANTS.backupManagement_process_alreadyRunning());
+					if (result.isResult()) {
+						Window.alert("Successfully completed data and files import!");
+					} else {
+						Window.alert("Failed to complete files indexing!");
+					}
+				}
+
+			}
+
+		});
 	}
 
 	/**
@@ -701,24 +728,6 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 							Window.alert("Failed to update Solr Core! Check that the url is valid!");
 						}
 					}
-				});
-				searchService.autoIndex(new AsyncCallback<Boolean>() {
-
-					@Override
-					public void onFailure(Throwable caught) {
-						// TODO Auto-generated method stub
-						Window.alert("Failed to start/continue auto indexing!");
-					}
-
-					@Override
-					public void onSuccess(Boolean result) {
-						// TODO Auto-generated method stub
-						if (result)
-							Window.alert("Started/continued auto indexing!");
-						else
-							Window.alert("Failed to start/continue auto indexing! ( back end issue )");
-					}
-
 				});
 
 			}

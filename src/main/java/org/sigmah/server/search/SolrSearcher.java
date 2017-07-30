@@ -90,10 +90,8 @@ public class SolrSearcher {
 	private void loadServer() throws MalformedURLException {
 		// urlString = "http://localhost:8983/solr/Test_Sigmah";
 		// urlString = properties.getProperty(PropertyKey.SOLR_CORE_URL);
-		//urlString = 
 		System.out.println("SOLR CONNECTING TO: " + urlString);
 		solrServer = new HttpSolrClient.Builder(urlString).build();
-		// Window.alert("Successful solr connection!");
 		System.out.println("SOLR CONNECTION CONNECTED");
 	}
 
@@ -115,7 +113,11 @@ public class SolrSearcher {
 		else if (filter.equals("OrgUnits")){
 			query.set("fq", "ORG_UNIT");
 		// query.addSortField("weight", ORDER.desc);
-		}else{
+		}else if (filter.equals("Files")){
+			query.set("fq", "FILE");
+		// query.addSortField("weight", ORDER.desc);
+		}
+		else{
 			//query.set("qt", "/search");
 		}
 

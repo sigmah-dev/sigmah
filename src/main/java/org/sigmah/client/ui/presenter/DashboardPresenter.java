@@ -98,7 +98,7 @@ import org.sigmah.shared.dto.profile.ExecutionDTO;
 @Singleton
 public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter.View> {
 
-	private final SearchServiceAsync searchServiceForAutoIndex = GWT.create(SearchService.class);
+	private final SearchServiceAsync searchService = GWT.create(SearchService.class);
 
 	public static interface ReminderOrMonitoredPointHandler {
 		public void onLabelClickEvent(Integer projectId);
@@ -279,7 +279,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		});
 		
 		
-		searchServiceForAutoIndex.updateCore(auth().getOrganizationSolrCoreUrl(), new AsyncCallback<Boolean>() {
+		searchService.updateCore(auth().getOrganizationSolrCoreUrl(), new AsyncCallback<Boolean>() {
 			public void onFailure(Throwable caught) {
 				Window.alert("Could not update Solr Core. Check that the url is valid!");
 				caught.printStackTrace();
@@ -294,30 +294,6 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 				}
 			}
 		});
-
-		// related to search auto indexing
-		if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.MANAGE_SETTINGS)) {
-			// only admin can do auto-indexing
-			searchServiceForAutoIndex.autoIndex(new AsyncCallback<Boolean>() {
-
-				@Override
-				public void onFailure(Throwable caught) {
-					// TODO Auto-generated method stub
-					Window.alert("Failed to start/continue auto indexing!");
-				}
-
-				@Override
-				public void onSuccess(Boolean result) {
-					// TODO Auto-generated method stub
-					if (result)
-						Window.alert("Started/continued auto indexing!");
-					else
-						Window.alert("Failed to start/continue auto indexing! ( back end issue )");
-				}
-
-			});
-
-		}
 
 	}
 

@@ -39,7 +39,7 @@ public class FilesSolrManagerImpl implements FilesSolrManager {
 	 * Injected {@link FileDAO}.
 	 */
 	private FileStorageProvider fileStorageProvider;
-	
+
 	/**
 	 * Injected application properties.
 	 */
@@ -52,39 +52,29 @@ public class FilesSolrManagerImpl implements FilesSolrManager {
 		this.properties = properties;
 	}
 
-	public FileDAO getFileDAO() {
-		return fileDAO;
-	}
-
 	@Override
 	public Boolean FilesImport(SolrSearcher instance) throws IOException {
 
-		// 2. I get all the files(How?) as java file objects and for each I
-		// request the solr server with an update query
-
-		System.out.println("I AM HERE!");
+		System.out.println("Starting files indexing!");
 		List<FileVersion> listFileVersions = fileDAO.findAllVersions();
 		Boolean allFilesIndexed = true;
 		for (FileVersion fv : listFileVersions) {
 			if (fileStorageProvider.exists(fv.getPath())) {
-					allFilesIndexed = allFilesIndexed && indexFile(fv);
+				allFilesIndexed = allFilesIndexed && indexFile(fv);
 			}
 		}
 		return allFilesIndexed;
-		
+
 	}
 
 	@Override
-	public Boolean indexFile(FileVersion fv){
+	public Boolean indexFile(FileVersion fv) {
 		ContentStreamUpdateRequest req = new ContentStreamUpdateRequest("/update/extract");
 		try {
 			Path path = Paths.get(getStorageRootPath(), fv.getPath());
-			System.out.println("Path for the file: " + path.toString());
-//			InputStream inputStream = fileStorageProvider.open(filename);
-//			FileUtils.copyInputStreamToFile(inputStream, file);
+			System.out.println("Path for the file to be indexed: " + path.toString());
 			req.addFile(new File(path.toString()), "pdforword");
 		} catch (IOException e1) {
-			// TODO Auto-generated catch block
 			e1.printStackTrace();
 		}
 		req.setParam("commit", "true");
@@ -101,21 +91,20 @@ public class FilesSolrManagerImpl implements FilesSolrManager {
 		req.setParam("literal.file_author", fv.getAuthor().getFullName());
 		req.setParam("literal.file_author_organization", fv.getAuthor().getOrganization().getName());
 		req.setParam("literal.file_author_email", fv.getAuthor().getEmail());
-		//req.setParam("literal.file_author_email", fv.getAuthor().);
-		
+		// req.setParam("literal.file_author_email", fv.getAuthor().);
+
 		NamedList<Object> result = null;
 		try {
 			result = SolrSearcher.solrServer.request(req);
 			return true;
 		} catch (SolrServerException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
 	}
-	
+
 	private String getStorageRootPath() {
 		return properties.getProperty(PropertyKey.FILE_REPOSITORY_NAME);
 	}
-	
+
 }
