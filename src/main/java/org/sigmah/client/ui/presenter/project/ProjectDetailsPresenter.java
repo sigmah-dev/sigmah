@@ -445,7 +445,7 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 
 			// Generates element component (with the value).
 			elementDTO.init();
-			Component elementComponent = getElementComponent(elementDTO, valueResult);
+			Component elementComponent = elementDTO.getElementComponent(valueResult);
 
 			if (elementDTO.getAmendable() && projectPresenter.projectIsLocked()
 					&& projectPresenter.canUnlockProject()
@@ -507,20 +507,6 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 			}
 		}
 
-	}
-
-	/**
-	 * Return elementComponent
-	 * 
-	 */
-	private Component getElementComponent(final FlexibleElementDTO elementDTO, final ValueResult valueResult) {
-		if (elementDTO instanceof ContactListElementDTO) {
-			// EventBus use to enable/disable contact element component when it
-			// goes offline/online
-			// Spécific to ContactList
-			return ((ContactListElementDTO) elementDTO).getElementComponent(valueResult, eventBus);
-		}
-		return elementDTO.getElementComponent(valueResult);
 	}
 
 	/**
