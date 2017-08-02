@@ -213,10 +213,10 @@ public class ComputationsTest {
 		
 		final double[] values = new double[2];
 		
-		result.computeValueWithResolver(1, new ValueResolver() {
+		result.computeValueWithResolver(1, null, new ValueResolver() {
 
 			@Override
-			public void resolve(Collection<Dependency> dependencies, int containerId, AsyncCallback<Map<Dependency, ComputedValue>> onResult) {
+			public void resolve(Collection<Dependency> dependencies, int containerId, Integer layoutGroupIterationId, AsyncCallback<Map<Dependency, ComputedValue>> onResult) {
 				Assert.assertEquals("Elements size is incorrect.", 2, dependencies.size());
 				
 				final HashMap<Dependency, ComputedValue> map = new HashMap<>();
@@ -302,9 +302,9 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testFormatRuleForEdition() {
-		Assert.assertNull(Computations.formatRuleForEdition(null, null));
-		Assert.assertNull(Computations.formatRuleForEdition("	", null));
-		Assert.assertEquals("onze + vingt_4", Computations.formatRuleForEdition("$11 + $24", getAllElements()));
+		Assert.assertNull(Computations.formatRuleForEdition(null, null, null));
+		Assert.assertNull(Computations.formatRuleForEdition("	", null, null));
+		Assert.assertEquals("onze + vingt_4", Computations.formatRuleForEdition("$11 + $24", null, getAllElements()));
 	}
 
 	/**
@@ -312,9 +312,9 @@ public class ComputationsTest {
 	 */
 	@Test
 	public void testFormatRuleForServer() {
-		Assert.assertNull(Computations.formatRuleForServer(null, null));
-		Assert.assertNull(Computations.formatRuleForServer("  ", null));
-		Assert.assertEquals("$11 + $24", Computations.formatRuleForServer("onze + vingt_4", getAllElements()));
+		Assert.assertNull(Computations.formatRuleForServer(null, null, null));
+		Assert.assertNull(Computations.formatRuleForServer("  ", null, null));
+		Assert.assertEquals("$11 + $24", Computations.formatRuleForServer("onze + vingt_4", null, getAllElements()));
 	}
 	
 	/**
@@ -334,7 +334,7 @@ public class ComputationsTest {
 		element60.setType('N');
 		element60.setIsDecimal(Boolean.TRUE);
 		
-		final String rule = Computations.formatRuleForServer("(utilisé / reçu) * 100", Arrays.<FlexibleElementDTO>asList(element42, element60));
+		final String rule = Computations.formatRuleForServer("(utilisé / reçu) * 100", null, Arrays.<FlexibleElementDTO>asList(element42, element60));
 		Assert.assertEquals("($42 ÷ $60) × 100", rule);
 	}
 	
@@ -355,7 +355,7 @@ public class ComputationsTest {
 		element60.setType('N');
 		element60.setIsDecimal(Boolean.TRUE);
 		
-		final String rule = Computations.formatRuleForServer("(使った予算 / 頂いた予算) * 100", Arrays.<FlexibleElementDTO>asList(element42, element60));
+		final String rule = Computations.formatRuleForServer("(使った予算 / 頂いた予算) * 100", null, Arrays.<FlexibleElementDTO>asList(element42, element60));
 		Assert.assertEquals("($42 ÷ $60) × 100", rule);
 	}
 	

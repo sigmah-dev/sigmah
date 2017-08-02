@@ -54,6 +54,11 @@ class ParserEnvironment {
 	 * Flexible elements of the parent model.
 	 */
 	private final Map<String, FlexibleElementDTO> elements;
+
+	/**
+	 * Layout group id
+	 */
+	private final Integer layoutGroupId;
 	
 	// TODO: À utiliser.
 	private boolean hasUnresolvedDependencies;
@@ -61,9 +66,10 @@ class ParserEnvironment {
 	/**
 	 * Create a new environment and push an initial context.
 	 */
-	ParserEnvironment(final Map<String, FlexibleElementDTO> elements) {
+	ParserEnvironment(final Map<String, FlexibleElementDTO> elements, Integer layoutGroupId) {
 		this.elements = elements;
 		this.contexts.push(new Context());
+		this.layoutGroupId = layoutGroupId;
 	}
 
 	/**
@@ -184,6 +190,10 @@ class ParserEnvironment {
 		contexts.peek().function = function;
 	}
 	
+	public Integer getLayoutGroupId() {
+		return layoutGroupId;
+	}
+
 	// CONTEXT
 	
 	/**

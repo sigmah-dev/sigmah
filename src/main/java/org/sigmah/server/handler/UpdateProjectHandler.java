@@ -437,8 +437,8 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
                 final ComputedValue[] serverResult = new ComputedValue[1];
                 final ComputedValue clientResult = ComputedValues.from(value.getSingleValue());
                 
-                final Computation computation = Computations.parse(computationElement.getRule(), ServerComputations.getAllElementsFromModel(project.getProjectModel()));
-                computation.computeValueWithWrappersAndResolver(project.getId(), values, valueResolver, new SuccessCallback<String>() {
+                final Computation computation = Computations.parse(computationElement.getRule(), source.getGroup().getId(), ServerComputations.getAllElementsFromModel(project.getProjectModel()));
+                computation.computeValueWithWrappersAndResolver(project.getId(), value.getIterationId(), values, valueResolver, new SuccessCallback<String>() {
                     @Override
                     public void onSuccess(String result) {
                         serverResult[0] = ComputedValues.from(result);

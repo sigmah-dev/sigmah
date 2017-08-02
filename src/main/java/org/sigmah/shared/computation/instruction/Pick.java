@@ -1,4 +1,4 @@
-package org.sigmah.shared.computation;
+package org.sigmah.shared.computation.instruction;
 
 /*
  * #%L
@@ -22,27 +22,35 @@ package org.sigmah.shared.computation;
  * #L%
  */
 
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import java.util.Collection;
 import java.util.Map;
+import java.util.Stack;
+
 import org.sigmah.shared.computation.dependency.Dependency;
 import org.sigmah.shared.computation.value.ComputedValue;
 
-/**
- * Retrieve values of the dependencies of a <code>Computation</code> element.
- * 
- * @author Raphaël Calabro (raphael.calabro@netapsys.fr)
- * @since 2.1
- */
-public interface ValueResolver {
-	
+public class Pick implements Function {
+
 	/**
-	 * Resolve the values of the given elements.
-	 * 
-	 * @param elements Elements to resolve.
-	 * @param containerId Identifier of the container (project or orgunit).
-	 * @param callback To be called when every value has been retrieved.
+	 * {@inheritDoc}
 	 */
-	void resolve(Collection<Dependency> elements, int containerId, Integer layoutGroupIterationId, AsyncCallback<Map<Dependency, ComputedValue>> callback);
-	
+	@Override
+	public String toString() {
+		return "pick";
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public void execute(Stack<ComputedValue> stack, Map<Dependency, ComputedValue> variables) {
+		// No-op
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Function instantiate() {
+		return new Pick();
+	}
 }

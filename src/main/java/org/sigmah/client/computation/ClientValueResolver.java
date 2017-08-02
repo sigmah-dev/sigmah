@@ -69,7 +69,7 @@ public class ClientValueResolver implements ValueResolver {
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void resolve(final Collection<Dependency> dependencies, final int containerId, final AsyncCallback<Map<Dependency, ComputedValue>> callback) {
+	public void resolve(final Collection<Dependency> dependencies, final int containerId, final Integer layoutGroupIterationId, final AsyncCallback<Map<Dependency, ComputedValue>> callback) {
 		
 		final BatchCommand batchCommand = new BatchCommand();
 		final Map<Command<?>, Dependency> commandToDependencyMap = new HashMap<Command<?>, Dependency>();

@@ -152,6 +152,7 @@ public class ModelUtil {
 		}
 
 		final Map<String, Object> oldLayoutFields = (Map<String, Object>) changes.get(AdminUtil.PROP_FX_OLD_FIELDS);
+		final LayoutGroupDTO oldGroup = (LayoutGroupDTO) oldLayoutFields.get(AdminUtil.PROP_FX_GROUP);
 		final LayoutConstraintDTO oldLayoutConstraintDTO = (LayoutConstraintDTO) oldLayoutFields.get(AdminUtil.PROP_FX_LC);
 		final LayoutConstraintDTO oldBannerLayoutConstraintDTO = (LayoutConstraintDTO) oldLayoutFields.get(AdminUtil.PROP_FX_LC_BANNER);
 		final ElementTypeEnum oldType = (ElementTypeEnum) oldLayoutFields.get(AdminUtil.PROP_FX_TYPE);
@@ -487,7 +488,7 @@ public class ModelUtil {
 			ComputationElement computationElement = (ComputationElement) flexibleElt;
 			if (computationElement != null) {
 				if (computationRule != null) {
-					final String rule = resolveComputationRule(em, dependencyResolver, model, computationRule);
+					final String rule = resolveComputationRule(em, dependencyResolver, model, computationRule, group != null ? group.getId() : (oldGroup == null ? null : oldGroup.getId()));
 					computationElement.setRule(rule);
 					specificChanges = true;
                     
@@ -581,10 +582,10 @@ public class ModelUtil {
 	 * @return The formula with its dependencies resolved.
 	 * @throws IllegalArgumentException If a dependency could not be resolved.
 	 */
-	private static String resolveComputationRule(final EntityManager em, final DependencyResolver dependencyResolver, final Object model, final String computationRule) throws IllegalArgumentException {
+	private static String resolveComputationRule(final EntityManager em, final DependencyResolver dependencyResolver, final Object model, final String computationRule, Integer layoutGroupId) throws IllegalArgumentException {
 		if (dependencyResolver != null && model instanceof ProjectModel) {
 			final ProjectModel projectModel = em.find(ProjectModel.class, ((ProjectModel) model).getId());
-			final Computation computation = Computations.parse(computationRule, ServerComputations.getAllElementsFromModel(projectModel));
+			final Computation computation = Computations.parse(computationRule, layoutGroupId, ServerComputations.getAllElementsFromModel(projectModel));
 			dependencyResolver.resolve(computation);
 			
 			if (!computation.isResolved()) {

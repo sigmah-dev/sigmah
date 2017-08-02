@@ -457,7 +457,8 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 
 			// Adds a value change handler if this element is a
 			// dependency of a ComputationElementDTO.
-			computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
+			Integer iterationId = tabItem == null ? null : tabItem.getIterationId();
+			computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges, iterationId);
 
 			// Adds a value change handler to this element.
 			elementDTO.addValueHandler(new ValueHandler() {

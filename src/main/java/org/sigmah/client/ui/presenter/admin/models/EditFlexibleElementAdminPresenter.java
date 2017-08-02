@@ -450,7 +450,20 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 					view.getLayoutGroupField().getStore().commitChanges();
 					view.getLayoutGroupField().setValue(view.getLayoutGroupField().getStore().getAt(0));
 					view.getLayoutGroupField().enable();
+					updateAvailableNumberFields();
 				}
+			}
+		});
+
+		// --
+		// LayoutGroup field change handler.
+		// --
+
+		view.getLayoutGroupField().addListener(Events.Select, new Listener<BaseEvent>() {
+
+			@Override
+			public void handleEvent(final BaseEvent be) {
+				updateAvailableNumberFields();
 			}
 		});
 
@@ -554,7 +567,9 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 					return null;
 				}
 
-				final Computation computation = Computations.parse(value, otherElements);
+				ComboBox<LayoutGroupDTO> layoutGroupField = view.getLayoutGroupField();
+				LayoutGroupDTO flexibleElementGroup = flexibleElement == null ? null : flexibleElement.getGroup();
+				final Computation computation = Computations.parse(value, layoutGroupField.getValue() == null ? (flexibleElementGroup == null ? null : flexibleElementGroup.getId()) : layoutGroupField.getValue().getId(), otherElements);
 
 				if (computation != null && !computation.isBadFormula()) {
 					final Set<String> badReferences = computation.getBadReferences();
@@ -599,6 +614,18 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 				});
 			}
 		});
+	}
+
+	private void updateAvailableNumberFields() {
+		LogicalElementType type = TypeModel.getType(view.getTypeField().getValue());
+		if (type == ElementTypeEnum.COMPUTATION) {
+			// Related flexible elements code grid.
+			addNumberTypeToStore(view.getLayoutGroupField().getValue().getId(), view.getStore());
+			view.getFormulaField().validate();
+		}
+		if (type == DefaultFlexibleElementType.BUDGET_RATIO) {
+			addNumberTypeToStore(view.getLayoutGroupField().getValue().getId(), view.getBudgetSubFieldSpentStore(), view.getBudgetSubFieldPlannedStore());
+		}
 	}
 
 	/**
@@ -776,7 +803,6 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	 *          The element type, may be {@code null}.
 	 */
 	private void loadFlexibleElementSpecificFields(final FlexibleElementDTO flexibleElement, final LogicalElementType type) {
-
 		// clear specific element for bubget
 		view.getBudgetFields().setVisible(false);
 		view.getAnchorAddSubField().setVisible(false);
@@ -914,23 +940,22 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			final ComputationElementDTO computationElement = (ComputationElementDTO) flexibleElement;
 
 			// Computation rule.
-			final String formattedRule = Computations.formatRuleForEdition(computationElement.getRule(), otherElements);
+			final String formattedRule = Computations.formatRuleForEdition(computationElement.getRule(), computationElement.getGroup().getId(), otherElements);
 			view.getFormulaField().setValue(formattedRule);
 
 			// Minimum and maximum value.
 			view.getMinLimitField().setValue(ComputedValues.from(computationElement.getMinimumValue(), false).get());
 			view.getMaxLimitField().setValue(ComputedValues.from(computationElement.getMaximumValue(), false).get());
 
-		}
+			addNumberTypeToStore(flexibleElement.getGroup() == null ? null : flexibleElement.getGroup().getId(), view.getStore());
+			view.getFormulaField().validate();
 
-		if (type == ElementTypeEnum.COMPUTATION) {
-			// Related flexible elements code grid.
-			addNumberTypeToStore(view.getStore());
-		} else if (type == ElementTypeEnum.CONTACT_LIST) {
+		}
+		if (type == ElementTypeEnum.CONTACT_LIST) {
 			loadContactListOptions((ContactListElementDTO) flexibleElement);
 		}
 		if (type == DefaultFlexibleElementType.BUDGET_RATIO) {
-			addNumberTypeToStore(view.getBudgetSubFieldSpentStore(), view.getBudgetSubFieldPlannedStore());
+			addNumberTypeToStore(flexibleElement.getGroup() == null ? null : flexibleElement.getGroup().getId(), view.getBudgetSubFieldSpentStore(), view.getBudgetSubFieldPlannedStore());
 		}
 		if (flexibleElement instanceof BudgetRatioElementDTO) {
 			
@@ -949,13 +974,14 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		}
 	}
 	
-	private void addNumberTypeToStore(ListStore<FlexibleElementDTO>... stores){
+	private void addNumberTypeToStore(Integer currentLayoutGroup, ListStore<FlexibleElementDTO>... stores){
 		for (ListStore<FlexibleElementDTO> store : stores) {
 			store.removeAll();
 		}
 		for (final FlexibleElementDTO otherElement : otherElements) {
-				// fields in iterative groups cannot be part of formula
-				if(otherElement.getGroup().getHasIterations()) {
+				// for iterative groups, only fields in the iterative group containing this computed field can be part of formula
+				if(otherElement.getGroup().getHasIterations() &&
+						(currentLayoutGroup == null || !currentLayoutGroup.equals(otherElement.getGroup().getId()))) {
 					continue;
 				}
 
@@ -963,7 +989,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			final ElementTypeEnum otherElementType = otherType.toElementTypeEnum();
 
 			if ((otherElementType == ElementTypeEnum.TEXT_AREA && otherType.toTextAreaType() == TextAreaType.NUMBER)
-					|| otherElementType == ElementTypeEnum.COMPUTATION) {
+					|| (otherElementType == ElementTypeEnum.COMPUTATION && !otherElement.getId().equals(flexibleElement == null ? null : flexibleElement.getId()))) {
 				for (ListStore<FlexibleElementDTO> store : stores) {
 					store.add(otherElement);
 				}
@@ -1515,17 +1541,13 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		// + a core field cannot be in an iterative group
 		LayoutGroupDTO groupToTest = group == null ? flexibleElement.getGroup() : group;
 		if(groupToTest != null && groupToTest.getHasIterations() != null && groupToTest.getHasIterations()) {
-			if(type == ElementTypeEnum.COMPUTATION) {
-				N10N.warn(I18N.CONSTANTS.cannotAddComputationElementToIterativeGroup());
-				return;
-			}
-
 			if(amendable) {
 				N10N.warn(I18N.CONSTANTS.cannotAddCoreElementToIterativeGroup());
 				return;
 			}
 
-			Collection<ComputationElementDTO> computationFields = getComputationElementsUsingField(flexibleElement);
+			// - on ne devrait pas pouvoir, le champ a été utilisé ailleur que dans le groupe (donc sans pick() ou avec pick() mais dans un autre groupe)
+			Collection<ComputationElementDTO> computationFields = getComputationElementsUsingField(flexibleElement, groupToTest);
 			if(!computationFields.isEmpty()) {
 				N10N.warn(I18N.MESSAGES.cannotAddComputationElementFormulaFieldToIterativeGroup(
 						Collections.join(computationFields, new Collections.Mapper<ComputationElementDTO, String>() {
@@ -1564,7 +1586,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		final FlexibleElementDTO budgetPlanned = view.getBudgetSubFieldPlannedCombo().getValue();
 		
 		
-		final String computationRule = Computations.formatRuleForServer(view.getFormulaField().getValue(), otherElements);
+		final String computationRule = Computations.formatRuleForServer(view.getFormulaField().getValue(), groupToTest.getId(), otherElements);
 
 		final Number contactListLimit = view.getContactListLimit().getValue();
 		final boolean contactListIsMember = view.getContactIsMember().getValue();
@@ -1793,9 +1815,11 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	 *
 	 * @param flexibleElement
 	 *          Flexible element.
+	 * @param layoutGroup
+	 *          Layout group containing the element
 	 * @return A collection of every computation element using the given element.
 	 */
-	private Collection<ComputationElementDTO> getComputationElementsUsingField(final FlexibleElementDTO flexibleElement) {
+	private Collection<ComputationElementDTO> getComputationElementsUsingField(final FlexibleElementDTO flexibleElement, final LayoutGroupDTO layoutGroup) {
 		
 		// FIXME: Should also search in the database since other project models may reference the given element.
 
@@ -1808,7 +1832,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			if (other instanceof ComputationElementDTO) {
 				final ComputationElementDTO computationElement = (ComputationElementDTO) other;
 
-				final Computation computation = Computations.parse(computationElement.getRule(), allElements);
+				final Computation computation = Computations.parse(computationElement.getRule(), layoutGroup.getId(), allElements);
 				if (computation.getDependencies().contains(dependency)) {
 					computationElements.add(computationElement);
 				}

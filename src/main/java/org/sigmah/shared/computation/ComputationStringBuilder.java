@@ -24,6 +24,8 @@ package org.sigmah.shared.computation;
 
 import java.util.Collection;
 import java.util.Stack;
+
+import org.sigmah.shared.computation.instruction.Function;
 import org.sigmah.shared.computation.instruction.HasHumanReadableFormat;
 import org.sigmah.shared.computation.instruction.Instruction;
 import org.sigmah.shared.computation.instruction.Instructions;
@@ -54,6 +56,8 @@ class ComputationStringBuilder {
 			addOperatorToStack((Operator) instruction);
 		} else if (instruction instanceof ReduceFunction) {
 			addReduceFunctionToStack((ReduceFunction) instruction);
+		} else if (instruction instanceof Function) {
+			addFunctionToStack((Function) instruction);
 		} else {
 			if (humanReadableFormat && instruction instanceof HasHumanReadableFormat) {
 				stack.add(((HasHumanReadableFormat) instruction).toHumanReadableString());
@@ -135,7 +139,13 @@ class ComputationStringBuilder {
             builder.append(right);
         }
     }
-	
+
+	private void addFunctionToStack(final Function function) {
+		final String variable = stack.pop();
+
+		stack.push(function.toString() + '(' + variable + ')');
+	}
+
 	private void addReduceFunctionToStack(final ReduceFunction reduceFunction) {
 		final String dependency = stack.pop();
 		final String[] parts = dependency.split(ValueResultUtils.DEFAULT_VALUE_SEPARATOR);

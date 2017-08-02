@@ -212,6 +212,14 @@ enum ParserState {
 						environment.add(function);
 						environment.setState(WAITING_FOR_OPERATOR);
 					}
+					else {
+						if (argument == null) {
+							throw new IllegalArgumentException("Argument is mandatory for functions.");
+						}
+						addVariable(argument, environment, true, environment.getLayoutGroupId());
+						environment.add(function);
+						environment.setState(WAITING_FOR_OPERATOR);
+					}
 					return index + 1;
 				} else {
 					argumentBuilder.append(c);
@@ -385,8 +393,37 @@ enum ParserState {
 	 * @param environment Environment.
 	 */
 	private static void addVariable(final String variable, final ParserEnvironment environment) {
+		addVariable(variable, environment, false, null);
+	}
+
+	/**
+	 * Adds the given variable to the instructions.
+	 *
+	 * @param variable Variable to add.
+	 * @param environment Environment.
+	 * @param inIteration True if the variable can be in a group with iterations.
+	 * @param layoutGroupId Allowed group with iteration.
+	 */
+	private static void addVariable(final String variable, final ParserEnvironment environment,
+				final boolean inIteration, final Integer layoutGroupId) {
 		final FlexibleElementDTO element = environment.getElement(variable);
-		if (element != null) {
+		if (element == null) {
+			environment.add(new BadVariable(variable));
+			return;
+		}
+		if (!inIteration) {
+			if (element.getGroup().getHasIterations()) {
+				environment.add(new BadVariable(variable));
+				return;
+			}
+			environment.add(new Variable(element));
+			return;
+		}
+		if (layoutGroupId == null) {
+			environment.add(new Variable(element));
+			return;
+		}
+		if (element.getGroup().getId().equals(layoutGroupId)) {
 			environment.add(new Variable(element));
 		} else {
 			environment.add(new BadVariable(variable));

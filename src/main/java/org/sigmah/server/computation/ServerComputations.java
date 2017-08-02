@@ -61,6 +61,7 @@ import org.sigmah.shared.dto.element.ReportElementDTO;
 import org.sigmah.shared.dto.element.ReportListElementDTO;
 import org.sigmah.shared.dto.element.TextAreaElementDTO;
 import org.sigmah.shared.dto.element.TripletsListElementDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ElementTypeEnum;
 import org.sigmah.shared.dto.referential.LogicalElementType;
@@ -177,6 +178,7 @@ public final class ServerComputations {
 					final FlexibleElementDTO dto = toDTO(element);
 					dto.setId(element.getId());
 					dto.setCode(element.getCode());
+					dto.setGroup(toDTO(group));
 					dtos.add(dto);
 				}
 			}
@@ -267,7 +269,12 @@ public final class ServerComputations {
 			return NoElementType.INSTANCE;
 		}
 	}
-	
+	private static LayoutGroupDTO toDTO(final LayoutGroup layoutGroup) {
+		LayoutGroupDTO res = new LayoutGroupDTO();
+		res.setId(layoutGroup.getId());
+		res.setHasIterations(layoutGroup.getHasIterations());
+		return res;
+	}
 	private static FlexibleElementDTO toDTO(final FlexibleElement element) {
 		
 		final FlexibleElementDTO dto;

@@ -29,6 +29,7 @@ import java.util.Map;
 import org.sigmah.shared.computation.instruction.Instructions;
 import org.sigmah.shared.computation.value.ComputationError;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
+import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 
 /**
  * Parse and creates <code>Computation</code> objects.
@@ -46,9 +47,20 @@ public final class Computations {
 	 * @return A new <code>Computation</code> object.
 	 */
 	public static Computation parse(String rule, Collection<FlexibleElementDTO> allElements) {
-        try {
-            final ParserEnvironment environment = new ParserEnvironment(createReferenceMap(allElements));
+		return parse(rule, null, allElements);
+	}
 
+	/**
+	 * Parse the given rule.
+	 *
+	 * @param rule Rule to read.
+	 * @param allElements Flexible element that can be used in the rule.
+	 * @param layoutGroupId Layout group id containing the computation field.
+	 * @return A new <code>Computation</code> object.
+	 */
+	public static Computation parse(String rule, Integer layoutGroupId, Collection<FlexibleElementDTO> allElements) {
+        try {
+            final ParserEnvironment environment = new ParserEnvironment(createReferenceMap(layoutGroupId, allElements), layoutGroupId);
             final char[] array = rule.toCharArray();
             int index = 0;
             while (index < array.length) {
@@ -79,12 +91,12 @@ public final class Computations {
 	 * @param allElements Elements.
 	 * @return Formatted rule or <code>null</code> if the given rule is invalid.
 	 */
-	public static String formatRuleForEdition(String rule, Collection<FlexibleElementDTO> allElements) {
+	public static String formatRuleForEdition(String rule, Integer layoutGroupId, Collection<FlexibleElementDTO> allElements) {
 		if (rule == null || rule.trim().isEmpty()) {
 			return null;
 		}
 		
-		final Computation computation = parse(rule, allElements);
+		final Computation computation = parse(rule, layoutGroupId, allElements);
 		return computation.toHumanReadableString();
 	}
 	
@@ -95,12 +107,12 @@ public final class Computations {
 	 * @param allElements Elements.
 	 * @return Formatted rule or <code>null</code> if the given rule is invalid.
 	 */
-	public static String formatRuleForServer(String rule, Collection<FlexibleElementDTO> allElements) {
+	public static String formatRuleForServer(String rule, Integer layoutGroupId, Collection<FlexibleElementDTO> allElements) {
 		if (rule == null || rule.trim().isEmpty()) {
 			return null;
 		}
 		
-		final Computation computation = parse(rule, allElements);
+		final Computation computation = parse(rule, layoutGroupId, allElements);
 		return computation.toString();
 	}
     
@@ -111,12 +123,12 @@ public final class Computations {
 	 * @param allElements Flexible element that can be used in the rule.
 	 * @return A map of id/code to its flexible element.
 	 */
-	private static Map<String, FlexibleElementDTO> createReferenceMap(Collection<FlexibleElementDTO> allElements) {
+	private static Map<String, FlexibleElementDTO> createReferenceMap(Integer layoutGroupId, Collection<FlexibleElementDTO> allElements) {
 		final HashMap<String, FlexibleElementDTO> references = new HashMap<String, FlexibleElementDTO>();
 		
 		for (final FlexibleElementDTO element : allElements) {
-			// fields in iterative groups cannot be part of formula
-			if(element.getGroup() != null && element.getGroup().getHasIterations()) {
+			// fields in iterative groups cannot be part of formula, except fields in the layoutGroupId group containing the computed field
+			if(element.getGroup() != null && element.getGroup().getHasIterations() && (layoutGroupId == null || !element.getGroup().getId().equals(layoutGroupId))) {
 				continue;
 			}
 			references.put(Instructions.ID_PREFIX + element.getId().toString(), element);

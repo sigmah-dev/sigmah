@@ -245,7 +245,7 @@ public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProj
 	 *			Request manager to use.
 	 */
 	private void updateComputationValueForProject(final ComputationElementDTO computationElement, final Computation computation, final ProjectDTO project, final UpdateProject command, final RequestManager<VoidResult> requestManager) {
-		computation.computeValueWithWrappersAndResolver(project.getId(), command.getValues(), clientValueResolver, new RequestManagerCallback<VoidResult, String>(requestManager) {
+		computation.computeValueWithWrappersAndResolver(project.getId(), null, command.getValues(), clientValueResolver, new RequestManagerCallback<VoidResult, String>(requestManager) {
 
 			@Override
 			public void onRequestSuccess(String result) {
