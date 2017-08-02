@@ -240,7 +240,7 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 			// simple group
 			if (!groupLayout.getHasIterations()) {
 
-				FieldSet fieldSet = createGroupLayoutFieldSet(getProject(), groupLayout, queue, -1, null, null);
+				FieldSet fieldSet = createGroupLayoutFieldSet(getProject(), groupLayout, queue, null, null, null);
 				fieldSet.setHeadingHtml(groupLayout.getTitle());
 				fieldSet.setCollapsible(true);
 				fieldSet.setBorders(true);

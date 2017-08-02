@@ -53,7 +53,7 @@ public final class ValueJS extends JavaScriptObject {
 	public static ValueJS toJavaScript(final String value, final FlexibleElementDTO element, final int projectId) {
 		final ValueJS valueJS = Values.createJavaScriptObject(ValueJS.class);
 		
-		valueJS.setId(ValueJSIdentifierFactory.toIdentifier(element.getEntityName(), projectId, element.getId(), null, -1));
+		valueJS.setId(ValueJSIdentifierFactory.toIdentifier(element.getEntityName(), projectId, element.getId(), null, null));
 		valueJS.setElementEntityName(element.getEntityName());
 		valueJS.setProjectId(projectId);
 		valueJS.setElementId(element.getId());
@@ -72,11 +72,7 @@ public final class ValueJS extends JavaScriptObject {
 		valueJS.setElementEntityName(getValue.getElementEntityName());
 		valueJS.setProjectId(getValue.getProjectId());
 		valueJS.setElementId(getValue.getElementId());
-		Integer iterationId = getValue.getIterationId();
-		if(iterationId == null) {
-			iterationId = -1;
-		}
-		valueJS.setIterationId(iterationId);
+		valueJS.setIterationId(getValue.getIterationId());
 		valueJS.setAmendmentId(getValue.getAmendmentId());
 		
 		valueJS.setValue(valueResult.getValueObject());
@@ -111,11 +107,7 @@ public final class ValueJS extends JavaScriptObject {
 		valueJS.setElementEntityName(valueEventWrapper.getSourceElement().getEntityName());
 		valueJS.setProjectId(containerId);
 		valueJS.setElementId(valueEventWrapper.getSourceElement().getId());
-		Integer iterationId = valueEventWrapper.getIterationId();
-		if(iterationId == null) {
-			iterationId = -1;
-		}
-		valueJS.setIterationId(iterationId);
+		valueJS.setIterationId(valueEventWrapper.getIterationId());
 		valueJS.setAmendmentId(null);
 
 		if (originalValue != null) {
@@ -244,32 +236,20 @@ public final class ValueJS extends JavaScriptObject {
 		this.elementId = elementId;
 	}-*/;
 
-	public void setIterationId(Integer iterationId) {
-		if (iterationId != null) {
-			setIterationId(iterationId.intValue());
-		}
-	}
-
-	public native void setIterationId(int iterationId) /*-{
-    this.iterationId = iterationId;
-  }-*/;
-
-	public native int getIterationId() /*-{
-    return this.iterationId;
-  }-*/;
-
-	public native int getAmendmentId() /*-{
-		return this.amendmentId;
+	public native void setIterationId(Integer iterationId) /*-{
+		this.iterationId = iterationId == null ? null : iterationId.@java.lang.Integer::intValue()();
 	}-*/;
 
-	public void setAmendmentId(Integer amendmentId) {
-		if (amendmentId != null) {
-			setAmendmentId(amendmentId.intValue());
-		}
-	}
-	
-	public native void setAmendmentId(int amendmentId) /*-{
-		this.amendmentId = amendmentId;
+	public native Integer getIterationId() /*-{
+		return this.iterationId == null ? null : @java.lang.Integer::valueOf(I)(this.iterationId);
+	}-*/;
+
+	public native Integer getAmendmentId() /*-{
+		return this.amendmentId == null ? null : @java.lang.Integer::valueOf(I)(this.amendmentId);
+	}-*/;
+
+	public native void setAmendmentId(Integer amendmentId) /*-{
+		this.amendmentId = amendmentId == null ? null : amendmentId.@java.lang.Integer::intValue()();
 	}-*/;
 
 	public native String getValue() /*-{
@@ -293,6 +273,8 @@ public final class ValueJS extends JavaScriptObject {
 			}
 			
 			setValues(array);
+		} else {
+			setValues((JsArray<ListableValueJS>) null);
 		}
 	}
 	
@@ -301,7 +283,7 @@ public final class ValueJS extends JavaScriptObject {
 	}-*/;
 	
 	public native boolean isAmendment() /*-{
-		return this.amendment;
+		return !!this.amendment;
 	}-*/;
 	
 	public native void setAmendment(boolean amendment) /*-{
@@ -320,9 +302,7 @@ public final class ValueJS extends JavaScriptObject {
 	}
 
 	public void setChangeType(ValueEventChangeType changeType) {
-		if(changeType != null) {
-			setChangeType(changeType.name());
-		}
+		setChangeType(changeType == null ? null : changeType.name());
 	}
 	
 	public native void setChangeType(String changeType) /*-{
@@ -330,7 +310,7 @@ public final class ValueJS extends JavaScriptObject {
 	}-*/;
 	
 	public native boolean isProjectCountryChanged() /*-{
-		return this.projectCountryChanged;
+		return !!this.projectCountryChanged;
 	}-*/;
 	
 	public native void setProjectCountryChanged(boolean projectCountryChanged) /*-{
@@ -342,9 +322,7 @@ public final class ValueJS extends JavaScriptObject {
 	}-*/;
 
 	public void setSourceElement(FlexibleElementDTO sourceElement) {
-		if (sourceElement != null) {
-			setSourceElement(FlexibleElementJS.toJavaScript(sourceElement));
-		}
+		setSourceElement(sourceElement == null ? null : FlexibleElementJS.toJavaScript(sourceElement));
 	}
 	
 	public native void setSourceElement(FlexibleElementJS sourceElement) /*-{
