@@ -89,7 +89,6 @@ public class ServletContextListener extends GuiceServletContextListener {
 		super.contextInitialized(servletContextEvent);
 
 		final Injector injector = (Injector) servletContextEvent.getServletContext().getAttribute(Injector.class.getName());
-
 		executorService = Executors.newScheduledThreadPool(1);
 		executorService.schedule(new Runnable() {
 

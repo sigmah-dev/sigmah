@@ -85,7 +85,7 @@ public class SearchView extends AbstractView implements SearchPresenter.View {
 		searchBarPanel.add(searchText);
 		searchBarPanel.add(searchOptions);
 		searchBarPanel.add(searchButton);
-		searchBarPanel.add(indexButton);
+		//searchBarPanel.add(indexButton);
 
 		// initWidget(); Useless
 

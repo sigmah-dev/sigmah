@@ -67,6 +67,7 @@ import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
+import org.sigmah.shared.dto.report.ReportReference;
 import org.sigmah.shared.util.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
@@ -107,6 +108,9 @@ import org.sigmah.shared.conf.PropertyName;
 import org.sigmah.shared.dto.profile.CheckPointDTO;
 import org.sigmah.shared.dto.profile.ExecutionDTO;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
+import org.sigmah.shared.file.Cause;
+import org.sigmah.shared.file.ProgressListener;
+import org.sigmah.shared.file.TransfertManager;
 
 /**
  * Search Results page presenter.
@@ -120,6 +124,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 	 * View interface.
 	 * 
 	 */
+
 	
 	public static interface SearchResultsClickHandler{
     }
@@ -134,6 +139,10 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 	
 	public static interface OrgUnitResultsClickHandler extends SearchResultsClickHandler{
         public void onLabelClickEvent(Integer orgUnitId);
+    }
+	
+	public static interface FilesResultsClickHandler extends SearchResultsClickHandler{
+        public void onLabelClickEvent();
     }
 	
 	@ImplementedBy(SearchResultsView.class)
@@ -152,6 +161,8 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		void setContactClickHandler(ContactResultsClickHandler handler);
 
 		void setOrgUnitClickHandler(OrgUnitResultsClickHandler handler);
+		
+		void setFileClickHandler(FilesResultsClickHandler handler);
 		
 		void setProjectIdsForFiltering(Set<Integer> projectIdsForFiltering); 
 		
@@ -193,6 +204,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 			@Override
 			public void onLabelClickEvent(Integer projectId) {
 				//Window.alert("Opening project " + projectId );
+				Window.alert(eventBus.toString());
 				PageRequest request = new PageRequest(Page.PROJECT_DASHBOARD);
 				request.addParameter(RequestParameter.ID, projectId );
 				eventBus.navigateRequest(request);
@@ -202,6 +214,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 			@Override
 			public void onLabelClickEvent(Integer contactId) {
 				//Window.alert("Opening Contact " + contactId );
+				Window.alert(eventBus.toString());
 				PageRequest request = new PageRequest(Page.CONTACT_DASHBOARD);
 				request.addParameter(RequestParameter.ID, contactId );
 				eventBus.navigateRequest(request);
@@ -211,10 +224,17 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 			@Override
 			public void onLabelClickEvent(Integer orgUnitId) {
 				//Window.alert("Opening OrgUnit " + orgUnitId );
+				Window.alert(eventBus.toString());
 				PageRequest request = new PageRequest(Page.ORGUNIT_DASHBOARD);
 				request.addParameter(RequestParameter.ID, orgUnitId );
 				eventBus.navigateRequest(request);
 			}
+		});
+		view.setFileClickHandler(new FilesResultsClickHandler() {
+			@Override
+			public void onLabelClickEvent(){
+				Window.alert(eventBus.toString());
+			};
 		});
 		//getProjectsForFiltering();
 		view.setProjectIdsForFiltering((Set<Integer>) request.getData(RequestParameter.FILTER_PROJECT_IDS));
@@ -225,5 +245,4 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		view.addResultsPanel();
 		//Window.alert("Completed addResultsPanel!");
 	}
-
 }

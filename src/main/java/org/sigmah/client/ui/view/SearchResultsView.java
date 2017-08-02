@@ -41,6 +41,7 @@ import org.sigmah.client.search.SearchService;
 import org.sigmah.client.search.SearchServiceAsync;
 import org.sigmah.client.ui.presenter.SearchResultsPresenter;
 import org.sigmah.client.ui.presenter.SearchResultsPresenter.ContactResultsClickHandler;
+import org.sigmah.client.ui.presenter.SearchResultsPresenter.FilesResultsClickHandler;
 import org.sigmah.client.ui.presenter.SearchResultsPresenter.OrgUnitResultsClickHandler;
 import org.sigmah.client.ui.presenter.SearchResultsPresenter.ProjectResultsClickHandler;
 import org.sigmah.client.ui.presenter.SearchResultsPresenter.SearchResultsClickHandler;
@@ -61,10 +62,12 @@ import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.DateUtils;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.referential.ProjectModelType;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
+import org.sigmah.shared.util.ProfileUtils;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Scroll;
@@ -114,11 +117,11 @@ import com.google.inject.Singleton;
  */
 
 public class SearchResultsView extends AbstractView implements SearchResultsPresenter.View {
-	
+
 	private Set<Integer> projectIdsForFiltering;
-	
+
 	private Set<Integer> orgUnitIdsForFiltering;
-	
+
 	private Set<Integer> contactIdsForFiltering;
 
 	private String searchText;
@@ -152,6 +155,12 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	public void setOrgUnitClickHandler(final OrgUnitResultsClickHandler handler) {
 		this.handler = handler;
 	}
+	
+	@Override
+	public void setFileClickHandler(final FilesResultsClickHandler handler) {
+		// TODO Auto-generated method stub
+		this.handler = handler;
+	}
 
 	/**
 	 * {@inheritDoc}
@@ -178,7 +187,7 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		this.searchText = searchText;
 		// Window.alert("Searchtext set to " + searchText);
 	}
-	
+
 	public Set<Integer> getProjectIdsForFiltering() {
 		return projectIdsForFiltering;
 	}
@@ -186,7 +195,7 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	public void setProjectIdsForFiltering(Set<Integer> projectIdsForFiltering) {
 		this.projectIdsForFiltering = projectIdsForFiltering;
 	}
-	
+
 	public Set<Integer> getOrgUnitIdsForFiltering() {
 		return orgUnitIdsForFiltering;
 	}
@@ -194,7 +203,7 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	public void setOrgUnitIdsForFiltering(Set<Integer> orgUnitIdsForFiltering) {
 		this.orgUnitIdsForFiltering = orgUnitIdsForFiltering;
 	}
-	
+
 	public Set<Integer> getContactIdsForFiltering() {
 		return contactIdsForFiltering;
 	}
@@ -202,7 +211,7 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	public void setContactIdsForFiltering(Set<Integer> contactIdsForFiltering) {
 		this.contactIdsForFiltering = contactIdsForFiltering;
 	}
-    
+
 	// -------------------------------------------------------------------------------------------
 	//
 	// UTILITY METHODS.
@@ -215,9 +224,9 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 			// searchData.toString());
 			searchResultsStore = new ListStore<SearchResultsDTO>();
 			for (Object object : (ArrayList) searchData) {
-				
+
 				SearchResultsDTO temp = object != null ? (SearchResultsDTO) object : null;
-				if( filter(temp)) {
+				if (filter(temp)) {
 					searchResultsStore.add(temp);
 				}
 
@@ -228,10 +237,50 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 			Window.alert("Failed to receive search results!");
 		}
 	}
-	
+
+	public boolean filter(SearchResultsDTO dto) {
+
+		if (dto == null)
+			return false;
+
+		Map<String, String> retMap = toMap(dto.getResult());
+		dto.setDTOtype(retMap.get("doc_type").toString());
+
+		if (retMap.get("doc_type").toString().equals("PROJECT")) {
+			dto.setDTOid(retMap.get("databaseid").toString());
+			if (!projectIdsForFiltering.contains(Integer.parseInt(dto.getDTOid()))) {
+				// Window.alert("Found project not to be included!");
+				return false;
+			}
+
+		} else if (retMap.get("doc_type").toString().equals("CONTACT")) {
+			dto.setDTOid(retMap.get("id_contact").toString());
+			if (!contactIdsForFiltering.contains(Integer.parseInt(dto.getDTOid()))) {
+				//Window.alert("Found Contact not to be included: " + dto.getDTOid());
+				return false;
+			}
+		} else if (retMap.get("doc_type").toString().equals("ORG_UNIT")) {
+			dto.setDTOid(retMap.get("org_unit_id").toString());
+			if (!orgUnitIdsForFiltering.contains(Integer.parseInt(dto.getDTOid()))) {
+				// Window.alert("Found OrgUnit not to be included!");
+				return false;
+			}
+		}
+		else if (retMap.get("doc_type").toString().equals("FILE")) {
+			dto.setDTOid(retMap.get("file_id").toString());
+//			if (!orgUnitIdsForFiltering.contains(Integer.parseInt(dto.getDTOid()))) {
+//				// Window.alert("Found OrgUnit not to be included!");
+//				return false;
+//			}
+			return true;
+			
+		}
+		return true;
+	}
+
 	public void addResultsPanel() {
 
-		//Window.alert("Started addResultsPanel!");
+		// Window.alert("Started addResultsPanel!");
 		if (centerContainer == null) {
 			centerContainer = Layouts.vBox();
 			centerContainer.layout();
@@ -239,10 +288,10 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 			centerContainer.removeAll();
 			centerContainer.layout();
 		}
-		createSearchResultsPanel();
+		setContentPanel("Search results for \"" + searchText + "\"", false, null, null);
 		searchResultsPanel.layout();
 		ColumnModel columns = new ColumnModel(createSearchResultsGridColumns());
-		
+
 		Grid<SearchResultsDTO> searchResultsGrid = new Grid<SearchResultsDTO>(searchResultsStore, columns);
 		searchResultsGrid.getView().setForceFit(false);
 		searchResultsGrid.getView().setAutoFill(true);
@@ -256,22 +305,16 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 
 	}
 
-	private void createSearchResultsPanel() {
+	private void setContentPanel(String title, boolean collapsible, Layout layout, Scroll scroll,
+			String... stylenames) {
 
-		// Window.alert("Searchtext is currently " + searchText );
-		setContentPanel("Search results for \"" + searchText + "\"", false, null, null);
-
-	}
-
-	private void setContentPanel(String title, boolean collapsible, Layout layout, Scroll scroll, String... stylenames) {
-
-		//Window.alert("Started setContentPanel!");
+		// Window.alert("Started setContentPanel!");
 		searchResultsPanel = new ContentPanel(layout != null ? layout : new FitLayout());
 		searchResultsPanel.layout();
 
-		//Window.alert("Hello!");
+		// Window.alert("Hello!");
 		searchResultsPanel.setHeadingHtml(title);
-		//Window.alert("Hello!");
+		// Window.alert("Hello!");
 		searchResultsPanel.layout();
 		searchResultsPanel.setHeaderVisible(true);
 		searchResultsPanel.setCollapsible(collapsible);
@@ -288,20 +331,21 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		if (scroll != null) {
 			searchResultsPanel.setScrollMode(scroll);
 		}
-		
-		//Window.alert("Ended setContentPanel!");
+
+		// Window.alert("Ended setContentPanel!");
 
 	}
 
 	private List<ColumnConfig> createSearchResultsGridColumns() {
-			
-		//Window.alert("Started createSearchResultsGridColumns!");
+
+		// Window.alert("Started createSearchResultsGridColumns!");
 
 		// Label column.
 		ColumnConfig labelColumn = new ColumnConfig();
 		labelColumn.setId("label");
 		labelColumn.setHeaderHtml("Sort");
 		labelColumn.setWidth(100);
+		//labelColumn.setResizable(true);
 
 		// Add link
 		labelColumn.setRenderer(new GridCellRenderer<SearchResultsDTO>() {
@@ -314,7 +358,7 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 				HTML h = new HTML(getNiceText(retMap));
 
 				if (retMap.get("doc_type").toString().equals("PROJECT")) {
-					
+
 					h.addClickHandler(new ClickHandler() {
 
 						@Override
@@ -326,7 +370,7 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 				}
 
 				if (retMap.get("doc_type").toString().equals("CONTACT")) {
-					
+
 					h.addClickHandler(new ClickHandler() {
 
 						@Override
@@ -339,117 +383,138 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 				}
 
 				if (retMap.get("doc_type").toString().equals("ORG_UNIT")) {
-					
+
 					h.addClickHandler(new ClickHandler() {
 
 						@Override
 						public void onClick(ClickEvent event) {
-							
+
 							((OrgUnitResultsClickHandler) handler)
 									.onLabelClickEvent(Integer.parseInt(model.getDTOid()));
 						}
 					});
 				}
 				
+				if (retMap.get("doc_type").toString().equals("FILE")) {
+
+					h.addClickHandler(new ClickHandler() {
+
+						@Override
+						public void onClick(ClickEvent event) {
+
+							((FilesResultsClickHandler) handler)
+									.onLabelClickEvent();
+						}
+					});
+				}
+
 				return h;
 			}
 
 		});
-		
-		//Window.alert("Completed createSearchResultsGridColumns!");
+
+		// Window.alert("Completed createSearchResultsGridColumns!");
 		return Arrays.asList(new ColumnConfig[] { labelColumn });
 	}
-	
-	public boolean filter(SearchResultsDTO dto){
-		
-		if(dto == null) return false;
-		
-		Map<String, String> retMap = toMap(dto.getResult());
-		dto.setDTOtype(retMap.get("doc_type").toString());
-		
-		if (retMap.get("doc_type").toString().equals("PROJECT")) {
-			dto.setDTOid(retMap.get("databaseid").toString());
-			if(!projectIdsForFiltering.contains( Integer.parseInt(dto.getDTOid())) ) {
-				//Window.alert("Found project not to be included!");
-				return false;
-			}
-			
-		} else if (retMap.get("doc_type").toString().equals("CONTACT")) {
-			dto.setDTOid(retMap.get("id_contact").toString());
-			if(!contactIdsForFiltering.contains( Integer.parseInt(dto.getDTOid())) ) {
-				Window.alert("Found Contact not to be included: " + dto.getDTOid() );
-				return false;
-			}
-		} else if (retMap.get("doc_type").toString().equals("ORG_UNIT")) {
-			dto.setDTOid(retMap.get("org_unit_id").toString());
-			if(!orgUnitIdsForFiltering.contains( Integer.parseInt(dto.getDTOid())) ) {
-				//Window.alert("Found OrgUnit not to be included!");
-				return false;
-			}
-		}
-		return true;
-	}
-	
-	public String getNiceText( Map<String,String> resultsMap ){
+
+	public String getNiceText(Map<String, String> resultsMap) {
 		String htmlBuilder = "";
-		if(resultsMap.get("doc_type").toString().equals("PROJECT")){
-			
+		if (resultsMap.get("doc_type").toString().equals("PROJECT")) {
+
 			ProjectModelType pmt = null;
-			if( resultsMap.get("type_pmodel").equals("FUNDING"))pmt = ProjectModelType.FUNDING;
-			if( resultsMap.get("type_pmodel").equals("NGO"))pmt = ProjectModelType.NGO;
-			if( resultsMap.get("type_pmodel").equals("LOCAL_PARTNER"))pmt = ProjectModelType.LOCAL_PARTNER;
-			
-			htmlBuilder+="<br><div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">" 
-					+ "<div>" + getProjectLogo(pmt).getHTML() + "</div><br>" 
-					+"<h4>" + resultsMap.get("project_name") + " - " + resultsMap.get("project_fullname") 
-					+ "</h4></div>";
-			htmlBuilder+="<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
-			htmlBuilder+="<p>";
-			htmlBuilder+="<br>Active Phase: " + resultsMap.get("phase_model_name");
-			htmlBuilder+="<br>Organisational Unit: " + resultsMap.get("project_org_unit_name") + " - " + resultsMap.get("project_org_unit_fullname");
-			htmlBuilder+="<br>Amendment Status: " + resultsMap.get("amendment_status");
-			htmlBuilder+="<br>Project Model: " + resultsMap.get("pmodel_name");
-			htmlBuilder+="</p></div><br>";
+			if (resultsMap.get("type_pmodel").equals("FUNDING"))
+				pmt = ProjectModelType.FUNDING;
+			if (resultsMap.get("type_pmodel").equals("NGO"))
+				pmt = ProjectModelType.NGO;
+			if (resultsMap.get("type_pmodel").equals("LOCAL_PARTNER"))
+				pmt = ProjectModelType.LOCAL_PARTNER;
+
+			htmlBuilder += "<br><div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">"
+					+ "<div>" + getProjectLogo(pmt).getHTML() + "</div><br>" + "<h4>" + resultsMap.get("project_name")
+					+ " - " + resultsMap.get("project_fullname") + "</h4></div>";
+			htmlBuilder += "<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
+			htmlBuilder += "<p>";
+			htmlBuilder += "<br>Active Phase: " + resultsMap.get("phase_model_name");
+			htmlBuilder += "<br>Organisational Unit: " + resultsMap.get("project_org_unit_name") + " - "
+					+ resultsMap.get("project_org_unit_fullname");
+			htmlBuilder += "<br>Amendment Status: " + resultsMap.get("amendment_status");
+			htmlBuilder += "<br>Project Model: " + resultsMap.get("pmodel_name");
+			htmlBuilder += "</p></div><br>";
 		}
-		if(resultsMap.get("doc_type").toString().equals("ORG_UNIT")){
-			htmlBuilder+="<br><div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">" 
-					+ "<div>" + getOrgUnitLogo().getHTML() + "</div><br>" 
-					+"<h4>" + resultsMap.get("org_unit_name") + " - " + resultsMap.get("org_unit_fullname") +
-					"</h4></div>";
-			htmlBuilder+="<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
-			htmlBuilder+="<p>";
-			htmlBuilder+="<br>Model: " + resultsMap.get("org_unit_model_name");
-			htmlBuilder+="<br>" + "Country: " + resultsMap.get("org_unit_country_iso2") + " - " + resultsMap.get("org_unit_country_name");
-			htmlBuilder+="</p></div><br>";
+		if (resultsMap.get("doc_type").toString().equals("ORG_UNIT")) {
+			htmlBuilder += "<br><div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">"
+					+ "<div>" + getOrgUnitLogo().getHTML() + "</div><br>" + "<h4>" + resultsMap.get("org_unit_name")
+					+ " - " + resultsMap.get("org_unit_fullname") + "</h4></div>";
+			htmlBuilder += "<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
+			htmlBuilder += "<p>";
+			htmlBuilder += "<br>Model: " + resultsMap.get("org_unit_model_name");
+			htmlBuilder += "<br>" + "Country: " + resultsMap.get("org_unit_country_iso2") + " - "
+					+ resultsMap.get("org_unit_country_name");
+			htmlBuilder += "</p></div><br>";
 		}
-		if(resultsMap.get("doc_type").toString().equals("CONTACT")){
-			
+		if (resultsMap.get("doc_type").toString().equals("CONTACT")) {
+
 			ContactModelType cmt = null;
-			if( resultsMap.get("contact_model_type").equals("INDIVIDUAL"))cmt = ContactModelType.INDIVIDUAL;
-			if( resultsMap.get("contact_model_type").equals("ORGANIZATION"))cmt = ContactModelType.ORGANIZATION;
-			
-			htmlBuilder+="<br><div style = \"padding-left:6px\">" + getContactLogo(cmt) + "</div><br>"; 
-			htmlBuilder+="<div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">"
-					+ "<h4>"; 
-			if( resultsMap.get("user_firstname") != null ){
-				htmlBuilder+= resultsMap.get("user_firstname") + " - " + resultsMap.get("user_name");
-				htmlBuilder+="</h4></div>";
-			}
-			else{
-				//for organization contacts
-				htmlBuilder+= resultsMap.get("organization_name");
-				htmlBuilder+="</h4></div><br>";
+			if (resultsMap.get("contact_model_type").equals("INDIVIDUAL"))
+				cmt = ContactModelType.INDIVIDUAL;
+			if (resultsMap.get("contact_model_type").equals("ORGANIZATION"))
+				cmt = ContactModelType.ORGANIZATION;
+
+			htmlBuilder += "<br><div style = \"padding-left:6px\">" + getContactLogo(cmt) + "</div><br>";
+			htmlBuilder += "<div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">"
+					+ "<h4>";
+			if (resultsMap.get("user_firstname") != null) {
+				htmlBuilder += resultsMap.get("user_firstname") + " - " + resultsMap.get("user_name");
+				htmlBuilder += "</h4></div>";
+			} else {
+				// for organization contacts
+				htmlBuilder += resultsMap.get("organization_name");
+				htmlBuilder += "</h4></div><br>";
 				return htmlBuilder;
 			}
-			htmlBuilder+="<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
-			htmlBuilder+="<p>";
-			htmlBuilder+="<br>Email ID: " + resultsMap.get("user_email");
-			htmlBuilder+="<br>Locale: " + resultsMap.get("user_locale");
-			htmlBuilder+="</p></div><br>";
+			htmlBuilder += "<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
+			htmlBuilder += "<p>";
+			htmlBuilder += "<br>Email ID: " + resultsMap.get("user_email");
+			htmlBuilder += "<br>Locale: " + resultsMap.get("user_locale");
+			htmlBuilder += "</p></div><br>";
+		}
+		if (resultsMap.get("doc_type").toString().equals("FILE")) {
+			htmlBuilder += "<br><div style = \"padding-left:6px\">" + IconImageBundle.ICONS.attach().createImage() + "</div><br>";
+			htmlBuilder += "<div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">"
+					+ "<h4>";
+			if(resultsMap.get("title") != null){
+				htmlBuilder += resultsMap.get("title") + " - " + resultsMap.get("file_name") + "." + resultsMap.get("file_ext");
+			}else{
+				htmlBuilder += resultsMap.get("file_name") + "." + resultsMap.get("file_ext");
+			}
+			htmlBuilder += "</h4></div>";
+			htmlBuilder += "<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px;word-wrap: break-word;\">";
+			htmlBuilder += "<p>";
+			htmlBuilder += "<br>Author: " + resultsMap.get("file_author") + " - " + resultsMap.get("file_author_email");
+			htmlBuilder += "</p>";
+			htmlBuilder += "<p>";
+			//Window.alert(resultsMap.get("content").substring(0, 400));
+			//Window.alert(resultsMap.get("content").substring(0, 400).replaceAll("\\r\\n|\\r|\\n", ""));
+			String contentString;
+			if(resultsMap.get("title") != null){
+				contentString = resultsMap.get("content").substring(resultsMap.get("title").length()+1, min(900,resultsMap.get("content").length()) ).replaceAll("\\\\n", "");
+			}else{
+				contentString = resultsMap.get("content").substring(0, min(900,resultsMap.get("content").length())).replaceAll("\\\\n", "");
+			}
+			int i;
+			for( i = 180; i<= min(800,contentString.length()); i+=180 ){
+				htmlBuilder += "<br>" + contentString.substring(i-180, i);
+			}
+			htmlBuilder += "<br>" + contentString.substring(i-180,contentString.length()) + "...<br>";
+			htmlBuilder += "</p></div><br>";
 		}
 		return htmlBuilder;
 	}
 
+	private int min(int i, int length) {
+		// TODO Auto-generated method stub
+		if(i < length)return i; else return length;
+	}
 
 	public static Map<String, String> toMap(String jsonStr) {
 		Map<String, String> map = new HashMap<String, String>();
@@ -464,33 +529,33 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 
 		return map;
 	}
-	
+
 	public AbstractImagePrototype getProjectLogo(final ProjectModelType projectType) {
 
 		final AbstractImagePrototype projectIcon = FundingIconProvider.getProjectTypeIcon(projectType, IconSize.MEDIUM);
 		return projectIcon;
 	}
-	
-	public HTML getContactLogo(ContactModelType type){
+
+	public HTML getContactLogo(ContactModelType type) {
 		HTML avatar = new HTML();
-	    avatar.setWidth(36 + "px");
-	    avatar.setHeight(36 + "px");
-	    avatar.setStyleName("contact-card-avatar");
-	    avatar.getElement().getStyle().clearBackgroundImage();
-	    switch (type) {
-	      case INDIVIDUAL:
-	        avatar.addStyleName("contact-card-avatar-individual");
-	        break;
-	      case ORGANIZATION:
-	        avatar.addStyleName("contact-card-avatar-organization");
-	        break;
-	      default:
-	        throw new IllegalStateException("Unknown ContactModelType : " + type);
-	    }
-	    return avatar;
+		avatar.setWidth(36 + "px");
+		avatar.setHeight(36 + "px");
+		avatar.setStyleName("contact-card-avatar");
+		avatar.getElement().getStyle().clearBackgroundImage();
+		switch (type) {
+		case INDIVIDUAL:
+			avatar.addStyleName("contact-card-avatar-individual");
+			break;
+		case ORGANIZATION:
+			avatar.addStyleName("contact-card-avatar-organization");
+			break;
+		default:
+			throw new IllegalStateException("Unknown ContactModelType : " + type);
+		}
+		return avatar;
 	}
-	
-	public AbstractImagePrototype getOrgUnitLogo(){
+
+	public AbstractImagePrototype getOrgUnitLogo() {
 		return OrgUnitImageBundle.ICONS.orgUnitSmall();
 	}
 
