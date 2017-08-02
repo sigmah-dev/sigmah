@@ -42,7 +42,9 @@ final class IDBTransaction extends JavaScriptObject {
 	}-*/;
 	
 	public native void onComplete(JavaScriptEvent handler) /*-{
-		this.oncomplete = handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;);
+		this.oncomplete = $entry(function(e) {
+			handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
+		});
 	}-*/;
 	
 	public native IDBRequest get(String storeName, String objectKey) /*-{

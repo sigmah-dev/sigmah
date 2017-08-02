@@ -84,34 +84,50 @@ public final class ApplicationCache extends JavaScriptObject {
 	}-*/;
 	
 	public native void onChecking(JavaScriptEvent handler) /*-{
-		this.onchecking = handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;);
+		this.onchecking = $entry(function(e) {
+			handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
+		});
 	}-*/;
 	
 	public native void onError(JavaScriptEvent handler) /*-{
-		this.onerror = handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;);
+		this.onerror = $entry(function(e) {
+			handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
+		});
 	}-*/;
 	
 	public native void onNoUpdate(JavaScriptEvent handler) /*-{
-		this.onnoupdate = handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;);
+		this.onnoupdate = $entry(function(e) {
+			handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
+		});
 	}-*/;
 	
 	public native void onDownloading(JavaScriptEvent handler) /*-{
-		this.ondownloading = handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;);
+		this.ondownloading = $entry(function(e) {
+			handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
+		});
 	}-*/;
 	
 	public native void onProgress(JavaScriptEvent handler) /*-{
-		this.onprogress = handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;);
+		this.onprogress = $entry(function(e) {
+			handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
+		});
 	}-*/;
 	
 	public native void onUpdateReady(JavaScriptEvent handler) /*-{
-		this.onupdateready = handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;);
+		this.onupdateready = $entry(function(e) {
+			handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
+		});
 	}-*/;
 	
 	public native void onCached(JavaScriptEvent handler) /*-{
-		this.oncached = handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;);
+		this.oncached = $entry(function(e) {
+			handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
+		});
 	}-*/;
 	
 	public native void onObsolete(JavaScriptEvent handler) /*-{
-		this.onObsolete = handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;);
+		this.onObsolete = $entry(function(e) {
+			handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
+		});
 	}-*/;
 }

@@ -62,7 +62,7 @@ public class Request implements Result {
 	
 	private native void registerEvents(IDBRequest request) /*-{
 		if(typeof $wnd.Object.getPrototypeOf != 'undefined') {
-			$wnd.Object.getPrototypeOf(this).handleEvent = function(event) {
+			$wnd.Object.getPrototypeOf(this).handleEvent = $entry(function(event) {
 				switch(event.type) {
 					case 'success':
 						this.@org.sigmah.offline.indexeddb.Request::fireSuccess(Lcom/google/gwt/core/client/JavaScriptObject;)(event);
@@ -73,7 +73,7 @@ public class Request implements Result {
 					default:
 						break;
 				}
-			};
+			});
 			request.addEventListener('success', this);
 			request.addEventListener('error', this);
 		}

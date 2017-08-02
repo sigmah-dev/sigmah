@@ -94,7 +94,7 @@ public class FileReader {
 	
 	private native void registerEvents(NativeFileReader fileReader) /*-{
 		if(typeof $wnd.Object.getPrototypeOf != 'undefined') {
-			$wnd.Object.getPrototypeOf(this).handleEvent = function(event) {
+			$wnd.Object.getPrototypeOf(this).handleEvent = $entry(function(event) {
 				switch(event.type) {
 					case 'load':
 						this.@org.sigmah.offline.fileapi.FileReader::fireLoad()();
@@ -114,7 +114,7 @@ public class FileReader {
 					default:
 						break;
 				}
-			};
+			});
 			fileReader.addEventListener('load', this);
 			fileReader.addEventListener('loadstart', this);
 			fileReader.addEventListener('loadend', this);

@@ -90,7 +90,9 @@ final class IDBDatabase extends JavaScriptObject {
 	 * @param handler 
 	 */
 	public final native void setOnError(JavaScriptEvent handler) /*-{
-		this.onerror = handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;);
+		this.onerror = $entry(function(e) {
+			handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
+		});
 	}-*/;
 	
 }
