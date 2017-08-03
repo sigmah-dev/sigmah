@@ -873,8 +873,13 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
             properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY) + " (Daily event 1 of " + count + ")");
             properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION) + " (Daily event 1 of " + count + ")");
-            properties.put(Event.EVENT_TYPE, "D");
-
+            if(view.getAllDayCheckbox().getValue() == true)  { 
+                properties.put(Event.EVENT_TYPE, "DF");
+                properties.put(Event.DATE_END, new Date(calBeginNextEventDateLong + milisPerDay*(lengthDailyEvent-1)));}
+            else{
+             properties.put(Event.EVENT_TYPE, "D");
+             properties.put(Event.DATE_END, new Date(calBeginNextEventDateLong));
+            }
         addPersonalEventDaily(properties, count, lengthDailyEvent, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
 
     }
@@ -900,7 +905,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 properties.put(Event.REFERENCE_ID, (Integer) result.getEntity().getId());
                 updateEvent(event, properties);
                 addDailySeriesEvent((Integer) result.getEntity().getId(), daysInterval, lengthDailyEvent, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
-               // addDailySeriesEventNew((Integer) result.getEntity().getId(), daysInterval, lengthDailyEvent, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
+                     if(view.getAllDayCheckbox().getValue() == false) addDailySeriesEventNew((Integer) result.getEntity().getId(), daysInterval, lengthDailyEvent, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
             }
         }, view.getCancelButton(), view.getSaveButton());
     }
@@ -918,7 +923,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             dailyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
 
             dailyProperties.put(Event.DATE, new Date(calBeginNextEventDateLong));
-
+            dailyProperties.put(Event.DATE_END, new Date(calBeginNextEventDateLong)); 
             setFullDayEvent(startDate, endDate, new Date(calBeginNextEventDateLong), dailyProperties);
 
             String newSummary = eventSummary;
@@ -948,7 +953,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         for (int i = 1; i < daysInterval; i++) {
 
             calBeginNextEventDateLong += (milisPerDay*lengthDailyEvent);
-            long calEndNextEventDateLong = milisPerDay*(lengthDailyEvent-1);
+            long calEndNextEventDateLong = calBeginNextEventDateLong + milisPerDay*(lengthDailyEvent-1);
             //calBeginNextEventDate = new Date(calBeginNextEventDateLong);
 
             Map<String, Serializable> dailyProperties = new HashMap<String, Serializable>();
@@ -956,7 +961,13 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             dailyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
 
             dailyProperties.put(Event.DATE, new Date(calBeginNextEventDateLong));
-            dailyProperties.put(Event.DATE_END, new Date(calEndNextEventDateLong));
+            if(view.getAllDayCheckbox().getValue() == true)  { 
+                dailyProperties.put(Event.EVENT_TYPE, "DF");
+                dailyProperties.put(Event.DATE_END, new Date(calEndNextEventDateLong));}
+            else{
+             dailyProperties.put(Event.EVENT_TYPE, "D");
+             dailyProperties.put(Event.DATE_END, new Date(calBeginNextEventDateLong));
+            }
             
             setFullDayEvent(startDate, endDate, new Date(calBeginNextEventDateLong), dailyProperties);
 
@@ -966,7 +977,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             newDescription += " (Daily event " + (i + 1) + " of " + daysInterval + ")";
             dailyProperties.put(Event.SUMMARY, newSummary);
             dailyProperties.put(Event.DESCRIPTION, newDescription);
-            dailyProperties.put(Event.EVENT_TYPE, "D");
             dailyProperties.put(Event.REFERENCE_ID, ids);
            
             addPersonalEvent(dailyProperties);
@@ -1151,7 +1161,13 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      * @param eventDescription the value of eventDescription
      */
     private void processMonthlyEvents(final Date beginEventIntervalDate, Date endEventIntervalDate, final Date endEventIntervalDateRadio, final Map<String, Serializable> properties, Boolean isMonthlySameDayOfWeek, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {   
-            long milisDiff =endEventIntervalDate.getTime() - beginEventIntervalDate.getTime();
+                properties.put(Event.EVENT_TYPE, "M");
+                if(view.getAllDayCheckbox().getValue() == true) {
+                properties.put(Event.DATE_END, endEventIntervalDate);
+                properties.put(Event.EVENT_TYPE, "MF");}  
+                else properties.put(Event.DATE_END, beginEventIntervalDate);
+        Date endEventIntervalDate1 = endEventIntervalDate;        
+        long milisDiff =endEventIntervalDate.getTime() - beginEventIntervalDate.getTime();
             endEventIntervalDate = endEventIntervalDateRadio;
        // Window.alert(beginEventIntervalDate1.getDate() + "."+beginEventIntervalDate1.getMonth()+"."+beginEventIntervalDate1.getYear()+"   |   "+ endEventIntervalDate1.getDate()+"."+endEventIntervalDate1.getMonth()+"."+endEventIntervalDate1.getYear());
         int yearStart = beginEventIntervalDate.getYear();
@@ -1170,22 +1186,22 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         if(monthInterval <= 0) monthInterval = 1;
             properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY) + " (Monthly event 1 of " + monthInterval + ")");
             properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION) + " (Monthly event 1 of " + monthInterval + ")");
-            if (isMonthlySameDayOfWeek) {
-                properties.put(Event.EVENT_TYPE, "M1");
-            } else {
-                properties.put(Event.EVENT_TYPE, "M2");
-            }
-                   
+     //       if (isMonthlySameDayOfWeek) {
+       //         properties.put(Event.EVENT_TYPE, "M1");
+        //    } else {
+         //       properties.put(Event.EVENT_TYPE, "M2");
+           // }
+                 
         //addPersonalEventMonthly(properties, monthInterval, beginEventIntervalDate, endEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
         //Window.alert("MultiEvent = "+beginEventIntervalDate1.getDate() + "."+beginEventIntervalDate1.getMonth()+"."+beginEventIntervalDate1.getYear()+"   |   "+ endEventIntervalDate1.getDate()+"."+endEventIntervalDate1.getMonth()+"."+endEventIntervalDate1.getYear());
         //Window.alert("EndDateRadio = "+endEventIntervalDateRadio.getDate() + "."+endEventIntervalDateRadio.getMonth()+"."+endEventIntervalDateRadio.getYear());
 
-        addPersonalEventMonthly(properties, monthInterval, beginEventIntervalDate, milisDiff, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
+        addPersonalEventMonthly(endEventIntervalDate1, properties, monthInterval, beginEventIntervalDate, milisDiff, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
 
     }
 
     //private void addPersonalEventMonthly(final Map<String, Serializable> properties, final int monthInterval, final Date beginEventIntervalDate, final Date endEventIntervalDate, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription, final boolean isMonthlySameDayOfWeek) {
-    private void addPersonalEventMonthly(final Map<String, Serializable> properties, final int monthInterval, final Date beginEventIntervalDate, final long milisDiff, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription, final boolean isMonthlySameDayOfWeek) {
+    private void addPersonalEventMonthly(final Date endEventIntervalDate, final Map<String, Serializable> properties, final int monthInterval, final Date beginEventIntervalDate, final long milisDiff, final Date startDate, final Date endDate, final String eventSummary, final String eventDescription, final boolean isMonthlySameDayOfWeek) {
         final CreateEntity createEntity = new CreateEntity(PersonalEventDTO.ENTITY_NAME, properties);
 
         dispatch.execute(createEntity, new CommandResultHandler<CreateResult>() {
@@ -1205,15 +1221,18 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 properties.put(Event.REFERENCE_ID, (Integer) result.getEntity().getId());
                 long milisPerDay = 86400000;
                 long daysInterval = milisDiff/milisPerDay+1;
-                Window.alert("DaysInterval = "+daysInterval);
+               // Window.alert("DaysInterval = "+daysInterval);
                // addDailySeriesEventNew4((Integer)properties.get(Event.REFERENCE_ID), milisPerDay*7, beginEventIntervalDate, milisPerDay, startDate, endDate, eventSummary, eventDescription);
-               addMonthlySeriesEvent((String) result.getEntity().getId(), monthInterval, beginEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
-               addMonthlySeriesEventNew((String) result.getEntity().getId(), monthInterval,daysInterval, beginEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
-            
+                addMonthlySeriesEvent(endEventIntervalDate, (String) result.getEntity().getId(), monthInterval, beginEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
+                if(view.getAllDayCheckbox().getValue() == true) {
+                properties.put(Event.DATE_END, endEventIntervalDate);
+                properties.put(Event.EVENT_TYPE, "MF");}  
+                else addMonthlySeriesEventNew(endEventIntervalDate, (String) result.getEntity().getId(), monthInterval,daysInterval, beginEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isMonthlySameDayOfWeek);
+                           
             }
         }, view.getCancelButton(), view.getSaveButton());
     }
-    private void addMonthlySeriesEventNew(String ids, int monthInterval, final long daysInterval, Date beginEventIntervalDate, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final boolean isMonthlySameDayOfWeek) {
+    private void addMonthlySeriesEventNew(final Date endEventIntervalDate, String ids, int monthInterval, final long daysInterval, Date beginEventIntervalDate, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final boolean isMonthlySameDayOfWeek) {
         Date calBeginNextEventDate = beginEventIntervalDate;
         long milisPerDay = 86400000;
         for (int i = 0; i < monthInterval; i++) {
@@ -1225,7 +1244,11 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             monthlyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
 
             monthlyProperties.put(Event.DATE, calBeginNextEventDate);
-
+                monthlyProperties.put(Event.EVENT_TYPE, "M");
+                if(view.getAllDayCheckbox().getValue() == true) {
+                monthlyProperties.put(Event.DATE_END, endEventIntervalDate);
+                monthlyProperties.put(Event.EVENT_TYPE, "MF");}  
+                else monthlyProperties.put(Event.DATE_END, beginEventIntervalDate);
             setFullDayEvent(startDate, endDate, calBeginNextEventDate, monthlyProperties);
 
             String newSummary = eventSummary;
@@ -1234,20 +1257,17 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             newDescription += " (Monthly " + (isMonthlySameDayOfWeek ? "same Day of a week " : "same Date ") + "event " + (i + 1) + " of " + monthInterval + ")";
             monthlyProperties.put(Event.SUMMARY, newSummary);
             monthlyProperties.put(Event.DESCRIPTION, newDescription);
-            if (isMonthlySameDayOfWeek) {
-                monthlyProperties.put(Event.EVENT_TYPE, "M1");
-            } else {
-                monthlyProperties.put(Event.EVENT_TYPE, "M2");
-            }
+
             monthlyProperties.put(Event.REFERENCE_ID, ids);
-            addMonthlySeriesEventNew2((Integer)monthlyProperties.get(Event.REFERENCE_ID), daysInterval, calBeginNextEventDate.getTime(), milisPerDay, startDate, endDate, eventSummary, eventDescription, i, isMonthlySameDayOfWeek, monthInterval);
+            addMonthlySeriesEventNew2(endEventIntervalDate, (Integer)monthlyProperties.get(Event.REFERENCE_ID), daysInterval, calBeginNextEventDate.getTime(), milisPerDay, startDate, endDate, eventSummary, eventDescription, i, isMonthlySameDayOfWeek, monthInterval);
             calBeginNextEventDate = getMonthlySameDayOfWeek2(beginEventIntervalDate, calBeginNextEventDate, i, isMonthlySameDayOfWeek);
         }
     }
     
-            private void addMonthlySeriesEventNew2(Integer ids, long daysInterval, long calBeginNextEventDateLong1, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription, int j, final boolean isMonthlySameDayOfWeek, final int monthInterval) {
+            private void addMonthlySeriesEventNew2(final Date endEventIntervalDate, Integer ids, long daysInterval, long calBeginNextEventDateLong1, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription, int j, final boolean isMonthlySameDayOfWeek, final int monthInterval) {
         //Date calBeginNextEventDate;
         long calBeginNextEventDateLong = calBeginNextEventDateLong1;
+                long diff = endEventIntervalDate.getTime()-calBeginNextEventDateLong;
         for (int i = 1; i < daysInterval; i++) {
             calBeginNextEventDateLong += milisPerDay;
             //calBeginNextEventDate = getMonthlySameDate(beginEventIntervalDate, calBeginNextEventDate, i);
@@ -1257,7 +1277,12 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             monthlyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
 
             monthlyProperties.put(Event.DATE, new Date(calBeginNextEventDateLong));
-
+                monthlyProperties.put(Event.EVENT_TYPE, "M");
+                if(view.getAllDayCheckbox().getValue() == true) {
+                monthlyProperties.put(Event.DATE_END, new Date(calBeginNextEventDateLong + diff));
+                monthlyProperties.put(Event.EVENT_TYPE, "MF");}  
+                else monthlyProperties.put(Event.DATE_END, new Date(calBeginNextEventDateLong));
+                
             setFullDayEvent(startDate, endDate, new Date(calBeginNextEventDateLong), monthlyProperties);
 
             String newSummary = eventSummary;
@@ -1266,19 +1291,16 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             newDescription += " (Monthly " + (isMonthlySameDayOfWeek ? "same Day of a week " : "same Date ") + "event " + (j + 1) + " of " + monthInterval + ")";
             monthlyProperties.put(Event.SUMMARY, newSummary);
             monthlyProperties.put(Event.DESCRIPTION, newDescription);
-            if (isMonthlySameDayOfWeek) {
-                monthlyProperties.put(Event.EVENT_TYPE, "M1");
-            } else {
-                monthlyProperties.put(Event.EVENT_TYPE, "M2");
-            }
+
             monthlyProperties.put(Event.REFERENCE_ID, ids);
             addPersonalEvent(monthlyProperties);
         }
     }
     
     //private void addMonthlySeriesEvent(String ids, int monthInterval, Date beginEventIntervalDate, Date endEventIntervalDate, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final boolean isMonthlySameDayOfWeek) {
-    private void addMonthlySeriesEvent(String ids, int monthInterval, Date beginEventIntervalDate, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final boolean isMonthlySameDayOfWeek) {
+    private void addMonthlySeriesEvent(Date endEventIntervalDate, String ids, int monthInterval, Date beginEventIntervalDate, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final boolean isMonthlySameDayOfWeek) {
         Date calBeginNextEventDate = beginEventIntervalDate;
+        long diff = endEventIntervalDate.getTime()-beginEventIntervalDate.getTime();
         for (int i = 1; i < monthInterval; i++) {
             //calBeginNextEventDate = getMonthlySameDate(beginEventIntervalDate, calBeginNextEventDate, i);
             calBeginNextEventDate = getMonthlySameDayOfWeek2(beginEventIntervalDate, calBeginNextEventDate, i, isMonthlySameDayOfWeek);
@@ -1288,7 +1310,12 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             monthlyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
 
             monthlyProperties.put(Event.DATE, calBeginNextEventDate);
-
+            monthlyProperties.put(Event.EVENT_TYPE, "M");
+                if(view.getAllDayCheckbox().getValue() == true) {
+                monthlyProperties.put(Event.DATE_END, new Date(calBeginNextEventDate.getTime() + diff));
+                monthlyProperties.put(Event.EVENT_TYPE, "MF");}  
+                else monthlyProperties.put(Event.DATE_END, new Date(calBeginNextEventDate.getTime()));
+                
             setFullDayEvent(startDate, endDate, calBeginNextEventDate, monthlyProperties);
 
             String newSummary = eventSummary;
@@ -1297,11 +1324,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             newDescription += " (Monthly " + (isMonthlySameDayOfWeek ? "same Day of a week " : "same Date ") + "event " + (i + 1) + " of " + monthInterval + ")";
             monthlyProperties.put(Event.SUMMARY, newSummary);
             monthlyProperties.put(Event.DESCRIPTION, newDescription);
-            if (isMonthlySameDayOfWeek) {
-                monthlyProperties.put(Event.EVENT_TYPE, "M1");
-            } else {
-                monthlyProperties.put(Event.EVENT_TYPE, "M2");
-            }
+
             monthlyProperties.put(Event.REFERENCE_ID, ids);
             addPersonalEvent(monthlyProperties);
         }
@@ -1320,6 +1343,11 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      * @param eventDescription the value of eventDescription
      */
     private void processYearEvents(final Date beginEventIntervalDate, Date endEventIntervalDate, final Date endEventIntervalDateRadio, final Map<String, Serializable> properties, Boolean isYearlySameDayOfWeek, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
+                properties.put(Event.EVENT_TYPE, "Y");
+                if(view.getAllDayCheckbox().getValue() == true) {
+                properties.put(Event.DATE_END, endEventIntervalDate);
+                properties.put(Event.EVENT_TYPE, "YF");}  
+                else properties.put(Event.DATE_END, beginEventIntervalDate);
         long milisDiff =endEventIntervalDate.getTime() - beginEventIntervalDate.getTime();
         endEventIntervalDate = endEventIntervalDateRadio;        
         int yearStart = beginEventIntervalDate.getYear();
@@ -1329,11 +1357,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         if(yearInterval <= 0) yearInterval = 1;
             properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY) + " (Yearly event 1 of " + yearInterval + ")");
             properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION) + " (Yearly " + (isYearlySameDayOfWeek ? "same Day of a week " : "same Date ") + "event 1 of " + yearInterval + ")");
-            if (isYearlySameDayOfWeek) {
-                properties.put(Event.EVENT_TYPE, "Y1");
-            } else {
-                properties.put(Event.EVENT_TYPE, "Y2");
-            }
   
 
         addPersonalEventYearly(milisDiff, properties, yearInterval, beginEventIntervalDate, endEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isYearlySameDayOfWeek);
@@ -1361,12 +1384,12 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 long milisPerDay = 86400000;                
                 long daysInterval = milisDiff/milisPerDay+1;
                 
-                addYearlySeriesEvent((String) result.getEntity().getId(), yearInterval, beginEventIntervalDate, endEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isYearlySameDayOfWeek);
-                addYearlySeriesEventNew((String) result.getEntity().getId(), yearInterval,daysInterval, beginEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isYearlySameDayOfWeek);
+                addYearlySeriesEvent(milisDiff, (String) result.getEntity().getId(), yearInterval, beginEventIntervalDate, endEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isYearlySameDayOfWeek);
+               if(view.getAllDayCheckbox().getValue() == false) addYearlySeriesEventNew(milisDiff, (String) result.getEntity().getId(), yearInterval,daysInterval, beginEventIntervalDate, startDate, endDate, eventSummary, eventDescription, isYearlySameDayOfWeek);
             }
         }, view.getCancelButton(), view.getSaveButton());
     }
-    private void addYearlySeriesEventNew(String ids, int yearInterval, final long daysInterval, Date beginEventIntervalDate, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final boolean isYearlySameDayOfWeek) {
+    private void addYearlySeriesEventNew(final long milisDiff, String ids, int yearInterval, final long daysInterval, Date beginEventIntervalDate, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final boolean isYearlySameDayOfWeek) {
         Date calBeginNextEventDate = beginEventIntervalDate;
         long milisPerDay = 86400000;
         for (int i = 0; i < yearInterval; i++) {
@@ -1387,48 +1410,46 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             newDescription += " (Yearly " + (isYearlySameDayOfWeek ? "same Day of a week " : "same Date ") + "event " + (i + 1) + " of " + yearInterval + ")";
             monthlyProperties.put(Event.SUMMARY, newSummary);
             monthlyProperties.put(Event.DESCRIPTION, newDescription);
-            if (isYearlySameDayOfWeek) {
-                monthlyProperties.put(Event.EVENT_TYPE, "Y1");
-            } else {
-                monthlyProperties.put(Event.EVENT_TYPE, "Y2");
-            }
+
             monthlyProperties.put(Event.REFERENCE_ID, ids);
-            addYearlySeriesEventNew2((Integer)monthlyProperties.get(Event.REFERENCE_ID), daysInterval, calBeginNextEventDate.getTime(), milisPerDay, startDate, endDate, eventSummary, eventDescription, i, isYearlySameDayOfWeek, yearInterval);
+            addYearlySeriesEventNew2(milisDiff, (Integer)monthlyProperties.get(Event.REFERENCE_ID), daysInterval, calBeginNextEventDate.getTime(), milisPerDay, startDate, endDate, eventSummary, eventDescription, i, isYearlySameDayOfWeek, yearInterval);
             calBeginNextEventDate = getYearlySameDayOfWeek(beginEventIntervalDate, calBeginNextEventDate, i, isYearlySameDayOfWeek);
         }
     }
     
-    private void addYearlySeriesEventNew2(Integer ids, long daysInterval, long calBeginNextEventDateLong1, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription, int j, final boolean isYearlySameDayOfWeek, final int yearInterval) {
+    private void addYearlySeriesEventNew2(final long milisDiff, Integer ids, long daysInterval, long calBeginNextEventDateLong1, long milisPerDay, final Date startDate, final Date endDate, String eventSummary, String eventDescription, int j, final boolean isYearlySameDayOfWeek, final int yearInterval) {
         //Date calBeginNextEventDate;
         long calBeginNextEventDateLong = calBeginNextEventDateLong1;
         for (int i = 1; i < daysInterval; i++) {
             calBeginNextEventDateLong += milisPerDay;
             //calBeginNextEventDate = getMonthlySameDate(beginEventIntervalDate, calBeginNextEventDate, i);
             
-            Map<String, Serializable> monthlyProperties = new HashMap<String, Serializable>();
-            monthlyProperties.put(Event.CALENDAR_ID, calendarWrapper);
-            monthlyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
+            Map<String, Serializable> yearlyProperties = new HashMap<String, Serializable>();
+            yearlyProperties.put(Event.CALENDAR_ID, calendarWrapper);
+            yearlyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
 
-            monthlyProperties.put(Event.DATE, new Date(calBeginNextEventDateLong));
-
-            setFullDayEvent(startDate, endDate, new Date(calBeginNextEventDateLong), monthlyProperties);
+            yearlyProperties.put(Event.DATE, new Date(calBeginNextEventDateLong));
+            
+                yearlyProperties.put(Event.EVENT_TYPE, "Y");
+                if(view.getAllDayCheckbox().getValue() == true) {
+                yearlyProperties.put(Event.DATE_END, new Date(calBeginNextEventDateLong + milisDiff));
+                yearlyProperties.put(Event.EVENT_TYPE, "YF");}        
+                else yearlyProperties.put(Event.DATE_END, new Date(calBeginNextEventDateLong));
+                
+            setFullDayEvent(startDate, endDate, new Date(calBeginNextEventDateLong), yearlyProperties);
 
             String newSummary = eventSummary;
             String newDescription = eventDescription;
             newSummary += " (Yearly event " + (j + 1) + " of " + yearInterval + ")";
             newDescription += " (Yearly " + (isYearlySameDayOfWeek ? "same Day of a week " : "same Date ") + "event " + (j + 1) + " of " + yearInterval + ")";
-            monthlyProperties.put(Event.SUMMARY, newSummary);
-            monthlyProperties.put(Event.DESCRIPTION, newDescription);
-            if (isYearlySameDayOfWeek) {
-                monthlyProperties.put(Event.EVENT_TYPE, "Y1");
-            } else {
-                monthlyProperties.put(Event.EVENT_TYPE, "Y2");
-            }
-            monthlyProperties.put(Event.REFERENCE_ID, ids);
-            addPersonalEvent(monthlyProperties);
+            yearlyProperties.put(Event.SUMMARY, newSummary);
+            yearlyProperties.put(Event.DESCRIPTION, newDescription);
+
+            yearlyProperties.put(Event.REFERENCE_ID, ids);
+            addPersonalEvent(yearlyProperties);
         }
     }
-    private void addYearlySeriesEvent(String ids, int yearInterval, Date beginEventIntervalDate, Date endEventIntervalDate, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final boolean isYearlySameDayOfWeek) {
+    private void addYearlySeriesEvent(final long milisDiff, String ids, int yearInterval, Date beginEventIntervalDate, Date endEventIntervalDate, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final boolean isYearlySameDayOfWeek) {
         Date calBeginNextEventDate = beginEventIntervalDate;
         for (int i = 1; i < yearInterval; i++) {
             calBeginNextEventDate = getYearlySameDayOfWeek(beginEventIntervalDate, calBeginNextEventDate, i, isYearlySameDayOfWeek);
@@ -1438,7 +1459,12 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             yearlyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
 
             yearlyProperties.put(Event.DATE, calBeginNextEventDate);
-
+                yearlyProperties.put(Event.EVENT_TYPE, "Y");
+                if(view.getAllDayCheckbox().getValue() == true) {
+                yearlyProperties.put(Event.DATE_END, new Date(calBeginNextEventDate.getTime() + milisDiff));
+                yearlyProperties.put(Event.EVENT_TYPE, "YF");}        
+                else yearlyProperties.put(Event.DATE_END, calBeginNextEventDate);
+                
             setFullDayEvent(startDate, endDate, calBeginNextEventDate, yearlyProperties);
 
             String newSummary = eventSummary;
@@ -1447,11 +1473,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             newDescription += " (Yearly " + (isYearlySameDayOfWeek ? "same Day of a week " : "same Date ") + "event " + (i + 1) + " of " + yearInterval + ")";
             yearlyProperties.put(Event.SUMMARY, newSummary);
             yearlyProperties.put(Event.DESCRIPTION, newDescription);
-            if (isYearlySameDayOfWeek) {
-                yearlyProperties.put(Event.EVENT_TYPE, "Y1");
-            } else {
-                yearlyProperties.put(Event.EVENT_TYPE, "Y2");
-            }
+            
             yearlyProperties.put(Event.REFERENCE_ID, ids);
             addPersonalEvent(yearlyProperties);
         }

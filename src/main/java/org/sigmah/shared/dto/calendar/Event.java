@@ -130,7 +130,7 @@ public class Event implements Serializable {
 
 		} else {
 			setDtstart(new Date(day.getYear(), day.getMonth(), day.getDate()));
-			setDtend(new Date(dayEnd.getYear(), dayEnd.getMonth(), dayEnd.getDate() + 1));
+			setDtend(new Date(dayEnd.getYear(), dayEnd.getMonth(), dayEnd.getDate()));
 		}
 	}
 
