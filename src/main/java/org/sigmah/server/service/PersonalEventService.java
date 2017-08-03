@@ -95,6 +95,7 @@ public class PersonalEventService extends AbstractEntityService<PersonalEvent, I
                 event.setReferenceId((Integer) properties.get(Event.REFERENCE_ID));
                 
 		final Date day = (Date) properties.get(Event.DATE);
+                final Date dayEnd = (Date) properties.get(Event.DATE_END);
 		final Serializable startHourSerialized = properties.get(Event.START_TIME);
 		final Serializable endHourSerialized = properties.get(Event.END_TIME);
 
@@ -104,14 +105,14 @@ public class PersonalEventService extends AbstractEntityService<PersonalEvent, I
 			
 			if (endHourSerialized != null && endHourSerialized instanceof Long) {
 				final Date endHour = new Date((Long) endHourSerialized);
-				event.setEndDate(endHour);
+				event.setEndDate(new Date(dayEnd.getTime()+(endHour.getTime()-day.getTime())));
 			} else {
 				event.setEndDate(null);
 			}
 
 		} else {
 			event.setStartDate(new Date(day.getYear(), day.getMonth(), day.getDate()));
-			event.setEndDate(new Date(day.getYear(), day.getMonth(), day.getDate() + 1));
+			event.setEndDate(new Date(dayEnd.getYear(), dayEnd.getMonth(), dayEnd.getDate()));
 		}
 	}
 

@@ -44,6 +44,7 @@ public class Event implements Serializable {
 	public static final String CALENDAR_ID = "calendarId";
 	public static final String SUMMARY = "summary";
 	public static final String DATE = "date";
+	public static final String DATE_END = "dateEnd";        
 	public static final String START_TIME = "startDate";
 	public static final String END_TIME = "endDate";
 	public static final String DESCRIPTION = "description";
@@ -112,6 +113,7 @@ public class Event implements Serializable {
                 setReferenceId((Integer) values.get(Event.REFERENCE_ID));
                 
 		final Date day = (Date) values.get(Event.DATE);
+                final Date dayEnd = (Date) values.get(Event.DATE_END);                
 		final Object startHourSerialized = values.get(Event.START_TIME);
 		final Object endHourSerialized = values.get(Event.END_TIME);
 
@@ -128,7 +130,7 @@ public class Event implements Serializable {
 
 		} else {
 			setDtstart(new Date(day.getYear(), day.getMonth(), day.getDate()));
-			setDtend(new Date(day.getYear(), day.getMonth(), day.getDate() + 1));
+			setDtend(new Date(dayEnd.getYear(), dayEnd.getMonth(), dayEnd.getDate() + 1));
 		}
 	}
 
