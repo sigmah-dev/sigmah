@@ -24,6 +24,7 @@ package org.sigmah.client.ui.view.contact.dashboardlist;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.data.BaseFilterPagingLoadConfig;
@@ -262,6 +263,11 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 	@Override
 	public void addContact(DashboardContact contact) {
 		proxy.addContact(contact);
+		pagingToolBar.refresh();
+	}
+	@Override
+	public void addContacts(List<DashboardContact> contacts) {
+		proxy.addContacts(contacts);
 		pagingToolBar.refresh();
 	}
 

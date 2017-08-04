@@ -204,4 +204,13 @@ public class PagingContactsProxy extends MemoryProxy<PagingLoadResult<DashboardC
     }
     this.allContacts.add(contact);
   }
+
+  public void addContacts(List<DashboardContact> contacts) {
+    for(DashboardContact contact : contacts) {
+      if (this.allContacts.contains(contact)) {
+        this.allContacts.remove(contact);
+      }
+    }
+    this.allContacts.addAll(contacts);
+  }
 }

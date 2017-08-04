@@ -99,6 +99,7 @@ public class OfflineModule extends AbstractGinModule {
 			GetCalendarAsyncHandler getCalendarAsyncHandler,
 			GetCategoriesAsyncHandler getCategoriesAsyncHandler,
 			GetContactHistoryAsyncHandler getContactHistoryAsyncHandler,
+			GetContactsLatestHistoryAsyncHandler getContactsLatestHistoryAsyncHandler,
 			GetContactRelationshipsAsyncHandler getContactRelationshipsAsyncHandler,
 			GetCountriesAsyncHandler getCountriesAsyncHandler,
 			GetCountryAsyncHandler getCountryAsyncHandler,
@@ -155,7 +156,7 @@ public class OfflineModule extends AbstractGinModule {
         registerHandler(GetCalendar.class, getCalendarAsyncHandler);
         registerHandler(GetCategories.class, getCategoriesAsyncHandler);
 				registerHandler(GetContactHistory.class, getContactHistoryAsyncHandler);
-				registerHandler(GetContactHistory.class, getContactHistoryAsyncHandler);
+				registerHandler(GetContactsLatestHistory.class, getContactsLatestHistoryAsyncHandler);
         registerHandler(GetCountries.class, getCountriesAsyncHandler);
         registerHandler(GetCountry.class, getCountryAsyncHandler);
         registerHandler(GetHistory.class, getHistoryAsyncHandler);

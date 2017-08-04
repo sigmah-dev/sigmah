@@ -92,6 +92,15 @@ public class ContactHistoryService {
     return contactHistories;
   }
 
+  public List<ContactHistory> findLatestHistory(List<Integer> contactsId, Language language) {
+
+    List<ContactHistory> contactHistories = new ArrayList<ContactHistory>();
+    for(Integer contactId : contactsId) {
+      contactHistories.addAll(findHistory(contactId, language, true));
+    }
+    return contactHistories;
+  }
+
   private List<ContactHistory> generateHistoryFromContactValues(Contact contact, Language language, boolean lastOnly) {
     List<ContactHistory> contactHistories = new ArrayList<ContactHistory>();
     for (LayoutGroup layoutGroup : contact.getContactModel().getDetails().getLayout().getGroups()) {

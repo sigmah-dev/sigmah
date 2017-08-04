@@ -107,6 +107,8 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 
 		void addContact(DashboardContact contact);
 
+		void addContacts(List<DashboardContact> contacts);
+
 		void clearContacts();
 
 		void refreshToolbar();
@@ -478,9 +480,10 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 			}
 
 			@Override
-			public void chunkRetrieved(final DashboardContact contact) {
-				view.addContact(contact);
-				Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Chunk #" + (chunk++) + " loaded.");
+			public void chunkRetrieved(final List<DashboardContact> contacts) {
+				view.addContacts(contacts);
+				chunk = chunk + contacts.size();
+				Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Chunk #" + (chunk) + " loaded.");
 			}
 
 			@Override
