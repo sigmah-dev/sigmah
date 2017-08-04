@@ -23,6 +23,7 @@ package org.sigmah.client.ui.presenter.contact.dashboardlist;
  */
 
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -60,6 +61,7 @@ import org.sigmah.client.page.Page;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.AbstractPresenter;
+import org.sigmah.client.ui.presenter.project.treegrid.ProjectsListWidget;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.contact.dashboardlist.ContactsListView;
 import org.sigmah.client.ui.view.contact.dashboardlist.DashboardContact;
@@ -116,6 +118,16 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 		Button getImportButton();
 
 		Button getExportButton();
+
+		/**
+		 * Display the given date as the last refreshed date.
+		 *
+		 * @param date
+		 *          The last refreshed date.
+		 */
+		void updateRefreshingDate(Date date);
+
+		Button getRefreshButton();
 
 		void syncSize();
 	}
@@ -340,6 +352,19 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 		});
 
 		// --
+		// Refresh button selection listener.
+		// --
+
+		view.getRefreshButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				// Explicit refresh.
+				refreshContactGrid(command);
+			}
+		});
+
+		// --
 		// Contact name click handler.
 		// --
 
@@ -435,6 +460,7 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 					Log.error("Error while getting contacts by chunks.", error);
 				}
 
+				view.updateRefreshingDate(new Date());
 				applyContactFilters();
 				N10N.warn(I18N.CONSTANTS.error(), I18N.CONSTANTS.refreshContactListError());
 			}
@@ -449,6 +475,7 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 			public void ended() {
 				applyContactFilters();
 				view.getContactsPanel().layout();
+				view.updateRefreshingDate(new Date());
 
 				currentlyLoading = false;
 				// Try to execute the next loader

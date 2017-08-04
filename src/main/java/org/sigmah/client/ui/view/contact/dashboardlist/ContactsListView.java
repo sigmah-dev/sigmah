@@ -33,6 +33,7 @@ import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -42,6 +43,7 @@ import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -68,12 +70,21 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 	// CSS style names.
 	private static final String STYLE_IMPORTANT_LABEL = "important-label";
 	private static final String STYLE_CONTACT_GRID_NAME = "contact-grid-name";
+	private static final String STYLE_CONTACT_REFRESH_BUTTON = "contact-refresh-button";
+
+	/**
+	 * Refresh time format.
+	 */
+	private static final DateTimeFormat REFRESH_TIME_FORMAT = DateTimeFormat.getFormat("HH:mm");
 
 	private ContentPanel contactTreePanel;
 	private Grid<DashboardContact> contactTreeGrid;
 	private GridFilters gridFilters;
 
 	private ToolBar toolbar;
+	private SeparatorToolItem refreshSeparator;
+	private Button refreshButton;
+	private Label refreshDateLabel;
 	private PagingToolBar pagingToolBar;
 	private PagingContactsProxy proxy;
 	private PagingLoader<PagingLoadResult<DashboardContact>> pagingLoader;
@@ -124,6 +135,15 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 		initGridFilters();
 
 		contactTreeGrid.addPlugin(gridFilters);
+
+		// Refresh button.
+		refreshButton = new Button(I18N.CONSTANTS.refreshContactList(), IconImageBundle.ICONS.refresh());
+		refreshButton.setToolTip(I18N.CONSTANTS.refreshContactListDetails());
+		refreshButton.addStyleName(STYLE_CONTACT_REFRESH_BUTTON);
+
+		// Refresh date.
+		refreshDateLabel = new Label();
+		refreshSeparator = new SeparatorToolItem();
 
 		toolbar = new ToolBar();
 		addContactButton = new Button(I18N.CONSTANTS.addContact());
@@ -216,6 +236,25 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 	 * {@inheritDoc}
 	 */
 	@Override
+	public void updateRefreshingDate(final Date date) {
+
+		if (date == null) {
+			return;
+		}
+		refreshDateLabel.setHtml('(' + REFRESH_TIME_FORMAT.format(date) + ')');
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Button getRefreshButton() {
+		return refreshButton;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Grid<DashboardContact> getGrid() {
 		return contactTreeGrid;
 	}
@@ -257,6 +296,10 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 	 */
 	@Override
 	public void updateToolbar(final boolean addContact, final boolean importContact, final boolean exportContact) {
+
+		toolbar.insert(refreshSeparator, 0);
+		toolbar.insert(refreshDateLabel, 0);
+		toolbar.insert(refreshButton, 0);
 
 		toolbar.remove(addContactButton);
 		toolbar.remove(importButton);
