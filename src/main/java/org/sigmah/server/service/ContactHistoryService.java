@@ -26,7 +26,9 @@ import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import org.sigmah.server.dao.ContactDAO;
 import org.sigmah.server.dao.FlexibleElementDAO;
@@ -72,7 +74,9 @@ public class ContactHistoryService {
   }
 
   public List<ContactHistory> findHistory(Integer contactId, Language language, boolean lastOnly) {
-    Contact contact = contactDAO.findById(contactId);
+    return findHistory(contactDAO.findById(contactId), language, lastOnly);
+  }
+  public List<ContactHistory> findHistory(Contact contact, Language language, boolean lastOnly) {
     List<ContactHistory> contactHistories = new ArrayList<ContactHistory>();
     contactHistories.addAll(generateHistoryFromContactValues(contact, language, lastOnly));
     contactHistories.addAll(generateHistoryFromInboundRelationships(contact, language, lastOnly));
@@ -93,10 +97,18 @@ public class ContactHistoryService {
   }
 
   public List<ContactHistory> findLatestHistory(List<Integer> contactsId, Language language) {
+    Set<Integer> ids = new HashSet<Integer>();
+    ids.addAll(contactsId);
 
     List<ContactHistory> contactHistories = new ArrayList<ContactHistory>();
-    for(Integer contactId : contactsId) {
-      contactHistories.addAll(findHistory(contactId, language, true));
+    List<Contact> contacts = contactDAO.findByIds(ids);
+    for(Contact contact : contacts) {
+      List<ContactHistory> histories = findHistory(contact, language, true);
+      if(!histories.isEmpty()) {
+        ContactHistory history = histories.get(0);
+        history.setContactId(contact.getId());
+        contactHistories.add(history);
+      }
     }
     return contactHistories;
   }
