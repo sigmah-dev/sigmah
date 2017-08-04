@@ -113,7 +113,7 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 		};
 		pagingLoader.setRemoteSort(true);
 
-		pagingToolBar = new PagingToolBar(10);
+		pagingToolBar = new NoRefreshPagingToolBar(10);
 		pagingToolBar.bind(pagingLoader);
 
 		// Store.
