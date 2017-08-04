@@ -31,16 +31,17 @@ import org.sigmah.server.domain.HistoryToken;
 import org.sigmah.server.domain.util.EntityConstants;
 
 public class HistoryTokenHibernateDAO extends AbstractDAO<HistoryToken, Integer> implements HistoryTokenDAO {
+
   @Override
-  public List<HistoryToken> findByContainerIdAndFlexibleElementId(Integer containerId, Integer flexibleElementId, boolean lastOnly) {
+  public List<HistoryToken> findByContainerIdAndFlexibleElementId(Integer containerId, List<Integer> flexibleElementIds, boolean lastOnly) {
     TypedQuery<HistoryToken> q = em().createQuery("" +
         "SELECT h " +
         "FROM HistoryToken h " +
         "WHERE h.projectId = :containerId " +
-        "AND h.elementId = :elementId " +
+        "AND h.elementId in :elementIds " +
         "ORDER BY h.date DESC", HistoryToken.class)
         .setParameter("containerId", containerId)
-        .setParameter("elementId", flexibleElementId);
+        .setParameter("elementIds", flexibleElementIds);
     if (lastOnly) {
       q = q.setMaxResults(1);
     }

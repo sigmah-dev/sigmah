@@ -26,8 +26,10 @@ import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.sigmah.server.dao.ContactDAO;
@@ -116,44 +118,48 @@ public class ContactHistoryService {
   private List<ContactHistory> generateHistoryFromContactValues(Contact contact, Language language, boolean lastOnly) {
     List<ContactHistory> contactHistories = new ArrayList<ContactHistory>();
     for (LayoutGroup layoutGroup : contact.getContactModel().getDetails().getLayout().getGroups()) {
+      Map<Integer, FlexibleElement> flexibleElementMap = new HashMap<Integer, FlexibleElement>();
+      List<Integer> flexibleElementIds = new ArrayList<Integer>();
       for (LayoutConstraint layoutConstraint : layoutGroup.getConstraints()) {
         FlexibleElement flexibleElement = layoutConstraint.getElement();
+        flexibleElementIds.add(flexibleElement.getId());
+        flexibleElementMap.put(flexibleElement.getId(), flexibleElement);
+      }
+      List<HistoryToken> historyTokens = historyTokenDAO.findByContainerIdAndFlexibleElementId(contact.getId(), flexibleElementIds, lastOnly);
+      for (HistoryToken historyToken : historyTokens) {
+        FlexibleElement flexibleElement = flexibleElementMap.get(historyToken.getElementId());
+        ContactHistory contactHistory = new ContactHistory();
+        contactHistory.setId(historyToken.getId());
+        contactHistory.setComment(historyToken.getComment());
+        contactHistory.setUpdatedAt(historyToken.getDate());
 
-        List<HistoryToken> historyTokens = historyTokenDAO.findByContainerIdAndFlexibleElementId(contact.getId(), flexibleElement.getId(), lastOnly);
-        for (HistoryToken historyToken : historyTokens) {
-          ContactHistory contactHistory = new ContactHistory();
-          contactHistory.setId(historyToken.getId());
-          contactHistory.setComment(historyToken.getComment());
-          contactHistory.setUpdatedAt(historyToken.getDate());
+        if (historyToken.getUser() != null) {
+          contactHistory.setUserFullName(historyToken.getUser().getFullName());
+        }
+        if (flexibleElement instanceof ContactListElement) {
+          contactHistory.setFormattedChangeType(getRelationshipFormatter("Contact", historyToken.getType(), language));
+          Contact relatedContact = contactDAO.findById(Integer.parseInt(historyToken.getValue()));
+          contactHistory.setSubject(relatedContact.getFullName());
+          contactHistory.setFormattedValue(flexibleElement.getLabel());
+          contactHistory.setValueType(ContactHistory.ValueType.STRING);
+        } else {
+          contactHistory.setFormattedChangeType(i18nServer.t(language, "contactHistoryChangeTypeUpdatedProperty"));
+          contactHistory.setFormattedValue(modelPropertyService.getFormattedValue(flexibleElement, historyToken.getValue(), language));
 
-          if (historyToken.getUser() != null) {
-            contactHistory.setUserFullName(historyToken.getUser().getFullName());
-          }
-          if (flexibleElement instanceof ContactListElement) {
-            contactHistory.setFormattedChangeType(getRelationshipFormatter("Contact", historyToken.getType(), language));
-            Contact relatedContact = contactDAO.findById(Integer.parseInt(historyToken.getValue()));
-            contactHistory.setSubject(relatedContact.getFullName());
-            contactHistory.setFormattedValue(flexibleElement.getLabel());
-            contactHistory.setValueType(ContactHistory.ValueType.STRING);
-          } else {
-            contactHistory.setFormattedChangeType(i18nServer.t(language, "contactHistoryChangeTypeUpdatedProperty"));
-            contactHistory.setFormattedValue(modelPropertyService.getFormattedValue(flexibleElement, historyToken.getValue(), language));
+          if (flexibleElement instanceof DefaultContactFlexibleElement) {
+            contactHistory.setSubject(modelPropertyService.getDefaultContactPropertyLabel(((DefaultContactFlexibleElement) flexibleElement).getType(), language));
 
-            if (flexibleElement instanceof DefaultContactFlexibleElement) {
-              contactHistory.setSubject(modelPropertyService.getDefaultContactPropertyLabel(((DefaultContactFlexibleElement) flexibleElement).getType(), language));
-
-              if (((DefaultContactFlexibleElement) flexibleElement).getType() == DefaultContactFlexibleElementType.PHOTO) {
-                contactHistory.setValueType(ContactHistory.ValueType.IMAGE);
-              } else {
-                contactHistory.setValueType(ContactHistory.ValueType.STRING);
-              }
+            if (((DefaultContactFlexibleElement) flexibleElement).getType() == DefaultContactFlexibleElementType.PHOTO) {
+              contactHistory.setValueType(ContactHistory.ValueType.IMAGE);
             } else {
-              contactHistory.setSubject(flexibleElement.getLabel());
               contactHistory.setValueType(ContactHistory.ValueType.STRING);
             }
+          } else {
+            contactHistory.setSubject(flexibleElement.getLabel());
+            contactHistory.setValueType(ContactHistory.ValueType.STRING);
           }
-          contactHistories.add(contactHistory);
         }
+        contactHistories.add(contactHistory);
       }
     }
     return contactHistories;
