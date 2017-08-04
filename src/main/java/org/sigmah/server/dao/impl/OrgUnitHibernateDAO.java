@@ -31,6 +31,7 @@ import javax.persistence.TypedQuery;
 
 import org.sigmah.server.dao.OrgUnitDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
+import org.sigmah.server.domain.ContactUnit;
 import org.sigmah.server.domain.OrgUnit;
 
 /**
@@ -97,6 +98,17 @@ public class OrgUnitHibernateDAO extends AbstractDAO<OrgUnit, Integer> implement
 				OrgUnit.class
 		);
 		query.setParameter("organizationId", organizationId);
+		return query.getResultList();
+	}
+
+	@Override public List<ContactUnit> getContactUnit(List<Integer> contactIds) {
+		TypedQuery<ContactUnit> query = em().createQuery(
+				"SELECT c " +
+						"FROM ContactUnit c " +
+						"WHERE c.idContact in :contactIds ",
+				ContactUnit.class
+		);
+		query.setParameter("contactIds", contactIds);
 		return query.getResultList();
 	}
 }

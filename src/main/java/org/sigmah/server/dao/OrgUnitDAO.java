@@ -26,6 +26,7 @@ import java.util.List;
 import java.util.Set;
 
 import org.sigmah.server.dao.base.DAO;
+import org.sigmah.server.domain.ContactUnit;
 import org.sigmah.server.domain.OrgUnit;
 
 /**
@@ -39,4 +40,6 @@ public interface OrgUnitDAO extends DAO<OrgUnit, Integer> {
 	Set<Integer> getOrgUnitTreeIds(Integer rootId);
 
 	List<OrgUnit> findByOrganizationId(Integer organizationId);
+
+	List<ContactUnit> getContactUnit(List<Integer> contactIds);
 }
