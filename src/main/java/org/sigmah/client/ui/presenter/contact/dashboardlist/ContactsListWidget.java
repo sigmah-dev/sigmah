@@ -150,6 +150,11 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 	private GetContacts command;
 
 	/**
+	 * Has the contact grid already been loaded once?
+	 */
+	private boolean loaded;
+
+	/**
 	 * Builds a new contact list panel with default values.
 	 */
 	@Inject
@@ -308,6 +313,10 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 							view.addContact(new DashboardContact(createdContact, lastChange));
 						}
 					});
+				} else if (event.concern(UpdateEvent.CONTACT_DELETE)) {
+					// On contact delete event.
+					// Will force contacts list to reload on next refresh.
+					loaded = false;
 				}
 			}
 		}));
@@ -381,7 +390,7 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 	/**
 	 * Asks for a refresh of the contacts list.
 	 */
-	public void refresh(final boolean mainOrgUnitOnly) {
+	public void refresh(final boolean mainOrgUnitOnly, final boolean forceRefresh) {
 
 		// Updates toolbar.
 		final boolean addEnabled = ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_VISIBLE_CONTACTS);
@@ -402,7 +411,10 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 		}
 		command.setOrgUnitsIds(orgUnitsIds);
 
-		refreshContactGrid(command);
+		if (forceRefresh || !loaded) {
+			refreshContactGrid(command);
+			loaded = true;
+		}
 	}
 
 	// ---------------------------------------------------------------------------------------------------------
