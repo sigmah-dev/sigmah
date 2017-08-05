@@ -91,6 +91,8 @@ public class FilesSolrManagerImpl implements FilesSolrManager {
 		req.setParam("literal.file_author", fv.getAuthor().getFullName());
 		req.setParam("literal.file_author_organization", fv.getAuthor().getOrganization().getName());
 		req.setParam("literal.file_author_email", fv.getAuthor().getEmail());
+		req.setParam("literal.file_version_id", fv.getId().toString());
+		req.setParam("literal.file_author_id", fv.getAuthor().getId().toString());
 		// req.setParam("literal.file_author_email", fv.getAuthor().);
 
 		NamedList<Object> result = null;

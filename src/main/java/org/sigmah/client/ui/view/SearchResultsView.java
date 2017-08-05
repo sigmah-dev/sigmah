@@ -67,6 +67,7 @@ import org.sigmah.shared.dto.referential.ProjectModelType;
 import org.sigmah.shared.dto.reminder.MonitoredPointDTO;
 import org.sigmah.shared.dto.reminder.ReminderDTO;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
+import org.sigmah.shared.dto.value.FileVersionDTO;
 import org.sigmah.shared.util.ProfileUtils;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
@@ -125,6 +126,8 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	private Set<Integer> contactIdsForFiltering;
 
 	private String searchText;
+	
+	private String userId;
 
 	private ContentPanel searchResultsPanel;
 
@@ -212,11 +215,20 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		this.contactIdsForFiltering = contactIdsForFiltering;
 	}
 
+	public String getUserId() {
+		return userId;
+	}
+
+	public void setUserId(String userId) {
+		this.userId = userId;
+	}
 	// -------------------------------------------------------------------------------------------
 	//
 	// UTILITY METHODS.
 	//
 	// -------------------------------------------------------------------------------------------
+
+	
 
 	public void addSearchData(Object searchData) {
 		if (searchData != null) {
@@ -267,13 +279,17 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 			}
 		}
 		else if (retMap.get("doc_type").toString().equals("FILE")) {
-			dto.setDTOid(retMap.get("file_id").toString());
-//			if (!orgUnitIdsForFiltering.contains(Integer.parseInt(dto.getDTOid()))) {
-//				// Window.alert("Found OrgUnit not to be included!");
+//			if(projectIdsForFiltering.size() == 0 || orgUnitIdsForFiltering.size() == 0 )  //cannot view projects or orgunits
 //				return false;
-//			}
-			return true;
-			
+			dto.setDTOid(retMap.get("file_version_id").toString());
+			dto.setFile_name(retMap.get("file_name"));
+			dto.setFile_ext(retMap.get("file_ext"));
+			if( retMap.get("file_author_id").equals(getUserId())){   
+				//temporary filter, since I am unable to implement a better filter, 
+				//users can only view those files of which they are the authors!
+				return true;
+			}
+			return false;
 		}
 		return true;
 	}
@@ -402,8 +418,13 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 						@Override
 						public void onClick(ClickEvent event) {
 
+							FileVersionDTO fv = new FileVersionDTO();
+							fv.setAvailable(true);
+							fv.setExtension(model.getFile_ext());
+							fv.setId(Integer.parseInt(model.getDTOid()));
+							fv.setName(model.getFile_name());
 							((FilesResultsClickHandler) handler)
-									.onLabelClickEvent();
+									.onLabelClickEvent(fv);
 						}
 					});
 				}
@@ -429,9 +450,11 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 			if (resultsMap.get("type_pmodel").equals("LOCAL_PARTNER"))
 				pmt = ProjectModelType.LOCAL_PARTNER;
 
-			htmlBuilder += "<br><div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">"
-					+ "<div>" + getProjectLogo(pmt).getHTML() + "</div><br>" + "<h4>" + resultsMap.get("project_name")
-					+ " - " + resultsMap.get("project_fullname") + "</h4></div>";
+			htmlBuilder += "<div id=\"container\" style=\"white-space:nowrap\">";
+			htmlBuilder += "<br><div id=\"image\" style=\"display:inline;padding-left:10px;\">" + getProjectLogo(pmt).getHTML() +  "</div>"
+					 + "<div id=\"text\" style = \"font-size:13pt;font-family:tahoma;padding-left:16px;vertical-align:top;text-decoration:underline;cursor:pointer;color:blue;display:inline;white-space:nowrap;\">"
+					+ resultsMap.get("project_name")
+					+ " - " + resultsMap.get("project_fullname") + "</div></div>";
 			htmlBuilder += "<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
 			htmlBuilder += "<p>";
 			htmlBuilder += "<br>Active Phase: " + resultsMap.get("phase_model_name");
@@ -442,9 +465,11 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 			htmlBuilder += "</p></div><br>";
 		}
 		if (resultsMap.get("doc_type").toString().equals("ORG_UNIT")) {
-			htmlBuilder += "<br><div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">"
-					+ "<div>" + getOrgUnitLogo().getHTML() + "</div><br>" + "<h4>" + resultsMap.get("org_unit_name")
-					+ " - " + resultsMap.get("org_unit_fullname") + "</h4></div>";
+			htmlBuilder += "<div id=\"container\" style=\"white-space:nowrap\">";
+			htmlBuilder += "<br><div id=\"image\" style=\"display:inline;padding-left:10px;\">" + getOrgUnitLogo().getHTML() +  "</div>"
+					+ "<div id=\"text\" style = \"font-size:13pt;font-family:tahoma;padding-left:16px;vertical-align:top;text-decoration:underline;cursor:pointer;color:blue;display:inline;white-space:nowrap;\">"
+					+ resultsMap.get("org_unit_name")
+					+ " - " + resultsMap.get("org_unit_fullname") + "</div></div>";
 			htmlBuilder += "<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
 			htmlBuilder += "<p>";
 			htmlBuilder += "<br>Model: " + resultsMap.get("org_unit_model_name");
@@ -460,16 +485,17 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 			if (resultsMap.get("contact_model_type").equals("ORGANIZATION"))
 				cmt = ContactModelType.ORGANIZATION;
 
-			htmlBuilder += "<br><div style = \"padding-left:6px\">" + getContactLogo(cmt) + "</div><br>";
-			htmlBuilder += "<div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">"
-					+ "<h4>";
+			//htmlBuilder += "<br><div style = \"padding-left:6px\">" + getContactLogo(cmt) + "</div><br>";
+			htmlBuilder += "<div id=\"container\" style=\"white-space:nowrap\">";
+			htmlBuilder += "<br><div id=\"image\" style=\"display:inline;padding-left:10px;\">" + getContactLogo(cmt) +  "</div>"
+					+  "<div id=\"text\" style = \"font-size:13pt;font-family:tahoma;padding-left:16px;vertical-align:top;text-decoration:underline;cursor:pointer;color:blue;display:inline;white-space:nowrap;\">";
 			if (resultsMap.get("user_firstname") != null) {
 				htmlBuilder += resultsMap.get("user_firstname") + " - " + resultsMap.get("user_name");
-				htmlBuilder += "</h4></div>";
+				htmlBuilder += "</div></div>";
 			} else {
 				// for organization contacts
 				htmlBuilder += resultsMap.get("organization_name");
-				htmlBuilder += "</h4></div><br>";
+				htmlBuilder += "</div></div><br>";
 				return htmlBuilder;
 			}
 			htmlBuilder += "<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
@@ -479,15 +505,15 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 			htmlBuilder += "</p></div><br>";
 		}
 		if (resultsMap.get("doc_type").toString().equals("FILE")) {
-			htmlBuilder += "<br><div style = \"padding-left:6px\">" + IconImageBundle.ICONS.attach().createImage() + "</div><br>";
-			htmlBuilder += "<div style = \"font-size:13pt;font-family:tahoma;padding-left:15px;text-decoration:underline;cursor:pointer;color:blue;\">"
-					+ "<h4>";
+			htmlBuilder += "<div id=\"container\" style=\"white-space:nowrap\">";
+			htmlBuilder += "<br><div id=\"image\" style=\"display:inline;padding-left:10px;\">" + IconImageBundle.ICONS.attach().createImage() +  "</div>"
+			   + "<div id=\"text\" style = \"font-size:13pt;font-family:tahoma;padding-left:16px;vertical-align:top;text-decoration:underline;cursor:pointer;color:blue;display:inline;white-space:nowrap;\">";
 			if(resultsMap.get("title") != null){
 				htmlBuilder += resultsMap.get("title") + " - " + resultsMap.get("file_name") + "." + resultsMap.get("file_ext");
 			}else{
 				htmlBuilder += resultsMap.get("file_name") + "." + resultsMap.get("file_ext");
 			}
-			htmlBuilder += "</h4></div>";
+			htmlBuilder += "</div></div>";
 			htmlBuilder += "<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px;word-wrap: break-word;\">";
 			htmlBuilder += "<p>";
 			htmlBuilder += "<br>Author: " + resultsMap.get("file_author") + " - " + resultsMap.get("file_author_email");
@@ -542,6 +568,7 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		avatar.setHeight(36 + "px");
 		avatar.setStyleName("contact-card-avatar");
 		avatar.getElement().getStyle().clearBackgroundImage();
+		avatar.getElement().getStyle().clearPadding();
 		switch (type) {
 		case INDIVIDUAL:
 			avatar.addStyleName("contact-card-avatar-individual");

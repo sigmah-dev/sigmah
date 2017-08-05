@@ -108,6 +108,7 @@ import org.sigmah.shared.conf.PropertyName;
 import org.sigmah.shared.dto.profile.CheckPointDTO;
 import org.sigmah.shared.dto.profile.ExecutionDTO;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
+import org.sigmah.shared.dto.value.FileVersionDTO;
 import org.sigmah.shared.file.Cause;
 import org.sigmah.shared.file.ProgressListener;
 import org.sigmah.shared.file.TransfertManager;
@@ -124,6 +125,9 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 	 * View interface.
 	 * 
 	 */
+	
+	@Inject
+	private TransfertManager transfertManager;
 
 	
 	public static interface SearchResultsClickHandler{
@@ -142,7 +146,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
     }
 	
 	public static interface FilesResultsClickHandler extends SearchResultsClickHandler{
-        public void onLabelClickEvent();
+        public void onLabelClickEvent(FileVersionDTO fv);
     }
 	
 	@ImplementedBy(SearchResultsView.class)
@@ -169,6 +173,8 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		void setOrgUnitIdsForFiltering(Set<Integer> orgUnitIdsForFiltering);
 		
 		void setContactIdsForFiltering(Set<Integer> orgUnitIdsForFiltering);
+		
+		void setUserId(String userId);
 	}
 
 	/**
@@ -204,7 +210,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 			@Override
 			public void onLabelClickEvent(Integer projectId) {
 				//Window.alert("Opening project " + projectId );
-				Window.alert(eventBus.toString());
+				//Window.alert(eventBus.toString());
 				PageRequest request = new PageRequest(Page.PROJECT_DASHBOARD);
 				request.addParameter(RequestParameter.ID, projectId );
 				eventBus.navigateRequest(request);
@@ -214,7 +220,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 			@Override
 			public void onLabelClickEvent(Integer contactId) {
 				//Window.alert("Opening Contact " + contactId );
-				Window.alert(eventBus.toString());
+				//Window.alert(eventBus.toString());
 				PageRequest request = new PageRequest(Page.CONTACT_DASHBOARD);
 				request.addParameter(RequestParameter.ID, contactId );
 				eventBus.navigateRequest(request);
@@ -224,7 +230,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 			@Override
 			public void onLabelClickEvent(Integer orgUnitId) {
 				//Window.alert("Opening OrgUnit " + orgUnitId );
-				Window.alert(eventBus.toString());
+				//Window.alert(eventBus.toString());
 				PageRequest request = new PageRequest(Page.ORGUNIT_DASHBOARD);
 				request.addParameter(RequestParameter.ID, orgUnitId );
 				eventBus.navigateRequest(request);
@@ -232,17 +238,50 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		});
 		view.setFileClickHandler(new FilesResultsClickHandler() {
 			@Override
-			public void onLabelClickEvent(){
-				Window.alert(eventBus.toString());
+			public void onLabelClickEvent(final FileVersionDTO fv){
+				//Window.alert(transfertManager.toString());
+				transfertManager.canDownload(fv, new AsyncCallback<Boolean>() {
+
+					@Override
+					public void onFailure(Throwable caught) {
+						N10N.error("Unable to download!", "Check if the file exists. You may not have permission to view this file!");
+					}
+
+					@Override
+					public void onSuccess(Boolean result) {
+						if (result) {
+							transfertManager.download(fv, new ProgressListener() {
+
+								@Override
+								public void onProgress(double progress, double speed) {
+								}
+
+								@Override
+								public void onFailure(Cause cause) {
+									N10N.error("Unable to download!", "Check if the file exists. You may not have permission to view this file!");
+								}
+
+								@Override
+								public void onLoad(String result) {
+								}
+							});
+						} else {
+							N10N.error("Unable to download!", "Check if the file exists. You may not have permission to view this file!");
+						}
+					}
+				});
 			};
 		});
 		//getProjectsForFiltering();
 		view.setProjectIdsForFiltering((Set<Integer>) request.getData(RequestParameter.FILTER_PROJECT_IDS));
 		view.setOrgUnitIdsForFiltering((Set<Integer>) request.getData(RequestParameter.FILTER_ORGUNIT_IDS));
 		view.setContactIdsForFiltering((Set<Integer>) request.getData(RequestParameter.FILTER_CONTACT_IDS));
+		Window.alert(auth().getUserId().toString());
+		view.setUserId(auth().getUserId().toString());
 		view.addSearchData(request.getData(RequestParameter.CONTENT));
 		//Window.alert("Completed addSearchData!");
 		view.addResultsPanel();
 		//Window.alert("Completed addResultsPanel!");
 	}
+
 }

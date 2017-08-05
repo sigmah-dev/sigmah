@@ -17,6 +17,10 @@ public class SearchResultsDTO extends AbstractModelDataEntityDTO<Integer> implem
 	private String result;
 	private String DTOid;
 	private String DTOtype;
+	
+	//only for files
+	private String file_name;
+	private String file_ext;
 
 	public String getResult() {
 		return result;
@@ -46,6 +50,22 @@ public class SearchResultsDTO extends AbstractModelDataEntityDTO<Integer> implem
 
 	public void setDTOtype(String dTOtype) {
 		DTOtype = dTOtype;
+	}
+
+	public String getFile_name() {
+		return file_name;
+	}
+
+	public void setFile_name(String file_name) {
+		this.file_name = file_name;
+	}
+
+	public String getFile_ext() {
+		return file_ext;
+	}
+
+	public void setFile_ext(String file_ext) {
+		this.file_ext = file_ext;
 	}
 	
 	

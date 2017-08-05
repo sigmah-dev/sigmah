@@ -242,6 +242,8 @@
     <field name="file_size" type="text_general" indexed="true" stored="true" multiValued="false"/>
     <field name="file_author_organization" type="text_general" indexed="true" stored="true" multiValued="false"/>
     <field name="file_author_email" type="text_general" indexed="true" stored="true" multiValued="false"/>
+    <field name="file_version_id" type="text_general" indexed="true" stored="true" multiValued="false"/>
+    <field name="file_author_id" type="text_general" indexed="true" stored="true" multiValued="false"/>
 
 
     <field name="_version_" type="long" indexed="false" stored="false"/>
