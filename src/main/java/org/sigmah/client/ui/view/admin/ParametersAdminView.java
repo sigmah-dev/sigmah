@@ -22,7 +22,6 @@ package org.sigmah.client.ui.view.admin;
  * #L%
  */
 
-
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.admin.ParametersAdminPresenter;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
@@ -46,6 +45,7 @@ import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
@@ -59,10 +59,13 @@ import com.extjs.gxt.ui.client.widget.form.SpinnerField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.layout.FlowData;
+import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
 import com.extjs.gxt.ui.client.widget.layout.LayoutData;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.i18n.client.NumberFormat;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.inject.Singleton;
@@ -114,7 +117,7 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 	private SpinnerField frequencyField;
 	private DateField scheduledDateField;
 	private Button passwordExpirationSaveButton;
-	
+
 	private FormPanel solrSettingsForm;
 	private TextField<String> solrCoreUrlTextField;
 	private Button solrSaveConfigButton;
@@ -131,23 +134,26 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 		topContainer.add(createBackupParametersPanel(), Layouts.hBoxData(Margin.HALF_LEFT));
 
 		// final LayoutContainer bottomContainer = Layouts.hBox();
-		// bottomContainer.add(createExportManagementPanel(), Layouts.hBoxData(Margin.HALF_RIGHT));
-		// bottomContainer.add(createPasswordExpirationManagementPanel(), Layouts.hBoxData(Margin.HALF_LEFT));
+		// bottomContainer.add(createExportManagementPanel(),
+		// Layouts.hBoxData(Margin.HALF_RIGHT));
+		// bottomContainer.add(createPasswordExpirationManagementPanel(),
+		// Layouts.hBoxData(Margin.HALF_LEFT));
 
 		add(topContainer, Layouts.borderLayoutData(LayoutRegion.NORTH, 0.5f, Margin.HALF_BOTTOM));
-		
-		//add()
-		
+
+		// add()
+
 		final LayoutContainer bottomWestContainer = Layouts.hBox();
-		bottomWestContainer.add(createExportManagementPanel(),Layouts.hBoxData(Margin.HALF_RIGHT));
+		bottomWestContainer.add(createExportManagementPanel(), Layouts.hBoxData(Margin.HALF_RIGHT));
 		final LayoutContainer bottomEastContainer = Layouts.hBox();
-		bottomEastContainer.add(createSolrSettingsPanel(),Layouts.hBoxData(Margin.HALF_LEFT));
-		
-		//add(createExportManagementPanel(), Layouts.borderLayoutData(LayoutRegion.WEST, 0.5f));
-		
+		bottomEastContainer.add(createSolrSettingsPanel(), Layouts.hBoxData(Margin.HALF_LEFT));
+
+		// add(createExportManagementPanel(),
+		// Layouts.borderLayoutData(LayoutRegion.WEST, 0.5f));
+
 		add(bottomWestContainer, Layouts.borderLayoutData(LayoutRegion.WEST, 0.5f, Margin.HALF_TOP));
 		add(bottomEastContainer, Layouts.borderLayoutData(LayoutRegion.EAST, 0.5f, Margin.HALF_TOP));
-		
+
 	}
 
 	/**
@@ -180,14 +186,15 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 			@Override
 			public void onLoad(final LoadEvent event) {
 
-				final Pair<Integer, Integer> ratio =
-						ClientUtils.ratio(generalLogoPreview.getWidth(), generalLogoPreview.getHeight(), generalForm.getFieldWidth(), LOGO_IMAGE_HEIGHT);
+				final Pair<Integer, Integer> ratio = ClientUtils.ratio(generalLogoPreview.getWidth(),
+						generalLogoPreview.getHeight(), generalForm.getFieldWidth(), LOGO_IMAGE_HEIGHT);
 
 				generalLogoPreview.setPixelSize(ratio.left, ratio.right);
 			}
 		});
 
-		generalSaveButton = Forms.button(I18N.CONSTANTS.organizationManagementSaveChanges(), IconImageBundle.ICONS.save());
+		generalSaveButton = Forms.button(I18N.CONSTANTS.organizationManagementSaveChanges(),
+				IconImageBundle.ICONS.save());
 		generalForm.addButton(generalSaveButton);
 
 		panel.add(generalForm);
@@ -209,18 +216,20 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 		backupManagementAllVersionsRadio = Forms.radio(I18N.CONSTANTS.backupManagementAllVersion());
 		backupManagementLastVersionRadio = Forms.radio(I18N.CONSTANTS.backupManagementOneVersion());
 
-		backupManagementRadioGroup =
-				Forms.radioGroup(I18N.CONSTANTS.backupManagementDownload(), Orientation.VERTICAL, backupManagementAllVersionsRadio, backupManagementLastVersionRadio);
+		backupManagementRadioGroup = Forms.radioGroup(I18N.CONSTANTS.backupManagementDownload(), Orientation.VERTICAL,
+				backupManagementAllVersionsRadio, backupManagementLastVersionRadio);
 		backupManagementForm.add(backupManagementRadioGroup);
 
-		backupManagementOrgUnitsComboBox =
-				Forms.combobox(I18N.CONSTANTS.backupManagementRootOrganization(), true, OrgUnitDTO.ID, OrgUnitDTO.FULL_NAME, new ListStore<OrgUnitDTO>());
+		backupManagementOrgUnitsComboBox = Forms.combobox(I18N.CONSTANTS.backupManagementRootOrganization(), true,
+				OrgUnitDTO.ID, OrgUnitDTO.FULL_NAME, new ListStore<OrgUnitDTO>());
 		backupManagementForm.add(backupManagementOrgUnitsComboBox);
 
 		backupManagementStatus = new BackupStatusWidget();
-		backupManagementForm.add(Forms.adapter(I18N.CONSTANTS.backupManagement_status_formLabel(), backupManagementStatus));
+		backupManagementForm
+				.add(Forms.adapter(I18N.CONSTANTS.backupManagement_status_formLabel(), backupManagementStatus));
 
-		backupManagementSaveButton = Forms.button(I18N.CONSTANTS.backupManagementBackupAllFiles(), IconImageBundle.ICONS.save());
+		backupManagementSaveButton = Forms.button(I18N.CONSTANTS.backupManagementBackupAllFiles(),
+				IconImageBundle.ICONS.save());
 		backupManagementForm.addButton(backupManagementSaveButton);
 
 		panel.add(backupManagementForm);
@@ -243,19 +252,19 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 		exportManagementOdsRadio = Forms.radio(I18N.CONSTANTS.openDocumentSpreadsheet());
 		exportManagementXlsRadio = Forms.radio(I18N.CONSTANTS.msExcel());
 
-		exportManagementRadioGroup = Forms.radioGroup(I18N.CONSTANTS.chooseFileType(), Orientation.VERTICAL, exportManagementOdsRadio, exportManagementXlsRadio);
+		exportManagementRadioGroup = Forms.radioGroup(I18N.CONSTANTS.chooseFileType(), Orientation.VERTICAL,
+				exportManagementOdsRadio, exportManagementXlsRadio);
 		exportManagementForm.add(exportManagementRadioGroup);
 
 		// button
-		exportManagementSaveButton = Forms.button(I18N.CONSTANTS.saveExportConfiguration(), IconImageBundle.ICONS.save());
+		exportManagementSaveButton = Forms.button(I18N.CONSTANTS.saveExportConfiguration(),
+				IconImageBundle.ICONS.save());
 		exportManagementForm.addButton(exportManagementSaveButton);
 
 		panel.add(exportManagementForm);
 
 		return panel;
 	}
-	
-	
 
 	private ContentPanel createSolrSettingsPanel() {
 
@@ -268,22 +277,35 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 
 		solrSettingsForm.add(new Html("<br><br>"));
 		manualIndexButton = Forms.button("Manual Index");
-		//manualIndexButton.setAutoWidth(false);
+
+		FlexTable table = new FlexTable();
 		
-		//manualIndexButton.setStyleAttribute("text-align", "centre");
-		//solrSettingsForm.add(new Html("<div><button style=\"" + manualIndexButton.getStylePrimaryName() + "\">" + manualIndexButton.getHtml() + "</button></div>"));
-		//solrSettingsForm.add(manualIndexButton);
-		final LayoutData buttonLayoutData = new BorderLayoutData(LayoutRegion.EAST);
-		//final LayoutData layoutData = new FlowData(0, 0, 0, 0);
-		((BorderLayoutData) buttonLayoutData).setMargins(new Margins(0, 100, 0, 100));
-		solrSettingsForm.add(manualIndexButton, buttonLayoutData);
-		solrSaveConfigButton = Forms.button(I18N.CONSTANTS.organizationManagementSaveChanges(), IconImageBundle.ICONS.save());
+		table.setWidth("100%");
+		
+		table.setHTML(0, 0, "&nbsp;");
+		
+		Label l = new Label("Perform manual Solr indexing, consisting of Import of Data and Files :");
+		l.getElement().setAttribute("font-family","tahoma");
+		l.getElement().setAttribute("font-size","12px");
+		table.setWidget(1, 0, l);
+		table.getCellFormatter().setHorizontalAlignment(1, 0, HasHorizontalAlignment.ALIGN_CENTER);
+		
+		table.setHTML(2, 0, "&nbsp;");
+		
+		table.setWidget(3, 0, manualIndexButton);
+		table.getCellFormatter().setHorizontalAlignment(3, 0, HasHorizontalAlignment.ALIGN_CENTER);
+		
+		solrSettingsForm.add(table);
+		
+		solrSaveConfigButton = Forms.button(I18N.CONSTANTS.organizationManagementSaveChanges(),
+				IconImageBundle.ICONS.save());
 		solrSettingsForm.addButton(solrSaveConfigButton);
 
 		panel.add(solrSettingsForm);
 
 		return panel;
 	}
+
 	/**
 	 * Creates the password expiration policy management panel.
 	 * 
@@ -292,38 +314,39 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 	private ContentPanel createPasswordExpirationManagementPanel() {
 
 		final ContentPanel panel = Panels.content(I18N.CONSTANTS.userPasswordSettings());
-		
+
 		passwordExpirationManagementForm = Forms.panel(300);
-		
+
 		resetNewUserPasswordCheckBox = Forms.checkbox(I18N.CONSTANTS.resetNewUserPasswords());
 		resetNewUserPasswordCheckBox.setFieldLabel(I18N.CONSTANTS.resetNewUserPasswords());
-		
+
 		policyTypeCombo = new SimpleComboBox<ExpirationPolicy>();
-        policyTypeCombo.add(Arrays.asList(ExpirationPolicy.values()));
-        policyTypeCombo.setTriggerAction(ComboBox.TriggerAction.ALL);
-        policyTypeCombo.setEditable(false);
-        policyTypeCombo.setAllowBlank(false);
+		policyTypeCombo.add(Arrays.asList(ExpirationPolicy.values()));
+		policyTypeCombo.setTriggerAction(ComboBox.TriggerAction.ALL);
+		policyTypeCombo.setEditable(false);
+		policyTypeCombo.setAllowBlank(false);
 		policyTypeCombo.setFieldLabel(I18N.CONSTANTS.automaticExpirationPolicy());
-		
+
 		frequencyField = new SpinnerField();
-        frequencyField.setMinValue(0);
-        frequencyField.setValue(0);
-        frequencyField.setWidth(40);
-        frequencyField.setFormat(NumberFormat.getFormat("0"));
-        frequencyField.setIncrement(1);
+		frequencyField.setMinValue(0);
+		frequencyField.setValue(0);
+		frequencyField.setWidth(40);
+		frequencyField.setFormat(NumberFormat.getFormat("0"));
+		frequencyField.setIncrement(1);
 		frequencyField.setFieldLabel(I18N.CONSTANTS.every());
-        
-        scheduledDateField = new DateField();
-        scheduledDateField.setMinValue(new Date());
+
+		scheduledDateField = new DateField();
+		scheduledDateField.setMinValue(new Date());
 		scheduledDateField.setFieldLabel(I18N.CONSTANTS.at());
-		
+
 		passwordExpirationManagementForm.add(resetNewUserPasswordCheckBox);
 		passwordExpirationManagementForm.add(policyTypeCombo);
 		passwordExpirationManagementForm.add(frequencyField);
 		passwordExpirationManagementForm.add(scheduledDateField);
-		
+
 		// button
-		passwordExpirationSaveButton = Forms.button(I18N.CONSTANTS.saveExportConfiguration(), IconImageBundle.ICONS.save());
+		passwordExpirationSaveButton = Forms.button(I18N.CONSTANTS.saveExportConfiguration(),
+				IconImageBundle.ICONS.save());
 		passwordExpirationManagementForm.addButton(passwordExpirationSaveButton);
 
 		panel.add(passwordExpirationManagementForm);
@@ -383,16 +406,16 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 		}
 
 		switch (downloadType) {
-			case ALL_VERSIONS:
-				backupManagementAllVersionsRadio.setValue(true);
-				break;
+		case ALL_VERSIONS:
+			backupManagementAllVersionsRadio.setValue(true);
+			break;
 
-			case LAST_VERSION:
-				backupManagementLastVersionRadio.setValue(true);
-				break;
+		case LAST_VERSION:
+			backupManagementLastVersionRadio.setValue(true);
+			break;
 
-			default:
-				break;
+		default:
+			break;
 		}
 	}
 
@@ -451,16 +474,16 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 		}
 
 		switch (exportFormat) {
-			case XLS:
-				exportManagementXlsRadio.setValue(true);
-				break;
+		case XLS:
+			exportManagementXlsRadio.setValue(true);
+			break;
 
-			case ODS:
-				exportManagementOdsRadio.setValue(true);
-				break;
+		case ODS:
+			exportManagementOdsRadio.setValue(true);
+			break;
 
-			default:
-				break;
+		default:
+			break;
 		}
 	}
 
@@ -517,5 +540,5 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 	public void setSolrSettingsForm(FormPanel solrSettingsForm) {
 		this.solrSettingsForm = solrSettingsForm;
 	}
-	
+
 }

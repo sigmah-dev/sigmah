@@ -93,16 +93,20 @@ import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.dom.client.Element;
+import com.google.gwt.dom.client.SpanElement;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.user.client.DOM;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
+import com.google.gwt.user.client.ui.InlineHTML;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.gwt.user.client.ui.VerticalPanel;
 import com.google.gwt.user.client.ui.Widget;
@@ -451,87 +455,118 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 				pmt = ProjectModelType.LOCAL_PARTNER;
 
 			htmlBuilder += "<div id=\"container\" style=\"white-space:nowrap\">";
-			htmlBuilder += "<br><div id=\"image\" style=\"display:inline;padding-left:10px;\">" + getProjectLogo(pmt).getHTML() +  "</div>"
-					 + "<div id=\"text\" style = \"font-size:13pt;font-family:tahoma;padding-left:16px;vertical-align:top;text-decoration:underline;cursor:pointer;color:blue;display:inline;white-space:nowrap;\">"
+			htmlBuilder += "<br><div id=\"image\" style=\"display:inline;padding-left:10px;\">" 
+					+ getProjectLogo(pmt).getHTML() +  "</div>"
+					 + "<div id=\"text\" style = \"font-size:13pt;font-family:tahoma;"
+					 + "padding-left:16px;vertical-align:top;text-decoration:underline;"
+					 + "cursor:pointer;color:#482a1e;display:inline;white-space:nowrap;\">"
 					+ resultsMap.get("project_name")
 					+ " - " + resultsMap.get("project_fullname") + "</div></div>";
 			htmlBuilder += "<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
 			htmlBuilder += "<p>";
 			htmlBuilder += "<br>Active Phase: " + resultsMap.get("phase_model_name");
-			htmlBuilder += "<br>Organisational Unit: " + resultsMap.get("project_org_unit_name") + " - "
-					+ resultsMap.get("project_org_unit_fullname");
+			htmlBuilder += "<br>Organisational Unit: " + resultsMap.get("project_org_unit_name") 
+				+ " - " + resultsMap.get("project_org_unit_fullname");
 			htmlBuilder += "<br>Amendment Status: " + resultsMap.get("amendment_status");
 			htmlBuilder += "<br>Project Model: " + resultsMap.get("pmodel_name");
+			htmlBuilder += "<br>Project Model Type: " + resultsMap.get("type_pmodel");
+			htmlBuilder += "<br>Start Date: " + resultsMap.get("project_startdate");
+			htmlBuilder += "<br>Planned Budget: " + resultsMap.get("planned_budget");
 			htmlBuilder += "</p></div><br>";
 		}
 		if (resultsMap.get("doc_type").toString().equals("ORG_UNIT")) {
-			htmlBuilder += "<div id=\"container\" style=\"white-space:nowrap\">";
-			htmlBuilder += "<br><div id=\"image\" style=\"display:inline;padding-left:10px;\">" + getOrgUnitLogo().getHTML() +  "</div>"
-					+ "<div id=\"text\" style = \"font-size:13pt;font-family:tahoma;padding-left:16px;vertical-align:top;text-decoration:underline;cursor:pointer;color:blue;display:inline;white-space:nowrap;\">"
+			htmlBuilder += "<div id=\"container\" style=\"white-space:nowrap;\">";
+			htmlBuilder += "<br><div id=\"image\" style=\"display:inline;padding-left:10px;\">" 
+					+ getOrgUnitLogo().getHTML() +  "</div>"
+					+ "<div id=\"text\" style = \"font-size:13pt;font-family:tahoma;"
+					+ "padding-left:16px;vertical-align:top;text-decoration:underline;"
+					+ "cursor:pointer;color:#482a1e;display:inline;white-space:nowrap;\">"
 					+ resultsMap.get("org_unit_name")
 					+ " - " + resultsMap.get("org_unit_fullname") + "</div></div>";
 			htmlBuilder += "<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
 			htmlBuilder += "<p>";
 			htmlBuilder += "<br>Model: " + resultsMap.get("org_unit_model_name");
+			htmlBuilder += "<br>Model Status: " + resultsMap.get("org_unit_model_status");
 			htmlBuilder += "<br>" + "Country: " + resultsMap.get("org_unit_country_iso2") + " - "
 					+ resultsMap.get("org_unit_country_name");
+			htmlBuilder += "<br>Planned Budget: " + resultsMap.get("org_unit_planned_budget");
+			htmlBuilder += "<br>Organization: " + resultsMap.get("org_unit_model_organization_name");
 			htmlBuilder += "</p></div><br>";
 		}
 		if (resultsMap.get("doc_type").toString().equals("CONTACT")) {
 
-			ContactModelType cmt = null;
-			if (resultsMap.get("contact_model_type").equals("INDIVIDUAL"))
-				cmt = ContactModelType.INDIVIDUAL;
-			if (resultsMap.get("contact_model_type").equals("ORGANIZATION"))
-				cmt = ContactModelType.ORGANIZATION;
-
-			//htmlBuilder += "<br><div style = \"padding-left:6px\">" + getContactLogo(cmt) + "</div><br>";
+//			ContactModelType cmt = null;
+//			if (resultsMap.get("contact_model_type").equals("INDIVIDUAL"))
+//				cmt = ContactModelType.INDIVIDUAL;
+//			if (resultsMap.get("contact_model_type").equals("ORGANIZATION"))
+//				cmt = ContactModelType.ORGANIZATION;
+			
 			htmlBuilder += "<div id=\"container\" style=\"white-space:nowrap\">";
-			htmlBuilder += "<br><div id=\"image\" style=\"display:inline;padding-left:10px;\">" + getContactLogo(cmt) +  "</div>"
-					+  "<div id=\"text\" style = \"font-size:13pt;font-family:tahoma;padding-left:16px;vertical-align:top;text-decoration:underline;cursor:pointer;color:blue;display:inline;white-space:nowrap;\">";
+			htmlBuilder += "<br>" 
+					+ "<div id=\"image\" style=\"display:inline;padding-left:10px;\">" 
+					+ IconImageBundle.ICONS.user().createImage() +  "</div>"
+					+  "<div id=\"text\" style = \"font-size:13pt;font-family:tahoma;"
+					+ "padding-left:16px;vertical-align:top;text-decoration:underline;"
+					+ "cursor:pointer;color:#482a1e;display:inline;"
+					+ "white-space:nowrap;\">";
 			if (resultsMap.get("user_firstname") != null) {
 				htmlBuilder += resultsMap.get("user_firstname") + " - " + resultsMap.get("user_name");
 				htmlBuilder += "</div></div>";
 			} else {
 				// for organization contacts
 				htmlBuilder += resultsMap.get("organization_name");
-				htmlBuilder += "</div></div><br>";
+				htmlBuilder += "</div></div>";
+				htmlBuilder += "<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
+				htmlBuilder += "<br>Contact type: " + resultsMap.get("contact_model_type");
+				htmlBuilder += "<br>Contact Model Name: " + resultsMap.get("contact_model_name");
+				htmlBuilder += "</div><br>";
 				return htmlBuilder;
 			}
 			htmlBuilder += "<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px\">";
 			htmlBuilder += "<p>";
 			htmlBuilder += "<br>Email ID: " + resultsMap.get("user_email");
 			htmlBuilder += "<br>Locale: " + resultsMap.get("user_locale");
+			htmlBuilder += "<br>Contact type: " + resultsMap.get("contact_model_type");
+			htmlBuilder += "<br>Contact Model Name: " + resultsMap.get("contact_model_name");
 			htmlBuilder += "</p></div><br>";
+			
 		}
 		if (resultsMap.get("doc_type").toString().equals("FILE")) {
 			htmlBuilder += "<div id=\"container\" style=\"white-space:nowrap\">";
-			htmlBuilder += "<br><div id=\"image\" style=\"display:inline;padding-left:10px;\">" + IconImageBundle.ICONS.attach().createImage() +  "</div>"
-			   + "<div id=\"text\" style = \"font-size:13pt;font-family:tahoma;padding-left:16px;vertical-align:top;text-decoration:underline;cursor:pointer;color:blue;display:inline;white-space:nowrap;\">";
+			htmlBuilder += "<br><div id=\"image\" style=\"display:inline;padding-left:10px;\">" 
+					+ IconImageBundle.ICONS.attach().createImage() +  "</div>"
+					+ "<div id=\"text\" style = \"font-size:13pt;font-family:tahoma;padding-left:16px;"
+					+ "vertical-align:top;text-decoration:underline;cursor:pointer;color:#482a1e;"
+					+ "display:inline;white-space:nowrap;\">";
 			if(resultsMap.get("title") != null){
-				htmlBuilder += resultsMap.get("title") + " - " + resultsMap.get("file_name") + "." + resultsMap.get("file_ext");
+				htmlBuilder += resultsMap.get("title") + " - " + resultsMap.get("file_name") + "." 
+						+ resultsMap.get("file_ext");
 			}else{
 				htmlBuilder += resultsMap.get("file_name") + "." + resultsMap.get("file_ext");
 			}
 			htmlBuilder += "</div></div>";
-			htmlBuilder += "<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px;word-wrap: break-word;\">";
+			htmlBuilder += "<div style = \"font-size:11pt;font-family:tahoma;padding-left:15px;"
+					+ "word-wrap:break-word;\">";
 			htmlBuilder += "<p>";
-			htmlBuilder += "<br>Author: " + resultsMap.get("file_author") + " - " + resultsMap.get("file_author_email");
+			htmlBuilder += "<br>Author: " + resultsMap.get("file_author") + " - " 
+			+ resultsMap.get("file_author_email");
 			htmlBuilder += "</p>";
 			htmlBuilder += "<p>";
-			//Window.alert(resultsMap.get("content").substring(0, 400));
-			//Window.alert(resultsMap.get("content").substring(0, 400).replaceAll("\\r\\n|\\r|\\n", ""));
 			String contentString;
 			if(resultsMap.get("title") != null){
-				contentString = resultsMap.get("content").substring(resultsMap.get("title").length()+1, min(900,resultsMap.get("content").length()) ).replaceAll("\\\\n", "");
+				contentString = resultsMap.get("content")
+						.substring(resultsMap.get("title").length()+1, 
+						min(900,resultsMap.get("content").length()) ).replaceAll("\\\\n", "");
 			}else{
-				contentString = resultsMap.get("content").substring(0, min(900,resultsMap.get("content").length())).replaceAll("\\\\n", "");
+				contentString = resultsMap.get("content").substring(0, 
+						min(900,resultsMap.get("content").length())).replaceAll("\\\\n", "");
 			}
 			int i;
 			for( i = 180; i<= min(800,contentString.length()); i+=180 ){
 				htmlBuilder += "<br>" + contentString.substring(i-180, i);
 			}
-			htmlBuilder += "<br>" + contentString.substring(i-180,contentString.length()) + "...<br>";
+			htmlBuilder += "<br>" + contentString.substring(i-180,contentString.length()) 
+			+ "...<br>";
 			htmlBuilder += "</p></div><br>";
 		}
 		return htmlBuilder;
@@ -563,17 +598,27 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	}
 
 	public HTML getContactLogo(ContactModelType type) {
+		//Element spanElement = DOM.createSpan();
 		HTML avatar = new HTML();
-		avatar.setWidth(36 + "px");
-		avatar.setHeight(36 + "px");
+		//avatar.setStyleName();
 		avatar.setStyleName("contact-card-avatar");
 		avatar.getElement().getStyle().clearBackgroundImage();
 		avatar.getElement().getStyle().clearPadding();
+		avatar.getElement().getStyle().clearHeight();
+		avatar.getElement().getStyle().clearWidth();
+		avatar.setWidth(36 + "px");
+		avatar.setHeight(36 + "px");
+		avatar.getElement().setAttribute("display", "inline");
+		avatar.getElement().setAttribute("padding-left", "10px");
+		
 		switch (type) {
 		case INDIVIDUAL:
-			avatar.addStyleName("contact-card-avatar-individual");
+			//avatar.getElement().setAttribute("background-image", "url(\"../images/icon/individual-128.png\");");
+			avatar.addStyleName("contact-card-avatar-individual");	
 			break;
 		case ORGANIZATION:
+			//avatar.getElement().setAttribute("background-image", "url(\"../images/icon/organization-128.png\");");
+			//avatar.addStyleName("background-image: url(\"../images/icon/organization-128.png\");");
 			avatar.addStyleName("contact-card-avatar-organization");
 			break;
 		default:

@@ -1,5 +1,8 @@
 package org.sigmah.client.ui.view.zone;
 
+import java.util.Arrays;
+import java.util.List;
+
 import org.sigmah.client.i18n.I18N;
 
 /*
@@ -27,8 +30,18 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.zone.SearchPresenter;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.base.AbstractView;
+import org.sigmah.client.ui.widget.form.Forms;
+import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
+import org.sigmah.shared.dto.password.ExpirationPolicy;
 
-import com.google.gwt.user.client.ui.Button;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+//import com.google.gwt.user.client.ui.Button;
+import org.sigmah.client.ui.widget.button.Button;
+import com.google.gwt.user.client.ui.FlexTable;
+import com.google.gwt.user.client.ui.FlowPanel;
 import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.HasHTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
@@ -47,111 +60,83 @@ import com.google.gwt.user.client.ui.Widget;
 public class SearchView extends AbstractView implements SearchPresenter.View {
 
 	private Panel searchBarPanel;
-	private ListBox searchOptions;
-	private HTML searchForLabel;
-	private TextBox searchText;
-	private Button searchButton;
-	private Button indexButton;
+	private TextField<String> searchTextField;
+	private SimpleComboBox<String> searchOptionsComboBox;
+	private Button newSearchButton;
+	List<String> newSearchOptions;
 
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void initialize() {
-
-
+		
+		searchTextField = Forms.text("Search", false);
+		searchTextField.setEmptyText("Search");
+		searchTextField.setWidth(190);
+		
+		searchOptionsComboBox = new SimpleComboBox<String>();
+		newSearchOptions = Arrays.asList("All", "Projects", "OrgUnits", "Contacts", "Your Files");
+		searchOptionsComboBox.add(newSearchOptions);
+		searchOptionsComboBox.setTriggerAction(ComboBox.TriggerAction.ALL);
+		searchOptionsComboBox.setEditable(false);
+		searchOptionsComboBox.setWidth(75);
+		searchOptionsComboBox.setSimpleValue("All");
+		
+		
+		newSearchButton = Forms.button("Go");
+		
 		searchBarPanel = new HorizontalPanel();
 		searchBarPanel.getElement().setId("search-bar");
-
-		searchForLabel = new HTML("Search for");
-		//searchForLabel.setStylePrimaryName("search-for");
-		searchForLabel.getElement().setId("search-for");
-		
-		String[] optionStrings = { "All", "Projects", "OrgUnits", "Contacts", "Files" };
-		searchOptions = new ListBox();
-		for( int i = 0; i < 5; i++ ){
-			searchOptions.addItem(optionStrings[i]);
-		}
-		
-		
-		searchText = new TextBox();
-		//searchText.setText("Enter search text");
-		searchText.getElement().setPropertyString("placeholder", "Search");
-		
-		searchButton = new Button("Go");
-		indexButton = new Button("FIndex");
-		
-		//searchBarPanel.add(searchForLabel);
-		searchBarPanel.add(searchText);
-		searchBarPanel.add(searchOptions);
-		searchBarPanel.add(searchButton);
-		//searchBarPanel.add(indexButton);
-
-		// initWidget(); Useless
+		searchBarPanel.add(searchTextField);
+		searchBarPanel.add(searchOptionsComboBox);
+		searchBarPanel.add(newSearchButton);
 
 	}
+	
+	public TextField<String> getSearchTextField() {
+		return searchTextField;
+	}
 
+	public void setSearchTextField(TextField<String> searchTextField) {
+		this.searchTextField = searchTextField;
+	}
 
-	/**
-	 * {@inheritDoc}
-	 */
+	public SimpleComboBox<String> getSearchOptionsComboBox() {
+		return searchOptionsComboBox;
+	}
+
+	public void setSearchOptionsComboBox(SimpleComboBox<String> searchOptionsComboBox) {
+		this.searchOptionsComboBox = searchOptionsComboBox;
+	}
+
+	public Button getNewSearchButton() {
+		return newSearchButton;
+	}
+
+	public void setNewSearchButton(Button newSearchButton) {
+		this.newSearchButton = newSearchButton;
+	}
+
+	public List<String> getNewSearchOptions() {
+		return newSearchOptions;
+	}
+
+	public void setNewSearchOptions(List<String> newSearchOptions) {
+		this.newSearchOptions = newSearchOptions;
+	}
+	
 	@Override
 	public Panel getSearchBarPanel() {
 		return searchBarPanel;
 	}
 
-
-	/**
-	 * {@inheritDoc}
-	 */
 	@Override
 	public void onViewRevealed() {
 		// Nothing to do here.
 	}
 
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public HasHTML getNameLabel() {
-		return searchForLabel;
-	}
-	
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ListBox getSearchOptions() {
-		return searchOptions;
-	}
-	
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public TextBox getSearchText() {
-		return searchText;
-	}
-	
-
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Button getSearchButton() {
-		return searchButton;
-	}
-	
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Button getIndexButton() {
-		return indexButton;
-	}
 
 }
+
 

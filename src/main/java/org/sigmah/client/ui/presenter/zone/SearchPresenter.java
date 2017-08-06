@@ -50,8 +50,15 @@ import org.sigmah.shared.dto.search.SearchResultsDTO;
 import org.sigmah.shared.util.ProfileUtils;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.KeyEvent;
+import com.extjs.gxt.ui.client.event.KeyListener;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.TreeStore;
+import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
+import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.core.client.GWT;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -62,7 +69,10 @@ import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Button;
+//import com.google.gwt.user.client.ui.Button;
+import org.sigmah.client.ui.widget.button.Button;
+
+import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasHTML;
 import com.google.gwt.user.client.ui.Label;
 import com.google.gwt.user.client.ui.ListBox;
@@ -126,17 +136,15 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 	@ImplementedBy(SearchView.class)
 	public static interface View extends ViewInterface {
 
-		HasHTML getNameLabel();
+		Button getNewSearchButton();
+
+		SimpleComboBox<String> getSearchOptionsComboBox();
+
+		TextField<String> getSearchTextField();
 
 		Panel getSearchBarPanel();
 
-		ListBox getSearchOptions();
-
-		TextBox getSearchText();
-
-		Button getSearchButton();
-
-		Button getIndexButton();
+		List<String> getNewSearchOptions();
 
 	}
 
@@ -155,15 +163,16 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 	@Override
 	public void onBind() {
 
-		view.getSearchText().addKeyUpHandler(new KeyUpHandler() {
+		view.getNewSearchButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
 
 			@Override
-			public void onKeyUp(KeyUpEvent event) {
-				if (event.getNativeKeyCode() == KeyCodes.KEY_ENTER) {
-
-					textToServer = view.getSearchText().getText();
-					int sel_ind = view.getSearchOptions().getSelectedIndex();
-					filter = view.getSearchOptions().getValue(sel_ind);
+			public void handleEvent(ButtonEvent be) {
+				// TODO Auto-generated method stub
+				textToServer = view.getSearchTextField().getValue();
+				view.getSearchTextField().clear();
+				int sel_ind = view.getSearchOptionsComboBox().getSelectedIndex();
+				filter = view.getNewSearchOptions().get(sel_ind);
+				if (textToServer != null) {
 					if (textToServer.length() > 0) {
 						search();
 					}
@@ -171,30 +180,21 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 			}
 
 		});
-
-		view.getSearchButton().addClickHandler(new ClickHandler() {
-
+		
+		view.getSearchTextField().addKeyListener(new KeyListener() {
+			
 			@Override
-			public void onClick(ClickEvent event) {
-
-				textToServer = view.getSearchText().getText();
-				int sel_ind = view.getSearchOptions().getSelectedIndex();
-				filter = view.getSearchOptions().getValue(sel_ind);
-				if (textToServer.length() > 0) {
-					search();
-				}
-			}
-
-		});
-
-		view.getIndexButton().addClickHandler(new ClickHandler() {
-			public void onClick(ClickEvent event) {
-				try {
-					filesIndex();
-				} catch (IOException e) {
-					// TODO Auto-generated catch block
-					Window.alert("IO Exception!");
-					e.printStackTrace();
+	        public void componentKeyUp(ComponentEvent event){
+				if (event.getKeyCode() == KeyCodes.KEY_ENTER){
+					if (view.getSearchTextField().getValue() != null){
+						if(view.getSearchTextField().getValue().length() > 0 ){
+							textToServer = view.getSearchTextField().getValue();
+							view.getSearchTextField().clear();
+							int sel_ind = view.getSearchOptionsComboBox().getSelectedIndex();
+							filter = view.getNewSearchOptions().get(sel_ind);
+							search();
+						}
+					}
 				}
 			}
 		});
@@ -203,7 +203,6 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 	private void search() {
 
-		
 		if (firstsearch) {
 			// dummy call just to make connection
 			searchService.search(textToServer, filter, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
@@ -240,29 +239,6 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		});
 	}
 
-	private void filesIndex() throws IOException {
-		
-		dispatch.execute(new FilesSolrIndexCommand(), new CommandResultHandler<FilesSolrIndexDTO>() {
-
-			@Override
-			public void onCommandSuccess(final FilesSolrIndexDTO result) {
-
-				if (result == null) {
-					Window.alert("Yeh kya ho gya!");
-
-				} else {
-					//N10N.warn(I18N.CONSTANTS.backupManagement_process_alreadyRunning());
-					if( result.isResult()){
-						Window.alert("Successfully completed files indexing!");
-					}else{
-						Window.alert("Failed to complete files indexing!");
-					}
-				}
-
-			}
-
-		});
-	}
 
 	private void loadProjectIdsForFiltering() {
 		Integer[] orgUnitsIds = auth().getOrgUnitIds().toArray(new Integer[auth().getOrgUnitIds().size()]);
@@ -272,10 +248,10 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		cmd.setMappingMode(ProjectDTO.Mode._USE_PROJECT_MAPPER);
 
 		dispatch.execute(cmd, new CommandResultHandler<ListResult<ProjectDTO>>() {
-			
+
 			@Override
 			public void onCommandFailure(final Throwable e) {
-				//Window.alert("Error while getting contacts.");
+				// Window.alert("Error while getting contacts.");
 			}
 
 			@Override

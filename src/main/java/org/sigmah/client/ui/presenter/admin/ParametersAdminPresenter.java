@@ -421,23 +421,25 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 		// view.getManualIndexButton().
 		view.getManualIndexButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
 
-			// funnily this is getting fired twice on button click
-
 			@Override
 			public void handleEvent(ButtonEvent be) {
 				// TODO Auto-generated method stub
 				searchService.index(new AsyncCallback<Boolean>() {
 					public void onFailure(Throwable caught) {
-						Window.alert("Failure on the server side!");
+//						Window.alert("Failure on the server side!");
+						N10N.errorNotif("Failed to complete Solr Data Import!",
+								"Check your connection with Solr Server!");
 						caught.printStackTrace();
 					}
 
 					public void onSuccess(Boolean result) {
-						Boolean dih_success = result;
-						if (dih_success) {
+						Boolean fih_success = result;
+						if (fih_success) {
 							FilesImport();
 						} else {
-							Window.alert("Failed to complete data Import!");
+//							Window.alert("Failed to complete data Import!");
+							N10N.errorNotif("Failed to complete Solr Data Import!",
+									"Check your connection with Solr Server!");
 						}
 					}
 				});
@@ -454,14 +456,18 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 			public void onCommandSuccess(final FilesSolrIndexDTO result) {
 
 				if (result == null) {
-					Window.alert("Unsuccessful files indexing!");
+					N10N.errorNotif("Failed to complete Solr Files Import!",
+							"Check your connection with Solr Server!");
 
 				} else {
 					// N10N.warn(I18N.CONSTANTS.backupManagement_process_alreadyRunning());
 					if (result.isResult()) {
-						Window.alert("Successfully completed data and files import!");
+//						Window.alert("Successfully completed data and files import!");
+						N10N.validNotif("Successfully completed data and files import!",
+								"You can now carry out search.");
 					} else {
-						Window.alert("Failed to complete files indexing!");
+						N10N.errorNotif("Failed to index all files to Solr Server!",
+								"Check your connection with Solr Server!");
 					}
 				}
 
@@ -699,7 +705,7 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 		organizationDTO.setLogo(auth().getOrganizationLogo());
 		organizationDTO.setSolrCoreUrl(solrCoreUrl);
 
-		// Saves new organization name.
+		// Saves new organization core url.
 		dispatch.execute(new UpdateOrganization(organizationDTO), new CommandResultHandler<OrganizationDTO>() {
 
 			@Override
@@ -716,16 +722,22 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 				view.getSolrSettingsForm().resetValueHasChanged();
 				searchService.updateCore(solrCoreUrl, new AsyncCallback<Boolean>() {
 					public void onFailure(Throwable caught) {
-						Window.alert("Could not update Solr Core. Check that the url is valid!");
+//						Window.alert("Could not update Solr Core. Check that the url is valid!");
+						N10N.errorNotif("Failed to update Solr Core!",
+								"Check that the url entered is valid!");
 						caught.printStackTrace();
 					}
 
 					public void onSuccess(Boolean result) {
 						Boolean dih_success = result;
 						if (dih_success == true) {
-							Window.alert("Successfully updated Solr Core!");
+							N10N.validNotif("Successfully updated Solr Core!",
+							"You can now carry out search.");
+//							Window.alert("Successfully updated Solr Core!");
 						} else {
-							Window.alert("Failed to update Solr Core! Check that the url is valid!");
+							N10N.errorNotif("Failed to update Solr Core!",
+									"Check that the url entered is valid!");
+//							Window.alert("Check that the url is valid!");
 						}
 					}
 				});

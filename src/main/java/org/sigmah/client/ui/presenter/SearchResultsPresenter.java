@@ -276,7 +276,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		view.setProjectIdsForFiltering((Set<Integer>) request.getData(RequestParameter.FILTER_PROJECT_IDS));
 		view.setOrgUnitIdsForFiltering((Set<Integer>) request.getData(RequestParameter.FILTER_ORGUNIT_IDS));
 		view.setContactIdsForFiltering((Set<Integer>) request.getData(RequestParameter.FILTER_CONTACT_IDS));
-		Window.alert(auth().getUserId().toString());
+//		Window.alert(auth().getUserId().toString());
 		view.setUserId(auth().getUserId().toString());
 		view.addSearchData(request.getData(RequestParameter.CONTENT));
 		//Window.alert("Completed addSearchData!");

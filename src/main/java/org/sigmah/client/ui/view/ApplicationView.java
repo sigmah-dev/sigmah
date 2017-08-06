@@ -241,7 +241,7 @@ public class ApplicationView implements ApplicationPresenter.View, HasPageMessag
 		headerPanel.add(headerLeftPanel);
 		headerPanel.add(headerMiddlePanel);
 		headerPanel.add(headerMiddleRightPanel);
-		headerPanel.add(headerRightPanel);
+		headerPanel.add(headerRightPanel);	
 
 		// Menu.
 
@@ -383,7 +383,7 @@ public class ApplicationView implements ApplicationPresenter.View, HasPageMessag
 		// Organization name.
 		headerMiddlePanel.add(organizationBannerView.getNamePanel());
 		
-		//here is where I should add my search panels
+		//Search Bar panel
 		headerMiddleRightPanel.add(searchView.getSearchBarPanel());
 
 		// User name.

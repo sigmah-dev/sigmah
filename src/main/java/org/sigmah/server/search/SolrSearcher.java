@@ -104,17 +104,17 @@ public class SolrSearcher {
 		//query.addSort("doc_id", ORDER.desc);
 		
 		if (filter.equals("Projects")){
-			query.set("fq", "PROJECT");
+			query.set("fq", "doc_type:PROJECT");
 			//query.set("qt", "/searchproject");
 		}
 		else if (filter.equals("Contacts")){
-			query.set("fq", "CONTACT");
+			query.set("fq", "doc_type:CONTACT");
 		}
 		else if (filter.equals("OrgUnits")){
-			query.set("fq", "ORG_UNIT");
+			query.set("fq", "doc_type:ORG_UNIT");
 		// query.addSortField("weight", ORDER.desc);
-		}else if (filter.equals("Files")){
-			query.set("fq", "FILE");
+		}else if (filter.equals("Your Files")){
+			query.set("fq", "doc_type:FILE");
 		// query.addSortField("weight", ORDER.desc);
 		}
 		else{
