@@ -68,7 +68,7 @@ public class ContactView extends AbstractView implements ContactPresenter.View {
   private TabPanel tabPanel;
 
   @Override
-  public Component getMainComponent() {
+  public ContentPanel getMainComponent() {
     return contentPanel;
   }
 
