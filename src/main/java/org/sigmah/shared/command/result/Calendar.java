@@ -43,6 +43,7 @@ public class Calendar implements Result {
 	private CalendarType type;
 	private String name;
 	private Map<Date, List<Event>> events;
+        private Map<Date, List<Event>> fullDayEvents;
 	private Collection<Todo> tasks;
 	private int style;
 	private boolean editable;
@@ -130,4 +131,12 @@ public class Calendar implements Result {
 	public void setEditable(boolean editable) {
 		this.editable = editable;
 	}
+        
+        public void setFullDayEvents(Map<Date, List<Event>> fullDayEvents) {
+            this.fullDayEvents = fullDayEvents;
+        }
+
+        public Map<Date, List<Event>> getFullDayEvents() {
+            return fullDayEvents;
+        }
 }

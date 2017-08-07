@@ -1578,14 +1578,25 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         final Calendar calendar = wrapper.getCalendar();
 
         event.setParent(calendar);
-
+//ak
+if(calendar.getEvents()!=null && !event.getEventType().contains("F")){
         List<Event> events = calendar.getEvents().get(day);
         if (events == null) {
             events = new ArrayList<Event>();
             calendar.getEvents().put(day, events);
         }
         events.add(event);
-
+}
+if(calendar.getFullDayEvents()!=null && (event.getEventType().contains("F")
+        || (event.getDtstart().getHours()==event.getDtend().getHours()
+                                            && event.getDtstart().getMinutes()==event.getDtend().getMinutes()))){
+        List<Event> fullDayevents = calendar.getFullDayEvents().get(day);
+        if (fullDayevents == null) {
+            fullDayevents = new ArrayList<Event>();
+            calendar.getFullDayEvents().put(day, fullDayevents);
+        }
+        fullDayevents.add(event);
+}
         // --
         // Sends an update event on the event bus.
         // --

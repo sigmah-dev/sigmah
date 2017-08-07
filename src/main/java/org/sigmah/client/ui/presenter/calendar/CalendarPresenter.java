@@ -168,6 +168,11 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                         final List<Event> oldEventList
                                 = event.getParent().getEvents().get(event.getKey());
                         oldEventList.remove(event);
+                        //ak
+                        final List<Event> oldFullDayEventList
+                                = event.getParent().getFullDayEvents().get(event.getKey());
+                        oldFullDayEventList.remove(event);
+                        //ak
                         calendar.refresh();
                     }
                 });
@@ -212,7 +217,8 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                         ? ((PersonalCalendarIdentifier) calendarIdentifier).getId() : null;
 
                 final Map<Date, List<Event>> eventMap = event.getParent().getEvents();
-
+                final Map<Date, List<Event>> fullDayEventMap = event.getParent().getFullDayEvents();  
+                
                 int mainId = event.getIdentifier();
                 int refId = 0;
                 if (event.getReferenceId() != null) {
@@ -239,6 +245,27 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                             }
                         }
                     }
+                    //ak
+                    for (final Date key : fullDayEventMap.keySet()) {
+                        for (final Event next : fullDayEventMap.get(key)) {
+                            if (refId != 0) {
+                                if (next.getReferenceId() != null && (next.getReferenceId().intValue() == refId)) {
+                                    deleteEventFunction1(next, parentId, fullDayEventMap, key);
+                                }
+                                else if((next.getReferenceId() == null) && (next.getIdentifier().intValue() == refId)){
+                                    deleteEventFunction1(next, parentId, fullDayEventMap, key);
+                                }
+                            } else {
+                                if (next.getReferenceId() != null && (next.getReferenceId().intValue() == mainId)) {
+                                    deleteEventFunction1(next, parentId, fullDayEventMap, key);
+                                }
+                                else if(next.getReferenceId() == null && next.getIdentifier().intValue() == mainId){
+                                    deleteEventFunction2(next, parentId, fullDayEventMap, key, mainId);  
+                                }
+                            }
+                        }
+                    }
+                    //ak
                 } else {
                     dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, mainId, parentId), new CommandResultHandler<VoidResult>() {
 
@@ -252,6 +279,11 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                             final List<Event> oldEventList
                                     = event.getParent().getEvents().get(event.getKey());
                             oldEventList.remove(event);
+                            //ak
+                            final List<Event> oldFullDayEventList
+                                    = event.getParent().getFullDayEvents().get(event.getKey());
+                            oldFullDayEventList.remove(event);
+                            //ak
                             calendar.refresh();
                         }
                     });
