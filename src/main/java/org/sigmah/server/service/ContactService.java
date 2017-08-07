@@ -40,6 +40,7 @@ import org.sigmah.server.service.base.AbstractEntityService;
 import org.sigmah.server.service.util.PropertyMap;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.ContactDTO;
+import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 public class ContactService extends AbstractEntityService<Contact, Integer, ContactDTO> {
   private final ContactDAO contactDAO;
@@ -62,6 +63,14 @@ public class ContactService extends AbstractEntityService<Contact, Integer, Cont
       return null;
     }
 
+    // Contact model.
+    ContactModel model = em().getReference(ContactModel.class, properties.get(ContactDTO.CONTACT_MODEL));
+    if (ProjectModelStatus.READY.equals(model.getStatus())) {
+      model.setStatus(ProjectModelStatus.USED);
+    }
+    em().merge(model);
+
+    // Contact and CheckboxElementToSetToTrue
     Contact persistedContact = contactDAO.persist(contact, context.getUser());
     if (properties.containsKey(ContactDTO.CHECKBOX_ELEMENT_TO_SET_TO_TRUE)) {
       Value value = new Value();
