@@ -80,7 +80,7 @@ public class SearchView extends AbstractView implements SearchPresenter.View {
 		searchOptionsComboBox.add(newSearchOptions);
 		searchOptionsComboBox.setTriggerAction(ComboBox.TriggerAction.ALL);
 		searchOptionsComboBox.setEditable(false);
-		searchOptionsComboBox.setWidth(75);
+		searchOptionsComboBox.setWidth(78);
 		searchOptionsComboBox.setSimpleValue("All");
 		
 		

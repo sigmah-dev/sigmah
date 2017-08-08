@@ -281,7 +281,9 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		
 		searchService.updateCore(auth().getOrganizationSolrCoreUrl(), new AsyncCallback<Boolean>() {
 			public void onFailure(Throwable caught) {
-				Window.alert("Could not update Solr Core. Check that the url is valid!");
+				N10N.errorNotif("Failed to connect to Solr!",
+				"Check your connection with Solr Server or the Solr Core Url!");
+				//Window.alert("Could not update Solr Core. Check that the url is valid!");
 				caught.printStackTrace();
 			}
 
@@ -290,7 +292,8 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 				if (dih_success == true) {
 					//Window.alert("Successfully updated Solr Core!");
 				} else {
-					Window.alert("Failed to update Solr Core! Check that the url is valid!");
+					N10N.errorNotif("Failed to connect to Solr!",
+					"Check your connection with Solr Server or the Solr Core Url!");
 				}
 			}
 		});

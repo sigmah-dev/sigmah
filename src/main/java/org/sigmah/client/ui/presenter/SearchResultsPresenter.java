@@ -154,7 +154,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		
 		void setSearchString(String searchText);
 
-		void addSearchData(Object searchData);
+		boolean addSearchData(Object searchData);
 
 		void addResultsPanel();
 
@@ -168,13 +168,13 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 		
 		void setFileClickHandler(FilesResultsClickHandler handler);
 		
-		void setProjectIdsForFiltering(Set<Integer> projectIdsForFiltering); 
+//		void setProjectIdsForFiltering(Set<Integer> projectIdsForFiltering); 
+//		
+//		void setOrgUnitIdsForFiltering(Set<Integer> orgUnitIdsForFiltering);
+//		
+//		void setContactIdsForFiltering(Set<Integer> orgUnitIdsForFiltering);
 		
-		void setOrgUnitIdsForFiltering(Set<Integer> orgUnitIdsForFiltering);
-		
-		void setContactIdsForFiltering(Set<Integer> orgUnitIdsForFiltering);
-		
-		void setUserId(String userId);
+//		void setUserId(String userId);
 	}
 
 	/**
@@ -272,16 +272,12 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 				});
 			};
 		});
-		//getProjectsForFiltering();
-		view.setProjectIdsForFiltering((Set<Integer>) request.getData(RequestParameter.FILTER_PROJECT_IDS));
-		view.setOrgUnitIdsForFiltering((Set<Integer>) request.getData(RequestParameter.FILTER_ORGUNIT_IDS));
-		view.setContactIdsForFiltering((Set<Integer>) request.getData(RequestParameter.FILTER_CONTACT_IDS));
-//		Window.alert(auth().getUserId().toString());
-		view.setUserId(auth().getUserId().toString());
-		view.addSearchData(request.getData(RequestParameter.CONTENT));
-		//Window.alert("Completed addSearchData!");
-		view.addResultsPanel();
-		//Window.alert("Completed addResultsPanel!");
+		
+		if( view.addSearchData(request.getData(RequestParameter.CONTENT)) ){
+			view.addResultsPanel();
+		}else{
+			
+		}
 	}
 
 }

@@ -61,8 +61,17 @@ public class SolrSearcher {
 			instance = new SolrSearcher();
 			try {
 				instance.loadServer();
-			} catch (Exception e) {
+			} catch (SolrServerException e) {
 				// TODO Auto-generated catch block
+				System.out.println("SOLR CONNECTION FAILED");
+				instance = null;
+				e.printStackTrace();
+			} catch (MalformedURLException e) {
+				// TODO Auto-generated catch block
+				System.out.println("SOLR CONNECTION FAILED");
+				instance = null;
+				e.printStackTrace();
+			} catch (IOException e){
 				System.out.println("SOLR CONNECTION FAILED");
 				instance = null;
 				e.printStackTrace();
@@ -77,19 +86,25 @@ public class SolrSearcher {
 		instance.urlString = solrCoreUrl;
 		try {
 			instance.loadServer();
-		} catch (Exception e) {
+		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			System.out.println("SOLR CONNECTION FAILED");
 			instance = null;
 			e.printStackTrace();
-			return null;
+		} catch (MalformedURLException e) {
+			// TODO Auto-generated catch block
+			System.out.println("SOLR CONNECTION FAILED");
+			instance = null;
+			e.printStackTrace();
+		} catch (IOException e){
+			System.out.println("SOLR CONNECTION FAILED");
+			instance = null;
+			e.printStackTrace();
 		}
 		return instance;
 	}
 
-	private void loadServer() throws MalformedURLException {
-		// urlString = "http://localhost:8983/solr/Test_Sigmah";
-		// urlString = properties.getProperty(PropertyKey.SOLR_CORE_URL);
+	private void loadServer() throws MalformedURLException, SolrServerException, IOException {
 		System.out.println("SOLR CONNECTING TO: " + urlString);
 		solrServer = new HttpSolrClient.Builder(urlString).build();
 		System.out.println("SOLR CONNECTION CONNECTED");
@@ -130,9 +145,11 @@ public class SolrSearcher {
 		} catch (SolrServerException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return null;
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+			return null;
 		}
 
 		if (rsp != null) {

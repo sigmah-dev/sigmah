@@ -67,6 +67,9 @@ import com.google.gwt.event.dom.client.KeyDownEvent;
 import com.google.gwt.event.dom.client.KeyDownHandler;
 import com.google.gwt.event.dom.client.KeyUpEvent;
 import com.google.gwt.event.dom.client.KeyUpHandler;
+import com.google.gwt.json.client.JSONObject;
+import com.google.gwt.json.client.JSONParser;
+import com.google.gwt.json.client.JSONValue;
 import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 //import com.google.gwt.user.client.ui.Button;
@@ -180,14 +183,14 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 			}
 
 		});
-		
+
 		view.getSearchTextField().addKeyListener(new KeyListener() {
-			
+
 			@Override
-	        public void componentKeyUp(ComponentEvent event){
-				if (event.getKeyCode() == KeyCodes.KEY_ENTER){
-					if (view.getSearchTextField().getValue() != null){
-						if(view.getSearchTextField().getValue().length() > 0 ){
+			public void componentKeyUp(ComponentEvent event) {
+				if (event.getKeyCode() == KeyCodes.KEY_ENTER) {
+					if (view.getSearchTextField().getValue() != null) {
+						if (view.getSearchTextField().getValue().length() > 0) {
 							textToServer = view.getSearchTextField().getValue();
 							view.getSearchTextField().clear();
 							int sel_ind = view.getSearchOptionsComboBox().getSelectedIndex();
@@ -223,22 +226,30 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		searchService.search(textToServer, filter, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
 
 			public void onFailure(Throwable caught) {
-				Window.alert("Failure on the server side!");
+				// Window.alert("Failure on the server side!");
+				N10N.error("Error connecting to Solr", "Solr Server connection is not available. Try later!");
 				// firstsearch = true; //will try to set up a connnection again
 				caught.printStackTrace();
 			}
 
 			public void onSuccess(ArrayList<SearchResultsDTO> result) {
-				searchResults = result;
-				// for (SearchResultsDTO doc : searchResults) {
-				// Window.alert(doc.getResult().toString());
-				// }
-				loadProjectIdsForFiltering();
+				if (result == null) {
+					N10N.error("Error connecting to Solr", "Solr Server connection is not available. Try later!");
+				} else {
+					searchResults = result;
+					if (result.size() == 0) {
+						N10N.info("No search results found", "There are no search results or "
+								+ "they may not be accessible!");
+					}
+					else {
+						loadProjectIdsForFiltering();
+					}
+				}
+
 			}
 
 		});
 	}
-
 
 	private void loadProjectIdsForFiltering() {
 		Integer[] orgUnitsIds = auth().getOrgUnitIds().toArray(new Integer[auth().getOrgUnitIds().size()]);
@@ -336,19 +347,89 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 	}
 
 	public void doPageRequest() {
-		if (searchResults != null) {
+		if (searchResults != null && searchResults.size() > 0) {
 			PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
 			request.addData(RequestParameter.TITLE, textToServer);
-			request.addData(RequestParameter.CONTENT, searchResults);
-			request.addData(RequestParameter.FILTER_PROJECT_IDS, projectIdsForFiltering);
-			request.addData(RequestParameter.FILTER_ORGUNIT_IDS, orgUnitIdsForFiltering);
-			request.addData(RequestParameter.FILTER_CONTACT_IDS, contactIdsForFiltering);
-			request.addParameter(RequestParameter.ID,
-					textToServer.replaceAll("[^a-zA-Z0-9\\s]", "").replaceAll(" ", "-"));
-			eventBus.navigateRequest(request);
+			
+			ArrayList<SearchResultsDTO> filteredSearchResults = new ArrayList<SearchResultsDTO>();
+			for( SearchResultsDTO dto : searchResults){
+				if (filter(dto)){
+					filteredSearchResults.add(dto);
+				}
+			}
+			if (filteredSearchResults.size() == 0) {
+				N10N.info("No search results found", "There are no search results or" 
+						 + " they may not be accessible!");
+			}else{
+				request.addData(RequestParameter.CONTENT, filteredSearchResults);
+				request.addParameter(RequestParameter.ID,
+						textToServer.replaceAll("[^a-zA-Z0-9\\s]", "").replaceAll(" ", "-"));
+				eventBus.navigateRequest(request);
+			}
+			
 		}
 	}
+	
+	public boolean filter(SearchResultsDTO dto) {
 
+		if (dto == null)
+			return false;
+
+		Map<String, String> retMap = toMap(dto.getResult());
+		dto.setDTOtype(retMap.get("doc_type").toString());
+
+		if (retMap.get("doc_type").toString().equals("PROJECT")) {
+			dto.setDTOid(retMap.get("databaseid").toString());
+			if (!projectIdsForFiltering.contains(Integer.parseInt(dto.getDTOid()))) {
+				// Window.alert("Found project not to be included!");
+				return false;
+			}
+
+		} else if (retMap.get("doc_type").toString().equals("CONTACT")) {
+			dto.setDTOid(retMap.get("id_contact").toString());
+			if (!contactIdsForFiltering.contains(Integer.parseInt(dto.getDTOid()))) {
+				// Window.alert("Found Contact not to be included: " +
+				// dto.getDTOid());
+				return false;
+			}
+		} else if (retMap.get("doc_type").toString().equals("ORG_UNIT")) {
+			dto.setDTOid(retMap.get("org_unit_id").toString());
+			if (!orgUnitIdsForFiltering.contains(Integer.parseInt(dto.getDTOid()))) {
+				// Window.alert("Found OrgUnit not to be included!");
+				return false;
+			}
+		} else if (retMap.get("doc_type").toString().equals("FILE")) {
+			// if(projectIdsForFiltering.size() == 0 ||
+			// orgUnitIdsForFiltering.size() == 0 ) //cannot view projects or
+			// orgunits
+			// return false;
+			dto.setDTOid(retMap.get("file_version_id").toString());
+			dto.setFile_name(retMap.get("file_name"));
+			dto.setFile_ext(retMap.get("file_ext"));
+			//Window.alert(retMap.toString() + "\n" + retMap.get("file_author_id") + " " + auth().getUserId().toString());
+			if (retMap.get("file_author_id").equals(auth().getUserId().toString())) {
+				// temporary filter, since I am unable to implement a better
+				// filter, users can only view those files of which they are the authors..
+				return true;
+			}
+			return false;
+		}
+		return true;
+	}
+
+	public static Map<String, String> toMap(String jsonStr) {
+		Map<String, String> map = new HashMap<String, String>();
+
+		JSONValue parsed = JSONParser.parseStrict(jsonStr);
+		JSONObject jsonObj = parsed.isObject();
+		if (jsonObj != null) {
+			for (String key : jsonObj.keySet()) {
+				map.put(key.replaceAll("^\"|\"$", ""), jsonObj.get(key).toString().replaceAll("^\"|\"$", ""));
+			}
+		}
+
+		return map;
+	}
 	/**
 	 * {@inheritDoc}
 	 */

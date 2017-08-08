@@ -26,7 +26,10 @@ public class SolrIndexJob implements Job{
 		final EntityManager em = (EntityManager) dataMap.get("em");
 		final Injector injector = (Injector) dataMap.get("injector");
 		System.out.println("Starting Solr Full Data Import!");
-		SolrSearcher.getInstance().FullDataImport();
+		if( !SolrSearcher.getInstance().FullDataImport()){
+			System.out.println("Could not finish Full Data Import!");
+			return;
+		}
 		System.out.println("Finished Solr Full Data Import!");
 		EntityTransaction tx = null;
 		
