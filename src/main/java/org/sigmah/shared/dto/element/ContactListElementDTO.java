@@ -206,7 +206,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     listComboBox.initComponent();
 
     // TODO: Filter contacts following user choice
-    dispatch.execute(new GetContacts(getAllowedType(), getAllowedModelIds()), new AsyncCallback<ListResult<ContactDTO>>() {
+    dispatch.execute(new GetContacts(getAllowedType(), getAllowedModelIds(), getCheckboxElementId()), new AsyncCallback<ListResult<ContactDTO>>() {
       @Override
       public void onFailure(Throwable caught) {
         Log.error("Error while trying to get contacts for a contact list element.", caught);
@@ -271,6 +271,10 @@ public class ContactListElementDTO extends FlexibleElementDTO {
 		return get(CHECKBOX_ELEMENT);
 	}
 
+  public Integer getCheckboxElementId() {
+    return getCheckboxElement() == null ? null : getCheckboxElement().getId();
+  }
+
   public void setCheckboxElement(CheckboxElementDTO checkboxElement) {
 		set(CHECKBOX_ELEMENT, checkboxElement);
 	}
@@ -321,6 +325,9 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     properties.put(ContactDTO.EMAIL, email);
     properties.put(ContactDTO.FIRSTNAME, contactModelDTO.getType() == ContactModelType.INDIVIDUAL ? firstName : null);
     properties.put(ContactDTO.NAME, contactModelDTO.getType() == ContactModelType.INDIVIDUAL ? familyName : organizationName);
+    if (getCheckboxElement() != null) {
+      properties.put(ContactDTO.CHECKBOX_ELEMENT_TO_SET_TO_TRUE, getCheckboxElementId());
+    }
     if (mainOrgUnit != null) {
       properties.put(ContactDTO.MAIN_ORG_UNIT, mainOrgUnit.getId());
     }

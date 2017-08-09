@@ -146,6 +146,10 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
           if (allowedContactModelIds == null || allowedContactModelIds.isEmpty() || allowedContactModelIds.contains(contactDTO.getContactModel().getId())) {
             continue;
           }
+          // XXX: verify the contact has TRUE for the checkboxElement defined in the ContactListElement ?
+          // (to do that we need to retrive this flexibleElement for all ContactDTO)
+          // Not very useful, the getAvailableValuesStore() only contains valid values and
+          // created contacts have the value set to TRUE
 
           getListStore().remove(contactDTO);
           getAvailableValuesStore().add(contactDTO);

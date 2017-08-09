@@ -105,4 +105,12 @@ public class ValueHibernateDAO extends AbstractDAO<Value, Integer> implements Va
 				.setParameter("id", String.valueOf(id))
 				.getResultList();
 	}
+
+	@Override
+	public List<Integer> findContainerIdByElementAndValue(Integer elementId, String value){
+		return em().createQuery("SELECT v.containerId from Value v WHERE v.element.id = :elementId AND v.value = :value", Integer.class)
+				.setParameter("elementId", elementId)
+				.setParameter("value", value)
+				.getResultList();
+	}
 }

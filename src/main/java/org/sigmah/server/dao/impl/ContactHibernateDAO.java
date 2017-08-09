@@ -35,7 +35,9 @@ import javax.persistence.criteria.JoinType;
 import javax.persistence.criteria.Predicate;
 import javax.persistence.criteria.Root;
 
+import com.google.inject.Inject;
 import org.sigmah.server.dao.ContactDAO;
+import org.sigmah.server.dao.ValueDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.ContactModel;
@@ -44,9 +46,23 @@ import org.sigmah.shared.dto.referential.ContactModelType;
 public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implements ContactDAO {
   private static final float MIN_SIMILARITY_SCORE = 0.5f;
 
+  private final ValueDAO valueDAO;
+
+  @Inject
+  public ContactHibernateDAO(ValueDAO valueDAO) {
+    this.valueDAO = valueDAO;
+  }
+
   @Override
   public List<Contact> findContactsByTypeAndContactModels(Integer organizationId, ContactModelType type, Set<Integer> contactModelIds,
-                                                          boolean onlyWithoutUser, boolean withEmailNotNull, Set<Integer> orgUnitsIds) {
+                                                          boolean onlyWithoutUser, boolean withEmailNotNull, Set<Integer> orgUnitsIds,
+                                                          Integer checkboxElementId) {
+    List<Integer> contactIds = null;
+    if (checkboxElementId != null) {
+      // Load id of all contacts having "true" for this field
+      contactIds = valueDAO.findContainerIdByElementAndValue(checkboxElementId, "true");
+    }
+
     // Too much nullable parameters, let's use criteria query builder to ease the query creation
     // and to avoid using dangerous string concatenation
     CriteriaBuilder criteriaBuilder = em().getCriteriaBuilder();
@@ -76,6 +92,9 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
           contactRoot.get("email").isNotNull(),
           userJoin.get("email").isNotNull()
       ));
+    }
+    if (checkboxElementId != null) {
+      predicates.add(contactRoot.get("id").in(contactIds));
     }
 
     if(orgUnitsIds != null && !orgUnitsIds.isEmpty()) {

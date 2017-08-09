@@ -37,6 +37,7 @@ public class GetContacts extends AbstractCommand<ListResult<ContactDTO>> {
   private ContactModelType type;
   private Set<Integer> contactModelIds;
   private boolean onlyContactWithoutUser;
+  private Integer checkboxElementId;
   private boolean withEmailNotNull;
   private Set<Integer> orgUnitsIds;
 
@@ -56,15 +57,24 @@ public class GetContacts extends AbstractCommand<ListResult<ContactDTO>> {
     this(type, contactModelIds, false, false);
   }
 
+  public GetContacts(ContactModelType type, Set<Integer> contactModelIds, Integer checkboxElementId) {
+    this(type, contactModelIds, false, false, checkboxElementId);
+  }
+
   public GetContacts(ContactModelType type, boolean onlyContactWithoutUser, boolean withEmailNotNull) {
     this(type, Collections.<Integer>emptySet(), onlyContactWithoutUser, withEmailNotNull);
   }
 
   public GetContacts(ContactModelType type, Set<Integer> contactModelIds, boolean onlyContactWithoutUser, boolean withEmailNotNull) {
+    this(type, contactModelIds, onlyContactWithoutUser, withEmailNotNull, null);
+  }
+
+  public GetContacts(ContactModelType type, Set<Integer> contactModelIds, boolean onlyContactWithoutUser, boolean withEmailNotNull, Integer checkboxElementId) {
     this.type = type;
     this.contactModelIds = contactModelIds;
     this.onlyContactWithoutUser = onlyContactWithoutUser;
     this.withEmailNotNull = withEmailNotNull;
+    this.checkboxElementId = checkboxElementId;
   }
 
   public Set<Integer> getContactIds() {
@@ -93,6 +103,10 @@ public class GetContacts extends AbstractCommand<ListResult<ContactDTO>> {
 
   public void setOrgUnitsIds(Set<Integer> orgUnitsIds) {
     this.orgUnitsIds = orgUnitsIds;
+  }
+
+  public Integer getCheckboxElementId() {
+    return checkboxElementId;
   }
 
   @Override
