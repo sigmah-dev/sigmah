@@ -81,6 +81,7 @@ import org.sigmah.shared.computation.Computations;
 import org.sigmah.shared.computation.DependencyResolver;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
+import org.sigmah.shared.dto.element.CheckboxElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
@@ -178,6 +179,7 @@ public class ModelUtil {
 		Boolean contactListIsMember = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_IS_MEMBER);
 		ContactModelType contactListType = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_ALLOWED_TYPE);
 		Set<Integer> contactListAllowedModelIds = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_ALLOWED_MODEL_IDS);
+		CheckboxElementDTO checkboxElement = changes.get(AdminUtil.PROP_FX_CONTACT_LIST_CHECKBOX_ELEMENT);
 
 		final FlexibleElementDTO flexibleEltDTO = changes.get(AdminUtil.PROP_FX_FLEXIBLE_ELEMENT);
 
@@ -518,6 +520,21 @@ public class ModelUtil {
 				if (contactListElement.isMember() != contactListIsMember) {
 					contactListElement.setMember(contactListIsMember);
 					specificChanges = true;
+				}
+				// Handle checkboxElement change
+				if (contactListElement.getCheckboxElement() != null) {
+					if (checkboxElement == null) {
+						contactListElement.setCheckboxElement(null);
+						specificChanges = true;
+					} else if (checkboxElement != null && !checkboxElement.getId().equals(contactListElement.getCheckboxElement().getId())) {
+						contactListElement.setCheckboxElement(em.find(CheckboxElement.class, checkboxElement.getId()));
+						specificChanges = true;
+					}
+				} else {
+					if (checkboxElement != null) {
+						contactListElement.setCheckboxElement(em.find(CheckboxElement.class, checkboxElement.getId()));
+						specificChanges = true;
+					}
 				}
 
 				// Let's check if there are newly added or removed allowed contact models
