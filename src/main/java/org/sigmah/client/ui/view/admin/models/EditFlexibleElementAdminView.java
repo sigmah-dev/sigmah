@@ -23,7 +23,6 @@ package org.sigmah.client.ui.view.admin.models;
  */
 
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gwt.dom.client.Style.TableLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -74,6 +73,7 @@ import org.sigmah.shared.dto.PhaseModelDTO;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.category.CategoryTypeDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
+import org.sigmah.shared.dto.element.CheckboxElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
@@ -178,6 +178,8 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 	private AdapterField contactModelsContainer;
 	private TextField<Number> contactNumberLimit;
 	private CheckBox contactIsMember;
+	private ComboBox<CheckboxElementDTO> contactCheckboxElementsField;
+	private ClearableField<CheckboxElementDTO> contactCheckboxElementsClearableField;
 
 	// --
 	// Other components.
@@ -362,6 +364,8 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		contactModelsContainer = Forms.adapter(I18N.CONSTANTS.adminFlexibleElementContactListModelFilter(), contactModelsField);
 		contactNumberLimit = Forms.number(I18N.CONSTANTS.adminFlexibleElementContactListLimit(), false, false, false);
 		contactIsMember = Forms.checkbox("", null, I18N.CONSTANTS.adminFlexibleElementContactListIsMember(), false);
+		contactCheckboxElementsField = Forms.combobox(I18N.CONSTANTS.adminFlexibleElementContactListCheckboxFilter(), false, EntityDTO.ID, FlexibleElementDTO.LABEL);
+		contactCheckboxElementsClearableField = new ClearableField<CheckboxElementDTO>(contactCheckboxElementsField);
         
 		// Form initialization.
 		specificForm = Forms.panel(150);
@@ -388,6 +392,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		specificForm.add(contactTypeClearableField);
 		specificForm.add(contactIsMember);
 		specificForm.add(contactModelsContainer);
+		specificForm.add(contactCheckboxElementsClearableField);
 
 		specificForm.add(budgetFields);
 		specificForm.add(anchorAddSubField);
@@ -767,6 +772,15 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 		return contactIsMember;
 	}
 
+	@Override
+	public ComboBox<CheckboxElementDTO> getContactListCheckboxElementFilter() {
+		return contactCheckboxElementsField;
+	}
+
+	@Override
+	public ClearableField<CheckboxElementDTO> getContactListClearableCheckboxElement() {
+		return contactCheckboxElementsClearableField;
+	}
     /**
 	 * {@inheritDoc}
 	 */
@@ -939,6 +953,7 @@ public class EditFlexibleElementAdminView extends AbstractPopupView<PopupWidget>
 			case CONTACT_LIST:
 				contactNumberLimit.show();
 				contactTypeClearableField.show();
+				contactCheckboxElementsClearableField.show();
 				contactModelsContainer.show();
 				break;
 			default:

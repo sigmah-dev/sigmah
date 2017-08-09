@@ -35,6 +35,8 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.StoreEvent;
+import com.extjs.gxt.ui.client.store.StoreListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
@@ -69,6 +71,7 @@ import org.sigmah.client.ui.view.admin.models.EditFlexibleElementAdminView;
 import org.sigmah.client.ui.view.base.ViewPopupInterface;
 import org.sigmah.client.ui.widget.HasGrid;
 import org.sigmah.client.ui.widget.button.Button;
+import org.sigmah.client.ui.widget.form.ClearableField;
 import org.sigmah.client.ui.widget.form.FormPanel;
 import org.sigmah.client.ui.widget.form.ListComboBox;
 import org.sigmah.client.util.AdminUtil;
@@ -96,6 +99,7 @@ import org.sigmah.shared.dto.category.CategoryTypeDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
+import org.sigmah.shared.dto.element.CheckboxElementDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.element.ContactListElementDTO;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
@@ -241,6 +245,10 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		TextField<Number> getContactListLimit();
 
 		CheckBox getContactIsMember();
+
+		ComboBox<CheckboxElementDTO> getContactListCheckboxElementFilter();
+
+		ClearableField<CheckboxElementDTO> getContactListClearableCheckboxElement();
 
 		// --
 		// Methods.
@@ -1242,10 +1250,58 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		});
 	}
 
+	private void refreshContactListCheckboxElementField(ContactListElementDTO contactListElementDTO) {
+		ListStore<ContactModelDTO> contactModels = view.getContactListModelsFilter().getListStore();
+		ComboBox<CheckboxElementDTO> checkboxElementFilter = view.getContactListCheckboxElementFilter();
+		ClearableField<CheckboxElementDTO> clearableCheckboxElement = view.getContactListClearableCheckboxElement();
+		if (contactModels == null || contactModels.getCount() != 1) {
+			clearableCheckboxElement.hide();
+			checkboxElementFilter.setValue(null);
+		} else {
+			clearableCheckboxElement.show();
+			checkboxElementFilter.getStore().removeAll();
+			ContactModelDTO contactModel = contactModels.getAt(0);
+			CheckboxElementDTO valueToSelect = null;
+			for (FlexibleElementDTO flexibleElementDTO : contactModel.getAllElements()) {
+				if (flexibleElementDTO.getElementType() != ElementTypeEnum.CHECKBOX || flexibleElementDTO.isDisabled()
+						|| flexibleElementDTO.getGroup().getHasIterations()
+						) {
+					continue;
+				}
+				checkboxElementFilter.getStore().add((CheckboxElementDTO) flexibleElementDTO);
+				if (contactListElementDTO.getCheckboxElement() != null &&
+						contactListElementDTO.getCheckboxElement().getId().equals(flexibleElementDTO.getId())) {
+					valueToSelect = (CheckboxElementDTO) flexibleElementDTO;
+				}
+			}
+			if (valueToSelect != null) {
+				checkboxElementFilter.setValue(valueToSelect);
+			} else {
+				checkboxElementFilter.setValue(null);
+			}
+		}
+	}
+
 	public void loadContactListOptions(final ContactListElementDTO flexibleElement) {
 		view.getContactListModelsFilter().getListStore().removeAll();
 		view.getContactListModelsFilter().getAvailableValuesStore().removeAll();
-		dispatch.execute(new GetContactModels(null, true), new AsyncCallback<ListResult<ContactModelDTO>>() {
+		view.getContactListModelsFilter().getListStore().addStoreListener(new StoreListener<ContactModelDTO>() {
+			@Override public void handleEvent(StoreEvent<ContactModelDTO> e) {
+				refreshContactListCheckboxElementField(flexibleElement);
+			}
+		});
+
+
+		// Show getContactListCheckboxElementFilter if exactly one allowedModelId is selected
+		if (flexibleElement != null && flexibleElement.getAllowedModelIds() != null && flexibleElement.getAllowedModelIds().size() == 1) {
+			view.getContactListClearableCheckboxElement().show();
+			view.getContactListCheckboxElementFilter().setValue(flexibleElement.getCheckboxElement());
+		} else {
+			view.getContactListClearableCheckboxElement().hide();
+			view.getContactListCheckboxElementFilter().setValue(null);
+		}
+
+		dispatch.execute(new GetContactModels(null, true, true), new AsyncCallback<ListResult<ContactModelDTO>>() {
 			@Override
 			public void onFailure(Throwable caught) {
 				Log.error("Error while getting available contact models.", caught);
@@ -1288,6 +1344,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			@Override
 			public void selectionChanged(final SelectionChangedEvent<EnumModel<ContactModelType>> event) {
 				view.getContactListModelsFilter().getListStore().removeAll();
+				view.getContactListClearableCheckboxElement().hide();
+				view.getContactListCheckboxElementFilter().setValue(null);
 				filterContactListModels(event.getSelectedItem());
 				if (event.getSelectedItem() != null && event.getSelectedItem().getEnum() == ContactModelType.ORGANIZATION) {
 					view.getContactIsMember().show();
@@ -1516,6 +1574,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		for (ContactModelDTO contactModelDTO : view.getContactListModelsFilter().getListStore().getModels()) {
 			contactListModelIds.add(contactModelDTO.getId());
 		}
+		CheckboxElementDTO checkboxElementDTO = view.getContactListCheckboxElementFilter().getValue();
 
 		// --
 		// Initializing 'NEW' properties map.
@@ -1590,6 +1649,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		newFieldProperties.put(AdminUtil.PROP_FX_CONTACT_LIST_ALLOWED_TYPE, contactListType);
 		newFieldProperties.put(AdminUtil.PROP_FX_CONTACT_LIST_ALLOWED_MODEL_IDS, contactListModelIds);
 		newFieldProperties.put(AdminUtil.PROP_FX_CONTACT_LIST_IS_MEMBER, contactListIsMember);
+		newFieldProperties.put(AdminUtil.PROP_FX_CONTACT_LIST_CHECKBOX_ELEMENT, checkboxElementDTO);
 
 		// --
 		// Logging old/new properties & filtering actual modifications.
