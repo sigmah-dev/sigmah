@@ -65,7 +65,6 @@ import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.ContactModelDTO;
-import org.sigmah.shared.dto.element.event.RequiredValueEvent;
 import org.sigmah.shared.dto.element.event.ValueEvent;
 import org.sigmah.shared.dto.history.HistoryTokenDTO;
 import org.sigmah.shared.dto.history.HistoryTokenListDTO;
@@ -85,6 +84,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
   public static final String ALLOWED_MODEL_IDS = "allowedModels";
   public static final String LIMIT = "limit";
   public static final String IS_MEMBER = "member";
+  public static final String CHECKBOX_ELEMENT = "checkboxElement";
 
   public Component getElementComponent(ValueResult valueResult, EventBus eventBus) {
 	
@@ -266,6 +266,15 @@ public class ContactListElementDTO extends FlexibleElementDTO {
   public void setMember(boolean member) {
     set(IS_MEMBER, member);
   }
+
+  public CheckboxElementDTO getCheckboxElement() {
+		return get(CHECKBOX_ELEMENT);
+	}
+
+  public void setCheckboxElement(CheckboxElementDTO checkboxElement) {
+		set(CHECKBOX_ELEMENT, checkboxElement);
+	}
+
 
   @Override
   public String getEntityName() {

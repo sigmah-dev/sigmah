@@ -1691,6 +1691,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String CONTACT_LIST_ELEMENT_COLUMN_ALLOWED_TYPE = "allowed_type";
 	public static final String CONTACT_LIST_ELEMENT_COLUMN_LIMIT = "contact_limit";
 	public static final String CONTACT_LIST_ELEMENT_COLUMN_IS_MEMBER = "is_member";
+	public static final String CONTACT_LIST_ELEMENT_COLUMN_CHECKBOX_ELEMENT = "id_checkbox_element";
 
 	public static final String CONTACT_LIST_ELEMENT_ALLOWED_MODEL_LINK_TABLE = "contact_list_element_allowed_model";
 }

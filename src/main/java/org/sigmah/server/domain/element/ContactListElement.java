@@ -28,6 +28,7 @@ import java.util.Set;
 import javax.persistence.*;
 
 import org.sigmah.server.domain.ContactModel;
+import org.sigmah.server.domain.LocationType;
 import org.sigmah.server.domain.util.EntityConstants;
 import org.sigmah.shared.dto.referential.ContactModelType;
 
@@ -57,6 +58,10 @@ public class ContactListElement extends FlexibleElement {
 
   @Column(name = EntityConstants.CONTACT_LIST_ELEMENT_COLUMN_IS_MEMBER, nullable = false)
   private boolean member;
+
+  @ManyToOne(fetch = FetchType.LAZY)
+  @JoinColumn(name = EntityConstants.CONTACT_LIST_ELEMENT_COLUMN_CHECKBOX_ELEMENT, nullable = false)
+  private CheckboxElement checkboxElement;
 
   // TODO: Add isMemberOfOrganization parameter
 
@@ -100,6 +105,14 @@ public class ContactListElement extends FlexibleElement {
 
   public void setMember(boolean member) {
     this.member = member;
+  }
+
+  public CheckboxElement getCheckboxElement() {
+    return checkboxElement;
+  }
+
+  public void setCheckboxElement(CheckboxElement checkboxElement) {
+    this.checkboxElement = checkboxElement;
   }
 
   @Override
