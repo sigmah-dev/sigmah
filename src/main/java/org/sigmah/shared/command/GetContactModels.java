@@ -35,6 +35,7 @@ public class GetContactModels extends AbstractCommand<ListResult<ContactModelDTO
   private ContactModelType type;
   private Set<Integer> allowedIds;
   private boolean onlyAvailable;
+  private boolean withLayout;
 
   public GetContactModels() {
     // Serialization
@@ -44,10 +45,19 @@ public class GetContactModels extends AbstractCommand<ListResult<ContactModelDTO
     this(type, Collections.<Integer>emptySet(), onlyAvailable);
   }
 
+  public GetContactModels(ContactModelType type, boolean onlyAvailable, boolean withLayout) {
+    this(type, Collections.<Integer>emptySet(), onlyAvailable, withLayout);
+  }
+
   public GetContactModels(ContactModelType type, Set<Integer> allowedIds, boolean onlyAvailable) {
+    this(type, allowedIds, onlyAvailable, false);
+  }
+
+  public GetContactModels(ContactModelType type, Set<Integer> allowedIds, boolean onlyAvailable, boolean withLayout) {
     this.type = type;
     this.allowedIds = allowedIds;
     this.onlyAvailable = onlyAvailable;
+    this.withLayout = withLayout;
   }
 
   public ContactModelType getType() {
@@ -60,5 +70,9 @@ public class GetContactModels extends AbstractCommand<ListResult<ContactModelDTO
 
   public boolean isOnlyAvailable() {
     return onlyAvailable;
+  }
+
+  public boolean isWithLayout() {
+    return withLayout;
   }
 }
