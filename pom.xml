@@ -1144,6 +1144,76 @@
 
                 </profile>
 
+		<!-- ========= [ FRANCOPHONIE SPECIAL VERSION. ] ========= -->
+		<profile>
+		<id>sigmah-custom-francophonie</id>
+
+		<build>
+			<finalName>sigmah-oif_v${project.version}</finalName>
+			<plugins>
+				<plugin>
+					<groupId>com.google.code.maven-replacer-plugin</groupId>
+					<artifactId>replacer</artifactId>
+					<version>1.5.3</version>
+					<executions>
+						<execution>
+							<phase>process-sources</phase>
+							<goals>
+								<goal>replace</goal>
+							</goals>                   
+						</execution>
+					</executions>
+
+					<configuration>
+						<basedir>${basedir}</basedir>
+						<filesToInclude>
+							src/main/resources/org/sigmah/client/i18n/UIConstants_fr.properties
+						</filesToInclude>
+						<replacements>
+							<replacement>
+								<token>createProjectTypeNGO=Projet propre</token>
+								<value>createProjectTypeNGO=Initiative quadriennale</value>
+							</replacement>         
+							<replacement>
+								<token>createProjectTypeFunding2=Projet de financement</token>
+								<value>createProjectTypeFunding2=Programme</value>
+							</replacement>         
+							<replacement>
+								<token>createProjectTypePartner2=Projet partenaire local</token>
+								<value>createProjectTypePartner2=Projet annuel</value>
+							</replacement>         
+						</replacements>
+					</configuration>
+				</plugin>
+
+
+				<plugin>
+					<groupId>org.sigmah</groupId>
+					<artifactId>sigmah-maven-plugin</artifactId>
+					<version>${maven-sigmah-plugin.version}</version>
+					<executions>
+						<execution>
+							<phase>process-sources</phase>
+							<goals>
+								<goal>sigmah</goal>
+							</goals>
+						</execution>
+					</executions>
+					<configuration>
+						<version>
+							<!-- Maven property: ${sigmah.version.number} -->
+							<number>${project.version}-oif</number>
+							<!-- Maven property: ${sigmah.version.name} -->
+							<name>Francophonie custom version</name> 
+						</version>
+					</configuration>
+				</plugin>
+
+			</plugins>
+
+		</build>
+		</profile>
+
 		<profile>
 			<id>sigmah-check-bundles-integrity</id>
 			<build>
