@@ -29,6 +29,8 @@ import java.util.Set;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
+import org.sigmah.client.event.OfflineEvent;
+import org.sigmah.client.event.handler.OfflineHandler;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
@@ -36,6 +38,8 @@ import org.sigmah.client.page.PageRequest;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.search.SearchService;
 import org.sigmah.client.search.SearchServiceAsync;
+import org.sigmah.client.ui.notif.ConfirmCallback;
+import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
 import org.sigmah.client.ui.presenter.contact.dashboardlist.ContactsListWidget;
 import org.sigmah.client.ui.presenter.project.treegrid.ProjectsListWidget;
@@ -47,7 +51,13 @@ import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.widget.HasTreeGrid.TreeGridEventHandler;
 import org.sigmah.client.ui.widget.WorkInProgressWidget;
 import org.sigmah.client.ui.widget.orgunit.OrgUnitTreeGrid;
+import org.sigmah.client.ui.zone.Zone;
 import org.sigmah.client.util.ClientUtils;
+import org.sigmah.client.util.profiler.ExecutionAsyncDAO;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
+import org.sigmah.offline.status.ApplicationState;
+import org.sigmah.offline.sync.UpdateDates;
 import org.sigmah.shared.command.GetMonitoredPoints;
 import org.sigmah.shared.command.GetOrgUnits;
 import org.sigmah.shared.command.GetReminders;
@@ -66,28 +76,11 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-import org.sigmah.client.event.OfflineEvent;
-import org.sigmah.client.event.handler.OfflineHandler;
-import org.sigmah.client.ui.notif.ConfirmCallback;
-import org.sigmah.client.ui.notif.N10N;
-import org.sigmah.client.ui.zone.Zone;
-import org.sigmah.client.util.profiler.Checkpoint;
-import org.sigmah.client.util.profiler.Execution;
-import org.sigmah.client.util.profiler.ExecutionAsyncDAO;
-import org.sigmah.client.util.profiler.Profiler;
-import org.sigmah.client.util.profiler.Scenario;
-import org.sigmah.offline.status.ApplicationState;
-import org.sigmah.offline.sync.UpdateDates;
-import org.sigmah.shared.command.SendProbeReport;
-import org.sigmah.shared.command.result.Result;
-import org.sigmah.shared.dto.profile.CheckPointDTO;
-import org.sigmah.shared.dto.profile.ExecutionDTO;
 
 /**
  * Dashboard page presenter.
@@ -281,19 +274,17 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		
 		searchService.updateCore(auth().getOrganizationSolrCoreUrl(), new AsyncCallback<Boolean>() {
 			public void onFailure(Throwable caught) {
-				N10N.errorNotif("Failed to connect to Solr!",
-				"Check your connection with Solr Server or the Solr Core Url!");
+				N10N.error("Error connecting to Solr", "Solr Server connection is not available.");
 				//Window.alert("Could not update Solr Core. Check that the url is valid!");
 				caught.printStackTrace();
 			}
 
 			public void onSuccess(Boolean result) {
 				Boolean dih_success = result;
-				if (dih_success == true) {
+				if (dih_success) {
 					//Window.alert("Successfully updated Solr Core!");
 				} else {
-					N10N.errorNotif("Failed to connect to Solr!",
-					"Check your connection with Solr Server or the Solr Core Url!");
+					N10N.error("Error connecting to Solr", "Solr Server connection is not available.");
 				}
 			}
 		});

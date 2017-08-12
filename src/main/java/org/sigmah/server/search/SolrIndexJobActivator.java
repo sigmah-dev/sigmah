@@ -3,11 +3,9 @@ package org.sigmah.server.search;
 import javax.persistence.EntityManager;
 
 import org.quartz.JobDetail;
-import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.Trigger;
 import org.quartz.TriggerUtils;
-import org.quartz.impl.StdSchedulerFactory;
 import org.sigmah.server.autoExport.QuartzScheduler;
 
 import com.google.inject.Inject;

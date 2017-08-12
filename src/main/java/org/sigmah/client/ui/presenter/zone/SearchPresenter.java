@@ -1,6 +1,5 @@
 package org.sigmah.client.ui.presenter.zone;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -10,10 +9,6 @@ import java.util.Map;
 import java.util.Set;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
-import org.sigmah.client.dispatch.monitor.LoadingMask;
-import org.sigmah.client.event.UpdateEvent;
-import org.sigmah.client.event.handler.UpdateHandler;
-import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageRequest;
@@ -21,67 +16,38 @@ import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.search.SearchService;
 import org.sigmah.client.search.SearchServiceAsync;
 import org.sigmah.client.ui.notif.N10N;
-import org.sigmah.client.ui.presenter.CreateProjectPresenter;
 import org.sigmah.client.ui.presenter.base.AbstractZonePresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.zone.SearchView;
-import org.sigmah.client.ui.widget.tab.Tab;
-import org.sigmah.client.ui.widget.tab.TabBar;
-import org.sigmah.client.ui.widget.tab.TabId;
-import org.sigmah.client.ui.widget.tab.TabBar.TabBarListener;
+import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.zone.Zone;
 import org.sigmah.client.ui.zone.ZoneRequest;
-import org.sigmah.client.util.ClientUtils;
-import org.sigmah.shared.command.BackupArchiveManagementCommand;
-import org.sigmah.shared.command.FilesSolrIndexCommand;
 import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.GetOrgUnits;
 import org.sigmah.shared.command.GetProjects;
-import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.command.result.ListResult;
-import org.sigmah.shared.conf.PropertyName;
-import org.sigmah.shared.dto.BackupDTO;
 import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
-import org.sigmah.shared.dto.search.FilesSolrIndexDTO;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
 import org.sigmah.shared.util.ProfileUtils;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.ComponentEvent;
 import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.KeyEvent;
 import com.extjs.gxt.ui.client.event.KeyListener;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.TreeStore;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.gwt.core.client.GWT;
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.KeyCodes;
-import com.google.gwt.event.dom.client.KeyDownEvent;
-import com.google.gwt.event.dom.client.KeyDownHandler;
-import com.google.gwt.event.dom.client.KeyUpEvent;
-import com.google.gwt.event.dom.client.KeyUpHandler;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.rpc.AsyncCallback;
-//import com.google.gwt.user.client.ui.Button;
-import org.sigmah.client.ui.widget.button.Button;
-
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.HasHTML;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.RootPanel;
-import com.google.gwt.user.client.ui.TextBox;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -119,18 +85,16 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 	private final SearchServiceAsync searchService = GWT.create(SearchService.class);
 	private ArrayList<SearchResultsDTO> searchResults = new ArrayList<SearchResultsDTO>();
-	Set<Integer> projectIdsForFiltering;
-	Set<Integer> orgUnitIdsForFiltering;
-	Set<Integer> contactIdsForFiltering;
-	private Boolean dih_success;
-	String textToServer = "default search text";
-	String filter = "All";
-	boolean firstsearch = true;
+	private Set<Integer> projectIdsForFiltering;
+	private Set<Integer> orgUnitIdsForFiltering;
+	private Set<Integer> contactIdsForFiltering;
+	private String textToServer = "default search text";
+	private String filter = "All";
+	private boolean firstsearch = true;
 
 	@Inject
 	public SearchPresenter(View view, Injector injector) {
 		super(view, injector);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -221,14 +185,10 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 				}
 			});
 		}
-		// Send the input to the server.
-		// Window.alert("Filter is: " + filter);
 		searchService.search(textToServer, filter, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
 
 			public void onFailure(Throwable caught) {
-				// Window.alert("Failure on the server side!");
 				N10N.error("Error connecting to Solr", "Solr Server connection is not available. Try later!");
-				// firstsearch = true; //will try to set up a connnection again
 				caught.printStackTrace();
 			}
 
@@ -399,13 +359,9 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 				return false;
 			}
 		} else if (retMap.get("doc_type").toString().equals("FILE")) {
-			// if(projectIdsForFiltering.size() == 0 ||
-			// orgUnitIdsForFiltering.size() == 0 ) //cannot view projects or
-			// orgunits
-			// return false;
 			dto.setDTOid(retMap.get("file_version_id").toString());
-			dto.setFile_name(retMap.get("file_name"));
-			dto.setFile_ext(retMap.get("file_ext"));
+			dto.setFileName(retMap.get("file_name"));
+			dto.setFileExt(retMap.get("file_ext"));
 			//Window.alert(retMap.toString() + "\n" + retMap.get("file_author_id") + " " + auth().getUserId().toString());
 			if (retMap.get("file_author_id").equals(auth().getUserId().toString())) {
 				// temporary filter, since I am unable to implement a better

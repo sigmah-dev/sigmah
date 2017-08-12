@@ -1,52 +1,5 @@
 package org.sigmah.client.ui.presenter.admin;
 
-import com.google.gwt.core.client.GWT;
-
-/*
- * #%L
- * Sigmah
- * %%
- * Copyright (C) 2010 - 2016 URD
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
-
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Timer;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Image;
-import com.google.inject.ImplementedBy;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.FormEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.store.StoreEvent;
-import com.extjs.gxt.ui.client.store.StoreListener;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
-import com.extjs.gxt.ui.client.widget.form.FileUploadField;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
-import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
-import com.extjs.gxt.ui.client.widget.form.TextField;
-
 import java.util.Set;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
@@ -87,6 +40,51 @@ import org.sigmah.shared.servlet.ServletUrlBuilder;
 import org.sigmah.shared.util.ExportUtils.ExportFormat;
 
 import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FormEvent;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.StoreEvent;
+import com.extjs.gxt.ui.client.store.StoreListener;
+import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Encoding;
+import com.extjs.gxt.ui.client.widget.form.FormPanel.Method;
+import com.extjs.gxt.ui.client.widget.form.TextField;
+import com.google.gwt.core.client.GWT;
+
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.Timer;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Image;
+import com.google.inject.ImplementedBy;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
 
 /**
  * Admin Parameters Presenter which manages {@link ParametersAdminView}.
@@ -730,7 +728,7 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 
 					public void onSuccess(Boolean result) {
 						Boolean dih_success = result;
-						if (dih_success == true) {
+						if (dih_success) {
 							N10N.validNotif("Successfully updated Solr Core!",
 							"You can now carry out search.");
 //							Window.alert("Successfully updated Solr Core!");

@@ -34,7 +34,6 @@ import org.sigmah.server.file.impl.LocalFileStorageProvider;
 import org.sigmah.server.file.impl.LogoManagerImpl;
 import org.sigmah.server.search.FilesSolrManager;
 import org.sigmah.server.search.FilesSolrManagerImpl;
-import org.sigmah.server.search.SolrSearcher;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 

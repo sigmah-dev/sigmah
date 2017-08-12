@@ -2,8 +2,6 @@ package org.sigmah.server.search;
 
 import com.google.gwt.user.server.rpc.RemoteServiceServlet;
 import java.util.ArrayList;
-import java.util.List;
-
 import org.sigmah.client.search.SearchService;
 import org.sigmah.server.search.SolrSearcher;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
@@ -22,7 +20,7 @@ public class SearchServiceImpl extends RemoteServiceServlet implements SearchSer
 	
 	@Override
 	public Boolean index() {
-		return SolrSearcher.getInstance().FullDataImport();
+		return SolrSearcher.getInstance().fullDataImport();
 	}
 
 	@Override

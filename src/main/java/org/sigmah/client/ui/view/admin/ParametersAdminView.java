@@ -1,5 +1,8 @@
 package org.sigmah.client.ui.view.admin;
 
+import java.util.Arrays;
+import java.util.Date;
+
 /*
  * #%L
  * Sigmah
@@ -35,6 +38,7 @@ import org.sigmah.client.ui.widget.layout.Layouts.Margin;
 import org.sigmah.client.ui.widget.panel.Panels;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
+import org.sigmah.shared.dto.password.ExpirationPolicy;
 import org.sigmah.shared.dto.value.FileDTO.LoadingScope;
 import org.sigmah.shared.util.ExportUtils.ExportFormat;
 import org.sigmah.shared.util.Pair;
@@ -42,7 +46,6 @@ import org.sigmah.shared.util.Pair;
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
 import com.extjs.gxt.ui.client.Style.Orientation;
 import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.util.Margins;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Html;
 import com.extjs.gxt.ui.client.widget.Label;
@@ -57,10 +60,6 @@ import com.extjs.gxt.ui.client.widget.form.RadioGroup;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
 import com.extjs.gxt.ui.client.widget.form.SpinnerField;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
-import com.extjs.gxt.ui.client.widget.layout.FlowData;
-import com.extjs.gxt.ui.client.widget.layout.HBoxLayout;
-import com.extjs.gxt.ui.client.widget.layout.LayoutData;
 import com.google.gwt.event.dom.client.LoadEvent;
 import com.google.gwt.event.dom.client.LoadHandler;
 import com.google.gwt.i18n.client.NumberFormat;
@@ -69,9 +68,6 @@ import com.google.gwt.user.client.ui.HasHorizontalAlignment;
 import com.google.gwt.user.client.ui.Image;
 import com.google.gwt.user.client.ui.SimplePanel;
 import com.google.inject.Singleton;
-import java.util.Arrays;
-import java.util.Date;
-import org.sigmah.shared.dto.password.ExpirationPolicy;
 
 /**
  * {@link ParametersAdminPresenter}'s view implementation.

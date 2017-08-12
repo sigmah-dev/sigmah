@@ -1,10 +1,5 @@
 package org.sigmah.client.ui.view.zone;
 
-import java.util.Arrays;
-import java.util.List;
-
-import org.sigmah.client.i18n.I18N;
-
 /*
  * #%L
  * Sigmah
@@ -27,29 +22,20 @@ import org.sigmah.client.i18n.I18N;
  * #L%
  */
 
+
+import java.util.Arrays;
+import java.util.List;
+
 import org.sigmah.client.ui.presenter.zone.SearchPresenter;
-import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.base.AbstractView;
+import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.Forms;
-import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
-import org.sigmah.shared.dto.password.ExpirationPolicy;
 
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
-import com.extjs.gxt.ui.client.widget.form.SimpleComboValue;
 import com.extjs.gxt.ui.client.widget.form.TextField;
-//import com.google.gwt.user.client.ui.Button;
-import org.sigmah.client.ui.widget.button.Button;
-import com.google.gwt.user.client.ui.FlexTable;
-import com.google.gwt.user.client.ui.FlowPanel;
-import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.HasHTML;
 import com.google.gwt.user.client.ui.HorizontalPanel;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.gwt.user.client.ui.Panel;
-import com.google.gwt.user.client.ui.SimplePanel;
-import com.google.gwt.user.client.ui.TextBox;
-import com.google.gwt.user.client.ui.Widget;
 
 
 /**
@@ -63,7 +49,7 @@ public class SearchView extends AbstractView implements SearchPresenter.View {
 	private TextField<String> searchTextField;
 	private SimpleComboBox<String> searchOptionsComboBox;
 	private Button newSearchButton;
-	List<String> newSearchOptions;
+	private List<String> newSearchOptions;
 
 	/**
 	 * {@inheritDoc}

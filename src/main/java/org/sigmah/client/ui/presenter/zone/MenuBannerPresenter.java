@@ -1,29 +1,5 @@
 package org.sigmah.client.ui.presenter.zone;
 
-/*
- * #%L
- * Sigmah
- * %%
- * Copyright (C) 2010 - 2016 URD
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
-
-
-import com.allen_sauer.gwt.log.client.Log;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,13 +25,10 @@ import org.sigmah.shared.conf.PropertyName;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.event.dom.client.HasClickHandlers;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
-import org.apache.commons.lang3.StringEscapeUtils;
 /**
  * Menu banner presenter displaying main tabs.
  * 
@@ -73,10 +46,6 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 	 * Project tab id.
 	 */
 	private final static String DASHBOARD_PROJECT_TAB_ID="dashboardProjectTabId";
-	/**
-	 * Search results tab id.
-	 */
-	private final static String SEARCH_RESULTS_TAB_ID="searchResultsTabId";
 	
 	/**
 	 * View interface.

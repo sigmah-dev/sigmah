@@ -1,20 +1,15 @@
 package org.sigmah.server.search;
 
 import java.io.IOException;
-import java.util.Calendar;
 
 import javax.persistence.EntityManager;
 import javax.persistence.EntityTransaction;
 
 import org.quartz.Job;
 import org.quartz.JobDataMap;
-import org.quartz.JobDetail;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
-import org.quartz.Scheduler;
-import org.quartz.SchedulerException;
-import org.quartz.Trigger;
-import org.quartz.impl.StdSchedulerFactory;
+
 import com.google.inject.Injector;
 
 public class SolrIndexJob implements Job{
@@ -26,7 +21,7 @@ public class SolrIndexJob implements Job{
 		final EntityManager em = (EntityManager) dataMap.get("em");
 		final Injector injector = (Injector) dataMap.get("injector");
 		System.out.println("Starting Solr Full Data Import!");
-		if( !SolrSearcher.getInstance().FullDataImport()){
+		if( !SolrSearcher.getInstance().fullDataImport()){
 			System.out.println("Could not finish Full Data Import!");
 			return;
 		}
@@ -38,7 +33,7 @@ public class SolrIndexJob implements Job{
 			tx.begin();
 			FilesSolrManager filesSolrManager = injector.getInstance(FilesSolrManager.class);
 			System.out.println("Starting Files Solr Indexing!");
-			filesSolrManager.FilesImport(SolrSearcher.getInstance());
+			filesSolrManager.filesImport(SolrSearcher.getInstance());
 			System.out.println("Finished Files Solr Indexing!");
 			tx.commit();
 			System.out.println("Scheduled indexing of solr server over");

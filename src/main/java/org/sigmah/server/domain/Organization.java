@@ -155,11 +155,11 @@ public class Organization extends AbstractEntityId<Integer> {
 		this.orgUnit = orgUnit;
 	}
 
-	public String getSolrcore_url() {
+	public String getSolrCoreUrl() {
 		return solrcore_url;
 	}
 
-	public void setSolrcore_url(String solrcore_url) {
+	public void setSolrCoreUrl(String solrcore_url) {
 		this.solrcore_url = solrcore_url;
 	}
 	

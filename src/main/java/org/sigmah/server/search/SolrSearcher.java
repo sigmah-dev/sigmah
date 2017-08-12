@@ -1,48 +1,22 @@
 package org.sigmah.server.search;
 
-import java.io.File;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
-import org.apache.solr.client.solrj.*;
-import org.apache.solr.client.solrj.SolrQuery.ORDER;
-import org.apache.solr.client.solrj.impl.*;
-import org.apache.solr.client.solrj.request.ContentStreamUpdateRequest;
-import org.apache.solr.client.solrj.request.QueryRequest;
+import org.apache.solr.client.solrj.SolrClient;
+import org.apache.solr.client.solrj.SolrQuery;
+import org.apache.solr.client.solrj.SolrServerException;
+import org.apache.solr.client.solrj.impl.HttpSolrClient;
 import org.apache.solr.client.solrj.response.QueryResponse;
 import org.apache.solr.common.SolrDocument;
-import org.apache.solr.common.SolrDocumentList;
-import org.apache.solr.common.SolrInputDocument;
 import org.apache.solr.common.params.ModifiableSolrParams;
-import org.apache.solr.common.util.NamedList;
-import org.sigmah.server.conf.BasicProperties;
-import org.sigmah.server.conf.Properties;
-import org.sigmah.server.dao.FileDAO;
-import org.sigmah.server.domain.value.FileVersion;
-import org.sigmah.server.file.FileStorageProvider;
-import org.sigmah.shared.conf.PropertyKey;
 import org.sigmah.shared.dto.search.SearchResultsDTO;
-import org.sigmah.shared.servlet.ServletUrlBuilder;
-import org.sigmah.shared.servlet.ServletConstants;
 
-import com.allen_sauer.gwt.log.client.Log;
 import com.google.gson.Gson;
-import com.google.gson.JsonObject;
-import com.google.gwt.json.client.JSONArray;
-import com.google.gwt.json.client.JSONObject;
-import com.google.gwt.user.client.Window;
-import com.google.inject.Inject;
-
-import java.net.*;
 
 public class SolrSearcher {
-
-	private Properties properties = new BasicProperties();
 
 	private String urlString;
 	public static SolrClient solrServer;
@@ -154,7 +128,7 @@ public class SolrSearcher {
 
 		if (rsp != null) {
 			Gson gson = new Gson();
-			Iterator iter = rsp.getResults().iterator();
+			Iterator<?> iter = rsp.getResults().iterator();
 			//rsp.get
 			//rsp.getHighlighting().get("ORG_UNIT_1637").get("org_unit_model_name").get(0); //returns highlighted string
 			//how do i send it from back-end to front end, very hard
@@ -171,7 +145,7 @@ public class SolrSearcher {
 		return searchList;
 	}
 
-	public static Boolean FullDataImport() {
+	public static Boolean fullDataImport() {
 		ModifiableSolrParams params = new ModifiableSolrParams();
 		params.set("qt", "/dataimport");
 		params.set("command", "full-import");

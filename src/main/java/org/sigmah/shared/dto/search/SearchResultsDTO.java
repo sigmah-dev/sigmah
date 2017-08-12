@@ -1,8 +1,6 @@
 package org.sigmah.shared.dto.search;
 
 import java.io.Serializable;
-import java.util.ArrayList;
-
 import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 
 public class SearchResultsDTO extends AbstractModelDataEntityDTO<Integer> implements Serializable
@@ -52,19 +50,19 @@ public class SearchResultsDTO extends AbstractModelDataEntityDTO<Integer> implem
 		DTOtype = dTOtype;
 	}
 
-	public String getFile_name() {
+	public String getFileName() {
 		return file_name;
 	}
 
-	public void setFile_name(String file_name) {
+	public void setFileName(String file_name) {
 		this.file_name = file_name;
 	}
 
-	public String getFile_ext() {
+	public String getFileExt() {
 		return file_ext;
 	}
 
-	public void setFile_ext(String file_ext) {
+	public void setFileExt(String file_ext) {
 		this.file_ext = file_ext;
 	}
 	

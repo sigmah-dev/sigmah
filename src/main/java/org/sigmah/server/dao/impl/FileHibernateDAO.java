@@ -1,5 +1,7 @@
 package org.sigmah.server.dao.impl;
 
+import static org.sigmah.shared.util.ValueResultUtils.normalizeFileName;
+
 /*
  * #%L
  * Sigmah
@@ -31,7 +33,6 @@ import java.util.Map;
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
 import javax.persistence.Query;
-import javax.persistence.QueryTimeoutException;
 import javax.persistence.TypedQuery;
 
 import org.apache.commons.collections4.CollectionUtils;
@@ -41,6 +42,7 @@ import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.element.FlexibleElement;
+import org.sigmah.server.domain.util.DomainFilters;
 import org.sigmah.server.domain.value.File;
 import org.sigmah.server.domain.value.FileVersion;
 import org.sigmah.server.domain.value.Value;
@@ -51,8 +53,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.persist.Transactional;
-import org.sigmah.server.domain.util.DomainFilters;
-import static org.sigmah.shared.util.ValueResultUtils.normalizeFileName;
 
 /**
  * {@link FileDAO} implementation.

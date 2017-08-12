@@ -1,7 +1,6 @@
 package org.sigmah.shared.command;
 
 import org.sigmah.shared.command.base.AbstractCommand;
-import org.sigmah.shared.dto.BackupDTO;
 import org.sigmah.shared.dto.search.FilesSolrIndexDTO;
 
 public class FilesSolrIndexCommand extends AbstractCommand<FilesSolrIndexDTO>{

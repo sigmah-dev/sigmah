@@ -30,7 +30,6 @@ import org.sigmah.client.page.PageManager;
 import org.sigmah.client.security.AuthenticationProvider;
 import org.sigmah.client.security.SecureDispatchAsync;
 import org.sigmah.client.security.SecureExceptionHandler;
-import org.sigmah.client.ui.presenter.zone.SearchPresenter;
 import org.sigmah.client.ui.theme.SigmahTheme;
 import org.sigmah.client.ui.theme.Theme;
 
