@@ -115,7 +115,6 @@ public enum Page implements IsSerializable {
 	HELP("help", true),
 	CREATE_PROJECT("create-project", true),
 	IMPORT_VALUES("import-values"), 
-	//aditya
 	SEARCH_RESULTS("search-results") ;
 
 	private final String parentKey;

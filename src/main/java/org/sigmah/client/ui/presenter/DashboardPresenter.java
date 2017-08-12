@@ -275,15 +275,12 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		searchService.updateCore(auth().getOrganizationSolrCoreUrl(), new AsyncCallback<Boolean>() {
 			public void onFailure(Throwable caught) {
 				N10N.error("Error connecting to Solr", "Solr Server connection is not available.");
-				//Window.alert("Could not update Solr Core. Check that the url is valid!");
 				caught.printStackTrace();
 			}
 
 			public void onSuccess(Boolean result) {
 				Boolean dih_success = result;
-				if (dih_success) {
-					//Window.alert("Successfully updated Solr Core!");
-				} else {
+				if (!dih_success) {
 					N10N.error("Error connecting to Solr", "Solr Server connection is not available.");
 				}
 			}

@@ -1,7 +1,4 @@
-
 package org.sigmah.client.ui.view;
-
-import java.util.ArrayList;
 
 /*
  * #%L
@@ -25,6 +22,7 @@ import java.util.ArrayList;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -66,10 +64,10 @@ import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
 
 /**
- * Dashboard view.
+ * Search Results view. A new view opens up for every search query.
  * 
- * @author Tom Miette (tmiette@ideia.fr)
- * @author Denis Colliot (dcolliot@ideia.fr)
+ * @author 
+ *
  */
 
 public class SearchResultsView extends AbstractView implements SearchResultsPresenter.View {
@@ -108,7 +106,6 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 
 	@Override
 	public void setFileClickHandler(final FilesResultsClickHandler handler) {
-		// TODO Auto-generated method stub
 		this.handler = handler;
 	}
 
@@ -117,8 +114,6 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	 */
 	@Override
 	public void initialize() {
-		// default
-		// Window.alert("Initializing Search View!");
 	}
 
 	public ContentPanel getSearchResultsPanel() {
@@ -135,7 +130,6 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 
 	public void setSearchString(String searchText) {
 		this.searchText = searchText;
-		// Window.alert("Searchtext set to " + searchText);
 	}
 
 	// -------------------------------------------------------------------------------------------
@@ -146,8 +140,6 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 
 	public boolean addSearchData(Object searchData) {
 		if (searchData != null) {
-			// Window.alert("Received search results!: \n" +
-			// searchData.toString());
 			searchResultsStore = new ListStore<SearchResultsDTO>();
 			for (Object object : (ArrayList<?>) searchData) {
 
@@ -156,14 +148,12 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 			}
 			return true;
 		} else {
-			Window.alert("Failed to receive search results!");
 			return false;
 		}
 	}
 
 	public void addResultsPanel() {
-
-		// Window.alert("Started addResultsPanel!");
+		
 		if (centerContainer == null) {
 			centerContainer = Layouts.vBox();
 			centerContainer.layout();
@@ -190,14 +180,11 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 
 	private void setContentPanel(String title, boolean collapsible, Layout layout, Scroll scroll,
 			String... stylenames) {
-
-		// Window.alert("Started setContentPanel!");
+		
 		searchResultsPanel = new ContentPanel(layout != null ? layout : new FitLayout());
 		searchResultsPanel.layout();
 
-		// Window.alert("Hello!");
 		searchResultsPanel.setHeadingHtml(title);
-		// Window.alert("Hello!");
 		searchResultsPanel.layout();
 		searchResultsPanel.setHeaderVisible(true);
 		searchResultsPanel.setCollapsible(collapsible);
@@ -215,22 +202,16 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 			searchResultsPanel.setScrollMode(scroll);
 		}
 
-		// Window.alert("Ended setContentPanel!");
-
 	}
 
 	private List<ColumnConfig> createSearchResultsGridColumns() {
-
-		// Window.alert("Started createSearchResultsGridColumns!");
 
 		// Label column.
 		ColumnConfig labelColumn = new ColumnConfig();
 		labelColumn.setId("label");
 		labelColumn.setHeaderHtml("Sort");
 		labelColumn.setWidth(100);
-		// labelColumn.setResizable(true);
 
-		// Add link
 		labelColumn.setRenderer(new GridCellRenderer<SearchResultsDTO>() {
 
 			@Override
@@ -302,7 +283,10 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		return Arrays.asList(new ColumnConfig[] { labelColumn });
 	}
 
-	private String getNiceTextForProject(Map<String, String> resultsMap, String htmlBuilder) {
+	private String getNiceTextForProject(Map<String, String> resultsMap) {
+		
+		String htmlBuilder = "";
+		
 		ProjectModelType pmt = null;
 		if (resultsMap.get("type_pmodel").equals("FUNDING"))
 			pmt = ProjectModelType.FUNDING;
@@ -333,7 +317,10 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		return htmlBuilder;
 	}
 
-	private String getNiceTextForOrgUnit(Map<String, String> resultsMap, String htmlBuilder) {
+	private String getNiceTextForOrgUnit(Map<String, String> resultsMap) {
+		
+		String htmlBuilder = "";
+		
 		htmlBuilder += "<div id=\"container\" style=\"white-space:nowrap;\">";
 		htmlBuilder += "<br><div id=\"image\" style=\"display:inline;padding-left:10px;\">" + getOrgUnitLogo().getHTML()
 				+ "</div>" + "<div id=\"text\" style = \"font-size:13pt;font-family:tahoma;"
@@ -353,7 +340,10 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		return htmlBuilder;
 	}
 
-	private String getNiceTextForContact(Map<String, String> resultsMap, String htmlBuilder) {
+	private String getNiceTextForContact(Map<String, String> resultsMap) {
+		
+		String htmlBuilder = "";
+		
 		htmlBuilder += "<div id=\"container\" style=\"white-space:nowrap\">";
 		htmlBuilder += "<br>" + "<div id=\"image\" style=\"display:inline;padding-left:10px;\">"
 				+ IconImageBundle.ICONS.user().createImage() + "</div>"
@@ -384,7 +374,10 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		return htmlBuilder;
 	}
 
-	private String getNiceTextForFile(Map<String, String> resultsMap, String htmlBuilder) {
+	private String getNiceTextForFile(Map<String, String> resultsMap) {
+		
+		String htmlBuilder = "";
+		
 		htmlBuilder += "<div id=\"container\" style=\"white-space:nowrap\">";
 		htmlBuilder += "<br><div id=\"image\" style=\"display:inline;padding-left:10px;\">"
 				+ IconImageBundle.ICONS.attach().createImage() + "</div>"
@@ -423,21 +416,20 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 		return htmlBuilder;
 	}
 
-	public String getNiceText(Map<String, String> resultsMap) {
-		String htmlBuilder = "";
+	private String getNiceText(Map<String, String> resultsMap) {
 		if (resultsMap.get("doc_type").toString().equals("PROJECT")) {
-			return getNiceTextForProject(resultsMap, htmlBuilder);
+			return getNiceTextForProject(resultsMap);
 		}
 		if (resultsMap.get("doc_type").toString().equals("ORG_UNIT")) {
-			return getNiceTextForOrgUnit(resultsMap, htmlBuilder);
+			return getNiceTextForOrgUnit(resultsMap);
 		}
 		if (resultsMap.get("doc_type").toString().equals("CONTACT")) {
-			return getNiceTextForContact(resultsMap, htmlBuilder);
+			return getNiceTextForContact(resultsMap);
 		}
 		if (resultsMap.get("doc_type").toString().equals("FILE")) {
-			return getNiceTextForFile(resultsMap, htmlBuilder);
+			return getNiceTextForFile(resultsMap);
 		}
-		return htmlBuilder;
+		return "";
 	}
 
 	private int min(int i, int length) {

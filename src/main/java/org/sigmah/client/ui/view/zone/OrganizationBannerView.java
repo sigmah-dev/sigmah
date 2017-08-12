@@ -41,7 +41,6 @@ public class OrganizationBannerView extends AbstractView implements Organization
 	private Panel logoPanel;
 	private Panel namePanel;
 	private HTML nameLabel;
-	//private HTML searchText;
 
 	/**
 	 * {@inheritDoc}
@@ -57,9 +56,6 @@ public class OrganizationBannerView extends AbstractView implements Organization
 
 		nameLabel = new HTML();
 		namePanel.add(nameLabel);
-		
-//		searchText = new HTML("Search1");
-//		namePanel.add(searchText);
 
 		// initWidget(); Useless.
 

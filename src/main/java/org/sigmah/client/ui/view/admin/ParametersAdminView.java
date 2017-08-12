@@ -114,6 +114,7 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 	private DateField scheduledDateField;
 	private Button passwordExpirationSaveButton;
 
+	//Solr settings
 	private FormPanel solrSettingsForm;
 	private TextField<String> solrCoreUrlTextField;
 	private Button solrSaveConfigButton;
@@ -137,15 +138,10 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 
 		add(topContainer, Layouts.borderLayoutData(LayoutRegion.NORTH, 0.5f, Margin.HALF_BOTTOM));
 
-		// add()
-
 		final LayoutContainer bottomWestContainer = Layouts.hBox();
 		bottomWestContainer.add(createExportManagementPanel(), Layouts.hBoxData(Margin.HALF_RIGHT));
 		final LayoutContainer bottomEastContainer = Layouts.hBox();
 		bottomEastContainer.add(createSolrSettingsPanel(), Layouts.hBoxData(Margin.HALF_LEFT));
-
-		// add(createExportManagementPanel(),
-		// Layouts.borderLayoutData(LayoutRegion.WEST, 0.5f));
 
 		add(bottomWestContainer, Layouts.borderLayoutData(LayoutRegion.WEST, 0.5f, Margin.HALF_TOP));
 		add(bottomEastContainer, Layouts.borderLayoutData(LayoutRegion.EAST, 0.5f, Margin.HALF_TOP));
@@ -262,6 +258,11 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 		return panel;
 	}
 
+	/**
+	 * Creates the solr settings management panel.
+	 * 
+	 * @return The solr settings management panel.
+	 */
 	private ContentPanel createSolrSettingsPanel() {
 
 		final ContentPanel panel = Panels.content("Solr Search Settings", CSS_ADMIN_PARAMETERS);
@@ -505,6 +506,7 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 		return exportManagementSaveButton;
 	}
 
+	@Override
 	public TextField<String> getSolrCoreUrlTextField() {
 		return solrCoreUrlTextField;
 	}
@@ -513,6 +515,7 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 		this.solrCoreUrlTextField = solrCoreUrlTextField;
 	}
 
+	@Override
 	public Button getSolrSaveConfigButton() {
 		return solrSaveConfigButton;
 	}
@@ -521,6 +524,7 @@ public class ParametersAdminView extends AbstractView implements ParametersAdmin
 		this.solrSaveConfigButton = solrSaveConfigButton;
 	}
 
+	@Override
 	public Button getManualIndexButton() {
 		return manualIndexButton;
 	}

@@ -66,9 +66,6 @@ public class ClientModule extends AbstractGinModule {
 		// StateManager (for indicators).
 		bind(IStateManager.class).to(GXTStateManager.class);
 		
-		//possibly later, also other search related classes, like results view
-		//bind(SearchPresenter.class).in(Singleton.class);
-		
 	}
 
 }

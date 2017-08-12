@@ -416,15 +416,12 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 
 		view.getSolrCoreUrlTextField().setValue(auth().getOrganizationSolrCoreUrl());
 
-		// view.getManualIndexButton().
 		view.getManualIndexButton().addListener(Events.OnClick, new Listener<ButtonEvent>() {
 
 			@Override
 			public void handleEvent(ButtonEvent be) {
-				// TODO Auto-generated method stub
 				searchService.index(new AsyncCallback<Boolean>() {
 					public void onFailure(Throwable caught) {
-//						Window.alert("Failure on the server side!");
 						N10N.errorNotif("Failed to complete Solr Data Import!",
 								"Check your connection with Solr Server!");
 						caught.printStackTrace();
@@ -433,9 +430,8 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 					public void onSuccess(Boolean result) {
 						Boolean fih_success = result;
 						if (fih_success) {
-							FilesImport();
+							filesImport();
 						} else {
-//							Window.alert("Failed to complete data Import!");
 							N10N.errorNotif("Failed to complete Solr Data Import!",
 									"Check your connection with Solr Server!");
 						}
@@ -447,7 +443,7 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 
 	}
 
-	public void FilesImport() {
+	public void filesImport() {
 		dispatch.execute(new FilesSolrIndexCommand(), new CommandResultHandler<FilesSolrIndexDTO>() {
 
 			@Override
@@ -458,9 +454,7 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 							"Check your connection with Solr Server!");
 
 				} else {
-					// N10N.warn(I18N.CONSTANTS.backupManagement_process_alreadyRunning());
 					if (result.isResult()) {
-//						Window.alert("Successfully completed data and files import!");
 						N10N.validNotif("Successfully completed data and files import!",
 								"You can now carry out search.");
 					} else {
@@ -720,8 +714,7 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 				view.getSolrSettingsForm().resetValueHasChanged();
 				searchService.updateCore(solrCoreUrl, new AsyncCallback<Boolean>() {
 					public void onFailure(Throwable caught) {
-//						Window.alert("Could not update Solr Core. Check that the url is valid!");
-						N10N.errorNotif("Failed to update Solr Core!",
+						N10N.error("Failed to update Solr Core!",
 								"Check that the url entered is valid!");
 						caught.printStackTrace();
 					}
@@ -731,11 +724,9 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 						if (dih_success) {
 							N10N.validNotif("Successfully updated Solr Core!",
 							"You can now carry out search.");
-//							Window.alert("Successfully updated Solr Core!");
 						} else {
-							N10N.errorNotif("Failed to update Solr Core!",
+							N10N.error("Failed to update Solr Core!",
 									"Check that the url entered is valid!");
-//							Window.alert("Check that the url is valid!");
 						}
 					}
 				});

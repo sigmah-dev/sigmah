@@ -39,7 +39,7 @@ import com.google.gwt.user.client.ui.Panel;
 
 
 /**
- * Search view (just a widgets set).
+ * Search view - A set of widgets for the search bar.
  * 
  * @author 
  */

@@ -1,5 +1,27 @@
 package org.sigmah.client.ui.presenter.zone;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -9,6 +31,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageRequest;
@@ -52,30 +75,8 @@ import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
 
-/*
- * #%L
- * Sigmah
- * %%
- * Copyright (C) 2010 - 2016 URD
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
-
 /**
- * Organization banner presenter displaying organization's name and logo.
+ * Search presenter displaying the search bar and associated widgets.
  * 
  * @author
  */
@@ -120,7 +121,6 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 	 */
 	@Override
 	public Zone getZone() {
-		// TODO Auto-generated method stub
 		return Zone.SEARCH_BANNER;
 	}
 
@@ -134,15 +134,12 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 			@Override
 			public void handleEvent(ButtonEvent be) {
-				// TODO Auto-generated method stub
 				textToServer = view.getSearchTextField().getValue();
 				view.getSearchTextField().clear();
 				int sel_ind = view.getSearchOptionsComboBox().getSelectedIndex();
 				filter = view.getNewSearchOptions().get(sel_ind);
-				if (textToServer != null) {
-					if (textToServer.length() > 0) {
-						search();
-					}
+				if (textToServer != null && textToServer.length() > 0) {
+					search();
 				}
 			}
 
@@ -153,14 +150,15 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 			@Override
 			public void componentKeyUp(ComponentEvent event) {
 				if (event.getKeyCode() == KeyCodes.KEY_ENTER) {
-					if (view.getSearchTextField().getValue() != null) {
-						if (view.getSearchTextField().getValue().length() > 0) {
-							textToServer = view.getSearchTextField().getValue();
-							view.getSearchTextField().clear();
-							int sel_ind = view.getSearchOptionsComboBox().getSelectedIndex();
-							filter = view.getNewSearchOptions().get(sel_ind);
-							search();
-						}
+					if (view.getSearchTextField().getValue() != null
+							&& view.getSearchTextField().getValue().length() > 0) {
+
+						textToServer = view.getSearchTextField().getValue();
+						view.getSearchTextField().clear();
+						int sel_ind = view.getSearchOptionsComboBox().getSelectedIndex();
+						filter = view.getNewSearchOptions().get(sel_ind);
+						search();
+
 					}
 				}
 			}
@@ -174,13 +172,11 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 			// dummy call just to make connection
 			searchService.search(textToServer, filter, new AsyncCallback<ArrayList<SearchResultsDTO>>() {
 				public void onFailure(Throwable caught) {
-					// Window.alert("Could not make connection!");
 					firstsearch = false;
 					caught.printStackTrace();
 				}
 
 				public void onSuccess(ArrayList<SearchResultsDTO> result) {
-					// Window.alert("Excellent, solr connection up!");
 					firstsearch = false;
 				}
 			});
@@ -198,10 +194,9 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 				} else {
 					searchResults = result;
 					if (result.size() == 0) {
-						N10N.info("No search results found", "There are no search results or "
-								+ "they may not be accessible!");
-					}
-					else {
+						N10N.info("No search results found",
+								"There are no search results or they may not be accessible!");
+					} else {
 						loadProjectIdsForFiltering();
 					}
 				}
@@ -212,9 +207,9 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 	}
 
 	private void loadProjectIdsForFiltering() {
+
 		Integer[] orgUnitsIds = auth().getOrgUnitIds().toArray(new Integer[auth().getOrgUnitIds().size()]);
 		List<Integer> orgUnitsIdsAsList = orgUnitsIds != null ? Arrays.asList(orgUnitsIds) : null;
-		// Window.alert("OrgUnitIds: " +orgUnitsIdsAsList.toString());
 		GetProjects cmd = new GetProjects(orgUnitsIdsAsList, null);
 		cmd.setMappingMode(ProjectDTO.Mode._USE_PROJECT_MAPPER);
 
@@ -222,7 +217,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 			@Override
 			public void onCommandFailure(final Throwable e) {
-				// Window.alert("Error while getting contacts.");
+				N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.errorOnServer());
 			}
 
 			@Override
@@ -231,11 +226,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 				if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.VIEW_ALL_PROJECTS)) {
 					List<ProjectDTO> projectsForFiltering = result.getList();
-					// applyProjectFilters();
 					for (ProjectDTO projDTO : projectsForFiltering) {
-						// Window.alert("Project ID?: " + projDTO.getId() + "
-						// Proj
-						// Name: " + projDTO.getName());
 						projectIdsForFiltering.add(projDTO.getId());
 					}
 				}
@@ -245,8 +236,6 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 				}
 
 				loadOrgUnitIdsForFiltering();
-				// Window.alert("Completed getting the project for filtering: "
-				// + projectIdsForFiltering.toString());
 			}
 
 		});
@@ -261,7 +250,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 					@Override
 					public void onCommandFailure(final Throwable e) {
-						// Window.alert("Error while getting contacts.");
+						N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.errorOnServer());
 					}
 
 					@Override
@@ -285,7 +274,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 			@Override
 			public void onCommandFailure(final Throwable e) {
-				// Window.alert("Error while getting contacts.");
+				N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.errorOnServer());
 			}
 
 			@Override
@@ -298,8 +287,6 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 					for (ContactDTO dto : contactsForFiltering) {
 						contactIdsForFiltering.add(dto.getId());
 					}
-					// Window.alert("Contacts for filtering: " +
-					// contactIdsForFiltering.toString());
 				}
 				doPageRequest();
 			}
@@ -310,26 +297,25 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		if (searchResults != null && searchResults.size() > 0) {
 			PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
 			request.addData(RequestParameter.TITLE, textToServer);
-			
+
 			ArrayList<SearchResultsDTO> filteredSearchResults = new ArrayList<SearchResultsDTO>();
-			for( SearchResultsDTO dto : searchResults){
-				if (filter(dto)){
+			for (SearchResultsDTO dto : searchResults) {
+				if (filter(dto)) {
 					filteredSearchResults.add(dto);
 				}
 			}
 			if (filteredSearchResults.size() == 0) {
-				N10N.info("No search results found", "There are no search results or" 
-						 + " they may not be accessible!");
-			}else{
+				N10N.info("No search results found", "There are no search results or they may not be accessible!");
+			} else {
 				request.addData(RequestParameter.CONTENT, filteredSearchResults);
 				request.addParameter(RequestParameter.ID,
 						textToServer.replaceAll("[^a-zA-Z0-9\\s]", "").replaceAll(" ", "-"));
 				eventBus.navigateRequest(request);
 			}
-			
+
 		}
 	}
-	
+
 	public boolean filter(SearchResultsDTO dto) {
 
 		if (dto == null)
@@ -341,31 +327,27 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		if (retMap.get("doc_type").toString().equals("PROJECT")) {
 			dto.setDTOid(retMap.get("databaseid").toString());
 			if (!projectIdsForFiltering.contains(Integer.parseInt(dto.getDTOid()))) {
-				// Window.alert("Found project not to be included!");
 				return false;
 			}
 
 		} else if (retMap.get("doc_type").toString().equals("CONTACT")) {
 			dto.setDTOid(retMap.get("id_contact").toString());
 			if (!contactIdsForFiltering.contains(Integer.parseInt(dto.getDTOid()))) {
-				// Window.alert("Found Contact not to be included: " +
-				// dto.getDTOid());
 				return false;
 			}
 		} else if (retMap.get("doc_type").toString().equals("ORG_UNIT")) {
 			dto.setDTOid(retMap.get("org_unit_id").toString());
 			if (!orgUnitIdsForFiltering.contains(Integer.parseInt(dto.getDTOid()))) {
-				// Window.alert("Found OrgUnit not to be included!");
 				return false;
 			}
 		} else if (retMap.get("doc_type").toString().equals("FILE")) {
 			dto.setDTOid(retMap.get("file_version_id").toString());
 			dto.setFileName(retMap.get("file_name"));
 			dto.setFileExt(retMap.get("file_ext"));
-			//Window.alert(retMap.toString() + "\n" + retMap.get("file_author_id") + " " + auth().getUserId().toString());
 			if (retMap.get("file_author_id").equals(auth().getUserId().toString())) {
 				// temporary filter, since I am unable to implement a better
-				// filter, users can only view those files of which they are the authors..
+				// filter, users can only view those files of which they are the
+				// authors..
 				return true;
 			}
 			return false;
@@ -386,12 +368,12 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 		return map;
 	}
+
 	/**
 	 * {@inheritDoc}
 	 */
 	@Override
 	public void onZoneRequest(ZoneRequest zoneRequest) {
-		// TODO Auto-generated method stub
 
 	}
 

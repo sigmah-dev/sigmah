@@ -1,7 +1,5 @@
 package org.sigmah.server.dao.impl;
 
-import static org.sigmah.shared.util.ValueResultUtils.normalizeFileName;
-
 /*
  * #%L
  * Sigmah
@@ -53,6 +51,9 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.persist.Transactional;
+
+import static org.sigmah.shared.util.ValueResultUtils.normalizeFileName;
+
 
 /**
  * {@link FileDAO} implementation.

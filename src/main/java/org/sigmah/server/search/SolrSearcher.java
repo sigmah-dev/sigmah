@@ -1,5 +1,27 @@
 package org.sigmah.server.search;
 
+/*
+ * #%L
+ * Sigmah
+ * %%
+ * Copyright (C) 2010 - 2016 URD
+ * %%
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as
+ * published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public
+ * License along with this program.  If not, see
+ * <http://www.gnu.org/licenses/gpl-3.0.html>.
+ * #L%
+ */
+
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.util.ArrayList;
@@ -16,6 +38,13 @@ import org.sigmah.shared.dto.search.SearchResultsDTO;
 
 import com.google.gson.Gson;
 
+/**
+ * Main class where a single instance of the Solr client is initialized.
+ * Contains essential methods like search and dataimport which are called by
+ * {@link SearchServiceImpl}
+ * 
+ * @author 
+ */
 public class SolrSearcher {
 
 	private String urlString;
@@ -29,19 +58,17 @@ public class SolrSearcher {
 	private SolrSearcher() {
 	}
 
-	public static SolrSearcher getInstance() { // Singleton
+	public static SolrSearcher getInstance() { 
 
 		if (instance == null) {
 			instance = new SolrSearcher();
 			try {
 				instance.loadServer();
 			} catch (SolrServerException e) {
-				// TODO Auto-generated catch block
 				System.out.println("SOLR CONNECTION FAILED");
 				instance = null;
 				e.printStackTrace();
 			} catch (MalformedURLException e) {
-				// TODO Auto-generated catch block
 				System.out.println("SOLR CONNECTION FAILED");
 				instance = null;
 				e.printStackTrace();
@@ -54,19 +81,19 @@ public class SolrSearcher {
 		return instance;
 	}
 
-	public static SolrSearcher getNewInstance(String solrCoreUrl) { //only for use when solr core url has been updated
+	public static SolrSearcher getNewInstance(String solrCoreUrl) { 
 
+		//only for use when solr core url has been updated
+		
 		instance = new SolrSearcher();
 		instance.urlString = solrCoreUrl;
 		try {
 			instance.loadServer();
 		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
 			System.out.println("SOLR CONNECTION FAILED");
 			instance = null;
 			e.printStackTrace();
 		} catch (MalformedURLException e) {
-			// TODO Auto-generated catch block
 			System.out.println("SOLR CONNECTION FAILED");
 			instance = null;
 			e.printStackTrace();
@@ -92,23 +119,21 @@ public class SolrSearcher {
 		query.setQuery(searchStr);
 		//query.addSort("doc_id", ORDER.desc);
 		
-		if (filter.equals("Projects")){
+		if ("Projects".equals(filter)){
 			query.set("fq", "doc_type:PROJECT");
 			//query.set("qt", "/searchproject");
 		}
-		else if (filter.equals("Contacts")){
+		else if ("Contacts".equals(filter)){
 			query.set("fq", "doc_type:CONTACT");
 		}
-		else if (filter.equals("OrgUnits")){
+		else if ("OrgUnits".equals(filter)){
 			query.set("fq", "doc_type:ORG_UNIT");
 		// query.addSortField("weight", ORDER.desc);
-		}else if (filter.equals("Your Files")){
+		}else if ("Your Files".equals(filter)){
 			query.set("fq", "doc_type:FILE");
 		// query.addSortField("weight", ORDER.desc);
 		}
-		else{
-			//query.set("qt", "/search");
-		}
+		//query.set("qt", "/search");
 
 		QueryResponse rsp = null;
 
@@ -117,11 +142,9 @@ public class SolrSearcher {
 				rsp = solrServer.query(query);
 			}
 		} catch (SolrServerException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return null;
 		}
@@ -137,11 +160,8 @@ public class SolrSearcher {
 				SolrDocument resultDoc = (SolrDocument) iter.next();
 				descriptor.setResult(gson.toJson(resultDoc).toString());
 				searchList.add(descriptor);
-
 			}
-
 		}
-
 		return searchList;
 	}
 
@@ -159,7 +179,6 @@ public class SolrSearcher {
 				return false;
 			}
 		} catch (SolrServerException | IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 			return false;
 		}
