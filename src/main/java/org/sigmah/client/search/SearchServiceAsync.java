@@ -33,6 +33,7 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
  * Async interface on the client side which is implemented by 
  * {@link SearchServiceImpl} on the server side.
  * 
+ * @author
  */
 public interface SearchServiceAsync {
 

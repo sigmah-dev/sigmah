@@ -30,6 +30,8 @@ import org.sigmah.client.ui.presenter.zone.SearchPresenter;
 import org.sigmah.client.ui.view.base.AbstractView;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.Forms;
+import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
+import org.sigmah.shared.util.ProfileUtils;
 
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -60,6 +62,7 @@ public class SearchView extends AbstractView implements SearchPresenter.View {
 		searchTextField = Forms.text("Search", false);
 		searchTextField.setEmptyText("Search");
 		searchTextField.setWidth(190);
+		searchTextField.setVisible(false);
 		
 		searchOptionsComboBox = new SimpleComboBox<String>();
 		newSearchOptions = Arrays.asList("All", "Projects", "OrgUnits", "Contacts", "Your Files");
@@ -68,16 +71,24 @@ public class SearchView extends AbstractView implements SearchPresenter.View {
 		searchOptionsComboBox.setEditable(false);
 		searchOptionsComboBox.setWidth(78);
 		searchOptionsComboBox.setSimpleValue("All");
-		
+		searchOptionsComboBox.setVisible(false);
 		
 		newSearchButton = Forms.button("Go");
+		newSearchButton.setVisible(false);
 		
 		searchBarPanel = new HorizontalPanel();
 		searchBarPanel.getElement().setId("search-bar");
+
 		searchBarPanel.add(searchTextField);
 		searchBarPanel.add(searchOptionsComboBox);
 		searchBarPanel.add(newSearchButton);
-
+		
+	}
+	
+	public void setAllVisible(){
+		searchTextField.setVisible(true);
+		searchOptionsComboBox.setVisible(true);
+		newSearchButton.setVisible(true);
 	}
 	
 	public TextField<String> getSearchTextField() {

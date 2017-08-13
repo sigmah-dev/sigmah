@@ -315,7 +315,12 @@ public enum GlobalPermissionEnum implements Result {
 	/**
 	 * For management measure performances.
 	 */
-	PROBES_MANAGEMENT(GlobalPermissionCategory.OTHER);
+	PROBES_MANAGEMENT(GlobalPermissionCategory.OTHER),
+	
+	/**
+     * For viewing search bar.
+     */
+	SEARCH(GlobalPermissionCategory.OTHER);
 	
 	/**
 	 * The global permission category (never {@code null}).
@@ -654,6 +659,10 @@ public enum GlobalPermissionEnum implements Result {
 				
 			case PROBES_MANAGEMENT:
 				return I18N.CONSTANTS.PROBES_MANAGEMENT();
+				
+			case SEARCH:
+				return "Search";
+				
 			default:
 				return globalPermission.name();
 		}

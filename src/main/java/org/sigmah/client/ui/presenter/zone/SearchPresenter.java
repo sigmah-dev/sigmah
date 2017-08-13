@@ -69,6 +69,7 @@ import com.google.gwt.event.dom.client.KeyCodes;
 import com.google.gwt.json.client.JSONObject;
 import com.google.gwt.json.client.JSONParser;
 import com.google.gwt.json.client.JSONValue;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Panel;
 import com.google.inject.ImplementedBy;
@@ -113,6 +114,8 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		Panel getSearchBarPanel();
 
 		List<String> getNewSearchOptions();
+
+		void setAllVisible();
 
 	}
 
@@ -163,6 +166,19 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 				}
 			}
 		});
+
+		//have put a timer because it takes quite some time for auth() to load, if I did this
+		//without a timer it would give a null pointer exception for auth()
+		Timer t = new Timer() {
+			@Override
+			public void run() {
+				if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.SEARCH)) {
+					view.setAllVisible();
+				}
+			}
+		};
+
+		t.schedule(8000);  //8s delay
 
 	}
 

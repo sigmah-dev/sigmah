@@ -1507,6 +1507,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String USER_COLUMN_PASSWORD = "Password";
 	public static final String USER_COLUMN_ACTIVE = "Active";
 	public static final String USER_COLUMN_DATE_CHANGE_PASSWORD_KEY_ISSUED = "dateChangePasswordKeyIssued";
+	public static final String USER_CAN_SEARCH = "Search";
 
 	public static final int CHANGE_PASSWORD_KEY_MAX_LENGTH = 34;
 	public static final int PASSWORD_MAX_LENGTH = 150;
