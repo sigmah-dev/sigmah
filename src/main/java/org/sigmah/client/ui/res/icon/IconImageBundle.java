@@ -63,6 +63,9 @@ public interface IconImageBundle extends ImageBundle {
 	AbstractImagePrototype addActivity();
 
 	AbstractImagePrototype deleteActivity();
+	
+	@Resource(value = "search-button.png")
+	AbstractImagePrototype search();
 
 	@Resource(value = "editPage.png")
 	AbstractImagePrototype editActivity();

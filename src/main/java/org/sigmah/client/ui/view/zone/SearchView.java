@@ -27,11 +27,10 @@ import java.util.Arrays;
 import java.util.List;
 
 import org.sigmah.client.ui.presenter.zone.SearchPresenter;
+import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.base.AbstractView;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.Forms;
-import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
-import org.sigmah.shared.util.ProfileUtils;
 
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.SimpleComboBox;
@@ -73,7 +72,7 @@ public class SearchView extends AbstractView implements SearchPresenter.View {
 		searchOptionsComboBox.setSimpleValue("All");
 		searchOptionsComboBox.setVisible(false);
 		
-		newSearchButton = Forms.button("Go");
+		newSearchButton = Forms.button(IconImageBundle.ICONS.search().getHTML());
 		newSearchButton.setVisible(false);
 		
 		searchBarPanel = new HorizontalPanel();

@@ -1,7 +1,5 @@
 package org.sigmah.shared.command;
 
-import org.sigmah.server.search.FilesSolrManager;
-
 /*
  * #%L
  * Sigmah
