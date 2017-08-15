@@ -43,6 +43,16 @@
 	<listener>
 		<listener-class>org.sigmah.server.inject.ServletContextListener</listener-class>
 	</listener>
+	<servlet>
+		<servlet-name>ExportCalendar</servlet-name>
+		<display-name>ExportCalendar</display-name>
+		<description>Export Sigmah calendar events in iCal fromat</description>
+		<servlet-class>org.sigmah.client.ui.presenter.project.export.ExportCalendar</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>ExportCalendar</servlet-name>
+		<url-pattern>/ExportCalendar</url-pattern>
+	</servlet-mapping>
 
 	<!-- Default page to serve -->
 	<welcome-file-list>

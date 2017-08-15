@@ -22,6 +22,8 @@ package org.sigmah.server.dao.impl;
  * #L%
  */
 
+import java.util.List;
+import javax.persistence.TypedQuery;
 import org.sigmah.server.dao.PersonalEventDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.calendar.PersonalEvent;
@@ -41,5 +43,14 @@ public class PersonalEventHibernateDAO extends AbstractDAO<PersonalEvent, Intege
 	public void merge(PersonalEvent event) {
 		em().merge(event);
 	}
+        
+        @Override
+    public List<PersonalEvent> findEventsByRefId(final Integer refId) {
+
+        final TypedQuery<PersonalEvent> query = em().createQuery("SELECT pm FROM personalevent pm WHERE pm.calendarid = :refId", PersonalEvent.class);
+        query.setParameter("calendarid", refId);
+
+        return query.getResultList();
+    }
 
 }

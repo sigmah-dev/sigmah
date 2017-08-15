@@ -22,6 +22,7 @@ package org.sigmah.offline.handler;
  * #L%
  */
 
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.data.RpcMap;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Inject;
@@ -127,7 +128,7 @@ public class CreateEntityAsyncHandler implements AsyncCommandHandler<CreateEntit
 		}
 	}
 	
-	private void insertPersonalEvent(CreateEntity command, final AsyncCallback<CreateResult> callback) {
+	private void insertPersonalEvent(final CreateEntity command, final AsyncCallback<CreateResult> callback) {
 		final Event event = buildPersonalEvent(command.getProperties());
 		final PersonalCalendarIdentifier identifier = (PersonalCalendarIdentifier) event.getParent().getIdentifier();
 		
@@ -146,6 +147,9 @@ public class CreateEntityAsyncHandler implements AsyncCommandHandler<CreateEntit
 			@Override
 			public void onSuccess(Calendar result) {
 				List<Event> events = result.getEvents().get(key);
+                                command.getProperties().put("myIDNow", result + "   EEEE");
+                                Log.info("command.getProperties().put(\"myIDNow\"" +  result);
+                                Log.info("command.getProperties().get(\"myIDNow\")---->" + command.getProperties().get("myIDNow"));
 				if(events == null) {
 					events = new ArrayList<Event>();
 					result.getEvents().put(key, events);
@@ -173,6 +177,7 @@ public class CreateEntityAsyncHandler implements AsyncCommandHandler<CreateEntit
 				
 				// Persisting the new event.
 				personalCalendarAsyncDAO.saveOrUpdate(result, calendarCallback);
+//                                command.getProperties().put("myIDNow", result);
 			}
 		});
 	}

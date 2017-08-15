@@ -51,8 +51,8 @@ public class IndexedDB {
 	 */
 	public static native boolean isSupported() /*-{
 		// FIXME : temporary disabling offline mode for v2.2
-		// return typeof $wnd.indexedDB != 'undefined';
-		return false;
+		 return typeof $wnd.indexedDB != 'undefined';
+		//return false;
 	}-*/;
 	
 	/**

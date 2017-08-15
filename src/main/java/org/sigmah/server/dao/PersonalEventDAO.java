@@ -22,6 +22,7 @@ package org.sigmah.server.dao;
  * #L%
  */
 
+import java.util.List;
 import org.sigmah.server.dao.base.DAO;
 import org.sigmah.server.domain.calendar.PersonalEvent;
 
@@ -34,5 +35,6 @@ import org.sigmah.server.domain.calendar.PersonalEvent;
 public interface PersonalEventDAO extends DAO<PersonalEvent, Integer> {
 
 	void merge(PersonalEvent event);
+        List<PersonalEvent> findEventsByRefId (Integer refId);
 
 }
