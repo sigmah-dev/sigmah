@@ -21,8 +21,6 @@ package org.sigmah.client.ui.view.calendar;
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-
-
 import java.util.Arrays;
 
 import org.sigmah.client.i18n.I18N;
@@ -37,6 +35,8 @@ import org.sigmah.client.ui.widget.panel.Panels;
 import org.sigmah.shared.dto.calendar.CalendarWrapper;
 
 import com.extjs.gxt.ui.client.Style.LayoutRegion;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
@@ -53,273 +53,343 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.i18n.shared.DateTimeFormatInfo;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.Window.Location;
+import com.google.gwt.user.client.ui.DecoratedPopupPanel;
+import com.google.gwt.user.client.ui.Label;
+import com.google.gwt.user.client.ui.PopupPanel;
+import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.SimplePanel;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 
 /**
  * Calendar widget presenter.
- * 
+ *
  * @author Raphaël Calabro (rcalabro@ideia.fr) (v1.3)
  * @author Denis Colliot (dcolliot@ideia.fr) (v2.0)
  */
 public class CalendarView extends AbstractView implements CalendarPresenter.View {
 
-	private ContentPanel calendarView;
+    private ContentPanel calendarView;
 
-	private ListStore<CalendarWrapper> calendarsStore;
-	private CheckBoxSelectionModel<CalendarWrapper> selectionModel;
+    private ListStore<CalendarWrapper> calendarsStore;
+    private CheckBoxSelectionModel<CalendarWrapper> selectionModel;
 
-	private ToolBar toolbar;
-	private Button addEventButton;
-	private Button todayButton;
-	private Button weekButton;
-	private Button monthButton;
-	private Button previousButton;
-	private Button nextButton;
+    private ToolBar toolbar;
+    private Button addEventButton;
+    private Button todayButton;
+    private Button weekButton;
+    private Button monthButton;
+    private Button previousButton;
+    private Button nextButton;
 
     private Button reminderAddButton;
     private Button monitoredPointsAddButton;
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void initialize() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void initialize() {
 
-		// --
-		// Calendars left panel.
-		// --
+        // --
+        // Calendars left panel.
+        // --
+        final BorderLayoutData calendarListData = Layouts.borderLayoutData(LayoutRegion.WEST, Layouts.LEFT_COLUMN_WIDTH);
+        calendarListData.setCollapsible(true);
+        add(createCalendarsGridPanel(), calendarListData);
 
-		final BorderLayoutData calendarListData = Layouts.borderLayoutData(LayoutRegion.WEST, Layouts.LEFT_COLUMN_WIDTH);
-		calendarListData.setCollapsible(true);
-		add(createCalendarsGridPanel(), calendarListData);
+        // --
+        // Calendar center widget.
+        // --
+        add(createCalendarsMainPanel(), Layouts.borderLayoutData(LayoutRegion.CENTER, Margin.LEFT));
+    }
 
-		// --
-		// Calendar center widget.
-		// --
+    /**
+     * Creates the calendars panel + grid.
+     *
+     * @return The calendars panel.
+     */
+    private Component createCalendarsGridPanel() {
 
-		add(createCalendarsMainPanel(), Layouts.borderLayoutData(LayoutRegion.CENTER, Margin.LEFT));
-	}
+        // Calendars panel.
+        final ContentPanel calendarsPanel = Panels.content(I18N.CONSTANTS.projectTabCalendar());
 
-	/**
-	 * Creates the calendars panel + grid.
-	 * 
-	 * @return The calendars panel.
-	 */
-	private Component createCalendarsGridPanel() {
+        // Calendars grid.
+        final ColumnConfig calendarName = new ColumnConfig("name", I18N.CONSTANTS.name(), 180);
+        final ColumnConfig calendarColor = new ColumnConfig("color", "", 20);
+        final ColumnConfig calendarButton = new ColumnConfig("button", "", 40);
 
-		// Calendars panel.
-		final ContentPanel calendarsPanel = Panels.content(I18N.CONSTANTS.projectTabCalendar());
+        calendarColor.setStyle("");
+        calendarColor.setRenderer(new GridCellRenderer<CalendarWrapper>() {
 
-		// Calendars grid.
-		final ColumnConfig calendarName = new ColumnConfig("name", I18N.CONSTANTS.name(), 180);
-		final ColumnConfig calendarColor = new ColumnConfig("color", "", 20);
-		calendarColor.setStyle("");
-		calendarColor.setRenderer(new GridCellRenderer<CalendarWrapper>() {
+            @Override
+            public Object render(CalendarWrapper model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<CalendarWrapper> store,
+                    Grid<CalendarWrapper> grid) {
 
-			@Override
-			public Object render(CalendarWrapper model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<CalendarWrapper> store,
-					Grid<CalendarWrapper> grid) {
+                final SimplePanel panel = new SimplePanel();
+                panel.setPixelSize(14, 14);
+                //SquaresColor
+                panel.getElement().getStyle().setMarginTop(3, Unit.PX);
 
-				final SimplePanel panel = new SimplePanel();
-				panel.setPixelSize(14, 14);
-				panel.getElement().getStyle().setMarginLeft(3, Unit.PX);
+                panel.setStyleName("calendar-fullday-event-" + model.getCalendar().getStyle());
+                return panel;
+            }
+        });
 
-				panel.setStyleName("calendar-fullday-event-" + model.getCalendar().getStyle());
-				return panel;
-			}
-		});
+        calendarButton.setStyle("");
+        calendarButton.setRenderer(new GridCellRenderer<CalendarWrapper>() {
 
-		selectionModel = new CheckBoxSelectionModel<CalendarWrapper>();
+            @Override
+            public Object render(final CalendarWrapper model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<CalendarWrapper> store,
+                    Grid<CalendarWrapper> grid) {
 
-		final ColumnModel calendarColumnModel = new ColumnModel(Arrays.asList(selectionModel.getColumn(), calendarName, calendarColor));
+                final Button bt = Forms.button("", IconImageBundle.ICONS.shareLink());
 
-		calendarsStore = new ListStore<CalendarWrapper>();
+                bt.setPixelSize(5, 5);
+                final int left = bt.getAbsoluteLeft() - 10;
+                final int bottom = Window.getClientHeight() - bt.getAbsoluteTop();
+                bt.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
-		final Grid<CalendarWrapper> calendarGrid = new Grid<CalendarWrapper>(calendarsStore, calendarColumnModel);
-		calendarGrid.setAutoExpandColumn("name");
-		calendarGrid.setSelectionModel(selectionModel);
-		calendarGrid.addPlugin(selectionModel);
+                    @Override
+                    public void componentSelected(final ButtonEvent ce) {
+                        String fullStrLink = Window.Location.getHref();
+                        String strCalId = fullStrLink.substring(fullStrLink.indexOf("&id=") + 4, fullStrLink.length() + 1);
+                        int posSigmah = fullStrLink.indexOf("/sigmah/");
+                        posSigmah += 8;
+                        String strLink = fullStrLink.substring(0, posSigmah);
+                        strLink += "ServletNew?type=";
+                        if (model.getCalendar().getStyle() == 1) {
+                            strLink += "activities";
+                        } else if (model.getCalendar().getStyle() == 2) {
+                            strLink += "events";
+                        } else if (model.getCalendar().getStyle() == 3) {
+                            strLink += "expected";
+                        } else {
+                            strLink += "todo";
+                        }
+                        strLink = strLink + "&id=" + strCalId;
+                        final DecoratedPopupPanel detailPopup = new DecoratedPopupPanel(true);
+                        final com.google.gwt.user.client.ui.Grid popupContent = new com.google.gwt.user.client.ui.Grid(1, 1);
+                        popupContent.setText(0, 0, "URL: "+strLink);
 
-		calendarGrid.getView().setForceFit(true);
+                        detailPopup.setWidth("200");
+                        detailPopup.setWidget(popupContent);
 
-		calendarsPanel.add(calendarGrid);
-		return calendarsPanel;
-	}
+                        // Show the popup
+                        detailPopup.setPopupPositionAndShow(new PositionCallback() {
 
-	/**
-	 * Creates the calendars main panel, place holder for the {@link CalendarWidget}.
-	 * 
-	 * @return The calendars main panel.
-	 */
-	private Component createCalendarsMainPanel() {
+                            @Override
+                            public void setPosition(int offsetWidth, int offsetHeight) {
+                                detailPopup.getElement().getStyle().setPropertyPx("left", bt.getAbsoluteLeft() + 20);
+                                detailPopup.getElement().getStyle().setPropertyPx("top", bt.getAbsoluteTop() - 20);
+                                detailPopup.getElement().getStyle().setProperty("bottom", "");
+                            }
+                        });
 
-		calendarView = Panels.content(I18N.CONSTANTS.loading(), "panel-background"); // Temporary title.
+                    }
+                });
 
-		// Toolbar
-		toolbar = new ToolBar();
+                return bt;
+            }
+        });
 
-		// Today button - center the calendar on the current day
-		todayButton = Forms.button(I18N.CONSTANTS.today());
-		toolbar.add(todayButton);
+        selectionModel = new CheckBoxSelectionModel<CalendarWrapper>();
 
-		toolbar.add(new SeparatorToolItem());
+        final ColumnModel calendarColumnModel = new ColumnModel(Arrays.asList(selectionModel.getColumn(), calendarName, calendarButton, calendarColor));
 
-		// Week button - changes the calendar to display weeks
-		weekButton = Forms.button(I18N.CONSTANTS.week());
-		toolbar.add(weekButton);
+        calendarsStore = new ListStore<CalendarWrapper>();
 
-		// Week button - changes the calendar to display monthes
-		monthButton = Forms.button(I18N.CONSTANTS.month());
-		toolbar.add(monthButton);
+        final Grid<CalendarWrapper> calendarGrid = new Grid<CalendarWrapper>(calendarsStore, calendarColumnModel);
 
-		toolbar.add(new SeparatorToolItem());
+        calendarGrid.setAutoExpandColumn("name");
+        calendarGrid.setSelectionModel(selectionModel);
+        calendarGrid.addPlugin(selectionModel);
 
-		// Previous button - move back from one unit of time (week / month)
-		previousButton = Forms.button(I18N.CONSTANTS.previous());
-		toolbar.add(previousButton);
+        calendarGrid.getView().setForceFit(true);
 
-		// Next button - move forward from one unit of time (week / month)
-		nextButton = Forms.button(I18N.CONSTANTS.next());
-		toolbar.add(nextButton);
+        calendarsPanel.add(calendarGrid);
+        return calendarsPanel;
+    }
+    String idBtn = "btnShare";
+    int idI = 1;
+    int idD = 1;
 
-		toolbar.add(new SeparatorToolItem());
+    /**
+     * Creates the calendars main panel, place holder for the
+     * {@link CalendarWidget}.
+     *
+     * @return The calendars main panel.
+     */
 
-		addEventButton = Forms.button(I18N.CONSTANTS.calendarAddEvent());
+    private Component createCalendarsMainPanel() {
+
+        calendarView = Panels.content(I18N.CONSTANTS.loading(), "panel-background"); // Temporary title.
+
+        // Toolbar
+        toolbar = new ToolBar();
+
+        // Today button - center the calendar on the current day
+        todayButton = Forms.button(I18N.CONSTANTS.today());
+        toolbar.add(todayButton);
+
+        toolbar.add(new SeparatorToolItem());
+
+        // Week button - changes the calendar to display weeks
+        weekButton = Forms.button(I18N.CONSTANTS.week());
+        toolbar.add(weekButton);
+
+        // Week button - changes the calendar to display monthes
+        monthButton = Forms.button(I18N.CONSTANTS.month());
+        toolbar.add(monthButton);
+
+        toolbar.add(new SeparatorToolItem());
+
+        // Previous button - move back from one unit of time (week / month)
+        previousButton = Forms.button(I18N.CONSTANTS.previous());
+        toolbar.add(previousButton);
+
+        // Next button - move forward from one unit of time (week / month)
+        nextButton = Forms.button(I18N.CONSTANTS.next());
+        toolbar.add(nextButton);
+
+        toolbar.add(new SeparatorToolItem());
+
+        addEventButton = Forms.button(I18N.CONSTANTS.calendarAddEvent());
 
         reminderAddButton = new Button(I18N.CONSTANTS.reminderPoint(), IconImageBundle.ICONS.add());
-        
+
         monitoredPointsAddButton = new Button(I18N.CONSTANTS.monitoredPoint(), IconImageBundle.ICONS.add());
 
-		calendarView.setTopComponent(toolbar);
+        calendarView.setTopComponent(toolbar);
 
-		return calendarView;
-	}
+        return calendarView;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void initializeCalendarWidget(final CalendarWidget calendarWidget) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void initializeCalendarWidget(final CalendarWidget calendarWidget) {
 
-		// Defining the first day of the week
-		// BUGFIX #653: Contrary to the deprecated DateTimeConstants, firstDayOfTheWeek starts at 0 (and not 1). No substraction is needed.
-		final DateTimeFormatInfo constants = LocaleInfo.getCurrentLocale().getDateTimeFormatInfo();
-		calendarWidget.setFirstDayOfWeek(constants.firstDayOfTheWeek());
+        // Defining the first day of the week
+        // BUGFIX #653: Contrary to the deprecated DateTimeConstants, firstDayOfTheWeek starts at 0 (and not 1). No substraction is needed.
+        final DateTimeFormatInfo constants = LocaleInfo.getCurrentLocale().getDateTimeFormatInfo();
+        calendarWidget.setFirstDayOfWeek(constants.firstDayOfTheWeek());
 
-		// Retrieving the current calendar header
-		calendarView.setHeadingHtml(calendarWidget.getHeading());
+        // Retrieving the current calendar header
+        calendarView.setHeadingHtml(calendarWidget.getHeading());
 
-		// Listening for further calendar header changes
-		calendarWidget.setListener(new CalendarWidget.CalendarListener() {
+        // Listening for further calendar header changes
+        calendarWidget.setListener(new CalendarWidget.CalendarListener() {
 
-			@Override
-			public void afterRefresh() {
-				calendarView.setHeadingHtml(calendarWidget.getHeading());
-			}
-		});
+            @Override
+            public void afterRefresh() {
+                calendarView.setHeadingHtml(calendarWidget.getHeading());
+            }
+        });
 
-		calendarView.add(calendarWidget, Layouts.fitData(Margin.DOUBLE_TOP, Margin.DOUBLE_RIGHT, Margin.DOUBLE_BOTTOM, Margin.DOUBLE_LEFT));
-	}
+        calendarView.add(calendarWidget, Layouts.fitData(Margin.DOUBLE_TOP, Margin.DOUBLE_RIGHT, Margin.DOUBLE_BOTTOM, Margin.DOUBLE_LEFT));
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void setAddEventButtonEnabled(final boolean addEventButtonEnabled) {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void setAddEventButtonEnabled(final boolean addEventButtonEnabled) {
 
-		if (toolbar.indexOf(addEventButton) != -1) {
-			toolbar.remove(addEventButton);
+        if (toolbar.indexOf(addEventButton) != -1) {
+            toolbar.remove(addEventButton);
             toolbar.remove(reminderAddButton);
             toolbar.remove(monitoredPointsAddButton);
-		}
+        }
 
-		if (addEventButtonEnabled) {
-			toolbar.add(addEventButton);
+        if (addEventButtonEnabled) {
+            toolbar.add(addEventButton);
             toolbar.add(reminderAddButton);
             toolbar.add(monitoredPointsAddButton);
-	
-		}
-	}
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Button getAddEventButton() {
-		return addEventButton;
-	}
+        }
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Button getTodayButton() {
-		return todayButton;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Button getAddEventButton() {
+        return addEventButton;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Button getWeekButton() {
-		return weekButton;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Button getTodayButton() {
+        return todayButton;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Button getMonthButton() {
-		return monthButton;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Button getWeekButton() {
+        return weekButton;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Button getPreviousButton() {
-		return previousButton;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Button getMonthButton() {
+        return monthButton;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Button getNextButton() {
-		return nextButton;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Button getPreviousButton() {
+        return previousButton;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Button getReminderAddButton() {
-		return reminderAddButton;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Button getNextButton() {
+        return nextButton;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public Button getMonitoredPointsAddButton() {
-		return monitoredPointsAddButton;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Button getReminderAddButton() {
+        return reminderAddButton;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public AbstractStoreSelectionModel<CalendarWrapper> getCalendarsSelectionModel() {
-		return selectionModel;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Button getMonitoredPointsAddButton() {
+        return monitoredPointsAddButton;
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public ListStore<CalendarWrapper> getCalendarsStore() {
-		return calendarsStore;
-	}
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public AbstractStoreSelectionModel<CalendarWrapper> getCalendarsSelectionModel() {
+        return selectionModel;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public ListStore<CalendarWrapper> getCalendarsStore() {
+        return calendarsStore;
+    }
 
 }

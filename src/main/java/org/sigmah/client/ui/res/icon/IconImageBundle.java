@@ -98,6 +98,9 @@ public interface IconImageBundle extends ImageBundle {
 	@Resource(value = "key.png")
 	AbstractImagePrototype login();
 
+	@Resource(value = "shareLink.png")
+	AbstractImagePrototype shareLink();        
+        
 	AbstractImagePrototype cancel();
 
 	AbstractImagePrototype barChart();
