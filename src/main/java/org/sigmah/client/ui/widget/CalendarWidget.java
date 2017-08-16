@@ -1131,7 +1131,8 @@ public class CalendarWidget extends Composite {
 
             popupContent.setWidget(3, 0, editAnchor);
             popupContent.setWidget(4, 0, deleteAnchor);
-            popupContent.setWidget(5, 0, deleteChainAnchor);
+            if(!"O".equals(event.getEventType()) && !"OF".equals(event.getEventType())){
+            popupContent.setWidget(5, 0, deleteChainAnchor);}
         }
 
         detailPopup.setWidget(popupContent);
