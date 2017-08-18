@@ -54,10 +54,7 @@ import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.i18n.shared.DateTimeFormatInfo;
 import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.Window.Location;
 import com.google.gwt.user.client.ui.DecoratedPopupPanel;
-import com.google.gwt.user.client.ui.Label;
-import com.google.gwt.user.client.ui.PopupPanel;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.SimplePanel;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
@@ -148,21 +145,11 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
 
                 shareLinkButton.setPixelSize(5, 5);
                 shareLinkButton.setToolTip("Click here to get URL to share the " + getEventTypeName(model.getCalendar().getStyle()));
-//                final int left = shareLinkButton.getAbsoluteLeft() - 10;
-//                final int bottom = Window.getClientHeight() - shareLinkButton.getAbsoluteTop();
                 shareLinkButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                     @Override
                     public void componentSelected(final ButtonEvent ce) {
-                        String currentPageHref = Window.Location.getHref();
-                        String pathName = Window.Location.getPath();
-
-                        String projectId = currentPageHref.substring(currentPageHref.lastIndexOf("&id="), currentPageHref.length());
-                        int posSigmah = currentPageHref.lastIndexOf(pathName);
-                        String shareURL = currentPageHref.substring(0, posSigmah);
-                        shareURL += pathName + "ExportCalendar?type=";
-                        shareURL += getEventTypeName(model.getCalendar().getStyle());
-                        shareURL += projectId;
+                        String shareURL = createShareURL();
                         final DecoratedPopupPanel detailPopup = new DecoratedPopupPanel(true);
                         final com.google.gwt.user.client.ui.Grid popupContent = new com.google.gwt.user.client.ui.Grid(1, 1);
                         popupContent.setText(0, 0, "URL: " + shareURL);
@@ -180,6 +167,18 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
                                 detailPopup.getElement().getStyle().setProperty("bottom", "");
                             }
                         });
+                    }
+
+                    private String createShareURL() {
+                        String currentPageHref = Window.Location.getHref();
+                        String pathName = Window.Location.getPath();
+                        String projectId = currentPageHref.substring(currentPageHref.lastIndexOf("&id="), currentPageHref.length());
+                        int posSigmah = currentPageHref.lastIndexOf(pathName);
+                        String shareURL = currentPageHref.substring(0, posSigmah);
+                        shareURL += pathName + "ExportCalendar?type=";
+                        shareURL += getEventTypeName(model.getCalendar().getStyle());
+                        shareURL += projectId;
+                        return shareURL;
                     }
                 });
                 return shareLinkButton;
@@ -205,23 +204,19 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
     }
 
     
-    private String getEventTypeName(int eventTypeInt) {
-        String eventType = new String();
-        switch (eventTypeInt) {
+    private String getEventTypeName(int eventType) {
+        switch (eventType) {
             case 1:
-                eventType += "activities";
-                break;
+                return "activities";
             case 2:
-                eventType += "events";
-                break;
+                return "events";
             case 3:
-                eventType += "expected";
-                break;
+                return "expected";
+            case 4:
+                return "todo";
             default:
-                eventType += "todo";
-                break;
+                return "activities";
         }
-        return eventType;
     }
     /**
      * Creates the calendars main panel, place holder for the
