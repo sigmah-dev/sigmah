@@ -7,7 +7,7 @@ package org.sigmah.client.ui.view.calendar;
  * Copyright (C) 2010 - 2016 URD
  * %%
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
+ * it under the terms of the GNU Generamobhtl Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -144,34 +144,28 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
             public Object render(final CalendarWrapper model, String property, ColumnData config, int rowIndex, int colIndex, ListStore<CalendarWrapper> store,
                     Grid<CalendarWrapper> grid) {
 
-                final Button bt = Forms.button("", IconImageBundle.ICONS.shareLink());
+                final Button shareLinkButton = Forms.button("", IconImageBundle.ICONS.shareLink());
 
-                bt.setPixelSize(5, 5);
-                final int left = bt.getAbsoluteLeft() - 10;
-                final int bottom = Window.getClientHeight() - bt.getAbsoluteTop();
-                bt.addSelectionListener(new SelectionListener<ButtonEvent>() {
+                shareLinkButton.setPixelSize(5, 5);
+                shareLinkButton.setToolTip("Click here to get URL to share the " + getEventTypeName(model.getCalendar().getStyle()));
+//                final int left = shareLinkButton.getAbsoluteLeft() - 10;
+//                final int bottom = Window.getClientHeight() - shareLinkButton.getAbsoluteTop();
+                shareLinkButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                     @Override
                     public void componentSelected(final ButtonEvent ce) {
-                        String fullStrLink = Window.Location.getHref();
-                        String strCalId = fullStrLink.substring(fullStrLink.indexOf("&id=") + 4, fullStrLink.length() + 1);
-                        int posSigmah = fullStrLink.indexOf("/sigmah/");
-                        posSigmah += 8;
-                        String strLink = fullStrLink.substring(0, posSigmah);
-                        strLink += "ServletNew?type=";
-                        if (model.getCalendar().getStyle() == 1) {
-                            strLink += "activities";
-                        } else if (model.getCalendar().getStyle() == 2) {
-                            strLink += "events";
-                        } else if (model.getCalendar().getStyle() == 3) {
-                            strLink += "expected";
-                        } else {
-                            strLink += "todo";
-                        }
-                        strLink = strLink + "&id=" + strCalId;
+                        String currentPageHref = Window.Location.getHref();
+                        String pathName = Window.Location.getPath();
+
+                        String projectId = currentPageHref.substring(currentPageHref.lastIndexOf("&id="), currentPageHref.length());
+                        int posSigmah = currentPageHref.lastIndexOf(pathName);
+                        String shareURL = currentPageHref.substring(0, posSigmah);
+                        shareURL += pathName + "ExportCalendar?type=";
+                        shareURL += getEventTypeName(model.getCalendar().getStyle());
+                        shareURL += projectId;
                         final DecoratedPopupPanel detailPopup = new DecoratedPopupPanel(true);
                         final com.google.gwt.user.client.ui.Grid popupContent = new com.google.gwt.user.client.ui.Grid(1, 1);
-                        popupContent.setText(0, 0, "URL: "+strLink);
+                        popupContent.setText(0, 0, "URL: " + shareURL);
 
                         detailPopup.setWidth("200");
                         detailPopup.setWidget(popupContent);
@@ -181,16 +175,14 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
 
                             @Override
                             public void setPosition(int offsetWidth, int offsetHeight) {
-                                detailPopup.getElement().getStyle().setPropertyPx("left", bt.getAbsoluteLeft() + 20);
-                                detailPopup.getElement().getStyle().setPropertyPx("top", bt.getAbsoluteTop() - 20);
+                                detailPopup.getElement().getStyle().setPropertyPx("left", shareLinkButton.getAbsoluteLeft() + 20);
+                                detailPopup.getElement().getStyle().setPropertyPx("top", shareLinkButton.getAbsoluteTop() - 20);
                                 detailPopup.getElement().getStyle().setProperty("bottom", "");
                             }
                         });
-
                     }
                 });
-
-                return bt;
+                return shareLinkButton;
             }
         });
 
@@ -211,10 +203,26 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
         calendarsPanel.add(calendarGrid);
         return calendarsPanel;
     }
-    String idBtn = "btnShare";
-    int idI = 1;
-    int idD = 1;
 
+    
+    private String getEventTypeName(int eventTypeInt) {
+        String eventType = new String();
+        switch (eventTypeInt) {
+            case 1:
+                eventType += "activities";
+                break;
+            case 2:
+                eventType += "events";
+                break;
+            case 3:
+                eventType += "expected";
+                break;
+            default:
+                eventType += "todo";
+                break;
+        }
+        return eventType;
+    }
     /**
      * Creates the calendars main panel, place holder for the
      * {@link CalendarWidget}.
@@ -391,5 +399,4 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
     public ListStore<CalendarWrapper> getCalendarsStore() {
         return calendarsStore;
     }
-
 }

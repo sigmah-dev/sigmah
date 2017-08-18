@@ -156,8 +156,8 @@
 		<license-maven-plugin.version>1.8</license-maven-plugin.version>
 
 		<!-- Plugins configuration. -->
-		<gwt.logLevel>INFO</gwt.logLevel> <!-- Available levels: ERROR, WARN, INFO, TRACE, DEBUG, SPAM, ALL. -->
-		<gwt.style>OBFUSCATED</gwt.style> <!-- OBFUSCATED (production), PRETTY, DETAILED (debug). -->
+		<gwt.logLevel>ALL</gwt.logLevel> <!-- Available levels: ERROR, WARN, INFO, TRACE, DEBUG, SPAM, ALL. -->
+		<gwt.style>DETAILED</gwt.style> <!-- OBFUSCATED (production), PRETTY, DETAILED (debug). -->
 		<gwt.compiler.optimizationLevel>9</gwt.compiler.optimizationLevel> <!-- 0=none, 9=maximum. -->
 		<gwt.disableClassMetadata>true</gwt.disableClassMetadata> <!-- Disables some java.lang.Class methods (e.g. getName()). -->
 		<gwt.disableCastChecking>true</gwt.disableCastChecking> <!-- Disables run-time checking of cast operations. -->
@@ -201,13 +201,13 @@
 		<!-- Logger properties. -->
 
 		<log.pattern>[%-5level] {%d{dd/MM/yyyy HH:mm:ss.SSS}} [%thread] %logger{35} - %msg%n</log.pattern>
-		<log.level>ERROR</log.level> <!-- Available levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, OFF. -->
+		<log.level>ALL</log.level> <!-- Available levels: ALL, TRACE, DEBUG, INFO, WARN, ERROR, OFF. -->
 
 		<!-- Default database access properties, shared by both Flyway and Hibernate (may be override in profiles) -->
 
 		<sigmah.database.url>jdbc:postgresql://localhost:5432/sigmah</sigmah.database.url>
-		<sigmah.database.user>sigmah</sigmah.database.user>
-		<sigmah.database.password>sigmah</sigmah.database.password>
+		<sigmah.database.user>postgres</sigmah.database.user>
+		<sigmah.database.password>admin</sigmah.database.password>
 
 		<!-- Hibernate properties. -->
 
@@ -568,7 +568,12 @@
 			<artifactId>gson</artifactId>
 			<version>${gson.version}</version>
 		</dependency>
-
+	 <dependency>
+	  <groupId>ical4j</groupId>
+	  <artifactId>ical4j</artifactId>
+	  <version>2.0.0</version>
+	  <type>jar</type>
+	 </dependency>
 	</dependencies>
 
 	<!-- =========================================================================================== -->
@@ -885,7 +890,8 @@
 			<plugin>
 				<groupId>org.jacoco</groupId>
 				<artifactId>jacoco-maven-plugin</artifactId>
-				<version>0.7.4.201502262128</version>
+				<version>0.7.9</version>
+				<!-- version>0.7.4.201502262128</version-->
 				<executions>
 					<execution>
 						<goals>
@@ -932,7 +938,7 @@
 					<!-- For gwt:run command. -->
 					<runTarget>/</runTarget>
 					<module>org.sigmah.Sigmah</module>
-					<extraJvmArgs>-Xmx1G -Xss256M -XX:PermSize=256M -Djava.io.tmpdir=${project.build.directory}</extraJvmArgs>
+					<extraJvmArgs>-Xmx1G -Xss128M -Djava.io.tmpdir=${project.build.directory}</extraJvmArgs>
 				</configuration>
 			</plugin>
 
@@ -1058,7 +1064,11 @@
 				<mail.auth.password></mail.auth.password>
 
 				<!-- Overrride properties for your local profile here... -->
-
+				<sigmah.database.url>jdbc:postgresql://localhost:5432/sigmah</sigmah.database.url>
+				<sigmah.database.user>postgres</sigmah.database.user>
+				<sigmah.database.password>admin</sigmah.database.password>
+				<files.repository.name>C:\\Users\\1\\Documents\\GitHub\\sigmah</files.repository.name>
+				<archives.repository.name>C:\\Users\\1\\Documents\\GitHub\\sigmah\\archives</archives.repository.name>
 			</properties>
 
 			<build>

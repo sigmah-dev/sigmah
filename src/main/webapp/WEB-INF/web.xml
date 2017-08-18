@@ -44,14 +44,14 @@
 		<listener-class>org.sigmah.server.inject.ServletContextListener</listener-class>
 	</listener>
 	<servlet>
-		<servlet-name>ServletNew</servlet-name>
-		<display-name>ServletNew</display-name>
-		<description></description>
-		<servlet-class>testServlet.ServletNew</servlet-class>
+		<servlet-name>ExportCalendar</servlet-name>
+		<display-name>ExportCalendar</display-name>
+		<description>Export Sigmah calendar events in iCal format</description>
+		<servlet-class>org.sigmah.client.ui.presenter.project.export.ExportCalendar</servlet-class>
 	</servlet>
 	<servlet-mapping>
-		<servlet-name>ServletNew</servlet-name>
-		<url-pattern>/ServletNew</url-pattern>
+		<servlet-name>ExportCalendar</servlet-name>
+		<url-pattern>/ExportCalendar</url-pattern>
 	</servlet-mapping>
 
 	<!-- Default page to serve -->
