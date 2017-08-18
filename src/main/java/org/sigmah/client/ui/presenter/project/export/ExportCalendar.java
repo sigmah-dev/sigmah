@@ -15,7 +15,6 @@ import com.google.inject.persist.PersistService;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import javax.persistence.TypedQuery;
 import javax.servlet.ServletOutputStream;
 import net.fortuna.ical4j.data.CalendarOutputter;
 import net.fortuna.ical4j.model.DateTime;
@@ -40,7 +39,6 @@ import org.sigmah.server.inject.I18nServerModule;
 import org.sigmah.server.inject.MapperModule;
 import org.sigmah.server.inject.PersistenceModule;
 import org.sigmah.server.util.PersonnalEventLoader;
-import static org.sigmah.server.util.PersonnalEventLoader.personalEventFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -55,13 +53,6 @@ public class ExportCalendar extends HttpServlet {
      * Application injector.
      */
     private Injector injector;
-    /**
-     * @see HttpServlet#HttpServlet()
-     */
-    public ExportCalendar() {
-        super();
-    }
-    private String message;
 
     @Override
     public void init(ServletConfig config) throws ServletException {
@@ -75,7 +66,7 @@ public class ExportCalendar extends HttpServlet {
                 new MapperModule(),
                 // I18nServer module.
                 new I18nServerModule());
-        message = "Hello World";
+
         super.init(config);
     }
 
