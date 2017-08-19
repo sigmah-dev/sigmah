@@ -21,8 +21,6 @@ package org.sigmah.client.ui.presenter.calendar;
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -51,24 +49,20 @@ import org.sigmah.shared.dto.calendar.CalendarType;
 import org.sigmah.shared.dto.calendar.CalendarWrapper;
 import org.sigmah.shared.dto.calendar.Event;
 import org.sigmah.shared.dto.calendar.PersonalEventDTO;
-import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
-import org.sigmah.shared.util.ProfileUtils;
-
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.selection.AbstractStoreSelectionModel;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
+import java.util.Date;
 import org.sigmah.client.ui.presenter.reminder.ReminderType;
 import org.sigmah.client.util.profiler.Profiler;
 import org.sigmah.client.util.profiler.Scenario;
 import org.sigmah.shared.dto.calendar.CalendarIdentifier;
 import org.sigmah.shared.dto.calendar.PersonalCalendarIdentifier;
-import org.sigmah.shared.util.ProjectUtils;
 
 /**
  * Calendar widget presenter.
@@ -77,383 +71,488 @@ import org.sigmah.shared.util.ProjectUtils;
  */
 public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View> {
 
-	/**
-	 * Description of the view managed by this presenter.
-	 */
-	@ImplementedBy(CalendarView.class)
-	public static interface View extends ViewInterface {
+    /**
+     * Description of the view managed by this presenter.
+     */
+    @ImplementedBy(CalendarView.class)
+    public static interface View extends ViewInterface {
 
-		void initializeCalendarWidget(final CalendarWidget calendarWidget);
+        void initializeCalendarWidget(final CalendarWidget calendarWidget);
 
-		void setAddEventButtonEnabled(final boolean addEventButtonEnabled);
+        void setAddEventButtonEnabled(final boolean addEventButtonEnabled);
 
-		AbstractStoreSelectionModel<CalendarWrapper> getCalendarsSelectionModel();
+        AbstractStoreSelectionModel<CalendarWrapper> getCalendarsSelectionModel();
 
-		ListStore<CalendarWrapper> getCalendarsStore();
+        ListStore<CalendarWrapper> getCalendarsStore();
 
-		Button getAddEventButton();
+        Button getAddEventButton();
 
-		Button getTodayButton();
+        Button getTodayButton();
 
-		Button getWeekButton();
+        Button getWeekButton();
 
-		Button getMonthButton();
+        Button getMonthButton();
 
-		Button getPreviousButton();
+        Button getPreviousButton();
 
-		Button getNextButton();
+        Button getNextButton();
 
         Button getReminderAddButton();
 
-		Button getMonitoredPointsAddButton();
+        Button getMonitoredPointsAddButton();
 
-	}
+    }
 
-	/**
-	 * The calendar widget.
-	 */
-	private CalendarWidget calendar;
+    /**
+     * The calendar widget.
+     */
+    private CalendarWidget calendar;
 
     private Integer projectId;
+    // @Inject
+    // private PersonalEventDAO personalEventDAO;
 
-	/**
-	 * Presenters's initialization.
-	 *
-	 * @param view
-	 *          Presenter's view interface.
-	 * @param injector
-	 *          Injected client injector.
-	 */
-	@Inject
-	protected CalendarPresenter(final View view, final Injector injector) {
-		super(view, injector);
-	}
+    /**
+     * Presenters's initialization.
+     *
+     * @param view Presenter's view interface.
+     * @param injector Injected client injector.
+     */
+    @Inject
+    protected CalendarPresenter(final View view, final Injector injector) {
+        super(view, injector);
+    }
 
-	/**
-	 * {@inheritDoc}
-	 */
-	@Override
-	public void onBind() {
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public void onBind() {
 
-		// --
-		// Initialize calendar widget.
-		// --
+        // --
+        // Initialize calendar widget.
+        // --
+        calendar = new CalendarWidget(CalendarWidget.COLUMN_HEADERS, true, auth());
+        calendar.today(); // Reset the current date.
+        calendar.setDisplayMode(CalendarWidget.DisplayMode.MONTH);
 
-		calendar = new CalendarWidget(CalendarWidget.COLUMN_HEADERS, true, auth());
-		calendar.today(); // Reset the current date.
-		calendar.setDisplayMode(CalendarWidget.DisplayMode.MONTH);
+        view.initializeCalendarWidget(calendar);
 
-		view.initializeCalendarWidget(calendar);
+        view.setAddEventButtonEnabled(false);
 
-		view.setAddEventButtonEnabled(false);
+        // --
+        // Configuring calendar delegate.
+        // --
+        calendar.setDelegate(new CalendarWidget.Delegate() {
 
-		// --
-		// Configuring calendar delegate.
-		// --
+            @Override
+            public void edit(final Event event, final CalendarWidget calendarWidget) {
+                eventBus.navigateRequest(Page.CALENDAR_EVENT.request().addData(RequestParameter.DTO, event).addData(RequestParameter.CONTENT, getCalendars()));
+            }
 
-		calendar.setDelegate(new CalendarWidget.Delegate() {
+            @Override
+            public void delete(final Event event, final CalendarWidget calendarWidget) {
+                final CalendarIdentifier calendarIdentifier = event.getParent().getIdentifier();
+                final Integer parentId = calendarIdentifier instanceof PersonalCalendarIdentifier
+                        ? ((PersonalCalendarIdentifier) calendarIdentifier).getId() : null;
+                dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, event.getIdentifier(), parentId), new CommandResultHandler<VoidResult>() {
 
-			@Override
-			public void edit(final Event event, final CalendarWidget calendarWidget) {
-				eventBus.navigateRequest(Page.CALENDAR_EVENT.request().addData(RequestParameter.DTO, event).addData(RequestParameter.CONTENT, getCalendars()));
-			}
+                    @Override
+                    public void onCommandFailure(final Throwable caught) {
+                        N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarDeleteEventError());
+                    }
 
-			@Override
-			public void delete(final Event event, final CalendarWidget calendarWidget) {
-				final CalendarIdentifier calendarIdentifier = event.getParent().getIdentifier();
-				final Integer parentId = calendarIdentifier instanceof PersonalCalendarIdentifier ?
-					((PersonalCalendarIdentifier)calendarIdentifier).getId() : null;
+                    @Override
+                    public void onCommandSuccess(final VoidResult result) {
 
-				dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, event.getIdentifier(), parentId), new CommandResultHandler<VoidResult>() {
+                        final List<Event> oldEventList
+                                = event.getParent().getEvents().get(event.getKey());
+                        oldEventList.remove(event);
+                        //ak
+                        final List<Event> oldFullDayEventList
+                                = event.getParent().getFullDayEvents().get(event.getKey());
+                        oldFullDayEventList.remove(event);
+                        //ak
+                        calendar.refresh();
+                    }
+                });
+            }
+  
+            public void deleteEventFunction1(final Event next, Integer parentId, final Map<Date, List<Event>> eventMap, final Date key) {
+                dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, next.getIdentifier(), parentId), new CommandResultHandler<VoidResult>() {
 
-					@Override
-					public void onCommandFailure(final Throwable caught) {
-						N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarDeleteEventError());
-					}
+                    @Override
+                    public void onCommandFailure(final Throwable caught) {
+                        N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarDeleteEventError());
+                    }
 
-					@Override
-					public void onCommandSuccess(final VoidResult result) {
+                    @Override
+                    public void onCommandSuccess(final VoidResult result) {
+                        eventMap.get(key).remove(next);
+                        calendar.refresh();
+                    }
+                });
+            }
+            
+            public void deleteEventFunction2(final Event next, Integer parentId, final Map<Date, List<Event>> eventMap, final Date key, int mainId) {
+                dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, mainId, parentId), new CommandResultHandler<VoidResult>() {
 
-						final List<Event> oldEventList =
-								event.getParent().getEvents().get(event.getKey());
-						oldEventList.remove(event);
-						calendar.refresh();
-					}
-				});
-			}
-		});
+                    @Override
+                    public void onCommandFailure(final Throwable caught) {
+                        N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarDeleteEventError());
+                    }
 
-		// --
-		// Calendars selection change event.
-		// --
+                    @Override
+                    public void onCommandSuccess(final VoidResult result) {
+                        eventMap.get(key).remove(next);
+                        calendar.refresh();
+                    }
+                });
+            }
+            
+            @Override
+            public void deleteChain(final Event event, final CalendarWidget calendarWidget) {
+                final CalendarIdentifier calendarIdentifier = event.getParent().getIdentifier();
+                final Integer parentId = calendarIdentifier instanceof PersonalCalendarIdentifier
+                        ? ((PersonalCalendarIdentifier) calendarIdentifier).getId() : null;
 
-		view.getCalendarsSelectionModel().addSelectionChangedListener(new SelectionChangedListener<CalendarWrapper>() {
-
-			@Override
-			public void selectionChanged(SelectionChangedEvent<CalendarWrapper> se) {
-				final List<CalendarWrapper> wrappers = se.getSelection();
-				final ArrayList<Calendar> calendars = new ArrayList<Calendar>();
-				for (final CalendarWrapper wrapper : wrappers) {
-					calendars.add(wrapper.getCalendar());
-				}
-				calendar.setCalendars(calendars);
-			}
-		});
-
-		// --
-		// Add event button.
-		// --
-
-		view.getAddEventButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-			@Override
-			public void componentSelected(final ButtonEvent ce) {
-
-				if (view.getCalendarsStore().getCount() == 0) {
-					N10N.warn(I18N.CONSTANTS.calendar_addEvent_noCalendar_ko());
-					return;
-				}
-
-				eventBus.navigateRequest(Page.CALENDAR_EVENT.request().addData(RequestParameter.CONTENT, getCalendars()));
-			}
-		});
-
-		// --
-		// Today button.
-		// --
-
-		view.getTodayButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-			@Override
-			public void componentSelected(final ButtonEvent ce) {
-				calendar.today();
-			}
-		});
-
-		// --
-		// Week button.
-		// --
-
-		view.getWeekButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-			@Override
-			public void componentSelected(final ButtonEvent ce) {
-				calendar.setDisplayMode(CalendarWidget.DisplayMode.WEEK);
-			}
-		});
-
-		// --
-		// Month button.
-		// --
-
-		view.getMonthButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-			@Override
-			public void componentSelected(final ButtonEvent ce) {
-				calendar.setDisplayMode(CalendarWidget.DisplayMode.MONTH);
-			}
-		});
-
-		// --
-		// Previous button.
-		// --
-
-		view.getPreviousButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-			@Override
-			public void componentSelected(final ButtonEvent ce) {
-				calendar.previous();
-			}
-		});
-
-		// --
-		// Next button.
-		// --
-
-		view.getNextButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-			@Override
-			public void componentSelected(final ButtonEvent ce) {
-				calendar.next();
-			}
-		});
-
-		// --
-		// Reminders / Monitored Points add buttons handlers.
-		// --
-
-		view.getReminderAddButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-			@Override
-			public void componentSelected(final ButtonEvent event) {
-				eventBus.navigateRequest(Page.REMINDER_EDIT.requestWith(RequestParameter.TYPE, ReminderType.REMINDER).addParameter(RequestParameter.ID, 
-                    projectId));
-			}
-		});
-
-		view.getMonitoredPointsAddButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
-
-			@Override
-			public void componentSelected(final ButtonEvent event) {
-				eventBus.navigateRequest(Page.REMINDER_EDIT.requestWith(RequestParameter.TYPE, ReminderType.MONITORED_POINT).addParameter(RequestParameter.ID, 
-                   projectId));
-			}
-		});
-
-		// --
-		// Update event handler.
-		// --
-
-		registerHandler(eventBus.addHandler(UpdateEvent.getType(), new UpdateHandler() {
-
-			@Override
-			public void onUpdate(final UpdateEvent event) {
-				if (event.concern(UpdateEvent.CALENDAR_EVENT_UPDATE)) {
-					calendar.refresh();
-				}
+                final Map<Date, List<Event>> eventMap = event.getParent().getEvents();
+                final Map<Date, List<Event>> fullDayEventMap = event.getParent().getFullDayEvents();  
                 
+                int mainId = event.getIdentifier();
+                int refId = 0;
+                if (event.getReferenceId() != null) {
+                    refId = event.getReferenceId().intValue();
+                }
+                String typeStr = (String) event.getEventType();
+                if (typeStr != null) {
+                    for (final Date key : eventMap.keySet()) {
+                        for (final Event next : eventMap.get(key)) {
+                            if (refId != 0) {
+                                if (next.getReferenceId() != null && (next.getReferenceId().intValue() == refId)) {
+                                    deleteEventFunction1(next, parentId, eventMap, key);
+                                }
+                                else if((next.getReferenceId() == null) && (next.getIdentifier().intValue() == refId)){
+                                    deleteEventFunction1(next, parentId, eventMap, key);
+                                }
+                            } else {
+                                if (next.getReferenceId() != null && (next.getReferenceId().intValue() == mainId)) {
+                                    deleteEventFunction1(next, parentId, eventMap, key);
+                                }
+                                else if(next.getReferenceId() == null && next.getIdentifier().intValue() == mainId){
+                                    deleteEventFunction2(next, parentId, eventMap, key, mainId);  
+                                }
+                            }
+                        }
+                    }
+                    //ak
+                    for (final Date key : fullDayEventMap.keySet()) {
+                        for (final Event next : fullDayEventMap.get(key)) {
+                            if (refId != 0) {
+                                if (next.getReferenceId() != null && (next.getReferenceId().intValue() == refId)) {
+                                    deleteEventFunction1(next, parentId, fullDayEventMap, key);
+                                }
+                                else if((next.getReferenceId() == null) && (next.getIdentifier().intValue() == refId)){
+                                    deleteEventFunction1(next, parentId, fullDayEventMap, key);
+                                }
+                            } else {
+                                if (next.getReferenceId() != null && (next.getReferenceId().intValue() == mainId)) {
+                                    deleteEventFunction1(next, parentId, fullDayEventMap, key);
+                                }
+                                else if(next.getReferenceId() == null && next.getIdentifier().intValue() == mainId){
+                                    deleteEventFunction2(next, parentId, fullDayEventMap, key, mainId);  
+                                }
+                            }
+                        }
+                    }
+                    //ak
+                } else {
+                    dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, mainId, parentId), new CommandResultHandler<VoidResult>() {
+
+                        @Override
+                        public void onCommandFailure(final Throwable caught) {
+                            N10N.error(I18N.CONSTANTS.error(), I18N.CONSTANTS.calendarDeleteEventError());
+                        }
+
+                        @Override
+                        public void onCommandSuccess(final VoidResult result) {
+                            final List<Event> oldEventList
+                                    = event.getParent().getEvents().get(event.getKey());
+                            oldEventList.remove(event);
+                            //ak
+                            final List<Event> oldFullDayEventList
+                                    = event.getParent().getFullDayEvents().get(event.getKey());
+                            oldFullDayEventList.remove(event);
+                            //ak
+                            calendar.refresh();
+                        }
+                    });
+                }
+            }
+//                        }
+        });
+
+        // --
+        // Calendars selection change event.
+        // --
+        view.getCalendarsSelectionModel().addSelectionChangedListener(new SelectionChangedListener<CalendarWrapper>() {
+
+            @Override
+            public void selectionChanged(SelectionChangedEvent<CalendarWrapper> se) {
+                final List<CalendarWrapper> wrappers = se.getSelection();
+                final ArrayList<Calendar> calendars = new ArrayList<Calendar>();
+                for (final CalendarWrapper wrapper : wrappers) {
+                    calendars.add(wrapper.getCalendar());
+                }
+                calendar.setCalendars(calendars);
+            }
+        });
+
+        // --
+        // Add event button.
+        // --
+        view.getAddEventButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(final ButtonEvent ce) {
+
+                if (view.getCalendarsStore().getCount() == 0) {
+                    N10N.warn(I18N.CONSTANTS.calendar_addEvent_noCalendar_ko());
+                    return;
+                }
+
+                eventBus.navigateRequest(Page.CALENDAR_EVENT.request().addData(RequestParameter.CONTENT, getCalendars()));
+            }
+        });
+
+        // --
+        // Today button.
+        // --
+        view.getTodayButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(final ButtonEvent ce) {
+                calendar.today();
+            }
+        });
+
+        // --
+        // Week button.
+        // --
+        view.getWeekButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(final ButtonEvent ce) {
+                calendar.setDisplayMode(CalendarWidget.DisplayMode.WEEK);
+            }
+        });
+
+        // --
+        // Month button.
+        // --
+        view.getMonthButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(final ButtonEvent ce) {
+                calendar.setDisplayMode(CalendarWidget.DisplayMode.MONTH);
+            }
+        });
+
+        // --
+        // Previous button.
+        // --
+        view.getPreviousButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(final ButtonEvent ce) {
+                calendar.previous();
+            }
+        });
+
+        // --
+        // Next button.
+        // --
+        view.getNextButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(final ButtonEvent ce) {
+                calendar.next();
+            }
+        });
+
+        // --
+        // Reminders / Monitored Points add buttons handlers.
+        // --
+        view.getReminderAddButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(final ButtonEvent event) {
+                eventBus.navigateRequest(Page.REMINDER_EDIT.requestWith(RequestParameter.TYPE, ReminderType.REMINDER).addParameter(RequestParameter.ID,
+                        projectId));
+            }
+        });
+
+        view.getMonitoredPointsAddButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+            @Override
+            public void componentSelected(final ButtonEvent event) {
+                eventBus.navigateRequest(Page.REMINDER_EDIT.requestWith(RequestParameter.TYPE, ReminderType.MONITORED_POINT).addParameter(RequestParameter.ID,
+                        projectId));
+            }
+        });
+
+        // --
+        // Update event handler.
+        // --
+        registerHandler(eventBus.addHandler(UpdateEvent.getType(), new UpdateHandler() {
+
+            @Override
+            public void onUpdate(final UpdateEvent event) {
+                if (event.concern(UpdateEvent.CALENDAR_EVENT_UPDATE)) {
+                    calendar.refresh();
+                }
+
                 if (event.concern(UpdateEvent.REMINDER_UPDATED)) {
                     // TODO appel 
                     reloadEventsOfReminderType((ReminderType) event.getParam(0));
                     calendar.refresh();
                 }
-			}
-		}));
-	}
+            }
+        }));
+    }
 
-	/**
-	 * Reloads the calendars data (if necessary).
-	 *
-	 * @param calendars
-	 *          The calendar types with their corresponding identifier.
-	 */
-	public void reload(final Map<CalendarType, Integer> calendars, boolean editable) {
-		Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "Before refresh.");
+    /**
+     * Reloads the calendars data (if necessary).
+     *
+     * @param calendars The calendar types with their corresponding identifier.
+     */
+    public void reload(final Map<CalendarType, Integer> calendars, boolean editable) {
+        Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "Before refresh.");
 
-		calendar.refresh();
-		Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "calendar.refresh ended.");
+        calendar.refresh();
+        Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "calendar.refresh ended.");
         this.projectId = calendars.get(CalendarType.Activity);
 
-		view.setAddEventButtonEnabled(editable);
-		Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "Before refresh.");
-		reloadEvents(calendars);
-	}
+        view.setAddEventButtonEnabled(editable);
+        Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "Before refresh.");
+        reloadEvents(calendars);
+    }
 
-	/**
-	 * {@inheritDoc}<br>
-	 * Updates the calendar view.
-	 */
-	@Override
-	public void onViewRevealed() {
-		calendar.refresh();
-	}
+    /**
+     * {@inheritDoc}<br>
+     * Updates the calendar view.
+     */
+    @Override
+    public void onViewRevealed() {
+        calendar.refresh();
+    }
 
-	/**
-	 * Returns the {@link CalendarWrapper} list from the view store.
-	 *
-	 * @return The collection.
-	 */
-	private List<CalendarWrapper> getCalendars() {
+    /**
+     * Returns the {@link CalendarWrapper} list from the view store.
+     *
+     * @return The collection.
+     */
+    private List<CalendarWrapper> getCalendars() {
 
-		final List<CalendarWrapper> calendars = new ArrayList<CalendarWrapper>();
-		final ListStore<CalendarWrapper> store = view.getCalendarsStore();
+        final List<CalendarWrapper> calendars = new ArrayList<CalendarWrapper>();
+        final ListStore<CalendarWrapper> store = view.getCalendarsStore();
 
-		for (int i = 0; i < store.getCount(); i++) {
-			calendars.add(store.getAt(i));
-		}
+        for (int i = 0; i < store.getCount(); i++) {
+            calendars.add(store.getAt(i));
+        }
 
-		return calendars;
-	}
+        return calendars;
+    }
 
-	/**
-	 * Reloads the calendar events using a {@link GetCalendar} command.
-	 *
-	 * @param calendars
-	 *          The calendar types with their corresponding identifier.
-	 */
-	private void reloadEvents(final Map<CalendarType, Integer> calendars) {
+    /**
+     * Reloads the calendar events using a {@link GetCalendar} command.
+     *
+     * @param calendars The calendar types with their corresponding identifier.
+     */
+    private void reloadEvents(final Map<CalendarType, Integer> calendars) {
 
-		view.getCalendarsStore().removeAll();
+        view.getCalendarsStore().removeAll();
 
-		if (ClientUtils.isEmpty(calendars)) {
-			calendar.refresh();
-			Profiler.INSTANCE.endScenario(Scenario.AGENDA);
-			return;
-		}
+        if (ClientUtils.isEmpty(calendars)) {
+            calendar.refresh();
+            Profiler.INSTANCE.endScenario(Scenario.AGENDA);
+            return;
+        }
 
-		final DispatchQueue queue = new DispatchQueue(dispatch, true) {
+        final DispatchQueue queue = new DispatchQueue(dispatch, true) {
 
-			@Override
-			protected void onComplete() {
-				calendar.refresh();
-				Profiler.INSTANCE.endScenario(Scenario.AGENDA);
-			}
-		};
+            @Override
+            protected void onComplete() {
+                calendar.refresh();
+                Profiler.INSTANCE.endScenario(Scenario.AGENDA);
+            }
+        };
 
-		for (final Entry<CalendarType, Integer> calendarEntry : calendars.entrySet()) {
+        for (final Entry<CalendarType, Integer> calendarEntry : calendars.entrySet()) {
 
-			if (calendarEntry == null) {
-				continue;
-			}
+            if (calendarEntry == null) {
+                continue;
+            }
 
-			final CalendarType calendarType = calendarEntry.getKey();
-			final Integer calendarId = calendarEntry.getValue();
+            final CalendarType calendarType = calendarEntry.getKey();
+            final Integer calendarId = calendarEntry.getValue();
 
-			queue.add(new GetCalendar(calendarType, CalendarType.getIdentifier(calendarType, calendarId)), new CommandResultHandler<Calendar>() {
+            queue.add(new GetCalendar(calendarType, CalendarType.getIdentifier(calendarType, calendarId)), new CommandResultHandler<Calendar>() {
 
-				@Override
-				public void onCommandSuccess(final Calendar result) {
-					Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, calendarType + " ended.");
-					if(result != null) {
-						// Defines the color index of the calendar.
-						result.setStyle(calendarType.getColorCode());
+                @Override
+                public void onCommandSuccess(final Calendar result) {
+                    Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, calendarType + " ended.");
+                    if (result != null) {
+                        // Defines the color index of the calendar.
+                        result.setStyle(calendarType.getColorCode());
                         result.setType(calendarType);
 
-						view.getCalendarsStore().add(new CalendarWrapper(result));
-						view.getCalendarsSelectionModel().select(view.getCalendarsStore().getCount() - 1, true);
-					}
-				}
+                        view.getCalendarsStore().add(new CalendarWrapper(result));
+                        view.getCalendarsSelectionModel().select(view.getCalendarsStore().getCount() - 1, true);
+                    }
+                }
 
-				@Override
-				protected void onCommandFailure(Throwable caught) {
-					Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, calendarType + " ended with error.");
-					super.onCommandFailure(caught); 
-				}
-				
-			});
-		}
-		Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "Before queue started.");
-		queue.start();
-	}
+                @Override
+                protected void onCommandFailure(Throwable caught) {
+                    Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, calendarType + " ended with error.");
+                    super.onCommandFailure(caught);
+                }
+
+            });
+        }
+        Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "Before queue started.");
+        queue.start();
+    }
+
     /**
      * Reload a given type of reminder into the calendar.
-     * 
+     *
      * @param reminderType Type of reminder to refresh.
      */
     private void reloadEventsOfReminderType(final ReminderType reminderType) {
         final CalendarType calendarType = reminderType == ReminderType.REMINDER ? CalendarType.Reminder : CalendarType.MonitoredPoint;
-        
+
         final List<Calendar> calendars = calendar.getCalendars();
         for (int index = 0; index < calendars.size(); index++) {
             final Calendar currentCalendar = calendars.get(index);
-            
+
             if (currentCalendar.getType() == calendarType) {
 
                 final GetCalendar getCalendar = new GetCalendar(calendarType, currentCalendar.getIdentifier());
                 final int location = index;
-                
+
                 dispatch.execute(getCalendar, new CommandResultHandler<Calendar>() {
-                    
+
                     @Override
                     protected void onCommandSuccess(Calendar result) {
-                        if(result != null) {
+                        if (result != null) {
                             result.setStyle(calendarType.getColorCode());
                             result.setType(calendarType);
                             calendars.set(location, result);
                             calendar.refresh();
                         }
                     }
-                    
+
                 });
                 return;
             }

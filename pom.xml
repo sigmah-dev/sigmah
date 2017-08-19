@@ -932,7 +932,7 @@
 					<!-- For gwt:run command. -->
 					<runTarget>/</runTarget>
 					<module>org.sigmah.Sigmah</module>
-					<extraJvmArgs>-Xmx1G -Xss256M -XX:PermSize=256M -Djava.io.tmpdir=${project.build.directory}</extraJvmArgs>
+					<extraJvmArgs>-Xmx1G -Xss128M -Djava.io.tmpdir=${project.build.directory}</extraJvmArgs>
 				</configuration>
 			</plugin>
 
@@ -1058,7 +1058,6 @@
 				<mail.auth.password></mail.auth.password>
 
 				<!-- Overrride properties for your local profile here... -->
-
 			</properties>
 
 			<build>

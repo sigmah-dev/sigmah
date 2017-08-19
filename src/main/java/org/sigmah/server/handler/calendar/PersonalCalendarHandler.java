@@ -84,31 +84,47 @@ public class PersonalCalendarHandler implements CalendarHandler {
 
 		if (events != null) {
 			final HashMap<Date, List<Event>> eventMap = new HashMap<Date, List<Event>>();
-
+                        final HashMap<Date, List<Event>> fullDayEventMap = new HashMap<Date, List<Event>>();
+                        
 			for (final PersonalEvent event : events) {
 				final Date key = normalize(event.getStartDate());
 
-				List<Event> list = eventMap.get(key);
-				if (list == null) {
-					list = new ArrayList<Event>();
-					eventMap.put(key, list);
+				List<Event> eventList = eventMap.get(key);
+                                
+				if (eventList == null) {
+					eventList = new ArrayList<Event>();
+					eventMap.put(key, eventList);
 				}
 
+                                List<Event> fullDayList = fullDayEventMap.get(key);
+                                
+				if (fullDayList == null) {
+					fullDayList = new ArrayList<Event>();
+					fullDayEventMap.put(key, fullDayList);
+				}
 				final Event calendarEvent = new Event();
 				calendarEvent.setIdentifier(event.getId());
 				calendarEvent.setParent(calendar);
 				calendarEvent.setSummary(event.getSummary());
 				calendarEvent.setDescription(event.getDescription());
 				calendarEvent.setDtstart(new Date(event.getStartDate().getTime()));
+                                calendarEvent.setReferenceId(event.getReferenceId());
+                                calendarEvent.setEventType(event.getEventType());
 				if (event.getEndDate() != null)
 					calendarEvent.setDtend(new Date(event.getEndDate().getTime()));
-
-				list.add(calendarEvent);
-			}
+                                
+                                if(event.getEventType()!=null && event.getEventType().contains("F")
+                                    || (event.getStartDate().getHours()==event.getEndDate().getHours()
+                                            && event.getStartDate().getMinutes()==event.getEndDate().getMinutes())){
+                                    fullDayList.add(calendarEvent);
+                                }else{
+                                    eventList.add(calendarEvent);
+                                }
 
 			calendar.setEvents(eventMap);
-		}
-
+                        calendar.setFullDayEvents(fullDayEventMap);
+                    }
+                }
 		return calendar;
 	}
 

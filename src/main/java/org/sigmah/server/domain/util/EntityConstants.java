@@ -1021,10 +1021,13 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String PERSONAL_EVENT_COLUMN_END_DATE = "enddate";
 	public static final String PERSONAL_EVENT_COLUMN_START_DATE = "startdate";
 	public static final String PERSONAL_EVENT_COLUMN_SUMMARY = "summary";
+	public static final String PERSONAL_EVENT_COLUMN_TYPE = "eventtype";
+	public static final String PERSONAL_EVENT_COLUMN_REFERENCE_ID = "referenceid";
 
+	public static final int PERSONAL_EVENT_TYPE_MAX_LENGTH = 2;
 	public static final int PERSONAL_EVENT_DESCRIPTION_MAX_LENGTH = 255;
 	public static final int PERSONAL_EVENT_SUMMARY_MAX_LENGTH = 255;
-
+        
 	// --------------------------------------------------------------------------------
 	//
 	// PHASE ENTITY.

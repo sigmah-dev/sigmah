@@ -80,6 +80,18 @@ public class PersonalEvent extends AbstractEntityId<Integer> implements Deleteab
 	private Integer calendarId;
 
 	/**
+	 * Type of the event.
+	 */
+        @Column(name = EntityConstants.PERSONAL_EVENT_COLUMN_TYPE)
+	@Size(max = EntityConstants.PERSONAL_EVENT_TYPE_MAX_LENGTH)
+	private String eventtype;
+	/**
+	 * Reference ID of the event.
+	 */
+        @Column(name = EntityConstants.PERSONAL_EVENT_COLUMN_REFERENCE_ID)
+	private Integer referenceid;
+
+        /**
 	 * Title of the event (a short description).
 	 */
 	@Column(name = EntityConstants.PERSONAL_EVENT_COLUMN_SUMMARY)
@@ -144,12 +156,15 @@ public class PersonalEvent extends AbstractEntityId<Integer> implements Deleteab
 	 */
 	@Override
 	protected void appendToString(ToStringBuilder builder) {
+                builder.append("eventtype", eventtype);
+                builder.append("referenceid", referenceid);
 		builder.append("summary", summary);
 		builder.append("description", description);
 		builder.append("startDate", startDate);
 		builder.append("endDate", endDate);
 		builder.append("dateCreated", dateCreated);
 		builder.append("dateDeleted", dateDeleted);
+
 	}
 
 	// --------------------------------------------------------------------------------
@@ -222,5 +237,21 @@ public class PersonalEvent extends AbstractEntityId<Integer> implements Deleteab
 
 	public void setDateDeleted(Date dateDeleted) {
 		this.dateDeleted = dateDeleted;
+	}
+        
+        public String getEventType() {
+		return eventtype;
+	}
+
+	public void setEventType(String eventtype) {
+		this.eventtype = eventtype;
+	}
+        
+        public Integer getReferenceId() {
+		return referenceid;
+	}
+
+	public void setReferenceId(Integer referenceid) {
+		this.referenceid = referenceid;
 	}
 }
