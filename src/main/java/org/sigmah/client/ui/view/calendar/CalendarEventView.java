@@ -344,7 +344,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         panelDaily = new FieldSet();
         panelDaily.setExpanded(true);
         panelDaily.setBorders(true);
-        panelDaily.setHeadingHtml("End of daily repetition event");
+        panelDaily.setHeadingHtml("Daily repeats settings");
         panelDaily.setAutoHeight(true);
         panelDaily.setVisible(false);
         
@@ -412,7 +412,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         panelWeekly = new FieldSet();
         panelWeekly.setExpanded(true);
         panelWeekly.setBorders(true);
-        panelWeekly.setHeadingHtml("End of weekly repetition event");
+        panelWeekly.setHeadingHtml("Weekly repeats settings");
         panelWeekly.setAutoHeight(true);
         panelWeekly.setVisible(false);
         

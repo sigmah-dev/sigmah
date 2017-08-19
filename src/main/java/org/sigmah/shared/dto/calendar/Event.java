@@ -122,7 +122,7 @@ public class Event implements Serializable {
 			setDtstart(startHour);
 			
 			if (endHourSerialized instanceof Long) {
-				final Date endHour = new Date((Long) endHourSerialized);
+				final Date endHour = new Date((Long) endHourSerialized+((dayEnd.getTime()-day.getTime())));
 				setDtend(endHour);
 			} else {
 				setDtend(null);

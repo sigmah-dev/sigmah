@@ -825,7 +825,10 @@ public class CalendarWidget extends Composite {
 
                 popupContent.setWidget(3, 0, editAnchor);
                 popupContent.setWidget(4, 0, deleteAnchor);
-                popupContent.setWidget(5, 0, deleteChainAnchor);
+                if (event.getEventType().equals("O") || event.getEventType().equals("OF")) {
+                } else {
+                    popupContent.setWidget(5, 0, deleteChainAnchor);
+                }
             }
 
             detailPopup.setWidget(popupContent);
@@ -1131,7 +1134,12 @@ public class CalendarWidget extends Composite {
 
             popupContent.setWidget(3, 0, editAnchor);
             popupContent.setWidget(4, 0, deleteAnchor);
-            popupContent.setWidget(5, 0, deleteChainAnchor);
+            //   Window.alert(event.getEventType());
+            if (event.getEventType().equals("O") || event.getEventType().equals("OF")) {
+            } else {
+                //Window.alert(event.getEventType());
+                popupContent.setWidget(5, 0, deleteChainAnchor);
+            }
         }
 
         detailPopup.setWidget(popupContent);
@@ -1227,7 +1235,7 @@ public class CalendarWidget extends Composite {
             int[][] theShiftVecorOfFullDayEvents) {
 
         int theLastFDPanelInCellCounter = getLastFDPanelInCellCounter(theShiftVecorOfFullDayEvents, column);
-       // Window.alert("START column = " + column + "; theLastFullRaw =" + theLastFDPanelInCellCounter);
+        // Window.alert("START column = " + column + "; theLastFullRaw =" + theLastFDPanelInCellCounter);
         TreeSet<Event> sortedFullDayEvents = sortedFullDayEventsSet();
         int eventCounter = 0;
         int longFullDayEventShownCounter = 0;
@@ -1298,7 +1306,7 @@ public class CalendarWidget extends Composite {
             int daysdiff = (int) diffDays;
 
             fullDayFlowPanel.setTitle(createToolTipForFullDayEvent(daysdiff, event));
-             //to show full day long event if it longer then 1 week
+            //to show full day long event if it longer then 1 week
             while (column + daysdiff - 1 >= 8) {
                 daysdiff--;
             }
