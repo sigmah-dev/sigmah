@@ -647,13 +647,13 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         Boolean isFullDayEvent = view.getAllDayCheckbox().getValue();
 
         //   Window.alert("isAllDayEvent=" + isFullDayEvent);//temp for checker
-        Date startDate = createStartDateProperty(isFullDayEvent, beginEventIntervalDate, properties);
-        Date endDate = createEndDateProperty(isFullDayEvent, beginEventIntervalDate, properties);
+        Date startDateTime = createStartDateTimeProperty(isFullDayEvent, beginEventIntervalDate, properties);
+        Date endDateTime = createEndDateTimeProperty(isFullDayEvent, beginEventIntervalDate, properties);
 
         properties.put(Event.DESCRIPTION, view.getEventDescriptionField().getValue());
 
         if (event == null) {
-            processAddEvent(endEventIntervalDate, beginEventIntervalDate, startDate, endDate, properties, eventSummary, eventDescription);
+            processAddEvent(endEventIntervalDate, beginEventIntervalDate, startDateTime, endDateTime, properties, eventSummary, eventDescription);
         } else {
 
             properties.put(Event.EVENT_TYPE, event.getEventType());
@@ -698,8 +698,8 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      *
      * @param endEventIntervalDate the value of endEventIntervalDate
      * @param beginEventIntervalDate the value of beginEventIntervalDate
-     * @param startDate the value of startDate
-     * @param endDate the value of endDate
+     * @param startDate the value of startDateTime
+     * @param endDate the value of endDateTime
      * @param properties the value of properties
      * @param eventSummary the value of eventSummary
      * @param eventDescription the value of eventDescription
@@ -763,16 +763,16 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
     }
 
     /**
-     * Create Start event date property
+     * Create Start event date time property
      *
-     * @param isFulllDayEvent the value of isFullDayEvent
+     * @param isFullDayEvent the value of isFullDayEvent
      * @param beginEventIntervalDate the value of beginEventIntervalDate
      * @param properties the value of properties
      */
-    private Date createStartDateProperty(Boolean isFulllDayEvent, final Date beginEventIntervalDate, final Map<String, Serializable> properties) {
+    private Date createStartDateTimeProperty(Boolean isFullDayEvent, final Date beginEventIntervalDate, final Map<String, Serializable> properties) {
 
         Date startDate = null;
-        if (!isFulllDayEvent) {
+        if (!isFullDayEvent) {
             startDate = view.getEventStartTimeField().getDateValue();
         }
         if (startDate != null) {
@@ -787,16 +787,16 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
     }
 
     /**
-     * Create End event date property
+     * Create End event date time property
      *
-     * @param isFulllDayEvent the value of isFullDayEvent
+     * @param isFullDayEvent the value of isFullDayEvent
      * @param beginEventIntervalDate the value of beginEventIntervalDate
      * @param properties the value of properties
      */
-    private Date createEndDateProperty(Boolean isFulllDayEvent, final Date beginEventIntervalDate, final Map<String, Serializable> properties) {
+    private Date createEndDateTimeProperty(Boolean isFullDayEvent, final Date beginEventIntervalDate, final Map<String, Serializable> properties) {
 
         Date endDate = null;
-        if (!isFulllDayEvent) {
+        if (!isFullDayEvent) {
             endDate = view.getEventEndTimeField().getDateValue();
         }
         if (endDate != null) {
@@ -816,15 +816,20 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY));
         properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION));
         // Window.alert("DaysDiff = "+daysDiff);
+        if (view.getAllDayCheckbox().getValue() == true) {
+            properties.put(Event.EVENT_TYPE, "OF");
+        } else {
+            properties.put(Event.EVENT_TYPE, "O");
+        }
         if (daysDiff == 1) {
             addPersonalEvent(properties);
         } else {
-            properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY) + " (Once event)");
-            properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION) + " (Once event)");
-            properties.put(Event.EVENT_TYPE, "O");
-            if (view.getAllDayCheckbox().getValue() == true) {
-                properties.put(Event.EVENT_TYPE, "OF");
-            }
+            properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY));// + " (Once event)");
+            properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION));// + " (Once event)");
+//            properties.put(Event.EVENT_TYPE, "O");
+//            if (view.getAllDayCheckbox().getValue() == true) {
+//                properties.put(Event.EVENT_TYPE, "OF");
+//            }
             addPersonalEventOnce(properties, daysDiff, beginEventIntervalDate, milisPerDay, startDate, endDate, eventSummary, eventDescription);
         }
     }
@@ -848,7 +853,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 event.setIdentifier((Integer) result.getEntity().getId());
                 properties.put(Event.REFERENCE_ID, (Integer) result.getEntity().getId());
                 updateEvent(event, properties);
-                // addOnceSeriesEvent((Integer) result.getEntity().getId(), daysInterval, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
+                // addOnceSeriesEvent((Integer) result.getEntity().getId(), daysInterval, calBeginNextEventDateLong, milisPerDay, startDateTime, endDateTime, eventSummary, eventDescription);
             }
         }, view.getCancelButton(), view.getSaveButton());
     }
@@ -859,8 +864,8 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      * @param diffInMilis the value of diffInMilis
      * @param milisPerDay the value of milisPerDay
      * @param beginEventIntervalDate the value of beginEventIntervalDate
-     * @param startDate the value of startDate
-     * @param endDate the value of endDate
+     * @param startDate the value of startDateTime
+     * @param endDate the value of endDateTime
      * @param properties the value of properties
      * @param eventSummary the value of eventSummary
      * @param eventDescription the value of eventDescription
@@ -902,7 +907,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 updateEvent(event, properties);
                 addDailySeriesEvent((Integer) result.getEntity().getId(), daysInterval, lengthDailyEvent, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
                 //  if (view.getAllDayCheckbox().getValue() == false) {
-                //      addDailySeriesEventNew((Integer) result.getEntity().getId(), daysInterval, lengthDailyEvent, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
+                //      addDailySeriesEventNew((Integer) result.getEntity().getId(), daysInterval, lengthDailyEvent, calBeginNextEventDateLong, milisPerDay, startDateTime, endDateTime, eventSummary, eventDescription);
                 //  }
             }
         }, view.getCancelButton(), view.getSaveButton());
@@ -955,8 +960,8 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      * @param diffInMilis the value of diffInMilis
      * @param milisPerWeek the value of milisPerWeek
      * @param beginEventIntervalDate the value of beginEventIntervalDate
-     * @param startDate the value of startDate
-     * @param endDate the value of endDate
+     * @param startDate the value of startDateTime
+     * @param endDate the value of endDateTime
      * @param properties the value of properties
      * @param eventSummary the value of eventSummary
      * @param eventDescription the value of eventDescription
@@ -1052,8 +1057,8 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
     /**
      * Set date and time values for Full day events.
      *
-     * @param startDate the value of startDate
-     * @param endDate the value of endDate
+     * @param startDate the value of startDateTime
+     * @param endDate the value of endDateTime
      * @param calBeginNextEventDate the value of calBeginNextEventDate
      * @param thePeriodProperties the value of thePeriodProperties
      */
@@ -1083,8 +1088,8 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      * @param endEventIntervalDate the value of endEventIntervalDate
      * @param properties the value of properties
      * @param isMonthlySameDayOfWeek the value of isMonthlySameDayOfWeek
-     * @param startDate the value of startDate
-     * @param endDate the value of endDate
+     * @param startDate the value of startDateTime
+     * @param endDate the value of endDateTime
      * @param eventSummary the value of eventSummary
      * @param eventDescription the value of eventDescription
      */
@@ -1186,8 +1191,8 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      * @param endEventIntervalDate the value of endEventIntervalDate
      * @param properties the value of properties
      * @param isYearlySameDayOfWeek the value of isYearlySameDayOfWeek
-     * @param startDate the value of startDate
-     * @param endDate the value of endDate
+     * @param startDate the value of startDateTime
+     * @param endDate the value of endDateTime
      * @param eventSummary the value of eventSummary
      * @param eventDescription the value of eventDescription
      */

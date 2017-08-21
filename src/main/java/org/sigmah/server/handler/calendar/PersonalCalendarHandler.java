@@ -110,8 +110,9 @@ public class PersonalCalendarHandler implements CalendarHandler {
 				calendarEvent.setDtstart(new Date(event.getStartDate().getTime()));
                                 calendarEvent.setReferenceId(event.getReferenceId());
                                 calendarEvent.setEventType(event.getEventType());
-				if (event.getEndDate() != null)
+				if (event.getEndDate() != null){
 					calendarEvent.setDtend(new Date(event.getEndDate().getTime()));
+                                }
                                 
                                 if(event.getEventType()!=null && event.getEventType().contains("F")
                                     || (event.getStartDate().getHours()==event.getEndDate().getHours()
@@ -125,7 +126,7 @@ public class PersonalCalendarHandler implements CalendarHandler {
                         calendar.setFullDayEvents(fullDayEventMap);
                     }
                 }
-		return calendar;
+                return calendar;
 	}
 
 	@SuppressWarnings("deprecation")

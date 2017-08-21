@@ -7,7 +7,7 @@ package org.sigmah.client.ui.view.calendar;
  * Copyright (C) 2010 - 2016 URD
  * %%
  * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Generamobhtl Public License as
+ * it under the terms of the GNU General Public License as
  * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
@@ -52,8 +52,6 @@ import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.i18n.shared.DateTimeFormatInfo;
-import com.google.gwt.user.client.DOM;
-import com.google.gwt.user.client.ui.HTML;
 import com.google.gwt.user.client.ui.SimplePanel;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 
@@ -182,12 +180,13 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
         // Next button - move forward from one unit of time (week / month)
         nextButton = Forms.button(I18N.CONSTANTS.next());
         toolbar.add(nextButton);
+
         toolbar.add(new SeparatorToolItem());
 
         addEventButton = Forms.button(I18N.CONSTANTS.calendarAddEvent(), IconImageBundle.ICONS.add());
         reminderAddButton = new Button(I18N.CONSTANTS.reminderPoint(), IconImageBundle.ICONS.add());
         monitoredPointsAddButton = new Button(I18N.CONSTANTS.monitoredPoint(), IconImageBundle.ICONS.add());
-
+       
         calendarView.setTopComponent(toolbar);
 
         return calendarView;
@@ -215,23 +214,10 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
                 calendarView.setHeadingHtml(calendarWidget.getHeading());
             }
         });
-        calendarView.setScrollMode(Scroll.AUTOY);
+        calendarView.setScrollMode(Scroll.AUTOY);//ss
         calendarView.add(calendarWidget, Layouts.fitData(Margin.DOUBLE_TOP, Margin.DOUBLE_RIGHT, Margin.DOUBLE_BOTTOM, Margin.DOUBLE_LEFT));
 
-        SimplePanel pageMessagePanel = new SimplePanel();
-        pageMessagePanel.addStyleName("calendar-fullday-event-3");
-        pageMessagePanel.setVisible(true);
-        pageMessagePanel.setWidth(String.valueOf(305) + "px");
-        pageMessagePanel.setHeight(String.valueOf(500) + "px");
-
-        HTML pageMessageLabel = new HTML();
-        pageMessageLabel.addStyleName("calendar-fullday-event-4");
-        pageMessagePanel.add(pageMessageLabel);
-        DOM.setStyleAttribute(pageMessagePanel.getElement(), "position", "absolute");
-        DOM.setStyleAttribute(pageMessagePanel.getElement(), "top", 100 + "px");
-        DOM.setStyleAttribute(pageMessagePanel.getElement(), "left", 100 + "%");
-        DOM.setStyleAttribute(pageMessagePanel.getElement(), "width", 55 + "%");
-        calendarView.add(pageMessagePanel);
+        calendarView.add(calendarWidget, Layouts.fitData(Margin.DOUBLE_TOP, Margin.DOUBLE_RIGHT, Margin.DOUBLE_BOTTOM, Margin.DOUBLE_LEFT));
     }
 
     /**
