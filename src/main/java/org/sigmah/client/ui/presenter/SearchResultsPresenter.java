@@ -45,7 +45,7 @@ import com.google.inject.Inject;
  * Search Results page presenter for rendering the results of different types
  * of search results such as projects, org units, contacts and files
  * 
- * @author
+ * @author Aditya Adhikary (aditya15007@iiitd.ac.in)
  * 
  */
 
@@ -165,6 +165,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 
 								@Override
 								public void onProgress(double progress, double speed) {
+									//do nothing
 								}
 
 								@Override
@@ -174,6 +175,7 @@ public class SearchResultsPresenter extends AbstractPagePresenter<SearchResultsP
 
 								@Override
 								public void onLoad(String result) {
+									//do nothing
 								}
 							});
 						} else {

@@ -715,7 +715,7 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 				searchService.updateCore(solrCoreUrl, new AsyncCallback<Boolean>() {
 					public void onFailure(Throwable caught) {
 						N10N.error("Failed to update Solr Core!",
-								"Check that the url entered is valid!");
+								"Check that the url entered is valid. Also check that the Solr Server is running!");
 						caught.printStackTrace();
 					}
 
@@ -726,11 +726,11 @@ public class ParametersAdminPresenter extends AbstractAdminPresenter<ParametersA
 							"You can now carry out search.");
 						} else {
 							N10N.error("Failed to update Solr Core!",
-									"Check that the url entered is valid!");
+									"Check that the url entered is valid! Also check that the Solr Server is running!");
 						}
 					}
 				});
-
+				
 			}
 		}, view.getSolrSaveConfigButton());
 	}

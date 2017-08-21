@@ -42,7 +42,7 @@ import com.google.inject.Inject;
  * Implementation of {@link FilesSolrManager} job to execute Solr Full Data Import and
  * import of files.Necessary for updating search index.
  * 
- * @author 
+ * @author Aditya Adhikary (aditya15007@iiitd.ac.in)
  */
 public class FilesSolrManagerImpl implements FilesSolrManager {
 

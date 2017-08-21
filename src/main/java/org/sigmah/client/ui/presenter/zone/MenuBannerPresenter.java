@@ -218,12 +218,10 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 
 		// Simple page request: add a new tab.
 		if (tabTitle == null) {
-			//Window.alert("Gubi tabtitle/header is null");
 			addTab(request);
 		}
 		// Page request + title: tab title update.
 		else {
-			//Window.alert("Gubi tabtitle/header is not null, it is " + tabTitle );
 			view.getTabBar().updateTitle(new MenuTabId(request), tabTitle);
 		}
 		
@@ -279,25 +277,20 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 			searchTabTitle = request.getData(RequestParameter.TITLE);
 			request.getPage().setTitle(searchTabTitle);
 			tab.setTitle(searchTabTitle);
-			//Window.alert("Search Results title is " +  tab.getTitle());
 		}
 		
 		// Adds the tab.
 		view.getTabBar().addTab(tab);
-		//Window.alert("Added tab!");
 		requests.put(tab.getId(), new PageRequest(request)); // Important: create a new instance.
 		
 		if(request.getPage()==Page.SEARCH_RESULTS){
 			view.getTabBar().updateTitle(tab.getId(), "\""+ searchTabTitle + "\"");
-			//Window.alert("Updated search tab title!");
 		}else{
 			// Sets the first title.
 			final String pageTitle = Page.getTitle(request.getPage());
-			//Window.alert("pageTitle is " + pageTitle );
 			final String tabTitle = ClientUtils.isNotBlank(pageTitle) && !PropertyName.isErrorKey(pageTitle) ? pageTitle : I18N.CONSTANTS.loading();
 			view.getTabBar().updateTitle(tab.getId(), tabTitle);
 		}
-		//Window.alert("tabTitle is " + tabTitle );
 
 	}
 
@@ -338,7 +331,6 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 
 			// Compares parameters maps sizes.
 			if (equals) {
-				//Window.alert("Found some existing tab!");
 				equals &= params.size() == other.params.size();
 			}
 

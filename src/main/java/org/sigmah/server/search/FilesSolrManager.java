@@ -29,7 +29,7 @@ import org.sigmah.server.domain.value.FileVersion;
 /**
  * Implemented by {@link FilesSolrManagerImpl}.
  * 
- * @author 
+ * @author Aditya Adhikary (aditya15007@iiitd.ac.in)
  */
 public interface FilesSolrManager {
 

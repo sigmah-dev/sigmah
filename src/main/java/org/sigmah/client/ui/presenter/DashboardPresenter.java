@@ -76,6 +76,7 @@ import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.google.gwt.core.client.GWT;
+import com.google.gwt.user.client.Timer;
 import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.inject.ImplementedBy;
@@ -270,21 +271,29 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 				initializeMenuButtons(event.getState());
 			}
 		});
-		
-		
-		searchService.updateCore(auth().getOrganizationSolrCoreUrl(), new AsyncCallback<Boolean>() {
-			public void onFailure(Throwable caught) {
-				N10N.error("Error connecting to Solr", "Solr Server connection is not available.");
-				caught.printStackTrace();
-			}
 
-			public void onSuccess(Boolean result) {
-				Boolean dih_success = result;
-				if (!dih_success) {
-					N10N.error("Error connecting to Solr", "Solr Server connection is not available.");
+		Timer t = new Timer() {
+			@Override
+			public void run() {
+				if (ProfileUtils.isGranted(auth(), GlobalPermissionEnum.SEARCH)) {
+					searchService.updateCore(auth().getOrganizationSolrCoreUrl(), new AsyncCallback<Boolean>() {
+						public void onFailure(Throwable caught) {
+							N10N.error("Error connecting to Solr", "Solr Server connection is not available.");
+							caught.printStackTrace();
+						}
+
+						public void onSuccess(Boolean result) {
+							Boolean dih_success = result;
+							if (!dih_success) {
+								N10N.error("Error connecting to Solr", "Solr Server connection is not available.");
+							}
+						}
+					});
 				}
 			}
-		});
+		};
+
+		t.schedule(8000);
 
 	}
 

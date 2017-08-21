@@ -38,7 +38,7 @@ import com.google.inject.Injector;
  * Scheduled (in {@link SolrIndexJobActivator}) job to execute Solr Full Data Import and
  * import of files.Necessary for updating search index.
  * 
- * @author 
+ * @author Aditya Adhikary (aditya15007@iiitd.ac.in)
  */
 public class SolrIndexJob implements Job{
 

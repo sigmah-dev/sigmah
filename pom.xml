@@ -253,12 +253,6 @@
 		<!-- Maps API properties. -->
 
 		<maps.key>ABQIAAAAaKyZGjYsJ9quclBfsnGc-xRxtna0S6DNUYSvLTUdQl9eB6x9_xQH4P0V3CSFEY_MypecLWSdS3Q8IQ</maps.key>
-		
-		<!-- Solr Server Properties -->
-		
-		<solr.server.ip></solr.server.ip>
-		<solr.core.name>Test_Sigmah</solr.core.name>
-		<solr.core.url>http://localhost:8983/solr/${solr.core.name}</solr.core.url>
 
 	</properties>
 

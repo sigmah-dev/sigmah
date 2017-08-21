@@ -32,7 +32,7 @@ import org.sigmah.shared.dto.search.SearchResultsDTO;
  * Implementation of {@link SearchService} Contains implementations of async methods
  * required for search
  * 
- * @author 
+ * @author Aditya Adhikary (aditya15007@iiitd.ac.in)
  */
 @SuppressWarnings("serial")
 public class SearchServiceImpl extends RemoteServiceServlet implements SearchService{

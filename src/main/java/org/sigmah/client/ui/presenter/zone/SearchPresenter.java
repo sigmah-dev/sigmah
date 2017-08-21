@@ -79,7 +79,7 @@ import com.google.inject.Singleton;
 /**
  * Search presenter displaying the search bar and associated widgets.
  * 
- * @author
+ * @author Aditya Adhikary (aditya15007@iiitd.ac.in)
  */
 
 @Singleton
@@ -152,23 +152,21 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 
 			@Override
 			public void componentKeyUp(ComponentEvent event) {
-				if (event.getKeyCode() == KeyCodes.KEY_ENTER) {
-					if (view.getSearchTextField().getValue() != null
-							&& view.getSearchTextField().getValue().length() > 0) {
+				if (event.getKeyCode() == KeyCodes.KEY_ENTER && view.getSearchTextField().getValue() != null
+						&& view.getSearchTextField().getValue().length() > 0) {
 
-						textToServer = view.getSearchTextField().getValue();
-						view.getSearchTextField().clear();
-						int sel_ind = view.getSearchOptionsComboBox().getSelectedIndex();
-						filter = view.getNewSearchOptions().get(sel_ind);
-						search();
+					textToServer = view.getSearchTextField().getValue();
+					view.getSearchTextField().clear();
+					int sel_ind = view.getSearchOptionsComboBox().getSelectedIndex();
+					filter = view.getNewSearchOptions().get(sel_ind);
+					search();
 
-					}
 				}
 			}
 		});
 
-		//have put a timer because it takes quite some time for auth() to load, if I did this
-		//without a timer it would give a null pointer exception for auth()
+		// have put a timer because it takes quite some time for auth() to load,
+		// if I did this without a timer it would give a null pointer exception for auth()
 		Timer t = new Timer() {
 			@Override
 			public void run() {
@@ -178,7 +176,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 			}
 		};
 
-		t.schedule(8000);  //8s delay
+		t.schedule(8000); // 8s delay
 
 	}
 
@@ -309,7 +307,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 		});
 	}
 
-	public void doPageRequest() {
+	private void doPageRequest() {
 		if (searchResults != null && searchResults.size() > 0) {
 			PageRequest request = new PageRequest(Page.SEARCH_RESULTS);
 			request.addData(RequestParameter.TITLE, textToServer);
@@ -390,7 +388,7 @@ public class SearchPresenter extends AbstractZonePresenter<SearchPresenter.View>
 	 */
 	@Override
 	public void onZoneRequest(ZoneRequest zoneRequest) {
-
+		//do nothing
 	}
 
 }

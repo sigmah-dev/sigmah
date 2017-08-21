@@ -28,7 +28,7 @@ import org.sigmah.shared.dto.search.FilesSolrIndexDTO;
 /**
  * Command used by client side to execute indexing of files
  * 
- * @author 
+ * @author Aditya Adhikary (aditya15007@iiitd.ac.in)
  */
 public class FilesSolrIndexCommand extends AbstractCommand<FilesSolrIndexDTO>{
 

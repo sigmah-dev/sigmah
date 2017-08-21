@@ -27,7 +27,7 @@ import org.sigmah.shared.dto.base.DTO;
 /**
  * Dto with a boolean specifying success or failure of files indexing
  * 
- * @author 
+ * @author Aditya Adhikary (aditya15007@iiitd.ac.in)
  */
 public class FilesSolrIndexDTO implements DTO{
 

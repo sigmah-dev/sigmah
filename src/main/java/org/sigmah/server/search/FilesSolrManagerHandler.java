@@ -37,7 +37,7 @@ import com.google.inject.Inject;
  * Handler for command {@link FilesSolrIndexCommand} to execute a manual 
  * indexing of files command from the client side
  * 
- * @author 
+ * @author Aditya Adhikary (aditya15007@iiitd.ac.in)
  */
 public class FilesSolrManagerHandler extends AbstractCommandHandler<FilesSolrIndexCommand, FilesSolrIndexDTO>{
 

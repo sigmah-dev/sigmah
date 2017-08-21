@@ -42,7 +42,7 @@ import com.google.gwt.user.client.ui.Panel;
 /**
  * Search view - A set of widgets for the search bar.
  * 
- * @author 
+ * @author Aditya Adhikary (aditya15007@iiitd.ac.in)
  */
 public class SearchView extends AbstractView implements SearchPresenter.View {
 

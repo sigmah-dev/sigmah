@@ -59,14 +59,13 @@ import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.Window;
 import com.google.gwt.user.client.ui.AbstractImagePrototype;
 import com.google.gwt.user.client.ui.HTML;
 
 /**
  * Search Results view. A new view opens up for every search query.
  * 
- * @author 
+ * @author Aditya Adhikary (aditya15007@iiitd.ac.in)
  *
  */
 
@@ -114,6 +113,7 @@ public class SearchResultsView extends AbstractView implements SearchResultsPres
 	 */
 	@Override
 	public void initialize() {
+		//for initializing the view
 	}
 
 	public ContentPanel getSearchResultsPanel() {

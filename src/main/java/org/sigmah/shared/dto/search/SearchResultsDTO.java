@@ -28,7 +28,7 @@ import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
 /**
  * DTO used to transfer the results of a search query as a simple JSON string.
  * 
- * @author 
+ * @author Aditya Adhikary (aditya15007@iiitd.ac.in)
  */
 public class SearchResultsDTO extends AbstractModelDataEntityDTO<Integer> implements Serializable
 {

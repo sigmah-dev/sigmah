@@ -33,7 +33,7 @@ import com.google.gwt.user.client.rpc.RemoteServiceRelativePath;
  * Interface used by the client side for calling search related methods using GWT's 
  * async callbacks. {@link SearchServiceAsync} is the associated Async interface
  * 
- * @author
+ * @author Aditya Adhikary (aditya15007@iiitd.ac.in)
  * 
  */
 @RemoteServiceRelativePath("search")

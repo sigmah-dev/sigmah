@@ -43,7 +43,7 @@ import com.google.gson.Gson;
  * Contains essential methods like search and dataimport which are called by
  * {@link SearchServiceImpl}
  * 
- * @author 
+ * @author Aditya Adhikary (aditya15007@iiitd.ac.in)
  */
 public class SolrSearcher {
 
@@ -152,9 +152,6 @@ public class SolrSearcher {
 		if (rsp != null) {
 			Gson gson = new Gson();
 			Iterator<?> iter = rsp.getResults().iterator();
-			//rsp.get
-			//rsp.getHighlighting().get("ORG_UNIT_1637").get("org_unit_model_name").get(0); //returns highlighted string
-			//how do i send it from back-end to front end, very hard
 			while (iter.hasNext()) {
 				SearchResultsDTO descriptor = new SearchResultsDTO();
 				SolrDocument resultDoc = (SolrDocument) iter.next();

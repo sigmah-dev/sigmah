@@ -138,7 +138,7 @@ public class FileHibernateDAO extends AbstractDAO<File, Integer> implements File
 			final TypedQuery<FileVersion> query = em().createQuery(request, FileVersion.class);
 			res = query.getResultList();
 		} catch (RuntimeException e) {
-			System.out.println("Here's an error!" + em());
+			System.out.println("Runtime error while executing Hibernate query!");
 			e.printStackTrace();
 		}
 		return res;

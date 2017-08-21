@@ -38,7 +38,7 @@ import com.google.inject.Singleton;
 /**
  * Schedules jobs link{SolrIndexJob} 
  *  Executes every 10 minutes
- * @author 
+ * @author Aditya Adhikary (aditya15007@iiitd.ac.in)
  * 
  */
 
