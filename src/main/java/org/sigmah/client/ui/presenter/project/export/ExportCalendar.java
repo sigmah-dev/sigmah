@@ -85,7 +85,7 @@ public class ExportCalendar extends HttpServlet {
 
         if (paramIdValue != null
                 && paramEventTypeValue != null) {
-            if (paramEventTypeValue.equalsIgnoreCase("activities")) {
+            if (paramEventTypeValue.equalsIgnoreCase("events")) {
 
 //        final Injector injector = Guice.createInjector(
 //                // Configuration module.
