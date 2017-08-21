@@ -180,7 +180,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                             oldEventList.remove(event);
                         }
                         //ak
-                        Window.alert("12 refresh  CalPres delete onCommandSuccess");
+                       // Window.alert("12 refresh  CalPres delete onCommandSuccess");
                         calendar.refresh();
                     }
                 });
@@ -197,7 +197,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                     @Override
                     public void onCommandSuccess(final VoidResult result) {
                         eventMap.get(key).remove(next);
-                        Window.alert("11 refresh deleteEventFunction1 onCommandSuccess");
+                       // Window.alert("11 refresh deleteEventFunction1 onCommandSuccess");
                         calendar.refresh();
                     }
                 });
@@ -214,7 +214,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                     @Override
                     public void onCommandSuccess(final VoidResult result) {
                         eventMap.get(key).remove(next);
-                        Window.alert("10 refresh deleteEventFunction2 onCommandSuccess");
+                       // Window.alert("10 refresh deleteEventFunction2 onCommandSuccess");
                         calendar.refresh();
                     }
                 });
@@ -296,7 +296,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                                 oldEventList.remove(event);
                             }
                             //ak
-                            Window.alert("9 refresh  CalPres deleteChain onCommandSuccess");
+                           // Window.alert("9 refresh  CalPres deleteChain onCommandSuccess");
                             calendar.refresh();
                         }
                     });
@@ -422,14 +422,14 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
             @Override
             public void onUpdate(final UpdateEvent event) {
                 if (event.concern(UpdateEvent.CALENDAR_EVENT_UPDATE)) {
-                    Window.alert("7 refresh CalPres Update event handler. ");
+                    //Window.alert("7 refresh CalPres Update event handler. ");
                     calendar.refresh();
                 }
 
                 if (event.concern(UpdateEvent.REMINDER_UPDATED)) {
                     // TODO appel 
                     reloadEventsOfReminderType((ReminderType) event.getParam(0));
-                    Window.alert("6 refresh CalPres Update event handler. ");
+                    //Window.alert("6 refresh CalPres Update event handler. ");
                     calendar.refresh();
                 }
             }
@@ -443,7 +443,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
      */
     public void reload(final Map<CalendarType, Integer> calendars, boolean editable) {
         Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "Before refresh.");
-        Window.alert("5 refresh  CalPres reload. ");
+        //Window.alert("5 refresh  CalPres reload. ");
         calendar.refresh();
 
         Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "calendar.refresh ended.");
@@ -460,7 +460,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
      */
     @Override
     public void onViewRevealed() {
-        Window.alert("4 refresh onViewRevealed. ");
+       // Window.alert("4 refresh onViewRevealed. ");
         calendar.refresh();
     }
 
@@ -491,7 +491,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
         view.getCalendarsStore().removeAll();
 
         if (ClientUtils.isEmpty(calendars)) {
-            Window.alert("3 refresh reloadEvents. ");
+           // Window.alert("3 refresh reloadEvents. ");
             calendar.refresh();
             Profiler.INSTANCE.endScenario(Scenario.AGENDA);
             return;
@@ -501,7 +501,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 
             @Override
             protected void onComplete() {
-                Window.alert("2 refresh onComplete. ");
+               // Window.alert("2 refresh onComplete. ");
                 calendar.refresh();
                 Profiler.INSTANCE.endScenario(Scenario.AGENDA);
             }
@@ -568,7 +568,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                             result.setStyle(calendarType.getColorCode());
                             result.setType(calendarType);
                             calendars.set(location, result);
-                            Window.alert("1 refresh reloadEventsOfReminderType. ");
+                          //  Window.alert("1 refresh reloadEventsOfReminderType. ");
                             calendar.refresh();
                         }
                     }

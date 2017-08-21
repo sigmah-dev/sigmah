@@ -62,6 +62,7 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Time;
 import com.extjs.gxt.ui.client.widget.form.TimeField;
+import com.google.gwt.user.client.Window;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -619,7 +620,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      */
     @SuppressWarnings("deprecation")
     private void onSaveAction() {
-
+       // Window.alert("onSaveAction");
         if (!view.getForm().isValid()) {
             return;
         }
@@ -649,7 +650,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         //   Window.alert("isAllDayEvent=" + isFullDayEvent);//temp for checker
         Date startDateTime = createStartDateTimeProperty(isFullDayEvent, beginEventIntervalDate, properties);
         Date endDateTime = createEndDateTimeProperty(isFullDayEvent, beginEventIntervalDate, properties);
-
+        int daysdiff = calculateEventDurationInDays(beginEventIntervalDate, endEventIntervalDate);
         properties.put(Event.DESCRIPTION, view.getEventDescriptionField().getValue());
 
         if (event == null) {
@@ -659,32 +660,45 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             properties.put(Event.EVENT_TYPE, event.getEventType());
             properties.put(Event.REFERENCE_ID, event.getReferenceId());
 
-            if (view.getAllDayCheckbox().getValue()) {
+            if (isFullDayEvent) {
+                //     Window.alert("#3 isFullDayEvent event.getEventType() = " + event.getEventType());
                 if (event.getEventType() != null) {
-                    if ("O".equals(event.getEventType())) {
+                    if ("O".equals(event.getEventType())
+                            || "OH".equals(event.getEventType())) {
                         properties.put(Event.EVENT_TYPE, "OF");
-                    } else if ("D".equals(event.getEventType())) {
+                    } else if ("D".equals(event.getEventType())
+                            || "DH".equals(event.getEventType())) {
                         properties.put(Event.EVENT_TYPE, "DF");
-                    } else if ("W".equals(event.getEventType())) {
+                    } else if ("W".equals(event.getEventType())
+                            || "WH".equals(event.getEventType())) {
                         properties.put(Event.EVENT_TYPE, "WF");
-                    } else if ("M".equals(event.getEventType())) {
+                    } else if ("M".equals(event.getEventType())
+                            || "MH".equals(event.getEventType())) {
                         properties.put(Event.EVENT_TYPE, "MF");
-                    } else if ("Y".equals(event.getEventType())) {
+                    } else if ("Y".equals(event.getEventType())
+                            || "YH".equals(event.getEventType())) {
                         properties.put(Event.EVENT_TYPE, "YF");
                     }
                 }
             } else {
+//                Window.alert("#4 not full day event.getEventType() = " + event.getEventType()
+//                        + " daysdiff=" + daysdiff);
                 if (event.getEventType() != null) {
                     if ("OF".equals(event.getEventType())) {
-                        properties.put(Event.EVENT_TYPE, "O");
+                        properties.put(Event.EVENT_TYPE, ("O" + (daysdiff > 1 ? "H" : "")));
+                        //properties.put(Event.EVENT_TYPE, "O");
                     } else if ("DF".equals(event.getEventType())) {
-                        properties.put(Event.EVENT_TYPE, "D");
+                        properties.put(Event.EVENT_TYPE, ("D" + (daysdiff > 1 ? "H" : "")));
+                        //properties.put(Event.EVENT_TYPE, "D");
                     } else if ("WF".equals(event.getEventType())) {
-                        properties.put(Event.EVENT_TYPE, "W");
+                        properties.put(Event.EVENT_TYPE, ("W" + (daysdiff > 1 ? "H" : "")));
+                        //properties.put(Event.EVENT_TYPE, "W" );
                     } else if ("MF".equals(event.getEventType())) {
-                        properties.put(Event.EVENT_TYPE, "M");
+                        properties.put(Event.EVENT_TYPE, ("M" + (daysdiff > 1 ? "H" : "")));
+                        //properties.put(Event.EVENT_TYPE, "M");
                     } else if ("YF".equals(event.getEventType())) {
-                        properties.put(Event.EVENT_TYPE, "Y");
+                        properties.put(Event.EVENT_TYPE, ("Y" + (daysdiff > 1 ? "H" : "")));
+                        //properties.put(Event.EVENT_TYPE, "Y");
                     }
                 }
             }
@@ -819,7 +833,8 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         if (view.getAllDayCheckbox().getValue()) {
             properties.put(Event.EVENT_TYPE, "OF");
         } else {
-            properties.put(Event.EVENT_TYPE, "O");
+            properties.put(Event.EVENT_TYPE, ("O" + (daysDiff > 1 ? "H" : "")));
+            //properties.put(Event.EVENT_TYPE, "O");
         }
         if (daysDiff == 1) {
             addPersonalEvent(properties);
@@ -873,13 +888,15 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
     private void processDailyEvents(long count, long lengthDailyEvent, long milisPerDay, final Date beginEventIntervalDate, final Date endEventIntervalDateRadio, final Date endEventIntervalDate, final Date startDate, final Date endDate, final Map<String, Serializable> properties, String eventSummary, String eventDescription) {
         long calBeginNextEventDateLong = beginEventIntervalDate.getTime();
         //Date calBeginNextEventDate = beginEventIntervalDate;
+        long daysInterval = ((endEventIntervalDate.getTime() - beginEventIntervalDate.getTime()) / milisPerDay) + 1;
 
         properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY));// + " (Daily event 1 of " + count + ")");
         properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION));// + " (Daily event 1 of " + count + ")");
         if (view.getAllDayCheckbox().getValue()) {
             properties.put(Event.EVENT_TYPE, "DF");
         } else {
-            properties.put(Event.EVENT_TYPE, "D");
+            properties.put(Event.EVENT_TYPE, ("D" + (daysInterval > 1 ? "H" : "")));
+            //properties.put(Event.EVENT_TYPE, "D");
         }
         properties.put(Event.DATE_END, new Date(calBeginNextEventDateLong + milisPerDay * (lengthDailyEvent - 1)));
         addPersonalEventDaily(properties, count, lengthDailyEvent, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
@@ -937,7 +954,8 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             if (view.getAllDayCheckbox().getValue()) {
                 dailyProperties.put(Event.EVENT_TYPE, "DF");
             } else {
-                dailyProperties.put(Event.EVENT_TYPE, "D");
+                dailyProperties.put(Event.EVENT_TYPE, ("D" + (daysInterval > 1 ? "H" : "")));
+                // dailyProperties.put(Event.EVENT_TYPE, "D");
             }
             dailyProperties.put(Event.DATE_END, new Date(calEndNextEventDateLong));
             setFullDayEvent(startDate, endDate, new Date(calBeginNextEventDateLong), dailyProperties);
@@ -967,6 +985,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      * @param eventDescription the value of eventDescription
      */
     private void processWeeklyEvents(final Date beginEventIntervalDate, final Date endEventIntervalDate, final Date endEventIntervalDateRadio, final Date startDate, final Date endDate, final Map<String, Serializable> properties, String eventSummary, String eventDescription) {
+      //  Window.alert("processWeeklyEvents");
         long milisPerDay = 86400000;
         long weekDiff = ((endEventIntervalDateRadio.getTime() - beginEventIntervalDate.getTime() + milisPerDay) / (milisPerDay * 7));
         int weeksInterval = (int) weekDiff;
@@ -987,10 +1006,13 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
         properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY));
         properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION));// + " (Weekly event 1 of " + weeksInterval + ")");
+//        Window.alert("#5 processWeeklyEvents event.getEventType() = " + (event!=null?event.getEventType():"NULL")
+//                + " daysInterval=" + daysInterval);
         if (view.getAllDayCheckbox().getValue()) {
             properties.put(Event.EVENT_TYPE, "WF");
         } else {
-            properties.put(Event.EVENT_TYPE, "W");
+            properties.put(Event.EVENT_TYPE, ("W" + (daysInterval > 1 ? "H" : "")));
+            //properties.put(Event.EVENT_TYPE, "W");
         }
         addPersonalEventWeekly(properties, weeksInterval, calBeginNextEventDateLong, calEndNextEventDateLong, daysInterval, startDate, endDate, eventSummary, eventDescription);
 
@@ -1040,13 +1062,15 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
             String newSummary = eventSummary;
             String newDescription = eventDescription;
- //           newDescription += " (Weekly event " + (i + 1) + " of " + daysInterval + ")";
+            //           newDescription += " (Weekly event " + (i + 1) + " of " + daysInterval + ")";
             dailyProperties.put(Event.SUMMARY, newSummary);
             dailyProperties.put(Event.DESCRIPTION, newDescription);
             if (view.getAllDayCheckbox().getValue()) {
                 dailyProperties.put(Event.EVENT_TYPE, "WF");
             } else {
-                dailyProperties.put(Event.EVENT_TYPE, "W");
+//                Window.alert("#1 addDailySeriesEventNew2 event.getEventType() = " + (event!=null?event.getEventType():"null")
+//                        + " daysInterval=" + daysInterval);
+                dailyProperties.put(Event.EVENT_TYPE, ("W" + (daysInterval > 1 ? "H" : "")));
             }
             dailyProperties.put(Event.REFERENCE_ID, ids);
 
@@ -1094,11 +1118,14 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      * @param eventDescription the value of eventDescription
      */
     private void processMonthlyEvents(final Date beginEventIntervalDate, Date endEventIntervalDate, final Date endEventIntervalDateRadio, final Map<String, Serializable> properties, Boolean isMonthlySameDayOfWeek, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
+        long milisPerDay = 86400000; //24 * 60 * 60 * 1000)
+        long daysInterval = ((endEventIntervalDate.getTime() - beginEventIntervalDate.getTime()) / milisPerDay) + 1;
 
         if (view.getAllDayCheckbox().getValue()) {
             properties.put(Event.EVENT_TYPE, "MF");
         } else {
-            properties.put(Event.EVENT_TYPE, "M");
+            properties.put(Event.EVENT_TYPE, ("M" + (daysInterval > 1 ? "H" : "")));
+            // properties.put(Event.EVENT_TYPE, "M");
         }
         properties.put(Event.DATE_END, endEventIntervalDate);
         Date endEventIntervalDate1 = endEventIntervalDate;
@@ -1156,6 +1183,9 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
     private void addMonthlySeriesEvent(Date endEventIntervalDate, String ids, int monthInterval, Date beginEventIntervalDate, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final boolean isMonthlySameDayOfWeek) {
         Date calBeginNextEventDate = beginEventIntervalDate;
         long diff = endEventIntervalDate.getTime() - beginEventIntervalDate.getTime();
+        long milisPerDay = 86400000; //24 * 60 * 60 * 1000)
+        long daysInterval = ((endEventIntervalDate.getTime() - beginEventIntervalDate.getTime()) / milisPerDay) + 1;
+
         for (int i = 1; i < monthInterval; i++) {
             calBeginNextEventDate = getMonthlySameDayOfWeek2(beginEventIntervalDate, calBeginNextEventDate, i, isMonthlySameDayOfWeek);
 
@@ -1164,19 +1194,22 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             monthlyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
 
             monthlyProperties.put(Event.DATE, calBeginNextEventDate);
-            monthlyProperties.put(Event.EVENT_TYPE, "M");
+//            monthlyProperties.put(Event.EVENT_TYPE, "M");
 
             monthlyProperties.put(Event.DATE_END, new Date(calBeginNextEventDate.getTime() + diff));
             if (view.getAllDayCheckbox().getValue()) {
                 monthlyProperties.put(Event.EVENT_TYPE, "MF");
+            } else {
+                monthlyProperties.put(Event.EVENT_TYPE, ("M" + (daysInterval > 1 ? "H" : "")));
+                //monthlyProperties.put(Event.EVENT_TYPE, "M");
             }
 
             setFullDayEvent(startDate, endDate, calBeginNextEventDate, monthlyProperties);
 
             String newSummary = eventSummary;
             String newDescription = eventDescription;
- //           newSummary += " (Monthly event " + (i + 1) + " of " + monthInterval + ")";
- //           newDescription += " (Monthly " + (isMonthlySameDayOfWeek ? "same Day of a week " : "same Date ") + "event " + (i + 1) + " of " + monthInterval + ")";
+            //           newSummary += " (Monthly event " + (i + 1) + " of " + monthInterval + ")";
+            //           newDescription += " (Monthly " + (isMonthlySameDayOfWeek ? "same Day of a week " : "same Date ") + "event " + (i + 1) + " of " + monthInterval + ")";
             monthlyProperties.put(Event.SUMMARY, newSummary);
             monthlyProperties.put(Event.DESCRIPTION, newDescription);
 
@@ -1198,12 +1231,12 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      * @param eventDescription the value of eventDescription
      */
     private void processYearEvents(final Date beginEventIntervalDate, Date endEventIntervalDate, final Date endEventIntervalDateRadio, final Map<String, Serializable> properties, Boolean isYearlySameDayOfWeek, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
-        properties.put(Event.EVENT_TYPE, "Y");
-        if (view.getAllDayCheckbox().getValue()) {
-            properties.put(Event.EVENT_TYPE, "YF");
-        }
+
         properties.put(Event.DATE_END, endEventIntervalDate);
         long milisDiff = endEventIntervalDate.getTime() - beginEventIntervalDate.getTime();
+        long milisPerDay = 86400000; //24 * 60 * 60 * 1000)
+        long daysInterval = ((endEventIntervalDate.getTime() - beginEventIntervalDate.getTime()) / milisPerDay) + 1;
+              
         endEventIntervalDate = endEventIntervalDateRadio;
         int yearStart = beginEventIntervalDate.getYear();
         int yearEnd = endEventIntervalDate.getYear();
@@ -1213,6 +1246,13 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         }
         if (yearInterval <= 0) {
             yearInterval = 1;
+        }
+              //  properties.put(Event.EVENT_TYPE, "Y");
+        if (view.getAllDayCheckbox().getValue()) {
+            properties.put(Event.EVENT_TYPE, "YF");
+        } else {
+            properties.put(Event.EVENT_TYPE, ("Y" + (daysInterval > 1 ? "H" : "")));
+           // properties.put(Event.EVENT_TYPE, "Y");
         }
         properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY));// + " (Yearly event 1 of " + yearInterval + ")");
         properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION));// + " (Yearly " + (isYearlySameDayOfWeek ? "same Day of a week " : "same Date ") + "event 1 of " + yearInterval + ")");
@@ -1248,6 +1288,10 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
     }
 
     private void addYearlySeriesEvent(final long milisDiff, String ids, int yearInterval, Date beginEventIntervalDate, Date endEventIntervalDate, final Date startDate, final Date endDate, String eventSummary, String eventDescription, final boolean isYearlySameDayOfWeek) {
+        long milisPerDay = 86400000; //24 * 60 * 60 * 1000)
+        long daysInterval = ((endEventIntervalDate.getTime() - beginEventIntervalDate.getTime()) / milisPerDay) + 1;
+
+        
         Date calBeginNextEventDate = beginEventIntervalDate;
         for (int i = 1; i < yearInterval; i++) {
             calBeginNextEventDate = getYearlySameDayOfWeek(beginEventIntervalDate, calBeginNextEventDate, i, isYearlySameDayOfWeek);
@@ -1257,10 +1301,12 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             yearlyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
 
             yearlyProperties.put(Event.DATE, calBeginNextEventDate);
-            yearlyProperties.put(Event.EVENT_TYPE, "Y");
 
             if (view.getAllDayCheckbox().getValue()) {
                 yearlyProperties.put(Event.EVENT_TYPE, "YF");
+            } else {
+                yearlyProperties.put(Event.EVENT_TYPE, ("Y" + (daysInterval > 1 ? "H" : "")));
+                //yearlyProperties.put(Event.EVENT_TYPE, "Y");
             }
 
             yearlyProperties.put(Event.DATE_END, new Date(calBeginNextEventDate.getTime() + milisDiff));
@@ -1269,8 +1315,8 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 
             String newSummary = eventSummary;
             String newDescription = eventDescription;
- //           newSummary += " (Yearly event " + (i + 1) + " of " + yearInterval + ")";
- //           newDescription += " (Yearly " + (isYearlySameDayOfWeek ? "same Day of a week " : "same Date ") + "event " + (i + 1) + " of " + yearInterval + ")";
+            //           newSummary += " (Yearly event " + (i + 1) + " of " + yearInterval + ")";
+            //           newDescription += " (Yearly " + (isYearlySameDayOfWeek ? "same Day of a week " : "same Date ") + "event " + (i + 1) + " of " + yearInterval + ")";
             yearlyProperties.put(Event.SUMMARY, newSummary);
             yearlyProperties.put(Event.DESCRIPTION, newDescription);
 
@@ -1329,8 +1375,13 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 final Calendar calendar = event.getParent();
 
                 final List<Event> oldEventList = calendar.getEvents().get(event.getKey());
-                oldEventList.remove(event);
-
+                if (oldEventList != null && oldEventList.contains(event)) {
+                    oldEventList.remove(event);
+                }
+                final List<Event> oldFullDayEventList = calendar.getFullDayEvents().get(event.getKey());
+                if (oldFullDayEventList != null && oldFullDayEventList.contains(event)) {
+                    oldFullDayEventList.remove(event);
+                }
                 updateEvent(event, properties);
             }
         }, view.getCancelButton(), view.getSaveButton());
@@ -1603,5 +1654,12 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      */
     private boolean isLeapYear(int year) {
         return (((year % 4 == 0) && (year % 100 != 0)) || (year % 400 == 0));
+    }
+
+    private static int calculateEventDurationInDays(final Date startDateTime, Date endDateTime) {
+        long diff = endDateTime.getTime() - startDateTime.getTime();
+        long diffDays = diff / (24 * 60 * 60 * 1000) + 1;
+        int daysdiff = (int) diffDays;
+        return daysdiff;
     }
 }

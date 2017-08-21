@@ -67,8 +67,8 @@ public class CalendarWidget extends Composite {
 
     public static final int CELL_DEFAULT_WIDTH = 150;
     public static final int CELL_DEFAULT_HEIGHT = 80;
-    
-        /**
+
+    /**
      * Multiple calculated (&quot;cached&quot;) values reused during laying out
      * the month view elements.
      */
@@ -84,7 +84,6 @@ public class CalendarWidget extends Composite {
      * Height of each Cell (day), excluding the day's header.
      */
     private float calculatedCellHeight;
-
 
     public interface CalendarListener {
 
@@ -289,19 +288,19 @@ public class CalendarWidget extends Composite {
 
     public void next() {
         displayMode.nextDate(startDate);
-        Window.alert("displayMode.nextDate(startDate);. ");
+  //      Window.alert("displayMode.nextDate(startDate);. ");
         refresh();
     }
 
     public void previous() {
         displayMode.previousDate(startDate);
-        Window.alert("refresh previous");
+       // Window.alert("refresh previous");
         refresh();
     }
 
     public final void today() {
         displayMode.firstDay(startDate, today, firstDayOfWeek);
-        Window.alert("refresh today");
+       // Window.alert("refresh today");
         refresh();
     }
 
@@ -316,7 +315,7 @@ public class CalendarWidget extends Composite {
 
     public void addCalendar(Calendar calendar) {
         calendars.add(calendar);
-        Window.alert("refresh addCalendar");
+       // Window.alert("refresh addCalendar");
         refresh();
     }
 
@@ -325,7 +324,7 @@ public class CalendarWidget extends Composite {
     }
 
     public void setCalendars(List<Calendar> calendars) {
-       // this.calendars = calendars;
+        // this.calendars = calendars;
 //                 Window.alert("SET setCalendars");
 //        for (Calendar calendar : calendars) {
 //            if (!(calendar.getIdentifier() instanceof ActivityCalendarIdentifier)) {
@@ -336,8 +335,8 @@ public class CalendarWidget extends Composite {
 //                }
 //            }
 //        }
-      this.calendars = calendars;              
-          Window.alert("refresh setCalendars");
+        this.calendars = calendars;
+       // Window.alert("refresh setCalendars");
         refresh();
     }
 
@@ -352,7 +351,7 @@ public class CalendarWidget extends Composite {
      */
     public void setTitleFormatter(DateTimeFormat titleFormatter) {
         this.titleFormatter = titleFormatter;
-        Window.alert("refresh setTitleFormatter");
+      //  Window.alert("refresh setTitleFormatter");
         refresh();
     }
 
@@ -366,7 +365,7 @@ public class CalendarWidget extends Composite {
      */
     public void setHeaderFormatter(DateTimeFormat headerFormatter) {
         this.headerFormatter = headerFormatter;
-        Window.alert("refresh setHeaderFormatter");
+     //   Window.alert("refresh setHeaderFormatter");
         refresh();
     }
 
@@ -380,7 +379,7 @@ public class CalendarWidget extends Composite {
      */
     public void setDayFormatter(DateTimeFormat dayFormatter) {
         this.dayFormatter = dayFormatter;
-        Window.alert("refresh setDayFormatter");
+      //  Window.alert("refresh setDayFormatter");
         refresh();
     }
 
@@ -402,7 +401,7 @@ public class CalendarWidget extends Composite {
 
         // Applying the CSS style associated with the new display mode
         grid.addStyleName(displayMode.getStyleName());
-Window.alert("refresh setDisplayMode");
+     //   Window.alert("refresh setDisplayMode");
         refresh();
     }
 
@@ -414,7 +413,7 @@ Window.alert("refresh setDisplayMode");
      */
     public void setFirstDayOfWeek(int firstDayOfWeek) {
         this.firstDayOfWeek = firstDayOfWeek;
-        Window.alert("refresh setFirstDayOfWeek");
+     //   Window.alert("refresh setFirstDayOfWeek");
         refresh();
     }
 
@@ -425,7 +424,7 @@ Window.alert("refresh setDisplayMode");
     public void setDisplayHeaders(int displayHeaders) {
         clear();
         this.displayHeaders = displayHeaders;
-        Window.alert("refresh setDisplayHeaders");
+      //  Window.alert("refresh setDisplayHeaders");
         refresh();
     }
 
@@ -436,7 +435,7 @@ Window.alert("refresh setDisplayMode");
     public void setDisplayWeekNumber(boolean displayWeekNumber) {
         clear();
         this.displayWeekNumber = displayWeekNumber;
-        Window.alert("refresh setDisplayWeekNumber");
+     //   Window.alert("refresh setDisplayWeekNumber");
         refresh();
     }
 
@@ -499,14 +498,14 @@ Window.alert("refresh setDisplayMode");
     }
 
     public static Map<Date, List<Event>> normalizeHourEvents(final Map<Date, List<Event>> eventMap) {
-Window.alert("normalizeHourEvents");
+       // Window.alert("normalizeHourEvents");
         final Map<Date, List<Event>> hourEventMapNormalized = new HashMap<Date, List<Event>>();
 
         for (final Date key : eventMap.keySet()) {
             for (final Event event : eventMap.get(key)) {
                 Date normalizedKeyDate = new Date(key.getYear(), key.getMonth(), key.getDate());
                 if (!isSameDay(event.getDtstart(), event.getDtend())) {
-                    Window.alert("! isSameDay" + event.getSummary());
+                 //   Window.alert("! isSameDay" + event.getSummary());
                     // if (event.getDtstart() != event.getDtend()) {
                     //1   
                     int daysdiff = calculateEventDurationInDays(event);
@@ -555,7 +554,7 @@ Window.alert("normalizeHourEvents");
                         ///////
                     }
                 } else {
-Window.alert("THE SameDay " + event.getSummary());
+                  //  Window.alert("THE SameDay " + event.getSummary());
                     if (!isSameDay(normalizedKeyDate, event.getDtstart())) {
                         normalizedKeyDate = new Date(event.getDtstart().getYear(), event.getDtstart().getMonth(), event.getDtstart().getDate());
                     }
@@ -814,10 +813,11 @@ Window.alert("THE SameDay " + event.getSummary());
         for (final Calendar calendar : calendars) {
             if (!(calendar.getIdentifier() instanceof ActivityCalendarIdentifier)) {
                 if (calendar.getEvents() != null) {
+                     //   && calendar.getEvents().size()>0) {
                     //SSS     final Map<Date, List<Event>> eventMap = normalize(calendar.getEvents());
                     //ss 
                     Map<Date, List<Event>> eventMap = normalizeHourEvents(calendar.getEvents());
-                  //  final Map<Date, List<Event>> eventMap = normalize(eventMap2);
+                    //  final Map<Date, List<Event>> eventMap = normalize(eventMap2);
                     //final Map<Date, List<Event>> eventMap = calendar.getEvents();
 
                     final List<Event> events = eventMap.get(date);
@@ -853,9 +853,9 @@ Window.alert("THE SameDay " + event.getSummary());
         }
 
         final Iterator<Event> iterator = sortedHourEvents.iterator();
-        if (startDrawPosition==-1){
+        if (startDrawPosition == -1) {
             eventLimit = 1;
-        }else{
+        } else {
             eventLimit = 99;
         }
         for (int i = 0; iterator.hasNext() && i < eventLimit; i++) {
@@ -885,9 +885,9 @@ Window.alert("THE SameDay " + event.getSummary());
             dateLabel.addStyleName("calendar-event-date");
 
             //final InlineLabel eventLabel = new InlineLabel(event.getReferenceId()==null?event.getSummary():"--->>");
-          //  final InlineLabel eventLabel = new InlineLabel(row + "; " + (!(event.getReferenceId() != null && event.getReferenceId().intValue() > 0)? event.getSummary() : event.getSummary() + "->>serial"));
+            //  final InlineLabel eventLabel = new InlineLabel(row + "; " + (!(event.getReferenceId() != null && event.getReferenceId().intValue() > 0)? event.getSummary() : event.getSummary() + "->>serial"));
             final InlineLabel eventLabel = new InlineLabel(event.getSummary());
-          eventLabel.addStyleName("calendar-event-label");
+            eventLabel.addStyleName("calendar-event-label");
 
             if (fullDayEvent) {
                 flowPanel.addStyleName("calendar-fullday-event-" + event.getParent().getStyle());
@@ -897,13 +897,16 @@ Window.alert("THE SameDay " + event.getSummary());
 
             if (!fullDayEvent) {
                 flowPanel.add(dateLabel);
-                
+
                 int daysdiff = calculateEventDurationInDays(event);
-            
+
                 flowPanel.setTitle(createTitleForHourEvent(daysdiff, event));
             }
             flowPanel.add(eventLabel);
-
+            if (event.getEventType().contains("H")) {
+             //   DOM.setStyleAttribute(flowPanel.getElement(), "background-color", "rgba(28,97,217,0.3)");
+                DOM.setStyleAttribute(flowPanel.getElement(), "background", "linear-gradient(-90deg, #1c61d9, #0000)");
+            }
             final DecoratedPopupPanel detailPopup = new DecoratedPopupPanel(true);
 
             final Grid popupContent = new Grid(event.getParent().isEditable() ? 6 : 3, 1);
@@ -953,7 +956,7 @@ Window.alert("THE SameDay " + event.getSummary());
                     @Override
                     public void onClick(ClickEvent clickEvent) {
                         delegate.deleteChain(event, CalendarWidget.this);
-                        Window.alert("refresh deleteChainAnchor onClick");
+                   //     Window.alert("refresh deleteChainAnchor onClick");
                         refresh();
                         detailPopup.hide();
 
@@ -962,8 +965,7 @@ Window.alert("THE SameDay " + event.getSummary());
 
                 popupContent.setWidget(3, 0, editAnchor);
                 popupContent.setWidget(4, 0, deleteAnchor);
-                if (event.getEventType().equals("O") || event.getEventType().equals("OF")) {
-                } else {
+                if (!event.getEventType().contains("O")) {
                     popupContent.setWidget(5, 0, deleteChainAnchor);
                 }
             }
@@ -1051,7 +1053,6 @@ Window.alert("THE SameDay " + event.getSummary());
             cell.add(eventLabel);
         }
     }
-
 
     private static int calculateEventDurationInDays(final Event event) {
         long diff = event.getDtend().getTime() - event.getDtstart().getTime();
@@ -1181,7 +1182,7 @@ Window.alert("THE SameDay " + event.getSummary());
     private static String createTitleForFullDayEvent(int daysdiff, final Event event) {
         return "Event: " + event.getSummary()
                 + "\nDescr: " + event.getDescription()
-                + "\nDuration: " + daysdiff + " full day" + (daysdiff > 1 ? "s." : ".") 
+                + "\nDuration: " + daysdiff + " full day" + (daysdiff > 1 ? "s." : ".")
                 + (event.getDtstart().equals(event.getDtend())
                 ? (DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_WEEKDAY_DAY).format(event.getDtstart()))
                 : ("\nFrom " + DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_WEEKDAY_DAY).format(event.getDtstart())
@@ -1195,15 +1196,15 @@ Window.alert("THE SameDay " + event.getSummary());
      * @return the java.lang.String
      */
     private String createTitleForHourEvent(int daysdiff, final Event event) {
-        String duration = hourFormatter.format(new Date(event.getDtend().getTime()- event.getDtstart().getTime()));
-        long millis = event.getDtend().getTime()- event.getDtstart().getTime();
+        String duration = hourFormatter.format(new Date(event.getDtend().getTime() - event.getDtstart().getTime()));
+        long millis = event.getDtend().getTime() - event.getDtstart().getTime();
         long minute = (millis / (1000 * 60)) % 60;
         long hour = (millis / (1000 * 60 * 60)) % 24;
         return "Event: " + event.getSummary()
                 + "\nDescr: " + event.getDescription()
                 + "\nDuration: from " + hourFormatter.format(event.getDtstart())
                 + " to " + hourFormatter.format(event.getDtend())
- //               + " (" + duration + " hours" + (daysdiff > 0 ? " every day)" : ")")
+                //               + " (" + duration + " hours" + (daysdiff > 0 ? " every day)" : ")")
                 + " (" + (hour > 0 ? (hour + " hours ") : "")
                 + (minute > 0 ? (minute + " minutes") : "") + (daysdiff > 1 ? " every day)" : ") ")
                 + (daysdiff > 1 ? (daysdiff + " days in row. ") : " ")
@@ -1212,6 +1213,7 @@ Window.alert("THE SameDay " + event.getSummary());
                 : ("\nFrom " + DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_WEEKDAY_DAY).format(event.getDtstart())
                 + " to " + DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_WEEKDAY_DAY).format(event.getDtend())));
     }
+
     /**
      * @param event
      * @return
@@ -1289,7 +1291,7 @@ Window.alert("THE SameDay " + event.getSummary());
                 @Override
                 public void onClick(ClickEvent clickEvent) {
                     delegate.delete(event, CalendarWidget.this);
-                    Window.alert("refresh deleteAnchor onClick ");
+               //     Window.alert("refresh deleteAnchor onClick ");
                     refresh();
                     detailPopup.hide();
                 }
@@ -1301,7 +1303,7 @@ Window.alert("THE SameDay " + event.getSummary());
                 @Override
                 public void onClick(ClickEvent clickEvent) {
                     delegate.deleteChain(event, CalendarWidget.this);
-                    Window.alert("refresh deleteChainAnchor onClick");
+                 //   Window.alert("refresh deleteChainAnchor onClick");
                     refresh();
                     detailPopup.hide();
 
@@ -1310,10 +1312,7 @@ Window.alert("THE SameDay " + event.getSummary());
 
             popupContent.setWidget(3, 0, editAnchor);
             popupContent.setWidget(4, 0, deleteAnchor);
-            //   Window.alert(event.getEventType());
-            if (event.getEventType().equals("O") || event.getEventType().equals("OF")) {
-            } else {
-                //Window.alert(event.getEventType());
+            if (!event.getEventType().contains("O")) {
                 popupContent.setWidget(5, 0, deleteChainAnchor);
             }
         }
