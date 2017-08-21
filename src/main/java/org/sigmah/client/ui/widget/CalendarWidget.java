@@ -67,6 +67,24 @@ public class CalendarWidget extends Composite {
 
     public static final int CELL_DEFAULT_WIDTH = 150;
     public static final int CELL_DEFAULT_HEIGHT = 80;
+    
+        /**
+     * Multiple calculated (&quot;cached&quot;) values reused during laying out
+     * the month view elements.
+     */
+    private static final int DAYS_IN_A_WEEK = 7;
+    private int calculatedWeekDayHeaderHeight;
+    private int calculatedDayHeaderHeight;
+    /**
+     * Height of each Cell (day), including the day's header.
+     */
+    private float calculatedCellOffsetHeight;
+
+    /**
+     * Height of each Cell (day), excluding the day's header.
+     */
+    private float calculatedCellHeight;
+
 
     public interface CalendarListener {
 
@@ -119,7 +137,7 @@ public class CalendarWidget extends Composite {
                 return "calendar-day";
             }
         },
-        WEEK(7, 1) {
+        WEEK(DAYS_IN_A_WEEK, 1) {
 
             @Override
             public Date getStartDate(Date date, int firstDay) {
@@ -128,17 +146,17 @@ public class CalendarWidget extends Composite {
 
             @Override
             public void nextDate(Date currentDate) {
-                currentDate.setDate(currentDate.getDate() + 7);
+                currentDate.setDate(currentDate.getDate() + DAYS_IN_A_WEEK);
             }
 
             @Override
             public void previousDate(Date currentDate) {
-                currentDate.setDate(currentDate.getDate() - 7);
+                currentDate.setDate(currentDate.getDate() - DAYS_IN_A_WEEK);
             }
 
             @Override
             public void firstDay(Date currentDate, Date today, int firstDay) {
-                int decal = (today.getDay() + 7 - firstDay) % 7;
+                int decal = (today.getDay() + DAYS_IN_A_WEEK - firstDay) % DAYS_IN_A_WEEK;
                 currentDate.setYear(today.getYear());
                 currentDate.setMonth(today.getMonth());
                 currentDate.setDate(today.getDate() - decal);
@@ -867,8 +885,9 @@ Window.alert("THE SameDay " + event.getSummary());
             dateLabel.addStyleName("calendar-event-date");
 
             //final InlineLabel eventLabel = new InlineLabel(event.getReferenceId()==null?event.getSummary():"--->>");
-            final InlineLabel eventLabel = new InlineLabel(row + "; " + event.getReferenceId() == null ? event.getSummary() : event.getSummary() + "->>");
-            eventLabel.addStyleName("calendar-event-label");
+          //  final InlineLabel eventLabel = new InlineLabel(row + "; " + (!(event.getReferenceId() != null && event.getReferenceId().intValue() > 0)? event.getSummary() : event.getSummary() + "->>serial"));
+            final InlineLabel eventLabel = new InlineLabel(event.getSummary());
+          eventLabel.addStyleName("calendar-event-label");
 
             if (fullDayEvent) {
                 flowPanel.addStyleName("calendar-fullday-event-" + event.getParent().getStyle());
@@ -1051,7 +1070,7 @@ Window.alert("THE SameDay " + event.getSummary());
      * {@link Date}.
      */
     private static Date getFirstDateOfWeek(Date day, int firstDay) {
-        final int decal = (day.getDay() + 7 - firstDay) % 7;
+        final int decal = (day.getDay() + DAYS_IN_A_WEEK - firstDay) % DAYS_IN_A_WEEK;
         return new Date(day.getYear(), day.getMonth(), day.getDate() - decal);
     }
 
@@ -1067,7 +1086,7 @@ Window.alert("THE SameDay " + event.getSummary());
         int daysToThursday = 4 - date.getDay();
 
         if (date.getDay() < firstDay) {
-            daysToThursday -= 7;
+            daysToThursday -= DAYS_IN_A_WEEK;
         }
 
         final Date thursday = new Date(date.getYear(), date.getMonth(), date.getDate() + daysToThursday);
@@ -1111,22 +1130,6 @@ Window.alert("THE SameDay " + event.getSummary());
         // TODO: calculate appointment height dynamically
         return 12;
     }
-    /**
-     * Multiple calculated (&quot;cached&quot;) values reused during laying out
-     * the month view elements.
-     */
-    private int DAYS_IN_A_WEEK = 7;
-    private int calculatedWeekDayHeaderHeight;
-    private int calculatedDayHeaderHeight;
-    /**
-     * Height of each Cell (day), including the day's header.
-     */
-    private float calculatedCellOffsetHeight;
-
-    /**
-     * Height of each Cell (day), excluding the day's header.
-     */
-    private float calculatedCellHeight;
 
     /**
      * Display full day events with started <code>date</code>
@@ -1140,13 +1143,12 @@ Window.alert("THE SameDay " + event.getSummary());
         TreeSet<Event> sortedFullDayEvents = createSortedEventsSet();
 
         for (final Calendar calendar : calendars) {
-            if (!(calendar.getIdentifier() instanceof ActivityCalendarIdentifier)) {
-                if (calendar.getFullDayEvents() != null) {
-                    final Map<Date, List<Event>> fullDayEventMap = normalize(calendar.getFullDayEvents());
-                    final List<Event> fullDayEvents = fullDayEventMap.get(date);
-                    if (fullDayEvents != null) {
-                        sortedFullDayEvents.addAll(fullDayEvents);
-                    }
+            if (!(calendar.getIdentifier() instanceof ActivityCalendarIdentifier)
+                    && calendar.getFullDayEvents() != null) {
+                final Map<Date, List<Event>> fullDayEventMap = normalize(calendar.getFullDayEvents());
+                final List<Event> fullDayEvents = fullDayEventMap.get(date);
+                if (fullDayEvents != null) {
+                    sortedFullDayEvents.addAll(fullDayEvents);
                 }
             }
         }
@@ -1203,7 +1205,7 @@ Window.alert("THE SameDay " + event.getSummary());
                 + " to " + hourFormatter.format(event.getDtend())
  //               + " (" + duration + " hours" + (daysdiff > 0 ? " every day)" : ")")
                 + " (" + (hour > 0 ? (hour + " hours ") : "")
-                + (minute > 0 ? (minute + " minutes") : "") + (daysdiff > 0 ? " every day)" : ") ")
+                + (minute > 0 ? (minute + " minutes") : "") + (daysdiff > 1 ? " every day)" : ") ")
                 + (daysdiff > 1 ? (daysdiff + " days in row. ") : " ")
                 + (isSameDay(event.getDtstart(), event.getDtend())
                 ? (DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_WEEKDAY_DAY).format(event.getDtstart()))

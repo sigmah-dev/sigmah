@@ -22,11 +22,9 @@ package org.sigmah.client.ui.view.calendar;
  * #L%
  */
 import com.extjs.gxt.ui.client.Style;
-import com.extjs.gxt.ui.client.data.ChangeListener;
 import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.store.Store;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.calendar.CalendarEventPresenter;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
@@ -37,7 +35,6 @@ import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.popup.PopupWidget;
 import org.sigmah.shared.dto.calendar.Event;
 
-import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.extjs.gxt.ui.client.widget.form.DateField;
 import com.extjs.gxt.ui.client.widget.form.Radio;
 import com.extjs.gxt.ui.client.widget.form.RadioGroup;
@@ -45,33 +42,12 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.TimeField;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.FieldSet;
-import com.google.gwt.event.dom.client.ChangeEvent;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.ListBox;
 import com.google.inject.Singleton;
-import com.google.gwt.core.client.EntryPoint;  
-import com.google.gwt.event.dom.client.ChangeHandler;
-import com.google.gwt.user.client.ui.RootPanel;  
-import java.util.HashMap;
-import java.util.Map;
-import com.extjs.gxt.ui.client.data.BaseModelData;
-import java.util.ArrayList;
-import java.util.List;
-
-import com.extjs.gxt.ui.client.data.BaseModelData;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.HorizontalPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.VerticalPanel;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
-import com.google.gwt.core.client.EntryPoint;
-import com.google.gwt.user.client.Element;
-import com.google.gwt.user.client.Random;
 import com.google.gwt.user.client.ui.HTML;
-import com.google.gwt.user.client.ui.RootPanel;
 import java.util.Date;
 /*
 import com.gwtext.client.data.Record;  
