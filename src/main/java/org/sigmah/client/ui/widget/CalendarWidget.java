@@ -950,7 +950,7 @@ public class CalendarWidget extends Composite {
                     }
                 });
 
-                final Anchor deleteChainAnchor = new Anchor("Delete chain");
+                final Anchor deleteChainAnchor = new Anchor("Delete all recurrences");
                 deleteChainAnchor.addClickHandler(new ClickHandler() {
 
                     @Override
@@ -1297,7 +1297,7 @@ public class CalendarWidget extends Composite {
                 }
             });
 
-            final Anchor deleteChainAnchor = new Anchor("Delete chain");
+            final Anchor deleteChainAnchor = new Anchor("Delete all recurrences");
             deleteChainAnchor.addClickHandler(new ClickHandler() {
 
                 @Override

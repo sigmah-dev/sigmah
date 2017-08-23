@@ -159,7 +159,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
 
         eventDateEndField = Forms.date(I18N.CONSTANTS.calendar_addEvent_dateEnd_label(), false);
         eventDateEndField.setName(Event.DATE + "888end");
-
+        
         eventDescriptionField = Forms.textarea(I18N.CONSTANTS.calendarEventDescription(), false);
         eventDescriptionField.setName(Event.DESCRIPTION);
         eventDescriptionField.setId(Event.DESCRIPTION);
@@ -320,7 +320,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         panelDaily = new FieldSet();
         panelDaily.setExpanded(true);
         panelDaily.setBorders(true);
-        panelDaily.setHeadingHtml("Daily repeats settings");
+        panelDaily.setHeadingHtml("Daily repetition details");
         panelDaily.setAutoHeight(true);
         panelDaily.setVisible(false);
         
@@ -388,7 +388,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         panelWeekly = new FieldSet();
         panelWeekly.setExpanded(true);
         panelWeekly.setBorders(true);
-        panelWeekly.setHeadingHtml("Weekly repeats settings");
+        panelWeekly.setHeadingHtml("Weekly repetition details");
         panelWeekly.setAutoHeight(true);
         panelWeekly.setVisible(false);
         
@@ -528,7 +528,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         numberOfRepetitions.disable();
             }
         }); 
-     
+
       /*  monthlyRepSettings = new FieldSet();
         monthlyRepSettings.setExpanded(true);
         monthlyRepSettings.setBorders(true);

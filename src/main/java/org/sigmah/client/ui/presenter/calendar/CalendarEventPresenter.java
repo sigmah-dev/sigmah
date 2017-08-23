@@ -52,6 +52,9 @@ import org.sigmah.shared.dto.calendar.Event;
 import org.sigmah.shared.dto.calendar.PersonalEventDTO;
 import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.DatePickerEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import com.extjs.gxt.ui.client.widget.form.DateField;
@@ -62,6 +65,9 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Time;
 import com.extjs.gxt.ui.client.widget.form.TimeField;
+import com.google.gwt.event.logical.shared.ValueChangeEvent;
+import com.google.gwt.event.logical.shared.ValueChangeHandler;
+import com.google.gwt.i18n.client.DateTimeFormat;
 import com.google.gwt.user.client.Window;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
@@ -461,6 +467,42 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         view.getEventSummaryField().setValue(event.getSummary());
         view.getEventDateStartField().setValue(event.getKey());
         view.getEventDateEndField().setValue(event.getDtend());
+        view.getEventDateStartField().getDatePicker().addListener(Events.Select, new Listener<DatePickerEvent>() {
+
+            @Override
+            public void handleEvent(DatePickerEvent be) {
+                if (view.getEventDateEndField().getValue() == null) {
+                    view.getEventDateEndField().setValue(view.getEventDateStartField().getValue());
+                }
+            }
+        });
+        view.getEventDateEndField().getDatePicker().addListener(Events.Select, new Listener<DatePickerEvent>() {
+
+            @Override
+            public void handleEvent(DatePickerEvent be) {
+                if (view.getEventDateStartField().getValue() == null) {
+                    view.getEventDateStartField().setValue(view.getEventDateEndField().getValue());
+                }
+            }
+        });
+       /* view.getEventStartTimeField().addListener(Events.Select, new Listener<DatePickerEvent>() {
+
+            @Override
+            public void handleEvent(DatePickerEvent be) {
+                if (view.getEventEndTimeField().getValue() == null) {
+                    view.getEventEndTimeField().setValue(view.getEventStartTimeField().getValue());
+                }
+            }
+        });      
+        view.getEventEndTimeField().addListener(Events.Select, new Listener<DatePickerEvent>() {
+
+            @Override
+            public void handleEvent(DatePickerEvent be) {
+                if (view.getEventStartTimeField().getValue() == null) {
+                    view.getEventStartTimeField().setValue(view.getEventEndTimeField().getValue());
+                }
+            }
+        });*/ 
         if (view.getRepeatEventPeriodRG() != null) {
             view.getRepeatEventPeriodRG().clear();
             view.getRepeatEventPeriodRG().clearInvalid();
@@ -572,6 +614,50 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         view.getNumberOfRepetitions().show();
         view.getRepetitionEndDate().show();
 
+        /*   view.getEventDateStartField().getDatePicker().addValueChangeHandler(new ValueChangeHandler<Date>() {
+    @Override
+    public void onValueChange(ValueChangeEvent<Date> event) {
+      Window.alert("123");
+    }
+  });*/
+        view.getEventDateStartField().getDatePicker().addListener(Events.Select, new Listener<DatePickerEvent>() {
+
+            @Override
+            public void handleEvent(DatePickerEvent be) {
+                if (view.getEventDateEndField().getValue() == null) {
+                    view.getEventDateEndField().setValue(view.getEventDateStartField().getValue());
+                }
+            }
+        });
+        view.getEventDateEndField().getDatePicker().addListener(Events.Select, new Listener<DatePickerEvent>() {
+
+            @Override
+            public void handleEvent(DatePickerEvent be) {
+                if (view.getEventDateStartField().getValue() == null) {
+                    view.getEventDateStartField().setValue(view.getEventDateEndField().getValue());
+                }
+            }
+        });
+
+    /*    view.getEventStartTimeField().addListener(Events.Select, new Listener<DatePickerEvent>() {
+
+            @Override
+            public void handleEvent(DatePickerEvent be) {
+                if (view.getEventEndTimeField().getValue() == null) {
+                    view.getEventEndTimeField().setValue(view.getEventStartTimeField().getValue());
+                }
+            }
+        });      
+        view.getEventEndTimeField().addListener(Events.Select, new Listener<DatePickerEvent>() {
+
+            @Override
+            public void handleEvent(DatePickerEvent be) {
+                if (view.getEventStartTimeField().getValue() == null) {
+                    view.getEventStartTimeField().setValue(view.getEventEndTimeField().getValue());
+                }
+            }
+        });      */
+                
         view.getYearlyVariantRG().show();
         view.getMontlyVariantRG().show();
         view.getRepeatEventPeriodRG().show();
@@ -620,7 +706,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      */
     @SuppressWarnings("deprecation")
     private void onSaveAction() {
-       // Window.alert("onSaveAction");
+        // Window.alert("onSaveAction");
         if (!view.getForm().isValid()) {
             return;
         }
@@ -985,7 +1071,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
      * @param eventDescription the value of eventDescription
      */
     private void processWeeklyEvents(final Date beginEventIntervalDate, final Date endEventIntervalDate, final Date endEventIntervalDateRadio, final Date startDate, final Date endDate, final Map<String, Serializable> properties, String eventSummary, String eventDescription) {
-      //  Window.alert("processWeeklyEvents");
+        //  Window.alert("processWeeklyEvents");
         long milisPerDay = 86400000;
         long weekDiff = ((endEventIntervalDateRadio.getTime() - beginEventIntervalDate.getTime() + milisPerDay) / (milisPerDay * 7));
         int weeksInterval = (int) weekDiff;
@@ -1236,7 +1322,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         long milisDiff = endEventIntervalDate.getTime() - beginEventIntervalDate.getTime();
         long milisPerDay = 86400000; //24 * 60 * 60 * 1000)
         long daysInterval = ((endEventIntervalDate.getTime() - beginEventIntervalDate.getTime()) / milisPerDay) + 1;
-              
+
         endEventIntervalDate = endEventIntervalDateRadio;
         int yearStart = beginEventIntervalDate.getYear();
         int yearEnd = endEventIntervalDate.getYear();
@@ -1247,12 +1333,12 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         if (yearInterval <= 0) {
             yearInterval = 1;
         }
-              //  properties.put(Event.EVENT_TYPE, "Y");
+        //  properties.put(Event.EVENT_TYPE, "Y");
         if (view.getAllDayCheckbox().getValue()) {
             properties.put(Event.EVENT_TYPE, "YF");
         } else {
             properties.put(Event.EVENT_TYPE, ("Y" + (daysInterval > 1 ? "H" : "")));
-           // properties.put(Event.EVENT_TYPE, "Y");
+            // properties.put(Event.EVENT_TYPE, "Y");
         }
         properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY));// + " (Yearly event 1 of " + yearInterval + ")");
         properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION));// + " (Yearly " + (isYearlySameDayOfWeek ? "same Day of a week " : "same Date ") + "event 1 of " + yearInterval + ")");
@@ -1291,7 +1377,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         long milisPerDay = 86400000; //24 * 60 * 60 * 1000)
         long daysInterval = ((endEventIntervalDate.getTime() - beginEventIntervalDate.getTime()) / milisPerDay) + 1;
 
-        
         Date calBeginNextEventDate = beginEventIntervalDate;
         for (int i = 1; i < yearInterval; i++) {
             calBeginNextEventDate = getYearlySameDayOfWeek(beginEventIntervalDate, calBeginNextEventDate, i, isYearlySameDayOfWeek);
