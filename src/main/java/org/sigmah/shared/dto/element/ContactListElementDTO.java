@@ -134,35 +134,16 @@ public class ContactListElementDTO extends FlexibleElementDTO {
 
     final Set<Integer> contactIds = parseValue(valueResult);
 
+    Runnable afterGetContacts = null;
+
     if (enabled) {
-      final ListStore<ContactDTO> availableContactsStore = new ListStore<ContactDTO>();
-
-      final ComboBox<ContactDTO> comboBox = Forms.combobox(null, false, ContactDTO.ID, ContactDTO.FULLNAME, availableContactsStore);
-
       final ToolBar actionsToolBar = new ToolBar();
       actionsToolBar.setAlignment(HorizontalAlignment.LEFT);
 
-      actionsToolBar.add(comboBox);
       actionsToolBar.add(Forms.button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add(), new SelectionListener<ButtonEvent>() {
         @Override
         public void componentSelected(ButtonEvent ce) {
-          ContactDTO value = comboBox.getValue();
-          if (value == null) {
-            return;
-          }
-          comboBox.clear();
-
-          if (store.findModel(ContactDTO.ID, value.getId()) != null) {
-            return;
-          }
-          availableContactsStore.remove(value);
-          store.add(value);
-        }
-      }));
-      actionsToolBar.add(Forms.button(I18N.CONSTANTS.createContact(), IconImageBundle.ICONS.create(), new SelectionListener<ButtonEvent>() {
-        @Override
-        public void componentSelected(ButtonEvent ce) {
-          showContactCreator(store);
+          showContactSelector(store);
         }
       }));
 
@@ -253,25 +234,9 @@ public class ContactListElementDTO extends FlexibleElementDTO {
         }
       };
 
-      // TODO: Filter contacts following user choice
-      dispatch.execute(new GetContacts(getAllowedType(), getAllowedModelIds(), getCheckboxElementId()), new AsyncCallback<ListResult<ContactDTO>>() {
+      afterGetContacts = new Runnable() {
         @Override
-        public void onFailure(Throwable caught) {
-          Log.error("Error while trying to get contacts for a contact list element.", caught);
-        }
-
-        @Override
-        public void onSuccess(ListResult<ContactDTO> result) {
-          boolean hasValue = false;
-          for (ContactDTO contactDTO : result.getList()) {
-            if (contactIds.contains(contactDTO.getId())) {
-              store.add(contactDTO);
-              hasValue = true;
-            } else {
-              availableContactsStore.add(contactDTO);
-            }
-          }
-
+        public void run() {
           actionsToolBar.setEnabled(!Profiler.INSTANCE.isOfflineMode() && !isReadOnly(store));
 
           store.addListener(Store.BeforeAdd, listener);
@@ -280,10 +245,13 @@ public class ContactListElementDTO extends FlexibleElementDTO {
           store.addListener(Store.Clear, listener);
           store.addListener(Store.Remove, listener);
 
-          handlerManager.fireEvent(new RequiredValueEvent(hasValue, true));
+          handlerManager.fireEvent(new RequiredValueEvent(store.getCount() > 0, true));
         }
-      });
-    } else if (!contactIds.isEmpty()) {
+      };
+    }
+
+    if (!contactIds.isEmpty()) {
+      final Runnable afterGetContactsFinal = afterGetContacts;
       dispatch.execute(new GetContacts(contactIds), new AsyncCallback<ListResult<ContactDTO>>() {
         @Override
         public void onFailure(Throwable caught) {
@@ -293,8 +261,13 @@ public class ContactListElementDTO extends FlexibleElementDTO {
         @Override
         public void onSuccess(ListResult<ContactDTO> contactDTOListResult) {
           store.add(contactDTOListResult.getList());
+          if (afterGetContactsFinal != null) {
+            afterGetContactsFinal.run();
+          }
         }
       });
+    } else if (afterGetContacts != null) {
+      afterGetContacts.run();
     }
 
     return mainPanel;
@@ -403,6 +376,71 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     return new ColumnConfig[] {
             typeColumn, nameColumn, firstnameColumn, emailColumn, idColumn, removeColumn
     };
+  }
+
+  private void showContactSelector(final ListStore<ContactDTO> store) {
+    final ListStore<ContactDTO> availableContactsStore = new ListStore<ContactDTO>();
+
+    final Window window = new Window();
+    window.setPlain(true);
+    window.setModal(true);
+    window.setBlinkModal(true);
+    window.setLayout(new FitLayout());
+    window.setSize(700, 300);
+    window.setHeadingHtml(I18N.CONSTANTS.selectContactDialogTitle());
+
+    // TODO: replace with text field + search button + grid with selection handler
+    final ComboBox<ContactDTO> comboBox = Forms.combobox(null, false, ContactDTO.ID, ContactDTO.FULLNAME, availableContactsStore);
+
+    final FormPanel formPanel = Forms.panel(200);
+    formPanel.add(comboBox);
+    formPanel.getButtonBar().add(Forms.button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add(), new SelectionListener<ButtonEvent>() {
+      @Override
+      public void componentSelected(ButtonEvent ce) {
+        ContactDTO value = comboBox.getValue();
+        if (value == null) {
+          return;
+        }
+        comboBox.clear();
+
+        if (store.findModel(ContactDTO.ID, value.getId()) != null) {
+          return;
+        }
+        store.add(value);
+
+        window.hide();
+      }
+    }));
+    formPanel.getButtonBar().add(Forms.button(I18N.CONSTANTS.createContact(), IconImageBundle.ICONS.create(), new SelectionListener<ButtonEvent>() {
+      @Override
+      public void componentSelected(ButtonEvent ce) {
+        window.hide();
+        showContactCreator(store);
+      }
+    }));
+
+    window.add(formPanel);
+
+    // TODO: Filter contacts following user choice
+    // TODO: exclude already-selected contacts (from 'store')
+    dispatch.execute(new GetContacts(getAllowedType(), getAllowedModelIds(), getCheckboxElementId()), new AsyncCallback<ListResult<ContactDTO>>() {
+      @Override
+      public void onFailure(Throwable caught) {
+        Log.error("Error while trying to get contacts for a contact list element.", caught);
+      }
+
+      @Override
+      public void onSuccess(ListResult<ContactDTO> result) {
+        for (ContactDTO contactDTO : result.getList()) {
+          if (store.findModel(ContactDTO.ID, contactDTO.getId()) != null) {
+            continue;
+          }
+          availableContactsStore.add(contactDTO);
+        }
+
+        window.show();
+      }
+    });
   }
 
   private void showContactCreator(final ListStore<ContactDTO> store) {
