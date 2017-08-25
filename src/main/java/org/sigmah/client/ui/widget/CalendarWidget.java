@@ -858,6 +858,9 @@ public class CalendarWidget extends Composite {
         } else {
             eventLimit = 99;
         }
+        final FlexTable gridH = (FlexTable) getWidget();
+        // FlowPanel cell = (FlowPanel) grid.getWidget(1, 1);
+        //FlowPanel cellH = (FlowPanel) grid.getWidget(row, 3);
         for (int i = 0; iterator.hasNext() && i < eventLimit; i++) {
             final Event event = iterator.next();
 
@@ -877,6 +880,7 @@ public class CalendarWidget extends Composite {
 //                        || event.getDtstart().getYear() != event.getDtend().getYear()) {
                 if (event.getEventType().contains("F")) {
                     fullDayEvent = true;
+                    Window.alert("1");
                     flowPanel.addStyleName("calendar-fullday-event");
                 }
             }
@@ -904,8 +908,14 @@ public class CalendarWidget extends Composite {
             }
             flowPanel.add(eventLabel);
             if (event.getEventType().contains("H")) {
-             //   DOM.setStyleAttribute(flowPanel.getElement(), "background-color", "rgba(28,97,217,0.3)");
-                DOM.setStyleAttribute(flowPanel.getElement(), "background", "linear-gradient(-90deg, #1c61d9, #0000)");
+                  DOM.setStyleAttribute(flowPanel.getElement(), "background-color", "rgba(28,97,217)");
+              //  DOM.setStyleAttribute(flowPanel.getElement(), "background", "linear-gradient(-90deg, #1c61d9, #0000)");
+
+                 // cellH.add(flowPanel);
+                    //  DOM.setStyleAttribute(cellH.getElement(), "border-radius", "20px 20px 20px 20px");
+                    //  DOM.setStyleAttribute(cellH.getElement(), "border-color", "green");
+                    //  DOM.setStyleAttribute(cellH.getElement(), "border-style", "solid");
+                     // DOM.setStyleAttribute(cellH.getElement(), "border-width", "1px");
             }
             final DecoratedPopupPanel detailPopup = new DecoratedPopupPanel(true);
 
@@ -1004,6 +1014,7 @@ public class CalendarWidget extends Composite {
             cell.add(flowPanel);
         }
 
+        
         //	if (eventLimit != UNDEFINED && (fullDayEventCounter + sortedHourEvents.size()) > eventLimit) {
         if (startDrawPosition == -1 && eventLimit != UNDEFINED && (fullDayEventCounter + sortedHourEvents.size()) > 1) {
             //final Anchor eventLabel = new Anchor("\u25BC +" + (sortedHourEvents.size()-eventLimit) + " st:" + fullDayEventCounter +" fd events");
@@ -1539,7 +1550,7 @@ public class CalendarWidget extends Composite {
         DOM.setStyleAttribute(panel.getElement(), "border-color", "#1c61d9");
         DOM.setStyleAttribute(panel.getElement(), "border-style", "solid");
         DOM.setStyleAttribute(panel.getElement(), "border-width", "1px");
-        DOM.setStyleAttribute(panel.getElement(), "background-color", "rgba(28,97,217,0.3)");
-        DOM.setStyleAttribute(panel.getElement(), "background", "linear-gradient(-90deg, #0000, #1c61d9)");
+        DOM.setStyleAttribute(panel.getElement(), "background-color", "rgba(28,97,217)");
+     //   DOM.setStyleAttribute(panel.getElement(), "background", "linear-gradient(-90deg, #0000, #1c61d9)");
     }
 }
