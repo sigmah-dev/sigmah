@@ -68,6 +68,7 @@ import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.widget.FlexibleGrid;
 import org.sigmah.client.ui.widget.HistoryTokenText;
+import org.sigmah.client.ui.widget.contact.ContactPicker;
 import org.sigmah.client.ui.widget.contact.DedupeContactDialog;
 import org.sigmah.client.ui.widget.form.FormPanel;
 import org.sigmah.client.ui.widget.form.Forms;
@@ -379,7 +380,10 @@ public class ContactListElementDTO extends FlexibleElementDTO {
   }
 
   private void showContactSelector(final ListStore<ContactDTO> store) {
-    final ListStore<ContactDTO> availableContactsStore = new ListStore<ContactDTO>();
+    final Set<Integer> selectedContactIds = new HashSet<Integer>(store.getCount(), 1f);
+    for (int i = 0, l = store.getCount(); i < l; i++) {
+      selectedContactIds.add(store.getAt(i).getId());
+    }
 
     final Window window = new Window();
     window.setPlain(true);
@@ -389,19 +393,17 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     window.setSize(700, 300);
     window.setHeadingHtml(I18N.CONSTANTS.selectContactDialogTitle());
 
-    // TODO: replace with text field + search button + grid with selection handler
-    final ComboBox<ContactDTO> comboBox = Forms.combobox(null, false, ContactDTO.ID, ContactDTO.FULLNAME, availableContactsStore);
+    final ContactPicker contactPicker = new ContactPicker(getAllowedType(), getAllowedModelIds(), getCheckboxElementId(), selectedContactIds, dispatch);
 
-    final FormPanel formPanel = Forms.panel(200);
-    formPanel.add(comboBox);
+    final FormPanel formPanel = Forms.panel(500);
+    formPanel.add(contactPicker);
     formPanel.getButtonBar().add(Forms.button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add(), new SelectionListener<ButtonEvent>() {
       @Override
       public void componentSelected(ButtonEvent ce) {
-        ContactDTO value = comboBox.getValue();
+        ContactDTO value = contactPicker.getSelectedItem();
         if (value == null) {
           return;
         }
-        comboBox.clear();
 
         if (store.findModel(ContactDTO.ID, value.getId()) != null) {
           return;
@@ -421,26 +423,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
 
     window.add(formPanel);
 
-    // TODO: Filter contacts following user choice
-    // TODO: exclude already-selected contacts (from 'store')
-    dispatch.execute(new GetContacts(getAllowedType(), getAllowedModelIds(), getCheckboxElementId()), new AsyncCallback<ListResult<ContactDTO>>() {
-      @Override
-      public void onFailure(Throwable caught) {
-        Log.error("Error while trying to get contacts for a contact list element.", caught);
-      }
-
-      @Override
-      public void onSuccess(ListResult<ContactDTO> result) {
-        for (ContactDTO contactDTO : result.getList()) {
-          if (store.findModel(ContactDTO.ID, contactDTO.getId()) != null) {
-            continue;
-          }
-          availableContactsStore.add(contactDTO);
-        }
-
-        window.show();
-      }
-    });
+    window.show();
   }
 
   private void showContactCreator(final ListStore<ContactDTO> store) {
