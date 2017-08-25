@@ -29,6 +29,7 @@ import net.fortuna.ical4j.model.property.Summary;
 import net.fortuna.ical4j.model.property.Transp;
 import net.fortuna.ical4j.model.property.Uid;
 import net.fortuna.ical4j.model.property.Version;
+import net.fortuna.ical4j.model.property.XProperty;
 import net.fortuna.ical4j.validate.ValidationException;
 import org.hibernate.Session;
 import org.sigmah.server.dao.ProjectDAO;
@@ -66,7 +67,7 @@ public class ExportCalendar extends HttpServlet {
                 new MapperModule(),
                 // I18nServer module.
                 new I18nServerModule());
-
+        injector.getInstance(PersistService.class).start();
         super.init(config);
     }
 
@@ -97,7 +98,7 @@ public class ExportCalendar extends HttpServlet {
 //                // I18nServer module.
 //                new I18nServerModule());
                 try {
-                    injector.getInstance(PersistService.class).start();
+                 //   injector.getInstance(PersistService.class).start();
                     final ProjectDAO projectDAO = injector.getInstance(ProjectDAO.class);
                     final Project project = projectDAO.findById(new Integer(paramIdValue));
 
@@ -213,7 +214,8 @@ public class ExportCalendar extends HttpServlet {
         calendar.getProperties().add(new ProdId("-//Sigmah 2.2//iCal4j 2.0//EN"));
         calendar.getProperties().add(Version.VERSION_2_0);
         calendar.getProperties().add(CalScale.GREGORIAN);
-
+        calendar.getProperties().add(new XProperty("X-WR-CALNAME", "Sigmah"));
+        calendar.getProperties().add(new XProperty("X-PUBLISHED-TTL", "PT1M"));
         calendar.getComponents().addAll(createICalEventsForExport(personalEventList));
         return calendar;
     }
