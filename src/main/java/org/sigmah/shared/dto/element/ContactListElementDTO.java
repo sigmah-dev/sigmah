@@ -112,7 +112,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     final ContactListComboBox listComboBox = new ContactListComboBox(getLimit(), getAllowedType(), getAllowedModelIds(), dispatch);
     
     // if offline mode, no contact can be used
-    if(isOfflineMode()) {
+    if(Profiler.INSTANCE.isOfflineMode()) {
     	listComboBox.setEnabled(false);
     } else {
     	listComboBox.setEnabled(enabled);
@@ -224,10 +224,6 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     });
 
     return Forms.adapter(getLabel(), listComboBox);
-  }
-  
-  public boolean isOfflineMode() {
-	  return Profiler.INSTANCE.getApplicationStateManager().getLastState() == ApplicationState.OFFLINE;
   }
 
   @Override

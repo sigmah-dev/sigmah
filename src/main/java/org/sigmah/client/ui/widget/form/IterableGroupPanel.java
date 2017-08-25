@@ -265,7 +265,7 @@ public class IterableGroupPanel extends TabPanel {
           int clearIdx = strip.getChildIndex(strip.lastChild().dom);
           final Button button = new Button("+");
           button.setEnabled(canEdit);
-          button.setVisible(!isOfflineMode());
+          button.setVisible(!Profiler.INSTANCE.isOfflineMode());
           button.render(strip.dom, clearIdx - 1);
           ComponentHelper.doAttach(button);
           button.addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -289,10 +289,6 @@ public class IterableGroupPanel extends TabPanel {
 
       });
     }
-  }
-
-  private boolean isOfflineMode() {
-	return Profiler.INSTANCE.getApplicationStateManager().getLastState() == ApplicationState.OFFLINE;
   }
 
   private void addEmptyTab() {

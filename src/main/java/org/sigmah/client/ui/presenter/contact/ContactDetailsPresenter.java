@@ -589,7 +589,7 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
 			while (iterator.hasNext()) {
 				IterationChange iterationChange = iterator.next();
 				// iteration created and in offline mode not saved
-				if (iterationChange.isCreated() && isOfflineMode()) {
+				if (iterationChange.isCreated() && Profiler.INSTANCE.isOfflineMode()) {
 					iterator.remove();
 				}
 			}
@@ -716,10 +716,6 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
 					}, view.getSaveButton(), new LoadingMask(view.getDetailsContainer()), new LoadingMask(target));
 		}
 
-  }
-
-  private boolean isOfflineMode() {
-	  return Profiler.INSTANCE.getApplicationStateManager().getLastState() == ApplicationState.OFFLINE;
   }
 
   private void updateCurrentContact(final ContactDTO contactDTO, DefaultContactFlexibleElementDTO element, String value) {

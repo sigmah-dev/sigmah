@@ -135,7 +135,7 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 		exportButton = new Button(I18N.CONSTANTS.exportAll(), IconImageBundle.ICONS.excel());
 		toolbar.add(exportButton);
 
-		if(isOfflineMode()) {
+		if(Profiler.INSTANCE.isOfflineMode()) {
 			toolbar.setEnabled(false);
 		}
 
@@ -144,10 +144,6 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 		contactTreePanel.setTopComponent(toolbar);
 		contactTreePanel.setBottomComponent(pagingToolBar);
 
-	}
-
-	public boolean isOfflineMode() {
-		return Profiler.INSTANCE.getApplicationStateManager().getLastState() == ApplicationState.OFFLINE;
 	}
 
 	/**

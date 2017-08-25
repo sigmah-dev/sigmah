@@ -300,7 +300,7 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 					}
 				});
 				
-				if (ElementTypeEnum.CONTACT_LIST == this.getElementType() && Profiler.INSTANCE.getApplicationStateManager().getLastState() == ApplicationState.OFFLINE) {
+				if (ElementTypeEnum.CONTACT_LIST == this.getElementType() && Profiler.INSTANCE.isOfflineMode()) {
 					wrapper.getHistoryButton().setVisible(false);
 				}
 				

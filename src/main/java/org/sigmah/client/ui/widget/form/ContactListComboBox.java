@@ -108,7 +108,7 @@ public class ContactListComboBox extends ListComboBox<ContactDTO> {
   protected void buildComponent() {
     super.buildComponent();
     
-  	if(Profiler.INSTANCE.getApplicationStateManager().getLastState() == ApplicationState.OFFLINE) {
+  	if(Profiler.INSTANCE.isOfflineMode()) {
   		getButtonPanel().add(new Label(I18N.CONSTANTS.sigmahContactsOfflineUnavailable()));
   	}
     

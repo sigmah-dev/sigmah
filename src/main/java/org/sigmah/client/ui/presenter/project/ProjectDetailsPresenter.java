@@ -556,7 +556,7 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 			while(iterator.hasNext()){
 				IterationChange iterationChange = iterator.next();
 				// iteration created and in offline mode not saved
-			    if(iterationChange.isCreated() && isOfflineMode()){
+			    if(iterationChange.isCreated() && Profiler.INSTANCE.isOfflineMode()){
 			        iterator.remove();
 			    }
 			}
@@ -683,10 +683,6 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 		if (newProject != null) {
 			load(newProject.getProjectModel().getProjectDetails());
 		}
-	}
-
-	public boolean isOfflineMode() {
-		  return Profiler.INSTANCE.getApplicationStateManager().getLastState() == ApplicationState.OFFLINE;
 	}
 
 	/**

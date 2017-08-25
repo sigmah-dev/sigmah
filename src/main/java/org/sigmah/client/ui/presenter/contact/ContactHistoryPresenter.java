@@ -90,7 +90,7 @@ public class ContactHistoryPresenter extends AbstractPresenter<ContactHistoryPre
     view.setImageProvider(imageProvider);
 
     // History available in online mode not in offline
-    if(!isOfflineMode()) {
+    if(!Profiler.INSTANCE.isOfflineMode()) {
 	    dispatch.execute(new GetContactHistory(contactDTO.getId()), new CommandResultHandler<ListResult<ContactHistory>>() {
 	      @Override
 	      protected void onCommandSuccess(ListResult<ContactHistory> result) {
@@ -98,10 +98,6 @@ public class ContactHistoryPresenter extends AbstractPresenter<ContactHistoryPre
 	      }
 	    });
     }
-  }
-
-  public boolean isOfflineMode() {
-	  return Profiler.INSTANCE.getApplicationStateManager().getLastState() == ApplicationState.OFFLINE;
   }
 
   public boolean hasValueChanged() {
