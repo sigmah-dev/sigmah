@@ -78,6 +78,7 @@ public class ExportCalendar extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 
         LOGGER.info("Export Sigmah Calendar is started by request from IP=" + getClientIpAddr(request));
+        LOGGER.info("User-Agent=" + getUserAgent(request));
 
         String paramIdName = "id";
         String paramIdValue = request.getParameter(paramIdName);
@@ -88,17 +89,8 @@ public class ExportCalendar extends HttpServlet {
                 && paramEventTypeValue != null) {
             if (paramEventTypeValue.equalsIgnoreCase("events")) {
 
-//        final Injector injector = Guice.createInjector(
-//                // Configuration module.
-//                new ConfigurationModule(),
-//                // Persistence module.
-//                new PersistenceModule(),
-//                // Mapper module.
-//                new MapperModule(),
-//                // I18nServer module.
-//                new I18nServerModule());
                 try {
-                 //   injector.getInstance(PersistService.class).start();
+                	
                     final ProjectDAO projectDAO = injector.getInstance(ProjectDAO.class);
                     final Project project = projectDAO.findById(new Integer(paramIdValue));
 
@@ -216,6 +208,7 @@ public class ExportCalendar extends HttpServlet {
         calendar.getProperties().add(CalScale.GREGORIAN);
         calendar.getProperties().add(new XProperty("X-WR-CALNAME", "Sigmah"));
         calendar.getProperties().add(new XProperty("X-PUBLISHED-TTL", "PT1M"));
+        
         calendar.getComponents().addAll(createICalEventsForExport(personalEventList));
         return calendar;
     }
@@ -250,35 +243,49 @@ public class ExportCalendar extends HttpServlet {
 
 
     /**
-     *
-     * @param request
-     * @return
-     */
-    public static String getClientIpAddr(HttpServletRequest request) {
-        String ip = request.getHeader("X-Forwarded-For");
-        if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-            ip = request.getHeader("Proxy-Client-IP");
-        } else if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-            ip = request.getHeader("WL-Proxy-Client-IP");
-        } else if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-            ip = request.getHeader("HTTP_X_FORWARDED_FOR");
-        } else if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-            ip = request.getHeader("HTTP_X_FORWARDED");
-        } else if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-            ip = request.getHeader("HTTP_X_CLUSTER_CLIENT_IP");
-        } else if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-            ip = request.getHeader("HTTP_CLIENT_IP");
-        } else if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-            ip = request.getHeader("HTTP_FORWARDED_FOR");
-        } else if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-            ip = request.getHeader("HTTP_FORWARDED");
-        } else if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-            ip = request.getHeader("HTTP_VIA");
-        } else if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-            ip = request.getHeader("REMOTE_ADDR");
-        } else if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-            ip = request.getRemoteAddr();
-        }
-        return ip;
-    }
+    *
+    * @param request
+    * @return
+    */
+   public static String getClientIpAddr(HttpServletRequest request) {
+       String ip = request.getHeader("X-Forwarded-For");
+       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
+           ip = request.getHeader("Proxy-Client-IP");
+       }
+       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
+           ip = request.getHeader("WL-Proxy-Client-IP");
+       }
+       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
+           ip = request.getHeader("HTTP_X_FORWARDED_FOR");
+       }
+       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
+           ip = request.getHeader("HTTP_X_FORWARDED");
+       }
+       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
+           ip = request.getHeader("HTTP_X_CLUSTER_CLIENT_IP");
+       }
+       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
+           ip = request.getHeader("HTTP_CLIENT_IP");
+       }
+       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
+           ip = request.getHeader("HTTP_FORWARDED_FOR");
+       }
+       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
+           ip = request.getHeader("HTTP_FORWARDED");
+       }
+       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
+           ip = request.getHeader("HTTP_VIA");
+       }
+       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
+           ip = request.getHeader("REMOTE_ADDR");
+       }
+       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
+           ip = request.getRemoteAddr();
+       }
+       return ip;
+   }
+
+   private String getUserAgent(HttpServletRequest request) {
+       return request.getHeader("user-agent");
+   }
 }
