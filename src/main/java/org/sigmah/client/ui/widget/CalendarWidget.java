@@ -288,19 +288,16 @@ public class CalendarWidget extends Composite {
 
     public void next() {
         displayMode.nextDate(startDate);
-  //      Window.alert("displayMode.nextDate(startDate);. ");
         refresh();
     }
 
     public void previous() {
         displayMode.previousDate(startDate);
-       // Window.alert("refresh previous");
         refresh();
     }
 
     public final void today() {
         displayMode.firstDay(startDate, today, firstDayOfWeek);
-       // Window.alert("refresh today");
         refresh();
     }
 
@@ -315,7 +312,6 @@ public class CalendarWidget extends Composite {
 
     public void addCalendar(Calendar calendar) {
         calendars.add(calendar);
-       // Window.alert("refresh addCalendar");
         refresh();
     }
 
@@ -336,7 +332,6 @@ public class CalendarWidget extends Composite {
 //            }
 //        }
         this.calendars = calendars;
-       // Window.alert("refresh setCalendars");
         refresh();
     }
 
@@ -351,7 +346,6 @@ public class CalendarWidget extends Composite {
      */
     public void setTitleFormatter(DateTimeFormat titleFormatter) {
         this.titleFormatter = titleFormatter;
-      //  Window.alert("refresh setTitleFormatter");
         refresh();
     }
 
@@ -365,7 +359,6 @@ public class CalendarWidget extends Composite {
      */
     public void setHeaderFormatter(DateTimeFormat headerFormatter) {
         this.headerFormatter = headerFormatter;
-     //   Window.alert("refresh setHeaderFormatter");
         refresh();
     }
 
@@ -379,7 +372,6 @@ public class CalendarWidget extends Composite {
      */
     public void setDayFormatter(DateTimeFormat dayFormatter) {
         this.dayFormatter = dayFormatter;
-      //  Window.alert("refresh setDayFormatter");
         refresh();
     }
 
@@ -401,7 +393,6 @@ public class CalendarWidget extends Composite {
 
         // Applying the CSS style associated with the new display mode
         grid.addStyleName(displayMode.getStyleName());
-     //   Window.alert("refresh setDisplayMode");
         refresh();
     }
 
@@ -413,7 +404,6 @@ public class CalendarWidget extends Composite {
      */
     public void setFirstDayOfWeek(int firstDayOfWeek) {
         this.firstDayOfWeek = firstDayOfWeek;
-     //   Window.alert("refresh setFirstDayOfWeek");
         refresh();
     }
 
@@ -424,7 +414,6 @@ public class CalendarWidget extends Composite {
     public void setDisplayHeaders(int displayHeaders) {
         clear();
         this.displayHeaders = displayHeaders;
-      //  Window.alert("refresh setDisplayHeaders");
         refresh();
     }
 
@@ -435,7 +424,6 @@ public class CalendarWidget extends Composite {
     public void setDisplayWeekNumber(boolean displayWeekNumber) {
         clear();
         this.displayWeekNumber = displayWeekNumber;
-     //   Window.alert("refresh setDisplayWeekNumber");
         refresh();
     }
 
@@ -498,7 +486,7 @@ public class CalendarWidget extends Composite {
     }
 
     public static Map<Date, List<Event>> normalizeHourEvents(final Map<Date, List<Event>> eventMap) {
-       // Window.alert("normalizeHourEvents");
+
         final Map<Date, List<Event>> hourEventMapNormalized = new HashMap<Date, List<Event>>();
 
         for (final Date key : eventMap.keySet()) {
@@ -763,12 +751,10 @@ public class CalendarWidget extends Composite {
 
         FlowPanel cell = (FlowPanel) grid.getWidget(row, column);
         if (cell == null) {
-            // New cell
             cell = new FlowPanel();
             cell.setWidth("100%");
 
             grid.setWidget(row, column, cell);
-
         } else {
             // Reusing an existing cell
             cell.clear();
@@ -797,8 +783,6 @@ public class CalendarWidget extends Composite {
         final FlexTable grid = (FlexTable) getWidget();
         int fullDayEventCounter = 0;
 
-        // final VerticalPanel cell = (VerticalPanel) grid.getWidget(row,
-        // column);
         final FlowPanel cell = (FlowPanel) grid.getWidget(row, column);
 
         if (cell == null) {
@@ -858,9 +842,7 @@ public class CalendarWidget extends Composite {
         } else {
             eventLimit = 99;
         }
-        final FlexTable gridH = (FlexTable) getWidget();
-        // FlowPanel cell = (FlowPanel) grid.getWidget(1, 1);
-        //FlowPanel cellH = (FlowPanel) grid.getWidget(row, 3);
+
         for (int i = 0; iterator.hasNext() && i < eventLimit; i++) {
             final Event event = iterator.next();
 
@@ -880,7 +862,6 @@ public class CalendarWidget extends Composite {
 //                        || event.getDtstart().getYear() != event.getDtend().getYear()) {
                 if (event.getEventType().contains("F")) {
                     fullDayEvent = true;
-                    Window.alert("1");
                     flowPanel.addStyleName("calendar-fullday-event");
                 }
             }
@@ -910,12 +891,6 @@ public class CalendarWidget extends Composite {
             if (event.getEventType().contains("H")) {
                   DOM.setStyleAttribute(flowPanel.getElement(), "background-color", "rgba(28,97,217)");
               //  DOM.setStyleAttribute(flowPanel.getElement(), "background", "linear-gradient(-90deg, #1c61d9, #0000)");
-
-                 // cellH.add(flowPanel);
-                    //  DOM.setStyleAttribute(cellH.getElement(), "border-radius", "20px 20px 20px 20px");
-                    //  DOM.setStyleAttribute(cellH.getElement(), "border-color", "green");
-                    //  DOM.setStyleAttribute(cellH.getElement(), "border-style", "solid");
-                     // DOM.setStyleAttribute(cellH.getElement(), "border-width", "1px");
             }
             final DecoratedPopupPanel detailPopup = new DecoratedPopupPanel(true);
 
@@ -966,7 +941,6 @@ public class CalendarWidget extends Composite {
                     @Override
                     public void onClick(ClickEvent clickEvent) {
                         delegate.deleteChain(event, CalendarWidget.this);
-                   //     Window.alert("refresh deleteChainAnchor onClick");
                         refresh();
                         detailPopup.hide();
 
@@ -1052,11 +1026,12 @@ public class CalendarWidget extends Composite {
             //                      " cell.getElement() AbsoluteBottom=" + cell.getElement().getAbsoluteBottom()+
             //                      " cell.getElement() ClientHeight =" + cell.getElement().getClientHeight()
             //                      )  ;
-            int chiled = grid.getCellFormatter().getElement(row, column).getChildCount();
+/*            int chiled = grid.getCellFormatter().getElement(row, column).getChildCount();
 
             int gridHeight = grid.getOffsetHeight();
             int weekdayRowHeight = grid.getRowFormatter()
                     .getElement(0).getOffsetHeight();
+            */
 //            Window.alert("chiled=" + chiled + " gridHeight =" + gridHeight
 //                    + " weekdayRowHeight =" + weekdayRowHeight
 //            );
@@ -1119,7 +1094,7 @@ public class CalendarWidget extends Composite {
         final FlexTable grid = (FlexTable) getWidget();
         // FlowPanel cell = (FlowPanel) grid.getWidget(1, 1);
         FlowPanel cell = (FlowPanel) grid.getWidget(row, colStart);
-        cell.add(panel);//sssss
+        cell.add(panel);
         calculatedCellOffsetHeight = cell.getElement().getClientHeight();//OffsetHeight();
 
         int height = appointmentHeight();
@@ -1166,7 +1141,7 @@ public class CalendarWidget extends Composite {
         }
 
         final Iterator<Event> iterator = sortedFullDayEvents.iterator();
-        //ak 
+
         eventLimit = 1;//999
         for (int i = 0; iterator.hasNext() && i < eventLimit; i++) {
             final Event event = iterator.next();
@@ -1302,7 +1277,6 @@ public class CalendarWidget extends Composite {
                 @Override
                 public void onClick(ClickEvent clickEvent) {
                     delegate.delete(event, CalendarWidget.this);
-               //     Window.alert("refresh deleteAnchor onClick ");
                     refresh();
                     detailPopup.hide();
                 }
@@ -1314,7 +1288,6 @@ public class CalendarWidget extends Composite {
                 @Override
                 public void onClick(ClickEvent clickEvent) {
                     delegate.deleteChain(event, CalendarWidget.this);
-                 //   Window.alert("refresh deleteChainAnchor onClick");
                     refresh();
                     detailPopup.hide();
 
@@ -1467,7 +1440,7 @@ public class CalendarWidget extends Composite {
         }
 
         final Iterator<Event> iterator = sortedFullDayEvents.iterator();
-        //ak 
+
         int eventLimit = 100;//999
         int counterIvent = 0;
         boolean foundRowToPlace = false;

@@ -55,7 +55,6 @@ import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.selection.AbstractStoreSelectionModel;
-import com.google.gwt.user.client.Window;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import java.util.Date;
@@ -166,10 +165,6 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                     @Override
                     public void onCommandSuccess(final VoidResult result) {
 
-//                        final List<Event> oldEventList
-//                                = event.getParent().getEvents().get(event.getKey());
-//                        oldEventList.remove(event);
-                        //ak
                         if (event.getEventType().contains("F")) {
                             final List<Event> oldFullDayEventList
                                     = event.getParent().getFullDayEvents().get(event.getKey());
@@ -179,14 +174,12 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                                     = event.getParent().getEvents().get(event.getKey());
                             oldEventList.remove(event);
                         }
-                        //ak
-                       // Window.alert("12 refresh  CalPres delete onCommandSuccess");
                         calendar.refresh();
                     }
                 });
             }
 
-            public void deleteEventFunction1(final Event next, Integer parentId, final Map<Date, List<Event>> eventMap, final Date key) {
+            public void deleteChildEvent(final Event next, Integer parentId, final Map<Date, List<Event>> eventMap, final Date key) {
                 dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, next.getIdentifier(), parentId), new CommandResultHandler<VoidResult>() {
 
                     @Override
@@ -197,13 +190,12 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                     @Override
                     public void onCommandSuccess(final VoidResult result) {
                         eventMap.get(key).remove(next);
-                       // Window.alert("11 refresh deleteEventFunction1 onCommandSuccess");
                         calendar.refresh();
                     }
                 });
             }
 
-            public void deleteEventFunction2(final Event next, Integer parentId, final Map<Date, List<Event>> eventMap, final Date key, int mainId) {
+            public void deleteParentEvent(final Event next, Integer parentId, final Map<Date, List<Event>> eventMap, final Date key, int mainId) {
                 dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, mainId, parentId), new CommandResultHandler<VoidResult>() {
 
                     @Override
@@ -214,7 +206,6 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                     @Override
                     public void onCommandSuccess(final VoidResult result) {
                         eventMap.get(key).remove(next);
-                       // Window.alert("10 refresh deleteEventFunction2 onCommandSuccess");
                         calendar.refresh();
                     }
                 });
@@ -229,51 +220,17 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                 final Map<Date, List<Event>> eventMap = event.getParent().getEvents();
                 final Map<Date, List<Event>> fullDayEventMap = event.getParent().getFullDayEvents();
 
-                int mainId = event.getIdentifier();
-                int refId = 0;
+                int eventId = event.getIdentifier();
+                int eventRefId = 0;
                 if (event.getReferenceId() != null) {
-                    refId = event.getReferenceId().intValue();
+                    eventRefId = event.getReferenceId().intValue();
                 }
                 String typeStr = (String) event.getEventType();
                 if (typeStr != null) {
-                    for (final Date key : eventMap.keySet()) {
-                        for (final Event next : eventMap.get(key)) {
-                            if (refId != 0) {
-                                if (next.getReferenceId() != null && (next.getReferenceId().intValue() == refId)) {
-                                    deleteEventFunction1(next, parentId, eventMap, key);
-                                } else if ((next.getReferenceId() == null) && (next.getIdentifier().intValue() == refId)) {
-                                    deleteEventFunction1(next, parentId, eventMap, key);
-                                }
-                            } else {
-                                if (next.getReferenceId() != null && (next.getReferenceId().intValue() == mainId)) {
-                                    deleteEventFunction1(next, parentId, eventMap, key);
-                                } else if (next.getReferenceId() == null && next.getIdentifier().intValue() == mainId) {
-                                    deleteEventFunction2(next, parentId, eventMap, key, mainId);
-                                }
-                            }
-                        }
-                    }
-                    //ak
-                    for (final Date key : fullDayEventMap.keySet()) {
-                        for (final Event next : fullDayEventMap.get(key)) {
-                            if (refId != 0) {
-                                if (next.getReferenceId() != null && (next.getReferenceId().intValue() == refId)) {
-                                    deleteEventFunction1(next, parentId, fullDayEventMap, key);
-                                } else if ((next.getReferenceId() == null) && (next.getIdentifier().intValue() == refId)) {
-                                    deleteEventFunction1(next, parentId, fullDayEventMap, key);
-                                }
-                            } else {
-                                if (next.getReferenceId() != null && (next.getReferenceId().intValue() == mainId)) {
-                                    deleteEventFunction1(next, parentId, fullDayEventMap, key);
-                                } else if (next.getReferenceId() == null && next.getIdentifier().intValue() == mainId) {
-                                    deleteEventFunction2(next, parentId, fullDayEventMap, key, mainId);
-                                }
-                            }
-                        }
-                    }
-                    //ak
+                    deleteEventFromEventMap(eventMap, eventRefId, parentId, eventId);
+                    deleteEventFromEventMap(fullDayEventMap, eventRefId, parentId, eventId);
                 } else {
-                    dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, mainId, parentId), new CommandResultHandler<VoidResult>() {
+                    dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, eventId, parentId), new CommandResultHandler<VoidResult>() {
 
                         @Override
                         public void onCommandFailure(final Throwable caught) {
@@ -282,10 +239,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 
                         @Override
                         public void onCommandSuccess(final VoidResult result) {
-//                            final List<Event> oldEventList
-//                                    = event.getParent().getEvents().get(event.getKey());
-//                            oldEventList.remove(event);
-                            //ak
+
                             if (event.getEventType().contains("F")) {
                                 final List<Event> oldFullDayEventList
                                         = event.getParent().getFullDayEvents().get(event.getKey());
@@ -295,14 +249,29 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                                         = event.getParent().getEvents().get(event.getKey());
                                 oldEventList.remove(event);
                             }
-                            //ak
-                           // Window.alert("9 refresh  CalPres deleteChain onCommandSuccess");
                             calendar.refresh();
                         }
                     });
                 }
             }
-//                        }
+
+            private void deleteEventFromEventMap(final Map<Date, List<Event>> theEventMap, int eventRefId, final Integer parentId, int eventId) {
+                for (final Date key : theEventMap.keySet()) {
+                    for (final Event nextFullDayEvent : theEventMap.get(key)) {
+                        if (eventRefId != 0) {
+                            if (nextFullDayEvent.getReferenceId().intValue() == eventRefId) {
+                                deleteChildEvent(nextFullDayEvent, parentId, theEventMap, key);
+                            }
+                        } else {
+                            if (nextFullDayEvent.getReferenceId() != null && (nextFullDayEvent.getReferenceId().intValue() == eventId)) {
+                                deleteChildEvent(nextFullDayEvent, parentId, theEventMap, key);
+                            } else if (nextFullDayEvent.getReferenceId() == null && nextFullDayEvent.getIdentifier().intValue() == eventId) {
+                                deleteParentEvent(nextFullDayEvent, parentId, theEventMap, key, eventId);
+                            }
+                        }
+                    }
+                }
+            }
         });
 
         // --
@@ -422,14 +391,12 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
             @Override
             public void onUpdate(final UpdateEvent event) {
                 if (event.concern(UpdateEvent.CALENDAR_EVENT_UPDATE)) {
-                    //Window.alert("7 refresh CalPres Update event handler. ");
                     calendar.refresh();
                 }
 
                 if (event.concern(UpdateEvent.REMINDER_UPDATED)) {
                     // TODO appel 
                     reloadEventsOfReminderType((ReminderType) event.getParam(0));
-                    //Window.alert("6 refresh CalPres Update event handler. ");
                     calendar.refresh();
                 }
             }
@@ -443,7 +410,6 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
      */
     public void reload(final Map<CalendarType, Integer> calendars, boolean editable) {
         Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "Before refresh.");
-        //Window.alert("5 refresh  CalPres reload. ");
         calendar.refresh();
 
         Profiler.INSTANCE.markCheckpoint(Scenario.AGENDA, "calendar.refresh ended.");
@@ -460,7 +426,6 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
      */
     @Override
     public void onViewRevealed() {
-       // Window.alert("4 refresh onViewRevealed. ");
         calendar.refresh();
     }
 
@@ -491,7 +456,6 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
         view.getCalendarsStore().removeAll();
 
         if (ClientUtils.isEmpty(calendars)) {
-           // Window.alert("3 refresh reloadEvents. ");
             calendar.refresh();
             Profiler.INSTANCE.endScenario(Scenario.AGENDA);
             return;
@@ -501,7 +465,6 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 
             @Override
             protected void onComplete() {
-               // Window.alert("2 refresh onComplete. ");
                 calendar.refresh();
                 Profiler.INSTANCE.endScenario(Scenario.AGENDA);
             }
@@ -568,11 +531,9 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                             result.setStyle(calendarType.getColorCode());
                             result.setType(calendarType);
                             calendars.set(location, result);
-                          //  Window.alert("1 refresh reloadEventsOfReminderType. ");
                             calendar.refresh();
                         }
                     }
-
                 });
                 return;
             }

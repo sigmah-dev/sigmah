@@ -65,10 +65,6 @@ import com.extjs.gxt.ui.client.widget.form.TextArea;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.form.Time;
 import com.extjs.gxt.ui.client.widget.form.TimeField;
-import com.google.gwt.event.logical.shared.ValueChangeEvent;
-import com.google.gwt.event.logical.shared.ValueChangeHandler;
-import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.user.client.Window;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
@@ -614,12 +610,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         view.getNumberOfRepetitions().show();
         view.getRepetitionEndDate().show();
 
-        /*   view.getEventDateStartField().getDatePicker().addValueChangeHandler(new ValueChangeHandler<Date>() {
-    @Override
-    public void onValueChange(ValueChangeEvent<Date> event) {
-      Window.alert("123");
-    }
-  });*/
         view.getEventDateStartField().getDatePicker().addListener(Events.Select, new Listener<DatePickerEvent>() {
 
             @Override
@@ -772,19 +762,14 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 if (event.getEventType() != null) {
                     if ("OF".equals(event.getEventType())) {
                         properties.put(Event.EVENT_TYPE, ("O" + (daysdiff > 1 ? "H" : "")));
-                        //properties.put(Event.EVENT_TYPE, "O");
                     } else if ("DF".equals(event.getEventType())) {
                         properties.put(Event.EVENT_TYPE, ("D" + (daysdiff > 1 ? "H" : "")));
-                        //properties.put(Event.EVENT_TYPE, "D");
                     } else if ("WF".equals(event.getEventType())) {
                         properties.put(Event.EVENT_TYPE, ("W" + (daysdiff > 1 ? "H" : "")));
-                        //properties.put(Event.EVENT_TYPE, "W" );
                     } else if ("MF".equals(event.getEventType())) {
                         properties.put(Event.EVENT_TYPE, ("M" + (daysdiff > 1 ? "H" : "")));
-                        //properties.put(Event.EVENT_TYPE, "M");
                     } else if ("YF".equals(event.getEventType())) {
                         properties.put(Event.EVENT_TYPE, ("Y" + (daysdiff > 1 ? "H" : "")));
-                        //properties.put(Event.EVENT_TYPE, "Y");
                     }
                 }
             }
@@ -920,7 +905,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             properties.put(Event.EVENT_TYPE, "OF");
         } else {
             properties.put(Event.EVENT_TYPE, ("O" + (daysDiff > 1 ? "H" : "")));
-            //properties.put(Event.EVENT_TYPE, "O");
         }
         if (daysDiff == 1) {
             addPersonalEvent(properties);
@@ -982,7 +966,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             properties.put(Event.EVENT_TYPE, "DF");
         } else {
             properties.put(Event.EVENT_TYPE, ("D" + (daysInterval > 1 ? "H" : "")));
-            //properties.put(Event.EVENT_TYPE, "D");
         }
         properties.put(Event.DATE_END, new Date(calBeginNextEventDateLong + milisPerDay * (lengthDailyEvent - 1)));
         addPersonalEventDaily(properties, count, lengthDailyEvent, calBeginNextEventDateLong, milisPerDay, startDate, endDate, eventSummary, eventDescription);
@@ -1041,7 +1024,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 dailyProperties.put(Event.EVENT_TYPE, "DF");
             } else {
                 dailyProperties.put(Event.EVENT_TYPE, ("D" + (daysInterval > 1 ? "H" : "")));
-                // dailyProperties.put(Event.EVENT_TYPE, "D");
             }
             dailyProperties.put(Event.DATE_END, new Date(calEndNextEventDateLong));
             setFullDayEvent(startDate, endDate, new Date(calBeginNextEventDateLong), dailyProperties);
@@ -1098,8 +1080,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             properties.put(Event.EVENT_TYPE, "WF");
         } else {
             properties.put(Event.EVENT_TYPE, ("W" + (daysInterval > 1 ? "H" : "")));
-            //properties.put(Event.EVENT_TYPE, "W");
-        }
+         }
         addPersonalEventWeekly(properties, weeksInterval, calBeginNextEventDateLong, calEndNextEventDateLong, daysInterval, startDate, endDate, eventSummary, eventDescription);
 
     }
@@ -1154,8 +1135,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             if (view.getAllDayCheckbox().getValue()) {
                 dailyProperties.put(Event.EVENT_TYPE, "WF");
             } else {
-//                Window.alert("#1 addDailySeriesEventNew2 event.getEventType() = " + (event!=null?event.getEventType():"null")
-//                        + " daysInterval=" + daysInterval);
                 dailyProperties.put(Event.EVENT_TYPE, ("W" + (daysInterval > 1 ? "H" : "")));
             }
             dailyProperties.put(Event.REFERENCE_ID, ids);
@@ -1211,7 +1190,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             properties.put(Event.EVENT_TYPE, "MF");
         } else {
             properties.put(Event.EVENT_TYPE, ("M" + (daysInterval > 1 ? "H" : "")));
-            // properties.put(Event.EVENT_TYPE, "M");
         }
         properties.put(Event.DATE_END, endEventIntervalDate);
         Date endEventIntervalDate1 = endEventIntervalDate;
@@ -1280,14 +1258,12 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             monthlyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
 
             monthlyProperties.put(Event.DATE, calBeginNextEventDate);
-//            monthlyProperties.put(Event.EVENT_TYPE, "M");
 
             monthlyProperties.put(Event.DATE_END, new Date(calBeginNextEventDate.getTime() + diff));
             if (view.getAllDayCheckbox().getValue()) {
                 monthlyProperties.put(Event.EVENT_TYPE, "MF");
             } else {
                 monthlyProperties.put(Event.EVENT_TYPE, ("M" + (daysInterval > 1 ? "H" : "")));
-                //monthlyProperties.put(Event.EVENT_TYPE, "M");
             }
 
             setFullDayEvent(startDate, endDate, calBeginNextEventDate, monthlyProperties);
@@ -1333,12 +1309,11 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         if (yearInterval <= 0) {
             yearInterval = 1;
         }
-        //  properties.put(Event.EVENT_TYPE, "Y");
+
         if (view.getAllDayCheckbox().getValue()) {
             properties.put(Event.EVENT_TYPE, "YF");
         } else {
             properties.put(Event.EVENT_TYPE, ("Y" + (daysInterval > 1 ? "H" : "")));
-            // properties.put(Event.EVENT_TYPE, "Y");
         }
         properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY));// + " (Yearly event 1 of " + yearInterval + ")");
         properties.put(Event.DESCRIPTION, (String) properties.get(Event.DESCRIPTION));// + " (Yearly " + (isYearlySameDayOfWeek ? "same Day of a week " : "same Date ") + "event 1 of " + yearInterval + ")");
@@ -1391,7 +1366,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 yearlyProperties.put(Event.EVENT_TYPE, "YF");
             } else {
                 yearlyProperties.put(Event.EVENT_TYPE, ("Y" + (daysInterval > 1 ? "H" : "")));
-                //yearlyProperties.put(Event.EVENT_TYPE, "Y");
             }
 
             yearlyProperties.put(Event.DATE_END, new Date(calBeginNextEventDate.getTime() + milisDiff));
