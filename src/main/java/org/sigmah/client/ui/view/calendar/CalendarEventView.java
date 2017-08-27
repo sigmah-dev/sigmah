@@ -49,6 +49,7 @@ import com.extjs.gxt.ui.client.widget.VerticalPanel;
 import com.extjs.gxt.ui.client.widget.form.ComboBox.TriggerAction;
 import com.google.gwt.user.client.ui.HTML;
 import java.util.Date;
+
 /*
 import com.gwtext.client.data.Record;  
 import com.gwtext.client.data.SimpleStore;  
@@ -57,7 +58,7 @@ import com.gwtext.client.widgets.Panel;
 import com.gwtext.client.widgets.form.ComboBox;  
 import com.gwtext.client.widgets.form.FormPanel;  
 import com.gwtext.client.widgets.form.event.ComboBoxListenerAdapter;
-*/
+ */
 /**
  * Calendar event edit frame view used to create/edit a calendar event.
  *
@@ -86,7 +87,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     private FieldSet panelDaily;
     private FieldSet monthlyRepSettings;
     private FieldSet yearlyRepSettings;
-    
+
     private Radio yearlySameDayOfWeekRB;
     private Radio yearlySameDateRB;
 
@@ -99,18 +100,18 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     private Radio radioMonthlySameDayOfWeek;
     private Radio radioNumberOfRepetitions;
     private Radio radioRepetitionEndDate;
-    
+
     private Radio radioWeeklyNumberOfRepetitions;
     private Radio radioWeeklyRepetitionEndDate;
     private Radio radioYearlyNumberOfRepetitions;
     private Radio radioYearlyRepetitionEndDate;
     private Radio radioDailyNumberOfRepetitions;
     private Radio radioDailyRepetitionEndDate;
-    
+
     private DateField repetitionEndDate;
     private TextArea numberOfRepetitions;
     private DateField dailyRepetitionEndDate;
-    private TextArea dailyNumberOfRepetitions;    
+    private TextArea dailyNumberOfRepetitions;
     private DateField weeklyRepetitionEndDate;
     private TextArea weeklyNumberOfRepetitions;
     private DateField yearlyRepetitionEndDate;
@@ -119,9 +120,10 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
 
     private RadioGroup RepeatEventPeriodRG;
     private RadioGroup RepeatMultiEventPeriodRG;
-    private RadioGroup RepeatYearlyMultiEventPeriodRG;   
+    private RadioGroup RepeatYearlyMultiEventPeriodRG;
     private RadioGroup RepeatWeeklyMultiEventPeriodRG;
-    private RadioGroup RepeatDailyMultiEventPeriodRG;        
+    private RadioGroup RepeatDailyMultiEventPeriodRG;
+
     /**
      * Builds the view.
      */
@@ -142,7 +144,6 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         createDailyPanel();
         createRepeatEventPeriodRadioGroup();
 
-        
         eventSummaryField = Forms.text(I18N.CONSTANTS.calendarEventObject(), true);
         eventSummaryField.setName(Event.SUMMARY);
 
@@ -159,7 +160,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
 
         eventDateEndField = Forms.date(I18N.CONSTANTS.calendar_addEvent_dateEnd_label(), false);
         eventDateEndField.setName(Event.DATE + "888end");
-        
+
         eventDescriptionField = Forms.textarea(I18N.CONSTANTS.calendarEventDescription(), false);
         eventDescriptionField.setName(Event.DESCRIPTION);
         eventDescriptionField.setId(Event.DESCRIPTION);
@@ -200,7 +201,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
                 eventEndTimeField.setVisible(!allDayCheckbox.getValue());
             }
         });
-        
+
         return allDayCheckbox;
     }
 
@@ -229,12 +230,13 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         yearlyRepeatRB.addListener(Events.OnChange, new Listener<FieldEvent>() {
             @Override
             public void handleEvent(FieldEvent event) {
-                ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_yearly());
+                //add default description
+                //((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_yearly());
                 getPanelYearly().setVisible(getYearlyRepeatRB().getValue());
                 getPanelWeekly().setVisible(!yearlyRepeatRB.getValue());
                 getPanelMonthly().setVisible(!yearlyRepeatRB.getValue());
                 getPanelDaily().setVisible(!yearlyRepeatRB.getValue());
-                
+
                 getYearlySameDateRB().show();
                 getYearlySameDayOfWeekRB().show();
                 getYearlySameDateRB().setValue(true);
@@ -249,10 +251,11 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         monthlyRepeatRB.addListener(Events.OnChange, new Listener<FieldEvent>() {
             @Override
             public void handleEvent(FieldEvent event) {
-                ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_monthly());
+                //add default description
+                //((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_monthly());
                 getPanelWeekly().setVisible(!monthlyRepeatRB.getValue());
                 getPanelYearly().setVisible(!monthlyRepeatRB.getValue());
-                getPanelDaily().setVisible(!monthlyRepeatRB.getValue());               
+                getPanelDaily().setVisible(!monthlyRepeatRB.getValue());
                 getPanelMonthly().setVisible(getMonthlyRepeatRB().getValue());
                 eventDateStartField.setAllowBlank(false);
                 getRadioMonthlySameDate().show();
@@ -268,12 +271,13 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         weeklyRepeatRB.addListener(Events.OnChange, new Listener<FieldEvent>() {
             @Override
             public void handleEvent(FieldEvent event) {
-                ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_weekly());
+                //add default description
+                //((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_weekly());
                 getPanelYearly().setVisible(!weeklyRepeatRB.getValue());
                 getPanelMonthly().setVisible(!weeklyRepeatRB.getValue());
-                getPanelDaily().setVisible(!weeklyRepeatRB.getValue());                
+                getPanelDaily().setVisible(!weeklyRepeatRB.getValue());
                 getPanelWeekly().setVisible(getWeeklyRepeatRB().getValue());
-             //   Window.alert("Test");
+                //   Window.alert("Test");
                 eventDateStartField.setAllowBlank(false);
             }
         });
@@ -287,11 +291,12 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         dailyRepeatRB.addListener(Events.OnChange, new Listener<FieldEvent>() {
             @Override
             public void handleEvent(FieldEvent event) {
-                ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_daily());
+                //add default description
+                //((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_daily());
                 getPanelYearly().setVisible(!dailyRepeatRB.getValue());
                 getPanelMonthly().setVisible(!dailyRepeatRB.getValue());
                 getPanelWeekly().setVisible(!dailyRepeatRB.getValue());
-                getPanelDaily().setVisible(getDailyRepeatRB().getValue());                
+                getPanelDaily().setVisible(getDailyRepeatRB().getValue());
             }
         });
     }
@@ -308,14 +313,13 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
                 getPanelYearly().setVisible(!onceRepeatRB.getValue());
                 getPanelMonthly().setVisible(!onceRepeatRB.getValue());
                 getPanelWeekly().setVisible(!onceRepeatRB.getValue());
-                getPanelDaily().setVisible(!onceRepeatRB.getValue());                
-                ((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_once());
+                getPanelDaily().setVisible(!onceRepeatRB.getValue());
+                //add default description
+                //((TextArea) form.getItemByItemId(Event.DESCRIPTION)).setValue(I18N.CONSTANTS.calendar_addEvent_description_textArea_once());
             }
         });
     }
-   
 
-    
     private void createDailyPanel() {
         panelDaily = new FieldSet();
         panelDaily.setExpanded(true);
@@ -323,48 +327,47 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         panelDaily.setHeadingHtml("Daily repetition details");
         panelDaily.setAutoHeight(true);
         panelDaily.setVisible(false);
-        
+
         radioDailyNumberOfRepetitions = Forms.radio("Number of repetitions");
         radioDailyNumberOfRepetitions.setName("Number of repetitonsYearly");
         radioDailyNumberOfRepetitions.setValue(Boolean.FALSE);
         radioDailyNumberOfRepetitions.setOriginalValue(Boolean.FALSE);
         radioDailyNumberOfRepetitions.setToolTip("Set a number of repetitons (Yearly)");
-        
+
         dailyNumberOfRepetitions = Forms.textarea("", false);
         dailyNumberOfRepetitions.setName("numberOfRepetitionsyearly");
         dailyNumberOfRepetitions.setId("numberOfRepetitionsyearly");
         dailyNumberOfRepetitions.setMaxLength(255);
         dailyNumberOfRepetitions.setHeight(19);
-        
+
         radioDailyRepetitionEndDate = Forms.radio("Repetition end date");
         radioDailyRepetitionEndDate.setBoxLabel("Repetition end date");
         radioDailyRepetitionEndDate.setName("Repetition end dateyearly");
         radioDailyRepetitionEndDate.setValue(Boolean.FALSE);
         radioDailyRepetitionEndDate.setToolTip("Set a repetition end date");
-  
+
         dailyRepetitionEndDate = Forms.date("", true);
-        dailyRepetitionEndDate.setName("RepetitionEndDateFieldyearly");      
+        dailyRepetitionEndDate.setName("RepetitionEndDateFieldyearly");
         dailyNumberOfRepetitions.disable();
         dailyRepetitionEndDate.disable();
-        
+
         radioDailyNumberOfRepetitions.addListener(Events.OnChange, new Listener<FieldEvent>() {
             @Override
             public void handleEvent(FieldEvent event) {
-        dailyNumberOfRepetitions.enable();
-        dailyRepetitionEndDate.disable();
+                dailyNumberOfRepetitions.enable();
+                dailyRepetitionEndDate.disable();
             }
-        });        
+        });
 
-        
         radioDailyRepetitionEndDate.addListener(Events.OnChange, new Listener<FieldEvent>() {
             @Override
             public void handleEvent(FieldEvent event) {
 
-        dailyRepetitionEndDate.enable();
-        dailyNumberOfRepetitions.disable();
+                dailyRepetitionEndDate.enable();
+                dailyNumberOfRepetitions.disable();
             }
-        }); 
-     
+        });
+
         RepeatDailyMultiEventPeriodRG = Forms.radioGroup("Multi-event periodRGyearly",
                 "Multi-event periodRGyearly",
                 Style.Orientation.VERTICAL,
@@ -372,7 +375,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
                 radioDailyRepetitionEndDate);
         RepeatDailyMultiEventPeriodRG.setSelectionRequired(Boolean.TRUE);
         RepeatDailyMultiEventPeriodRG.enable();
-           
+
         //panelMonthly.add(RepeatMultiEventPeriodRG);
         VerticalPanel verticalPanel = new VerticalPanel();
         verticalPanel.add(dailyNumberOfRepetitions);
@@ -380,10 +383,10 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         HorizontalPanel horizontalPanel = new HorizontalPanel();
         horizontalPanel.add(RepeatDailyMultiEventPeriodRG);
         horizontalPanel.add(verticalPanel);
-        
-        panelDaily.add(horizontalPanel);        
+
+        panelDaily.add(horizontalPanel);
     }
-    
+
     private void createWeeklyPanel() {
         panelWeekly = new FieldSet();
         panelWeekly.setExpanded(true);
@@ -391,48 +394,47 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         panelWeekly.setHeadingHtml("Weekly repetition details");
         panelWeekly.setAutoHeight(true);
         panelWeekly.setVisible(false);
-        
+
         radioWeeklyNumberOfRepetitions = Forms.radio("Number of repetitions");
         radioWeeklyNumberOfRepetitions.setName("Number of repetitonsYearly");
         radioWeeklyNumberOfRepetitions.setValue(Boolean.FALSE);
         radioWeeklyNumberOfRepetitions.setOriginalValue(Boolean.FALSE);
         radioWeeklyNumberOfRepetitions.setToolTip("Set a number of repetitons");
-        
+
         weeklyNumberOfRepetitions = Forms.textarea("", false);
         weeklyNumberOfRepetitions.setName("numberOfRepetitionsyearly");
         weeklyNumberOfRepetitions.setId("numberOfRepetitionsyearly");
         weeklyNumberOfRepetitions.setMaxLength(255);
         weeklyNumberOfRepetitions.setHeight(19);
-        
+
         radioWeeklyRepetitionEndDate = Forms.radio("Repetition end date");
         radioWeeklyRepetitionEndDate.setBoxLabel("Repetition end date");
         radioWeeklyRepetitionEndDate.setName("Repetition end dateyearly");
         radioWeeklyRepetitionEndDate.setValue(Boolean.FALSE);
         radioWeeklyRepetitionEndDate.setToolTip("Set a repetition end date");
-  
+
         weeklyRepetitionEndDate = Forms.date("", true);
-        weeklyRepetitionEndDate.setName("RepetitionEndDateFieldyearly");      
+        weeklyRepetitionEndDate.setName("RepetitionEndDateFieldyearly");
         weeklyNumberOfRepetitions.disable();
         weeklyRepetitionEndDate.disable();
-        
+
         radioWeeklyNumberOfRepetitions.addListener(Events.OnChange, new Listener<FieldEvent>() {
             @Override
             public void handleEvent(FieldEvent event) {
-        weeklyNumberOfRepetitions.enable();
-        weeklyRepetitionEndDate.disable();
+                weeklyNumberOfRepetitions.enable();
+                weeklyRepetitionEndDate.disable();
             }
-        });        
+        });
 
-        
         radioWeeklyRepetitionEndDate.addListener(Events.OnChange, new Listener<FieldEvent>() {
             @Override
             public void handleEvent(FieldEvent event) {
 
-        weeklyRepetitionEndDate.enable();
-        weeklyNumberOfRepetitions.disable();
+                weeklyRepetitionEndDate.enable();
+                weeklyNumberOfRepetitions.disable();
             }
-        }); 
-     
+        });
+
         RepeatWeeklyMultiEventPeriodRG = Forms.radioGroup("Multi-event periodRGyearly",
                 "Multi-event periodRGyearly",
                 Style.Orientation.VERTICAL,
@@ -440,7 +442,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
                 radioWeeklyRepetitionEndDate);
         RepeatWeeklyMultiEventPeriodRG.setSelectionRequired(Boolean.TRUE);
         RepeatWeeklyMultiEventPeriodRG.enable();
-           
+
         //panelMonthly.add(RepeatMultiEventPeriodRG);
         VerticalPanel verticalPanel = new VerticalPanel();
         verticalPanel.add(weeklyNumberOfRepetitions);
@@ -448,10 +450,10 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         HorizontalPanel horizontalPanel = new HorizontalPanel();
         horizontalPanel.add(RepeatWeeklyMultiEventPeriodRG);
         horizontalPanel.add(verticalPanel);
-        
+
         panelWeekly.add(horizontalPanel);
     }
-    
+
     private void createMonthlyPanel() {
         panelMonthly = new FieldSet();
         panelMonthly.setExpanded(true);
@@ -478,65 +480,59 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         montlyVariantRG.add(radioMonthlySameDayOfWeek);
         montlyVariantRG.add(radioMonthlySameDate);
         panelMonthly.add(montlyVariantRG);
-        
 
-        
         radioNumberOfRepetitions = Forms.radio("Number of repetitions");
         radioNumberOfRepetitions.setName("Number of repetitons");
         radioNumberOfRepetitions.setValue(Boolean.FALSE);
         radioNumberOfRepetitions.setOriginalValue(Boolean.FALSE);
         radioNumberOfRepetitions.setToolTip("Set a number of repetitions");
-        
+
         radioRepetitionEndDate = Forms.radio("Repetition end date");
         radioRepetitionEndDate.setBoxLabel("Repetition end date");
         radioRepetitionEndDate.setName("Repetition end date");
         radioRepetitionEndDate.setValue(Boolean.FALSE);
         radioRepetitionEndDate.setToolTip("Set a repetition end date");
-        
-        
+
         RepeatMultiEventPeriodRG = Forms.radioGroup("Multi-event periodRG");
         RepeatMultiEventPeriodRG.setSelectionRequired(Boolean.FALSE);
         RepeatMultiEventPeriodRG.setOrientation(Style.Orientation.VERTICAL);
         RepeatMultiEventPeriodRG.add(radioNumberOfRepetitions);
-        RepeatMultiEventPeriodRG.add(radioRepetitionEndDate);     
+        RepeatMultiEventPeriodRG.add(radioRepetitionEndDate);
         panelMonthly.add(RepeatMultiEventPeriodRG);
-        
+
         numberOfRepetitions = Forms.textarea("", false);
         numberOfRepetitions.setName("numberOfRepetitions");
         numberOfRepetitions.setId("numberOfRepetitions");
         numberOfRepetitions.setMaxLength(255);
         numberOfRepetitions.setHeight(19);
-  
+
         repetitionEndDate = Forms.date("", true);
-        repetitionEndDate.setName("RepetitionEndDateField");    
+        repetitionEndDate.setName("RepetitionEndDateField");
         repetitionEndDate.setData("", new Date());
-        
+
         radioNumberOfRepetitions.addListener(Events.OnChange, new Listener<FieldEvent>() {
             @Override
             public void handleEvent(FieldEvent event) {
-        numberOfRepetitions.enable();
-        repetitionEndDate.disable();
+                numberOfRepetitions.enable();
+                repetitionEndDate.disable();
             }
-        });        
+        });
 
-        
         radioRepetitionEndDate.addListener(Events.OnChange, new Listener<FieldEvent>() {
             @Override
             public void handleEvent(FieldEvent event) {
 
-        repetitionEndDate.enable();
-        numberOfRepetitions.disable();
+                repetitionEndDate.enable();
+                numberOfRepetitions.disable();
             }
-        }); 
+        });
 
-      /*  monthlyRepSettings = new FieldSet();
+        /*  monthlyRepSettings = new FieldSet();
         monthlyRepSettings.setExpanded(true);
         monthlyRepSettings.setBorders(true);
         monthlyRepSettings.setHeadingHtml("End of monthly repetition event");
         monthlyRepSettings.setAutoHeight(true);
         monthlyRepSettings.setVisible(true);*/
-           
-    
         VerticalPanel verticalPanel = new VerticalPanel();
         VerticalPanel verticalPanel1 = new VerticalPanel();
         VerticalPanel verticalPanel2 = new VerticalPanel();
@@ -545,7 +541,6 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         verticalPanel1.add(numberOfRepetitions);
         verticalPanel2.add(repetitionEndDate);
 
-        
         verticalPanel.add(verticalPanel1);
         verticalPanel.add(verticalPanel3);
         verticalPanel.add(verticalPanel2);
@@ -555,7 +550,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         horizontalPanel.add(verticalPanel);
         panelMonthly.add(new HTML("<hr />"));
         panelMonthly.add(horizontalPanel);
-       // verticalPanel1.setHeight(verticalPanel.getHeight()/2);
+        // verticalPanel1.setHeight(verticalPanel.getHeight()/2);
         //verticalPanel2.setHeight(verticalPanel.getHeight()/2); 
     }
 
@@ -575,56 +570,54 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
 
         yearlySameDateRB = Forms.radio(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_SameDateRB_label(), Boolean.FALSE);
         yearlySameDateRB.setName(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_SameDateRB_yearly_name());
-        yearlyVariantRG = Forms.radioGroup(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_radioGroup_yearly_settings(), 
+        yearlyVariantRG = Forms.radioGroup(I18N.CONSTANTS.calendar_addEvent_repeatsSettings_radioGroup_yearly_settings(),
                 I18N.CONSTANTS.calendar_addEvent_repeatsSettings_radioGroup_yearly_settings_name(),
                 Style.Orientation.HORIZONTAL,
                 yearlySameDayOfWeekRB,
                 yearlySameDateRB);
         yearlyVariantRG.setSelectionRequired(Boolean.FALSE);
         panelYearly.add(yearlyVariantRG);
-        
-        
+
         radioYearlyNumberOfRepetitions = Forms.radio("Number of repetitions");
         radioYearlyNumberOfRepetitions.setName("Number of repetitionsYearly");
         radioYearlyNumberOfRepetitions.setValue(Boolean.FALSE);
         radioYearlyNumberOfRepetitions.setOriginalValue(Boolean.FALSE);
         radioYearlyNumberOfRepetitions.setToolTip("Set a number of repetitons");
-        
+
         yearlyNumberOfRepetitions = Forms.textarea("", false);
         yearlyNumberOfRepetitions.setName("numberOfRepetitionsyearly");
         yearlyNumberOfRepetitions.setId("numberOfRepetitionsyearly");
         yearlyNumberOfRepetitions.setMaxLength(255);
         yearlyNumberOfRepetitions.setHeight(19);
-        
+
         radioYearlyRepetitionEndDate = Forms.radio("Repetition end date");
         radioYearlyRepetitionEndDate.setBoxLabel("Repetition end date");
         radioYearlyRepetitionEndDate.setName("Repetition end dateyearly");
         radioYearlyRepetitionEndDate.setValue(Boolean.FALSE);
         radioYearlyRepetitionEndDate.setToolTip("Set a repetition end date");
-  
+
         yearlyRepetitionEndDate = Forms.date("", true);
-        yearlyRepetitionEndDate.setName("RepetitionEndDateFieldyearly");      
+        yearlyRepetitionEndDate.setName("RepetitionEndDateFieldyearly");
         yearlyNumberOfRepetitions.disable();
         yearlyRepetitionEndDate.disable();
-        
+
         radioYearlyNumberOfRepetitions.addListener(Events.OnChange, new Listener<FieldEvent>() {
             @Override
             public void handleEvent(FieldEvent event) {
-        yearlyNumberOfRepetitions.enable();
-        yearlyRepetitionEndDate.disable();
+                yearlyNumberOfRepetitions.enable();
+                yearlyRepetitionEndDate.disable();
             }
-        });        
+        });
 
-        
         radioYearlyRepetitionEndDate.addListener(Events.OnChange, new Listener<FieldEvent>() {
             @Override
             public void handleEvent(FieldEvent event) {
 
-        yearlyRepetitionEndDate.enable();
-        yearlyNumberOfRepetitions.disable();
+                yearlyRepetitionEndDate.enable();
+                yearlyNumberOfRepetitions.disable();
             }
-        }); 
-     
+        });
+
         RepeatYearlyMultiEventPeriodRG = Forms.radioGroup("Multi-event periodRGyearly",
                 "Multi-event periodRGyearly",
                 Style.Orientation.VERTICAL,
@@ -632,11 +625,10 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
                 radioYearlyRepetitionEndDate);
         RepeatYearlyMultiEventPeriodRG.setSelectionRequired(Boolean.TRUE);
         RepeatYearlyMultiEventPeriodRG.enable();
-           
-   
+
         //panelMonthly.add(RepeatMultiEventPeriodRG);
         VerticalPanel verticalPanel = new VerticalPanel();
-        
+
         VerticalPanel verticalPanel1 = new VerticalPanel();
         VerticalPanel verticalPanel2 = new VerticalPanel();
         verticalPanel1.setHeight(23);
@@ -647,7 +639,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
         verticalPanel2.add(yearlyRepetitionEndDate);
         VerticalPanel verticalPanel3 = new VerticalPanel();
         verticalPanel3.setHeight(5);
-        
+
         verticalPanel.add(verticalPanel1);
         verticalPanel.add(verticalPanel3);
         verticalPanel.add(verticalPanel2);
@@ -751,7 +743,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     public FieldSet getYearlyRepSettings() {
         return yearlyRepSettings;
     }
-    
+
     @Override
     public FieldSet getPanelMonthly() {
         return panelMonthly;
@@ -760,12 +752,13 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     @Override
     public FieldSet getPanelWeekly() {
         return panelWeekly;
-    }  
-    
+    }
+
     @Override
     public FieldSet getPanelDaily() {
         return panelDaily;
-    }    
+    }
+
     /**
      *
      * @return
@@ -804,12 +797,12 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     public RadioGroup getRepeatMultiEventPeriodRG() {
         return RepeatMultiEventPeriodRG;
     }
-    
+
     @Override
     public RadioGroup getMontlyVariantRG() {
         return montlyVariantRG;
-    }  
-       
+    }
+
     @Override
     public Radio getYearlySameDayOfWeekRB() {
         return yearlySameDayOfWeekRB;
@@ -824,10 +817,12 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     public RadioGroup getRepeatEventPeriodRG() {
         return RepeatEventPeriodRG;
     }
+
     @Override
     public Radio getRadioMonthlySameDate() {
         return radioMonthlySameDate;
     }
+
     @Override
     public Radio getRadioMonthlySameDayOfWeek() {
         return radioMonthlySameDayOfWeek;
@@ -837,7 +832,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     public Radio getRadioNumberOfRepetitions() {
         return radioNumberOfRepetitions;
     }
-    
+
     @Override
     public Radio getRadioRepetitionEndDate() {
         return radioRepetitionEndDate;
@@ -847,7 +842,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     public Radio getYearlyRadioNumberOfRepetitions() {
         return radioYearlyNumberOfRepetitions;
     }
-    
+
     @Override
     public Radio getYearlyRadioRepetitionEndDate() {
         return radioYearlyRepetitionEndDate;
@@ -857,7 +852,7 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     public Radio getDailyRadioNumberOfRepetitions() {
         return radioDailyNumberOfRepetitions;
     }
-    
+
     @Override
     public Radio getDailyRadioRepetitionEndDate() {
         return radioDailyRepetitionEndDate;
@@ -867,48 +862,49 @@ public class CalendarEventView extends AbstractPopupView<PopupWidget> implements
     public Radio getWeeklyRadioNumberOfRepetitions() {
         return radioWeeklyNumberOfRepetitions;
     }
-    
+
     @Override
     public Radio getWeeklyRadioRepetitionEndDate() {
         return radioWeeklyRepetitionEndDate;
-    }    
+    }
+
     @Override
     public TextArea getNumberOfRepetitions() {
         return numberOfRepetitions;
     }
-    
+
     @Override
     public DateField getRepetitionEndDate() {
         return repetitionEndDate;
     }
-    
+
     @Override
     public TextArea getWeeklyNumberOfRepetitions() {
         return weeklyNumberOfRepetitions;
     }
-    
+
     @Override
     public DateField getWeeklyRepetitionEndDate() {
         return weeklyRepetitionEndDate;
     }
-     
+
     @Override
     public TextArea getDailyNumberOfRepetitions() {
         return dailyNumberOfRepetitions;
     }
-    
+
     @Override
     public DateField getDailyRepetitionEndDate() {
         return dailyRepetitionEndDate;
     }
-    
+
     @Override
     public TextArea getYearlyNumberOfRepetitions() {
         return yearlyNumberOfRepetitions;
     }
-    
+
     @Override
     public DateField getYearlyRepetitionEndDate() {
         return yearlyRepetitionEndDate;
-    }    
+    }
 }

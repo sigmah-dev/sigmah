@@ -169,6 +169,10 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                             final List<Event> oldFullDayEventList
                                     = event.getParent().getFullDayEvents().get(event.getKey());
                             oldFullDayEventList.remove(event);
+                        } else if (event.getEventType().contains("H")) {
+                            final List<Event> oldHourMultidayEventList
+                                    = event.getParent().getHourMultiDayEvents().get(event.getKey());
+                            oldHourMultidayEventList.remove(event);
                         } else {
                             final List<Event> oldEventList
                                     = event.getParent().getEvents().get(event.getKey());
@@ -219,6 +223,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 
                 final Map<Date, List<Event>> eventMap = event.getParent().getEvents();
                 final Map<Date, List<Event>> fullDayEventMap = event.getParent().getFullDayEvents();
+                final Map<Date, List<Event>> hourMultiDayEventMap = event.getParent().getHourMultiDayEvents();
 
                 int eventId = event.getIdentifier();
                 int eventRefId = 0;
@@ -229,6 +234,7 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                 if (typeStr != null) {
                     deleteEventFromEventMap(eventMap, eventRefId, parentId, eventId);
                     deleteEventFromEventMap(fullDayEventMap, eventRefId, parentId, eventId);
+                    deleteEventFromEventMap(hourMultiDayEventMap, eventRefId, parentId, eventId);
                 } else {
                     dispatch.execute(new Delete(PersonalEventDTO.ENTITY_NAME, eventId, parentId), new CommandResultHandler<VoidResult>() {
 
@@ -244,6 +250,10 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
                                 final List<Event> oldFullDayEventList
                                         = event.getParent().getFullDayEvents().get(event.getKey());
                                 oldFullDayEventList.remove(event);
+                            } else if (event.getEventType().contains("H")) {
+                                final List<Event> oldHourMultidayEventList
+                                        = event.getParent().getHourMultiDayEvents().get(event.getKey());
+                                oldHourMultidayEventList.remove(event);
                             } else {
                                 final List<Event> oldEventList
                                         = event.getParent().getEvents().get(event.getKey());
@@ -257,16 +267,20 @@ public class CalendarPresenter extends AbstractPresenter<CalendarPresenter.View>
 
             private void deleteEventFromEventMap(final Map<Date, List<Event>> theEventMap, int eventRefId, final Integer parentId, int eventId) {
                 for (final Date key : theEventMap.keySet()) {
-                    for (final Event nextFullDayEvent : theEventMap.get(key)) {
+                    for (final Event nextEvent : theEventMap.get(key)) {
                         if (eventRefId != 0) {
-                            if (nextFullDayEvent.getReferenceId().intValue() == eventRefId) {
-                                deleteChildEvent(nextFullDayEvent, parentId, theEventMap, key);
-                            }
+//                            if (nextEvent.getReferenceId().intValue() == eventRefId) {
+//                                deleteChildEvent(nextEvent, parentId, theEventMap, key);
+//                            }
+                            if ((nextEvent.getReferenceId() != null && (nextEvent.getReferenceId().intValue() == eventRefId))
+                                    || ((nextEvent.getReferenceId() == null) && (nextEvent.getIdentifier().intValue() == eventRefId)))  {
+                                deleteChildEvent(nextEvent, parentId, theEventMap, key);
+                            }        
                         } else {
-                            if (nextFullDayEvent.getReferenceId() != null && (nextFullDayEvent.getReferenceId().intValue() == eventId)) {
-                                deleteChildEvent(nextFullDayEvent, parentId, theEventMap, key);
-                            } else if (nextFullDayEvent.getReferenceId() == null && nextFullDayEvent.getIdentifier().intValue() == eventId) {
-                                deleteParentEvent(nextFullDayEvent, parentId, theEventMap, key, eventId);
+                            if (nextEvent.getReferenceId() != null && (nextEvent.getReferenceId().intValue() == eventId)) {
+                                deleteChildEvent(nextEvent, parentId, theEventMap, key);
+                            } else if (nextEvent.getReferenceId() == null && nextEvent.getIdentifier().intValue() == eventId) {
+                                deleteParentEvent(nextEvent, parentId, theEventMap, key, eventId);
                             }
                         }
                     }

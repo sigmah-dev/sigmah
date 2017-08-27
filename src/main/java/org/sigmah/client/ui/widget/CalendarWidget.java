@@ -493,7 +493,7 @@ public class CalendarWidget extends Composite {
             for (final Event event : eventMap.get(key)) {
                 Date normalizedKeyDate = new Date(key.getYear(), key.getMonth(), key.getDate());
                 if (!isSameDay(event.getDtstart(), event.getDtend())) {
-                 //   Window.alert("! isSameDay" + event.getSummary());
+                    //   Window.alert("! isSameDay" + event.getSummary());
                     // if (event.getDtstart() != event.getDtend()) {
                     //1   
                     int daysdiff = calculateEventDurationInDays(event);
@@ -542,7 +542,7 @@ public class CalendarWidget extends Composite {
                         ///////
                     }
                 } else {
-                  //  Window.alert("THE SameDay " + event.getSummary());
+                    //  Window.alert("THE SameDay " + event.getSummary());
                     if (!isSameDay(normalizedKeyDate, event.getDtstart())) {
                         normalizedKeyDate = new Date(event.getDtstart().getYear(), event.getDtstart().getMonth(), event.getDtstart().getDate());
                     }
@@ -708,9 +708,11 @@ public class CalendarWidget extends Composite {
 
                 if (displayMode.equals(displayMode.MONTH)) {
                     drawFullDayEvents(y, x, date);
+                    drawHourMultiDayEvents(y, x, date);
                     drawEvents(y, x, date, -1);
                 } else {
                     drawFullDayEventsForWeek(1, x, date, alreadyShownWeekViewEvents, theShiftVecorOfFullDayEvents);
+                    drawHourMultiDayEventsForWeek(1, x, date, alreadyShownWeekViewEvents, theShiftVecorOfFullDayEvents);
                     drawEvents(1, x, date, getLastFDPanelInCellCounter(theShiftVecorOfFullDayEvents, x));
                 }
                 date.setDate(date.getDate() + 1);
@@ -782,6 +784,7 @@ public class CalendarWidget extends Composite {
     private void drawEvents(int row, int column, final Date date, int startDrawPosition) {
         final FlexTable grid = (FlexTable) getWidget();
         int fullDayEventCounter = 0;
+        int hourMultiDayEventCounter = 0;
 
         final FlowPanel cell = (FlowPanel) grid.getWidget(row, column);
 
@@ -791,13 +794,15 @@ public class CalendarWidget extends Composite {
 
         // Displaying events
         TreeSet<Event> sortedHourEvents = createSortedEventsSet();
+        // Displaying multi day events       
+        TreeSet<Event> sortedHourMultiDayEvents = createSortedEventsSet();
         // Displaying full day events
         TreeSet<Event> sortedFullDayEvents = createSortedEventsSet();
 
         for (final Calendar calendar : calendars) {
             if (!(calendar.getIdentifier() instanceof ActivityCalendarIdentifier)) {
                 if (calendar.getEvents() != null) {
-                     //   && calendar.getEvents().size()>0) {
+                    //   && calendar.getEvents().size()>0) {
                     //SSS     final Map<Date, List<Event>> eventMap = normalize(calendar.getEvents());
                     //ss 
                     Map<Date, List<Event>> eventMap = normalizeHourEvents(calendar.getEvents());
@@ -809,31 +814,9 @@ public class CalendarWidget extends Composite {
                         sortedHourEvents.addAll(events);
                     }
                 }
-                if (calendar.getFullDayEvents() != null) {
-                    final Map<Date, List<Event>> fullDayEventMap = normalize(calendar.getFullDayEvents());
-                    for (Map.Entry<Date, List<Event>> entry : fullDayEventMap.entrySet()) {
-                        Date key = entry.getKey();
-                        List<Event> value = entry.getValue();
-                        for (Iterator<Event> iterator = value.iterator(); iterator.hasNext();) {
-                            Event next = iterator.next();
-                            Date theStartEventDate = next.getDtstart();
-                            Date theEndEventDate = next.getDtend();
-                            if (next.getEventType().contains("F")
-                                    && date.after(theStartEventDate) && date.before(theEndEventDate)
-                                    || date.equals(theStartEventDate)
-                                    || date.equals(theEndEventDate)) {
-                                fullDayEventCounter++;
-                            }
-                        }
-
-                    }
-                    final List<Event> fullDayEvents = fullDayEventMap.get(date);
-                    if (fullDayEvents != null) {
-                        sortedFullDayEvents.addAll(fullDayEvents);
-                    }
-                }
+                hourMultiDayEventCounter = getHourMulriDayEventCounter(calendar, date, hourMultiDayEventCounter, sortedHourMultiDayEvents);
+                fullDayEventCounter = getFullDayEventCounter(calendar, date, fullDayEventCounter, sortedFullDayEvents);
             }
-
         }
 
         final Iterator<Event> iterator = sortedHourEvents.iterator();
@@ -889,8 +872,8 @@ public class CalendarWidget extends Composite {
             }
             flowPanel.add(eventLabel);
             if (event.getEventType().contains("H")) {
-                  DOM.setStyleAttribute(flowPanel.getElement(), "background-color", "rgba(28,97,217)");
-              //  DOM.setStyleAttribute(flowPanel.getElement(), "background", "linear-gradient(-90deg, #1c61d9, #0000)");
+                DOM.setStyleAttribute(flowPanel.getElement(), "background-color", "rgba(28,97,217)");
+                //  DOM.setStyleAttribute(flowPanel.getElement(), "background", "linear-gradient(-90deg, #1c61d9, #0000)");
             }
             final DecoratedPopupPanel detailPopup = new DecoratedPopupPanel(true);
 
@@ -988,16 +971,16 @@ public class CalendarWidget extends Composite {
             cell.add(flowPanel);
         }
 
-        
         //	if (eventLimit != UNDEFINED && (fullDayEventCounter + sortedHourEvents.size()) > eventLimit) {
-        if (startDrawPosition == -1 && eventLimit != UNDEFINED && (fullDayEventCounter + sortedHourEvents.size()) > 1) {
+        if (startDrawPosition == -1 && eventLimit != UNDEFINED && (hourMultiDayEventCounter + fullDayEventCounter + sortedHourEvents.size()) > 1) {
             //final Anchor eventLabel = new Anchor("\u25BC +" + (sortedHourEvents.size()-eventLimit) + " st:" + fullDayEventCounter +" fd events");
-            final Anchor eventLabel = new Anchor("\u25BC " + (sortedHourEvents.size() + fullDayEventCounter) + " events");
+            final Anchor eventLabel = new Anchor("\u25BC " + (sortedHourEvents.size() + hourMultiDayEventCounter + fullDayEventCounter) + " events");
             // eventLabel.setTitle("Click to view all events of the day.");
             final Date thisDate = new Date(date.getTime());
             String theDateString = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_WEEKDAY_DAY).format(thisDate);
             eventLabel.setTitle(theDateString + "\nClick to view all events of the day:"
-                    + "\nShort time events: " + sortedHourEvents.size()
+                    + "\nOne day events: " + sortedHourEvents.size()
+                    + "\nMulti day events: " + hourMultiDayEventCounter
                     + "\nFull day events: " + fullDayEventCounter);
 
             eventLabel.addClickHandler(new ClickHandler() {
@@ -1031,13 +1014,82 @@ public class CalendarWidget extends Composite {
             int gridHeight = grid.getOffsetHeight();
             int weekdayRowHeight = grid.getRowFormatter()
                     .getElement(0).getOffsetHeight();
-            */
+             */
 //            Window.alert("chiled=" + chiled + " gridHeight =" + gridHeight
 //                    + " weekdayRowHeight =" + weekdayRowHeight
 //            );
-
             cell.add(eventLabel);
         }
+    }
+
+    private int getHourMulriDayEventCounter(final Calendar calendar, final Date date, int hourMultiDayEventCounter, TreeSet<Event> sortedHourMultiDayEvents) {
+        //hourMultiDayEventCounter
+        if (calendar.getHourMultiDayEvents() != null) {
+            final Map<Date, List<Event>> hourMultiDayEventMap = normalize(calendar.getHourMultiDayEvents());
+            for (Map.Entry<Date, List<Event>> entry : hourMultiDayEventMap.entrySet()) {
+                Date key = entry.getKey();
+                List<Event> value = entry.getValue();
+                for (Iterator<Event> iterator = value.iterator(); iterator.hasNext();) {
+                    Event next = iterator.next();
+//                            Date theStartEventDate = next.getDtstart();
+//                            Date theEndEventDate = next.getDtend();
+
+                    Date theStartEventDateWithTime = next.getDtstart();
+                    Date theEndEventDateWithTime = next.getDtend();
+
+                    Date theStartEventDate = new Date(date.getTime());
+                    Date theEndEventDate = new Date(date.getTime());
+
+                    theStartEventDate.setYear(theStartEventDateWithTime.getYear());
+                    theStartEventDate.setMonth(theStartEventDateWithTime.getMonth());
+                    theStartEventDate.setDate(theStartEventDateWithTime.getDate());
+
+                    theEndEventDate.setYear(theEndEventDateWithTime.getYear());
+                    theEndEventDate.setMonth(theEndEventDateWithTime.getMonth());
+                    theEndEventDate.setDate(theEndEventDateWithTime.getDate());
+//<----
+
+                    if (next.getEventType().contains("H")
+                            && date.after(theStartEventDate) && date.before(theEndEventDate)
+                            || date.equals(theStartEventDate)
+                            || date.equals(theEndEventDate)) {
+                        hourMultiDayEventCounter++;
+                    }
+                }
+            }
+            final List<Event> fullDayEvents = hourMultiDayEventMap.get(date);
+            if (fullDayEvents != null) {
+                sortedHourMultiDayEvents.addAll(fullDayEvents);
+            }
+        }
+        return hourMultiDayEventCounter;
+    }
+
+    private int getFullDayEventCounter(final Calendar calendar, final Date date, int fullDayEventCounter, TreeSet<Event> sortedFullDayEvents) {
+        if (calendar.getFullDayEvents() != null) {
+            final Map<Date, List<Event>> fullDayEventMap = normalize(calendar.getFullDayEvents());
+            for (Map.Entry<Date, List<Event>> entry : fullDayEventMap.entrySet()) {
+                Date key = entry.getKey();
+                List<Event> value = entry.getValue();
+                for (Iterator<Event> iterator = value.iterator(); iterator.hasNext();) {
+                    Event next = iterator.next();
+                    Date theStartEventDate = next.getDtstart();
+                    Date theEndEventDate = next.getDtend();
+                    if (next.getEventType().contains("F")
+                            && date.after(theStartEventDate) && date.before(theEndEventDate)
+                            || date.equals(theStartEventDate)
+                            || date.equals(theEndEventDate)) {
+                        fullDayEventCounter++;
+                    }
+                }
+
+            }
+            final List<Event> fullDayEvents = fullDayEventMap.get(date);
+            if (fullDayEvents != null) {
+                sortedFullDayEvents.addAll(fullDayEvents);
+            }
+        }
+        return fullDayEventCounter;
     }
 
     private static int calculateEventDurationInDays(final Event event) {
@@ -1165,14 +1217,76 @@ public class CalendarWidget extends Composite {
         }
     }
 
+    /**
+     * Display full day events with started <code>date</code>
+     *
+     * @param row
+     * @param column
+     * @param date
+     */
+    private void drawHourMultiDayEvents(int row, int column, final Date date) {
+
+        TreeSet<Event> sortedFullDayEvents = createSortedEventsSet();
+
+        for (final Calendar calendar : calendars) {
+            if (!(calendar.getIdentifier() instanceof ActivityCalendarIdentifier)
+                    && calendar.getFullDayEvents() != null) {
+                final Map<Date, List<Event>> fullDayEventMap = normalize(calendar.getHourMultiDayEvents());//EE
+                final List<Event> fullDayEvents = fullDayEventMap.get(date);
+                if (fullDayEvents != null) {
+                    sortedFullDayEvents.addAll(fullDayEvents);
+                }
+            }
+        }
+
+        final Iterator<Event> iterator = sortedFullDayEvents.iterator();
+
+        eventLimit = 1;//999
+        for (int i = 0; iterator.hasNext() && i < eventLimit; i++) {
+            final Event event = iterator.next();
+            final ClickableFlowPanel flowPanelFullDayFirst = createFullDayPanel(event);
+            final ClickableFlowPanel flowPanelFullDayContinue = createFullDayPanel(event);
+            final FlexTable grid = (FlexTable) getWidget();
+            int daysdiff = calculateEventDurationInDays(event);
+
+            //String theDateString = DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_WEEKDAY_DAY).format(thisDate);
+            flowPanelFullDayFirst.setTitle(createTitleForHourMultiDayEvent(daysdiff, event));//EE3
+            DOM.setStyleAttribute(flowPanelFullDayFirst.getElement(), "background-color", "rgba(28,97,217)");
+            DOM.setStyleAttribute(flowPanelFullDayFirst.getElement(), "background", "linear-gradient(-90deg, #1c61d9, #0000)");
+            if (column + daysdiff - 1 < 8) {
+                placeItemInGridMonth(flowPanelFullDayFirst, column, column + daysdiff, row, i);
+            } else {
+                placeItemInGridMonth(flowPanelFullDayFirst, column, 8, row, i);
+                if (row <= 5) {
+                    flowPanelFullDayContinue.setTitle(createTitleForHourMultiDayEvent(daysdiff, event));//EE2
+                    DOM.setStyleAttribute(flowPanelFullDayContinue.getElement(), "background-color", "rgba(28,97,217)");
+                    DOM.setStyleAttribute(flowPanelFullDayContinue.getElement(), "background", "linear-gradient(-90deg, #1c61d9, #0000)");
+                    placeItemInGridMonth(flowPanelFullDayContinue, 1, 1 + daysdiff - (8 - column), row + 1, i);
+                }
+            }
+        }
+    }
+
     private static String createTitleForFullDayEvent(int daysdiff, final Event event) {
         return "Event: " + event.getSummary()
-                + "\nDescr: " + event.getDescription()
+                + "\nDescr: " + (event.getDescription() != null ? event.getDescription() : "")
                 + "\nDuration: " + daysdiff + " full day" + (daysdiff > 1 ? "s." : ".")
                 + (event.getDtstart().equals(event.getDtend())
                 ? (DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_WEEKDAY_DAY).format(event.getDtstart()))
                 : ("\nFrom " + DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_WEEKDAY_DAY).format(event.getDtstart())
-                + " to " + DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_WEEKDAY_DAY).format(event.getDtend())));
+                + " To " + DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_WEEKDAY_DAY).format(event.getDtend())));
+    }
+
+    private static String createTitleForHourMultiDayEvent(int daysdiff, final Event event) {
+        return "Event: " + event.getSummary()
+                + "\nDescr: " + (event.getDescription() != null ? event.getDescription() : "")
+                + "\nDuration: " + daysdiff + " day" + (daysdiff > 1 ? "s." : ".")
+                + (event.getDtstart().equals(event.getDtend())
+                ? (DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_WEEKDAY_DAY).format(event.getDtstart()))
+                : ("\nFrom " + DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_WEEKDAY_DAY).format(event.getDtstart())
+                + " " + DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.HOUR24_MINUTE).format(event.getDtstart())
+                + " \nTo " + DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.YEAR_MONTH_WEEKDAY_DAY).format(event.getDtend())
+                + " " + DateTimeFormat.getFormat(DateTimeFormat.PredefinedFormat.HOUR24_MINUTE).format(event.getDtend())));
     }
 
     /**
@@ -1186,8 +1300,8 @@ public class CalendarWidget extends Composite {
         long millis = event.getDtend().getTime() - event.getDtstart().getTime();
         long minute = (millis / (1000 * 60)) % 60;
         long hour = (millis / (1000 * 60 * 60)) % 24;
-        return "Event: " + event.getSummary()
-                + "\nDescr: " + event.getDescription()
+        return "Hour Event: " + event.getSummary()
+                + "\nDescr: " + (event.getDescription() != null ? event.getDescription() : "")
                 + "\nDuration: from " + hourFormatter.format(event.getDtstart())
                 + " to " + hourFormatter.format(event.getDtend())
                 //               + " (" + duration + " hours" + (daysdiff > 0 ? " every day)" : ")")
@@ -1222,7 +1336,7 @@ public class CalendarWidget extends Composite {
         final InlineLabel dateLabel = new InlineLabel(eventDate.toString());
         dateLabel.addStyleName("calendar-event-date");
 
-        final InlineLabel eventLabel = new InlineLabel(event.getSummary());
+        final InlineLabel eventLabel = new InlineLabel(event.getEventType().contains("H") ? (hourFormatter.format(event.getDtstart()) + " " + event.getSummary()) : event.getSummary());
         //final InlineLabel eventLabel = new InlineLabel(event.getDtstart().getDate() + "; " + (event.getReferenceId()==null?event.getSummary():event.getSummary()) + "+>>");
         eventLabel.addStyleName("calendar-event-label");
 
@@ -1460,7 +1574,8 @@ public class CalendarWidget extends Composite {
             long startDTForWeekleView = 0;
             long diff = event.getDtend().getTime() - event.getDtstart().getTime();
             if (date.after(theStartEventDate)) {
-                diff = theStartEventDate.getTime() - event.getDtstart().getTime();
+                //diff = theStartEventDate.getTime() - event.getDtstart().getTime();
+                diff = event.getDtend().getTime() - date.getTime();
             }
 
             long diffDays = diff / (24 * 60 * 60 * 1000) + 1;
@@ -1487,6 +1602,175 @@ public class CalendarWidget extends Composite {
         }
 
     }
+
+    ///////////////
+    /**
+     * Display full day events with started <code>date</code>
+     *
+     * @param row
+     * @param column
+     * @param date
+     */
+    private void drawHourMultiDayEventsForWeek(int row, int column, final Date date,
+            List<Event> alreadyShownWeekViewEvents,
+            int[][] theShiftVecorOfFullDayEvents) {
+
+        int theLastFDPanelInCellCounter = getLastFDPanelInCellCounter(theShiftVecorOfFullDayEvents, column);
+        // Window.alert("START column = " + column + "; theLastFullRaw =" + theLastFDPanelInCellCounter);
+        TreeSet<Event> sortedFullDayEvents = createSortedEventsSet();
+        int eventCounter = 0;
+        int longFullDayEventShownCounter = 0;
+
+        for (final Calendar calendar : calendars) {
+            if (!(calendar.getIdentifier() instanceof ActivityCalendarIdentifier)) {
+                if (calendar.getFullDayEvents() != null) {
+                    //final Map<Date, List<Event>> fullDayEventMap = normalize(calendar.getHourMultiDayEvents());//EEE
+                    final Map<Date, List<Event>> fullDayEventMap = normalizeHourEvents(calendar.getHourMultiDayEvents());
+                    for (Map.Entry<Date, List<Event>> entry : fullDayEventMap.entrySet()) {
+                        Date key = entry.getKey();
+                        List<Event> value = entry.getValue();
+                        for (Iterator<Event> iterator = value.iterator(); iterator.hasNext();) {
+                            Event next = iterator.next();
+                            ///---->
+                            Date theStartEventDateWithTime = next.getDtstart();
+                            Date theEndEventDateWithTime = next.getDtend();
+
+                            Date theStartEventDate = new Date(date.getTime());
+                            Date theEndEventDate = new Date(date.getTime());
+
+                            theStartEventDate.setYear(theStartEventDateWithTime.getYear());
+                            theStartEventDate.setMonth(theStartEventDateWithTime.getMonth());
+                            theStartEventDate.setDate(theStartEventDateWithTime.getDate());
+
+                            theEndEventDate.setYear(theEndEventDateWithTime.getYear());
+                            theEndEventDate.setMonth(theEndEventDateWithTime.getMonth());
+                            theEndEventDate.setDate(theEndEventDateWithTime.getDate());
+                            //<----
+                            if (next.getEventType().contains("H")) {
+                                if (!alreadyShownWeekViewEvents.contains(next)) {
+//                                    Date theStartEventDate = next.getDtstart();
+//                                    Date theEndEventDate = next.getDtend();
+                                    if (date.after(theStartEventDate) && date.before(theEndEventDate)
+                                            || date.equals(theStartEventDate)
+                                            || date.equals(theEndEventDate)) {
+                                        // In between
+                                        eventCounter++;
+                                        sortedFullDayEvents.add(next);
+                                        alreadyShownWeekViewEvents.add(next);
+                                    }
+                                } else {
+//                                    Date theStartEventDate = next.getDtstart();
+//                                    Date theEndEventDate = next.getDtend();
+                                    if (date.after(theStartEventDate) && date.before(theEndEventDate)
+                                            || date.equals(theStartEventDate)
+                                            || date.equals(theEndEventDate)) {
+
+                                        longFullDayEventShownCounter++;
+//                                                sortedEvents.add(next);
+//                                                alreadyShownWeekViewEvents.add(next);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        final Iterator<Event> iterator = sortedFullDayEvents.iterator();
+
+        int eventLimit = 100;//999
+        int counterIvent = 0;
+        boolean foundRowToPlace = false;
+        int theRowToPlace = 0;
+        int last = theLastFDPanelInCellCounter;
+        for (int i = 0; iterator.hasNext() && i < eventLimit; i++) {
+            last = last + 1;
+            final Event event = iterator.next();
+
+            final ClickableFlowPanel fullDayFlowPanel = createFullDayPanel(event);
+            final FlexTable grid = (FlexTable) getWidget();
+            ///ssss1 grid.setWidget(row, column, flowPanelFullDayFirst);
+            //  RootPanel.get().add(flowPanelFullDayFirst);
+            // grid.add(flowPanelFullDayFirst);
+
+            Date theStartEventDate = event.getDtstart();
+            Date theEndEventDate = event.getDtend();
+
+            long startDTForWeekleView = 0;
+            Date newDateStart = new Date(date.getTime());//date.getTime()
+            Date newDateEnd = new Date(date.getTime());
+
+            newDateStart.setYear(theStartEventDate.getYear());
+            newDateStart.setMonth(theStartEventDate.getMonth());//+1
+            newDateStart.setDate(theStartEventDate.getDate());
+
+            newDateEnd.setYear(theEndEventDate.getYear());
+            newDateEnd.setMonth(theEndEventDate.getMonth());//+1
+            newDateEnd.setDate(theEndEventDate.getDate());
+
+            long diff = newDateEnd.getTime() - newDateStart.getTime();
+            //  Window.alert("! diff=" + diff);
+//            if (date.after(newDateStart)) {
+//               //-->> diff = newDateStart.getTime() - newDateEnd.getTime();
+//               diff = 8 - diff;
+//                Window.alert("date.after(newDateStart)  2 diff=" + diff);
+//            }
+
+
+            /*           
+            long diff = event.getDtend().getTime() - event.getDtstart().getTime();
+            if (date.after(theStartEventDate)) {
+                diff = theStartEventDate.getTime() - event.getDtstart().getTime();
+            }
+             */
+            if (date.after(newDateStart)) {
+                //-->> diff = newDateStart.getTime() - newDateEnd.getTime();
+                diff = newDateEnd.getTime() - date.getTime();
+                //Window.alert("date.after(newDateStart)");
+            }
+            long diffDays = diff / (24 * 60 * 60 * 1000) + 1;
+            int daysdiff = (int) diffDays;
+            //Window.alert("date.after(newDateStart)  2 daysdiff=" + daysdiff);
+
+            //  Window.alert("3 daysdiff=" + daysdiff);
+            //---->>     
+            //-->> daysdiff = calculateEventDurationInDays(event);
+            //Window.alert("@@@333 daysdiff=" + daysdiff + " column=" + column);
+
+            fullDayFlowPanel.setTitle(createTitleForHourMultiDayEvent(daysdiff, event));
+            //to show full day long event if it longer then 1 week
+            while (column + daysdiff - 1 >= 8) {
+                //  Window.alert("4 daysdiff=" + daysdiff);
+                daysdiff--;
+            }
+            //Window.alert("5 daysdiff=" + daysdiff);
+            if (column + daysdiff - 1 < 8) {
+                for (int day = column; day < column + daysdiff; day++) {
+                    theShiftVecorOfFullDayEvents[day][last] += 1;
+                }
+                longFullDayEventShownCounter = theRowToPlace;// + counterIvent;
+
+                int theLastFullDayLinePlace44 = getLastFDPanelInCellCounter(theShiftVecorOfFullDayEvents, column);
+                // Window.alert("6 column=" + column);
+                placeItemInGridWeek(fullDayFlowPanel, column, column + daysdiff, counterIvent, theLastFDPanelInCellCounter);
+
+            } else {
+                for (int day = 1; day < 1 + daysdiff - (8 - column); day++) {
+                    theShiftVecorOfFullDayEvents[day][last] += 1;
+                }
+                longFullDayEventShownCounter = theRowToPlace;// + counterIvent;
+
+                int theLastFullDayLinePlace44 = getLastFDPanelInCellCounter(theShiftVecorOfFullDayEvents, 1);
+                // Window.alert("6 column=" + column);
+                placeItemInGridWeek(fullDayFlowPanel, 1, 1 + daysdiff - (8 - column), counterIvent, theLastFDPanelInCellCounter);
+
+            }
+            counterIvent++;
+        }
+
+    }
+    ////////////
 
     private void placeItemInGridWeek(Widget panel, int colStart, int colEnd,
             int row, int cellPosition) {
@@ -1524,6 +1808,6 @@ public class CalendarWidget extends Composite {
         DOM.setStyleAttribute(panel.getElement(), "border-style", "solid");
         DOM.setStyleAttribute(panel.getElement(), "border-width", "1px");
         DOM.setStyleAttribute(panel.getElement(), "background-color", "rgba(28,97,217)");
-     //   DOM.setStyleAttribute(panel.getElement(), "background", "linear-gradient(-90deg, #0000, #1c61d9)");
+        //   DOM.setStyleAttribute(panel.getElement(), "background", "linear-gradient(-90deg, #0000, #1c61d9)");
     }
 }

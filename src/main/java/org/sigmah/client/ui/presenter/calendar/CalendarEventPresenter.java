@@ -481,7 +481,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 }
             }
         });
-       /* view.getEventStartTimeField().addListener(Events.Select, new Listener<DatePickerEvent>() {
+        /* view.getEventStartTimeField().addListener(Events.Select, new Listener<DatePickerEvent>() {
 
             @Override
             public void handleEvent(DatePickerEvent be) {
@@ -498,7 +498,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                     view.getEventStartTimeField().setValue(view.getEventEndTimeField().getValue());
                 }
             }
-        });*/ 
+        });*/
         if (view.getRepeatEventPeriodRG() != null) {
             view.getRepeatEventPeriodRG().clear();
             view.getRepeatEventPeriodRG().clearInvalid();
@@ -629,7 +629,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             }
         });
 
-    /*    view.getEventStartTimeField().addListener(Events.Select, new Listener<DatePickerEvent>() {
+        /*    view.getEventStartTimeField().addListener(Events.Select, new Listener<DatePickerEvent>() {
 
             @Override
             public void handleEvent(DatePickerEvent be) {
@@ -647,7 +647,6 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 }
             }
         });      */
-                
         view.getYearlyVariantRG().show();
         view.getMontlyVariantRG().show();
         view.getRepeatEventPeriodRG().show();
@@ -760,6 +759,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
 //                Window.alert("#4 not full day event.getEventType() = " + event.getEventType()
 //                        + " daysdiff=" + daysdiff);
                 if (event.getEventType() != null) {
+                    //Window.alert("111 event.getEventType()=" + event.getEventType() + " daysdiff=" + daysdiff);
                     if ("OF".equals(event.getEventType())) {
                         properties.put(Event.EVENT_TYPE, ("O" + (daysdiff > 1 ? "H" : "")));
                     } else if ("DF".equals(event.getEventType())) {
@@ -1079,8 +1079,9 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         if (view.getAllDayCheckbox().getValue()) {
             properties.put(Event.EVENT_TYPE, "WF");
         } else {
+            //Window.alert("W +daysInterval" + daysInterval);
             properties.put(Event.EVENT_TYPE, ("W" + (daysInterval > 1 ? "H" : "")));
-         }
+        }
         addPersonalEventWeekly(properties, weeksInterval, calBeginNextEventDateLong, calEndNextEventDateLong, daysInterval, startDate, endDate, eventSummary, eventDescription);
 
     }
@@ -1111,12 +1112,15 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
     }
 
     private void addDailySeriesEventNew2(Integer ids, int daysInterval, long calBeginNextEventDateLong, long calEndNextEventDateLong, long milisPerWeek, final Date startDate, final Date endDate, String eventSummary, String eventDescription) {
+        long milisPerDay = 86400000; //24 * 60 * 60 * 1000)
 
         for (int i = 1; i < daysInterval; i++) {
 
             calBeginNextEventDateLong += milisPerWeek;
             calEndNextEventDateLong += milisPerWeek;
 
+            long daysLength = ((calEndNextEventDateLong - calBeginNextEventDateLong) / milisPerDay) + 1;
+                        
             Map<String, Serializable> dailyProperties = new HashMap<String, Serializable>();
             dailyProperties.put(Event.CALENDAR_ID, calendarWrapper);
             dailyProperties.put(Event.SUMMARY, view.getEventSummaryField().getValue());
@@ -1135,7 +1139,8 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             if (view.getAllDayCheckbox().getValue()) {
                 dailyProperties.put(Event.EVENT_TYPE, "WF");
             } else {
-                dailyProperties.put(Event.EVENT_TYPE, ("W" + (daysInterval > 1 ? "H" : "")));
+                //Window.alert("W2 +daysLength" + daysLength);
+                dailyProperties.put(Event.EVENT_TYPE, ("W" + (daysLength > 1 ? "H" : "")));
             }
             dailyProperties.put(Event.REFERENCE_ID, ids);
 
@@ -1189,6 +1194,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         if (view.getAllDayCheckbox().getValue()) {
             properties.put(Event.EVENT_TYPE, "MF");
         } else {
+            //Window.alert("M +daysInterval" + daysInterval);
             properties.put(Event.EVENT_TYPE, ("M" + (daysInterval > 1 ? "H" : "")));
         }
         properties.put(Event.DATE_END, endEventIntervalDate);
@@ -1263,6 +1269,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             if (view.getAllDayCheckbox().getValue()) {
                 monthlyProperties.put(Event.EVENT_TYPE, "MF");
             } else {
+                //Window.alert("M2 +daysInterval" + daysInterval);
                 monthlyProperties.put(Event.EVENT_TYPE, ("M" + (daysInterval > 1 ? "H" : "")));
             }
 
@@ -1313,6 +1320,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         if (view.getAllDayCheckbox().getValue()) {
             properties.put(Event.EVENT_TYPE, "YF");
         } else {
+            //Window.alert("Y +daysInterval" + daysInterval);
             properties.put(Event.EVENT_TYPE, ("Y" + (daysInterval > 1 ? "H" : "")));
         }
         properties.put(Event.SUMMARY, (String) properties.get(Event.SUMMARY));// + " (Yearly event 1 of " + yearInterval + ")");
@@ -1365,6 +1373,7 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             if (view.getAllDayCheckbox().getValue()) {
                 yearlyProperties.put(Event.EVENT_TYPE, "YF");
             } else {
+                //Window.alert("Y2 +daysInterval" + daysInterval);
                 yearlyProperties.put(Event.EVENT_TYPE, ("Y" + (daysInterval > 1 ? "H" : "")));
             }
 
@@ -1441,6 +1450,10 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
                 if (oldFullDayEventList != null && oldFullDayEventList.contains(event)) {
                     oldFullDayEventList.remove(event);
                 }
+                final List<Event> oldHourMultidayEventList = calendar.getHourMultiDayEvents().get(event.getKey());
+                if (oldHourMultidayEventList != null && oldHourMultidayEventList.contains(event)) {
+                    oldHourMultidayEventList.remove(event);
+                }
                 updateEvent(event, properties);
             }
         }, view.getCancelButton(), view.getSaveButton());
@@ -1490,8 +1503,10 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
         final Calendar calendar = wrapper.getCalendar();
 
         event.setParent(calendar);
-//ak
-        if (calendar.getEvents() != null && !event.getEventType().contains("F")) {
+
+        if (calendar.getEvents() != null
+                && !event.getEventType().contains("F")
+                && !event.getEventType().contains("H")) {
             List<Event> events = calendar.getEvents().get(day);
             if (events == null) {
                 events = new ArrayList<Event>();
@@ -1499,9 +1514,21 @@ public class CalendarEventPresenter extends AbstractPagePresenter<CalendarEventP
             }
             events.add(event);
         }
-        if (calendar.getFullDayEvents() != null && (event.getEventType().contains("F")
-                || (event.getDtstart().getHours() == event.getDtend().getHours()
-                && event.getDtstart().getMinutes() == event.getDtend().getMinutes()))) {
+        if (calendar.getHourMultiDayEvents() != null
+                && event.getEventType().contains("H")) {
+            List<Event> hourMultiDayEvents = calendar.getHourMultiDayEvents().get(day);
+            if (hourMultiDayEvents == null) {
+                hourMultiDayEvents = new ArrayList<Event>();
+                calendar.getHourMultiDayEvents().put(day, hourMultiDayEvents);
+            }
+            hourMultiDayEvents.add(event);
+        }
+//        if (calendar.getFullDayEvents() != null && (event.getEventType().contains("F")
+//                && !event.getEventType().contains("H")
+//                || (event.getDtstart().getHours() == event.getDtend().getHours()
+//                && event.getDtstart().getMinutes() == event.getDtend().getMinutes()))) {
+        if (calendar.getFullDayEvents() != null
+                && event.getEventType().contains("F")) {
             List<Event> fullDayEvents = calendar.getFullDayEvents().get(day);
             if (fullDayEvents == null) {
                 fullDayEvents = new ArrayList<Event>();
