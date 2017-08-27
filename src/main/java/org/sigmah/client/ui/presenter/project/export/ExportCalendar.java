@@ -13,6 +13,7 @@ import org.sigmah.server.dao.PersonalEventDAO;
 import org.sigmah.server.domain.calendar.PersonalEvent;
 import com.google.inject.persist.PersistService;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import javax.servlet.ServletOutputStream;
@@ -90,7 +91,7 @@ public class ExportCalendar extends HttpServlet {
             if (paramEventTypeValue.equalsIgnoreCase("events")) {
 
                 try {
-                	
+
                     final ProjectDAO projectDAO = injector.getInstance(ProjectDAO.class);
                     final Project project = projectDAO.findById(new Integer(paramIdValue));
 
@@ -119,7 +120,8 @@ public class ExportCalendar extends HttpServlet {
         }
         LOGGER.info("Export Sigmah Calendar is finished.");
     }
-/*
+
+    /*
     private List<PersonalEvent> getEventListWithTypedQuery(final EntityManager em, final Project project) {
         //final EntityManager em = injector.getProvider(EntityManager.class).get();
         final TypedQuery<PersonalEvent> eventQuery
@@ -130,7 +132,7 @@ public class ExportCalendar extends HttpServlet {
         List<PersonalEvent> events = eventQuery.getResultList();
         return events;
     }
-*/
+     */
     private void generateOutputToExportICal(HttpServletResponse response, final String fileName, net.fortuna.ical4j.model.Calendar sigmahICalendar) throws ValidationException, IOException {
         response.setContentType("calendar/ical");
         response.setHeader("Content-disposition", "attachment; filename=" + fileName);
@@ -147,7 +149,8 @@ public class ExportCalendar extends HttpServlet {
             }
         }
     }
-/*
+
+    /*
     private void addNewPersonalEventToSigmahDB(final Project project, final Injector injector) {
         if (project != null) {
             int count =3;
@@ -195,7 +198,7 @@ public class ExportCalendar extends HttpServlet {
         cal.set(java.util.Calendar.DAY_OF_MONTH, 1);
         return cal;
     }    
-*/
+     */
     /**
      * @param personalEventList
      * @return
@@ -208,7 +211,7 @@ public class ExportCalendar extends HttpServlet {
         calendar.getProperties().add(CalScale.GREGORIAN);
         calendar.getProperties().add(new XProperty("X-WR-CALNAME", "Sigmah"));
         calendar.getProperties().add(new XProperty("X-PUBLISHED-TTL", "PT1M"));
-        
+
         calendar.getComponents().addAll(createICalEventsForExport(personalEventList));
         return calendar;
     }
@@ -241,51 +244,42 @@ public class ExportCalendar extends HttpServlet {
         // TODO Auto-generated method stub
     }
 
-
     /**
-    *
-    * @param request
-    * @return
-    */
-   public static String getClientIpAddr(HttpServletRequest request) {
-       String ip = request.getHeader("X-Forwarded-For");
-       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-           ip = request.getHeader("Proxy-Client-IP");
-       }
-       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-           ip = request.getHeader("WL-Proxy-Client-IP");
-       }
-       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-           ip = request.getHeader("HTTP_X_FORWARDED_FOR");
-       }
-       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-           ip = request.getHeader("HTTP_X_FORWARDED");
-       }
-       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-           ip = request.getHeader("HTTP_X_CLUSTER_CLIENT_IP");
-       }
-       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-           ip = request.getHeader("HTTP_CLIENT_IP");
-       }
-       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-           ip = request.getHeader("HTTP_FORWARDED_FOR");
-       }
-       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-           ip = request.getHeader("HTTP_FORWARDED");
-       }
-       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-           ip = request.getHeader("HTTP_VIA");
-       }
-       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-           ip = request.getHeader("REMOTE_ADDR");
-       }
-       if (ip == null || ip.length() == 0 || ip.equalsIgnoreCase("unknown")) {
-           ip = request.getRemoteAddr();
-       }
-       return ip;
-   }
+     * get remote client ip address from HttpServletRequest header
+     * @param request
+     * @return
+     */
+    public static String getClientIpAddr(HttpServletRequest request) {
+        List<String> headerList = Arrays.asList(
+                "X-Forwarded-For",
+                "Proxy-Client-IP",
+                "WL-Proxy-Client-IP",
+                "HTTP_X_FORWARDED_FOR",
+                "HTTP_X_FORWARDED",
+                "HTTP_X_CLUSTER_CLIENT_IP",
+                "HTTP_CLIENT_IP",
+                "HTTP_FORWARDED_FOR",
+                "HTTP_FORWARDED",
+                "HTTP_VIA",
+                "REMOTE_ADDR");
 
-   private String getUserAgent(HttpServletRequest request) {
-       return request.getHeader("user-agent");
-   }
+        String remoteClientIpAddress = null;
+        for (Iterator<String> iterator = headerList.iterator(); iterator.hasNext();) {
+            String theHeaderName = iterator.next();
+            remoteClientIpAddress = request.getHeader(theHeaderName);
+            if (remoteClientIpAddress != null
+                    && remoteClientIpAddress.length() > 0
+                    && !remoteClientIpAddress.equalsIgnoreCase("unknown")) {
+                return remoteClientIpAddress;
+            }
+        }
+        if (remoteClientIpAddress == null || remoteClientIpAddress.length() == 0 || remoteClientIpAddress.equalsIgnoreCase("unknown")) {
+            remoteClientIpAddress = request.getRemoteAddr();
+        }
+        return remoteClientIpAddress;
+    }
+
+    private String getUserAgent(HttpServletRequest request) {
+        return request.getHeader("user-agent");
+    }
 }
