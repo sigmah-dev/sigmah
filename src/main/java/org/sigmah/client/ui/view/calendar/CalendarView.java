@@ -142,9 +142,12 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
                     Grid<CalendarWrapper> grid) {
 
                 final Button shareLinkButton = Forms.button("", IconImageBundle.ICONS.shareLink());
-
+                
                 shareLinkButton.setPixelSize(5, 5);
                // String nextLine="<br />";
+               if(!getEventTypeName(model.getCalendar().getStyle()).equals("events")){
+               shareLinkButton.hide();
+               }
                 shareLinkButton.setTitle("Click here to get URL to share the " + getEventTypeName(model.getCalendar().getStyle())+".\nYou can copy the link and use it to import Sigmah calendar events to another calendar  supporting iCal format (f.e. Google calendar)");
                 shareLinkButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
