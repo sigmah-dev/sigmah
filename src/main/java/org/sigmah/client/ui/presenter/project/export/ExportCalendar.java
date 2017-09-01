@@ -41,6 +41,7 @@ import org.sigmah.server.inject.I18nServerModule;
 import org.sigmah.server.inject.MapperModule;
 import org.sigmah.server.inject.PersistenceModule;
 import org.sigmah.server.util.PersonnalEventLoader;
+import org.sigmah.shared.util.DesEncrypterImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -77,15 +78,22 @@ public class ExportCalendar extends HttpServlet {
      * response)
      */
     protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-
+        String END_ICS_NAME = ".ics";
         LOGGER.info("Export Sigmah Calendar is started by request from IP=" + getClientIpAddr(request));
         LOGGER.info("User-Agent=" + getUserAgent(request));
 
-        String paramIdName = "id";
-        String paramIdValue = request.getParameter(paramIdName);
+//        String paramIdName = "id";
+//        String paramIdValue = request.getParameter(paramIdName);
         String paramEventTypeName = "type";
         String paramEventTypeValue = request.getParameter(paramEventTypeName);
-
+        LOGGER.error("1 paramEventTypeValue = " + paramEventTypeValue);      
+        DesEncrypterImpl theDesEncrypter = new DesEncrypterImpl();
+        String values = theDesEncrypter.decrypt(paramEventTypeValue.substring(0,paramEventTypeValue.length()-END_ICS_NAME.length()));
+        LOGGER.error("2 values before = " + values);
+        paramEventTypeValue = values.substring(0, values.lastIndexOf("&id="));
+        LOGGER.error("3 values paramEventTypeValue = " + paramEventTypeValue);
+        String paramIdValue = values.substring(values.indexOf("&id=")+"&id=".length());
+        LOGGER.error("4 values paramIdValue= " + paramIdValue);
         if (paramIdValue != null
                 && paramEventTypeValue != null) {
             if (paramEventTypeValue.equalsIgnoreCase("events")) {
@@ -102,7 +110,7 @@ public class ExportCalendar extends HttpServlet {
                     session.enableFilter(EntityFilters.HIDE_DELETED);
 
                     List<PersonalEvent> personalEventList = personalEventDAO.findAll();
-                    String fileName = "Sigmah_" + project.getFullName() + "_calendar_" + paramEventTypeValue + ".ics";
+                    String fileName = "Sigmah_" + (project.getFullName()!=null? project.getFullName():project.getName()) + "_calendar_" + paramEventTypeValue + ".ics";
                     net.fortuna.ical4j.model.Calendar sigmahICalendar = createICalForExport(personalEventList);
 
                     generateOutputToExportICal(response, fileName, sigmahICalendar);
@@ -209,7 +217,10 @@ public class ExportCalendar extends HttpServlet {
         calendar.getProperties().add(new ProdId("-//Sigmah 2.2//iCal4j 2.0//EN"));
         calendar.getProperties().add(Version.VERSION_2_0);
         calendar.getProperties().add(CalScale.GREGORIAN);
-        calendar.getProperties().add(new XProperty("X-WR-CALNAME", "Sigmah"));
+//        calendar.getProperties().add(Method.PUBLISH);//Used to publish a calendar entry to one or more Calendar Users.
+//        Organizer organizer = new Organizer(URI.create("mailto:osarrat@urd.org"));
+//        calendar.getProperties().add(organizer);
+        calendar.getProperties().add(new XProperty("X-WR-CALNAME", "Sigmah(Olivier Sarrat)"));
         calendar.getProperties().add(new XProperty("X-PUBLISHED-TTL", "PT1M"));
 
         calendar.getComponents().addAll(createICalEventsForExport(personalEventList));

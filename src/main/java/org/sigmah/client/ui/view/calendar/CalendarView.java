@@ -50,10 +50,12 @@ import com.extjs.gxt.ui.client.widget.layout.BorderLayoutData;
 import com.extjs.gxt.ui.client.widget.selection.AbstractStoreSelectionModel;
 import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
+import com.google.gwt.core.client.GWT;
 import com.google.gwt.dom.client.Style.Unit;
 import com.google.gwt.i18n.client.LocaleInfo;
 import com.google.gwt.i18n.shared.DateTimeFormatInfo;
 import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.DecoratedPopupPanel;
 import com.google.gwt.user.client.ui.PopupPanel.PositionCallback;
 import com.google.gwt.user.client.ui.SimplePanel;
@@ -82,6 +84,8 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
 
     private Button reminderAddButton;
     private Button monitoredPointsAddButton;
+    private static DesEncrypterAsync theDesEncrypter;
+    private static final String END_ICS_NAME = ".ics";
 
     /**
      * {@inheritDoc}
@@ -135,6 +139,7 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
         });
 
         calendarButton.setStyle("");
+
         calendarButton.setRenderer(new GridCellRenderer<CalendarWrapper>() {
 
             @Override
@@ -142,33 +147,43 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
                     Grid<CalendarWrapper> grid) {
 
                 final Button shareLinkButton = Forms.button("", IconImageBundle.ICONS.shareLink());
-                
+
                 shareLinkButton.setPixelSize(5, 5);
-               // String nextLine="<br />";
-               if(!getEventTypeName(model.getCalendar().getStyle()).equals("events")){
-               shareLinkButton.hide();
-               }
-                shareLinkButton.setTitle("Click here to get URL to share the " + getEventTypeName(model.getCalendar().getStyle())+".\nYou can copy the link and use it to import Sigmah calendar events to another calendar  supporting iCal format (f.e. Google calendar)");
+
+                if (!getEventTypeName(model.getCalendar().getStyle()).equals("events")) {
+                    shareLinkButton.hide();
+                }
+                shareLinkButton.setTitle("Click here to get URL to share the " + getEventTypeName(model.getCalendar().getStyle()) + ".\nYou can copy the link and use it to import Sigmah calendar events to another calendar  supporting iCal format (f.e. Google calendar)");
                 shareLinkButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
 
                     @Override
                     public void componentSelected(final ButtonEvent ce) {
-                        String shareURL = createShareURL();
-                        final DecoratedPopupPanel detailPopup = new DecoratedPopupPanel(true);
-                        final com.google.gwt.user.client.ui.Grid popupContent = new com.google.gwt.user.client.ui.Grid(1, 1);
-                        popupContent.setText(0, 0, "URL: " + shareURL);
+                        final String shareURL = createVisibleURL();
+                        theDesEncrypter = GWT.create(DesEncrypter.class);
+                        String toEncShareURL = createParameterURL();
+                        theDesEncrypter.encrypt(toEncShareURL, new AsyncCallback() {
+                            public void onSuccess(Object result) {
+                                String encURL = (String) result;
 
-                        detailPopup.setWidth("200");
-                        detailPopup.setWidget(popupContent);
+                                final DecoratedPopupPanel detailPopup = new DecoratedPopupPanel(true);
+                                final com.google.gwt.user.client.ui.Grid popupContent = new com.google.gwt.user.client.ui.Grid(1, 1);
+                                popupContent.setText(0, 0, "URL: " + shareURL + encURL + END_ICS_NAME);
+                                detailPopup.setWidth("200");
+                                detailPopup.setWidget(popupContent);
 
-                        // Show the popup
-                        detailPopup.setPopupPositionAndShow(new PositionCallback() {
+                                detailPopup.setPopupPositionAndShow(new PositionCallback() {
 
-                            @Override
-                            public void setPosition(int offsetWidth, int offsetHeight) {
-                                detailPopup.getElement().getStyle().setPropertyPx("left", shareLinkButton.getAbsoluteLeft() + 20);
-                                detailPopup.getElement().getStyle().setPropertyPx("top", shareLinkButton.getAbsoluteTop() - 20);
-                                detailPopup.getElement().getStyle().setProperty("bottom", "");
+                                    @Override
+                                    public void setPosition(int offsetWidth, int offsetHeight) {
+                                        detailPopup.getElement().getStyle().setPropertyPx("left", shareLinkButton.getAbsoluteLeft() + 20);
+                                        detailPopup.getElement().getStyle().setPropertyPx("top", shareLinkButton.getAbsoluteTop() - 20);
+                                        detailPopup.getElement().getStyle().setProperty("bottom", "");
+                                    }
+                                });
+                            }
+
+                            public void onFailure(Throwable caught) {
+                                Window.alert("Error: " + caught.getMessage());
                             }
                         });
                     }
@@ -182,6 +197,23 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
                         shareURL += pathName + "ExportCalendar?type=";
                         shareURL += getEventTypeName(model.getCalendar().getStyle());
                         shareURL += projectId;
+                        return shareURL;
+                    }
+
+                    private String createParameterURL() {
+                        String currentPageHref = Window.Location.getHref();
+                        String projectId = currentPageHref.substring(currentPageHref.lastIndexOf("&id="), currentPageHref.length());
+                        String shareURL = getEventTypeName(model.getCalendar().getStyle());
+                        shareURL += projectId;
+                        return shareURL;
+                    }
+
+                    private String createVisibleURL() {
+                        String currentPageHref = Window.Location.getHref();
+                        String pathName = Window.Location.getPath();
+                        int posSigmah = currentPageHref.lastIndexOf(pathName);
+                        String shareURL = currentPageHref.substring(0, posSigmah);
+                        shareURL += pathName + "ExportCalendar?type=";
                         return shareURL;
                     }
                 });
@@ -207,7 +239,6 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
         return calendarsPanel;
     }
 
-    
     private String getEventTypeName(int eventType) {
         switch (eventType) {
             case 1:
@@ -222,13 +253,13 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
                 return "activities";
         }
     }
+
     /**
      * Creates the calendars main panel, place holder for the
      * {@link CalendarWidget}.
      *
      * @return The calendars main panel.
      */
-
     private Component createCalendarsMainPanel() {
 
         calendarView = Panels.content(I18N.CONSTANTS.loading(), "panel-background"); // Temporary title.

@@ -36,6 +36,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import com.google.inject.persist.PersistFilter;
+import org.sigmah.client.ui.view.calendar.DesEncrypter;
+import org.sigmah.shared.util.DesEncrypterImpl;
 
 /**
  * Module to serves the servlets.
@@ -77,5 +79,6 @@ public class ServletModule extends com.google.inject.servlet.ServletModule {
 		serve(ENDPOINT + Servlet.MANIFEST.getPathName()).with(ManifestServlet.class);
 		serve(ENDPOINT + Servlet.EXPORT.getPathName()).with(ExportServlet.class);
 		serve(ENDPOINT + Servlet.IMPORT.getPathName()).with(ImportServlet.class);
+                serve(ENDPOINT + DesEncrypter.REMOTE_SERVICE_RELATIVE_PATH_ENC).with(DesEncrypterImpl.class);
 	}
 }
