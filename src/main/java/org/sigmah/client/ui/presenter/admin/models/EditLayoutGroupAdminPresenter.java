@@ -225,9 +225,16 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		// --
 
 //		view.getDeleteButton().setVisible(flexibleElement != null);
-		
+
+		view.getHasIterationsField().enable();
+
 		if (flexibleElement != null) {
 			layoutGroup = flexibleElement.getGroup();
+
+			// if we're editing a group of a flexible element in maintenance we cannot change iterative status
+			if (currentModel.isUnderMaintenance()) {
+				view.getHasIterationsField().disable();
+			}
 
 			view.getNameField().setValue(layoutGroup.getTitle());
 			view.getContainerField().setValue(flexibleElement.getContainerModel());

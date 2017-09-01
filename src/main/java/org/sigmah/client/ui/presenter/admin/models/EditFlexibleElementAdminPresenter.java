@@ -435,16 +435,18 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 				view.getLayoutGroupField().disable();
 
 				if (selectedContainer != null) {
-					List<LayoutGroupDTO> groups = selectedContainer.getGroups();
-					if(flexibleElement != null && (flexibleElement.getElementType() == ElementTypeEnum.DEFAULT || flexibleElement.getElementType() == ElementTypeEnum.DEFAULT_CONTACT)) {
-						// iterative groups are not available for default fields
-						Iterator<LayoutGroupDTO> it = groups.iterator();
-						while(it.hasNext()) {
-							LayoutGroupDTO group = it.next();
-							if(group.getHasIterations()) {
-								it.remove();
+					List<LayoutGroupDTO> groups = new ArrayList<LayoutGroupDTO>();
+					// iterative groups are not available for default fields or when editing an element when model is under maintenance
+					for (LayoutGroupDTO layoutGroupDTO : selectedContainer.getGroups()) {
+						if(flexibleElement != null) {
+							if ((flexibleElement.getElementType() == ElementTypeEnum.DEFAULT
+								|| flexibleElement.getElementType() == ElementTypeEnum.DEFAULT_CONTACT
+								|| currentModel.isUnderMaintenance())
+								&& layoutGroupDTO.getHasIterations()) {
+								continue;
 							}
 						}
+						groups.add(layoutGroupDTO);
 					}
 					view.getLayoutGroupField().getStore().add(groups);
 					view.getLayoutGroupField().getStore().commitChanges();
@@ -724,6 +726,9 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		view.getCodeField().setValue("field" + otherElements.size());
 
+		view.getContainerField().enable();
+		view.getLayoutGroupField().setEnabled(view.getContainerField().getValue() != null);
+
 		if (flexibleElement != null) {
 
 			// --
@@ -740,11 +745,46 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			view.getBannerField().setValue(bannerConstraint != null); // Updates the bannerPosition field.
 			view.getBannerPositionField().setSimpleValue(bannerConstraint != null ? bannerConstraint.getSortOrder() : null);
 
+			final LayoutDTO selectedContainer = EditLayoutGroupAdminPresenter.getLayout(flexibleElement.getContainerModel());
+
+			view.getLayoutGroupField().getStore().removeAll();
+			view.getLayoutGroupField().disable();
+
+			if (selectedContainer != null) {
+				List<LayoutGroupDTO> groups = new ArrayList<LayoutGroupDTO>();
+				// iterative groups are not available for default fields or when editing an element when model is under maintenance
+				for (LayoutGroupDTO layoutGroupDTO : selectedContainer.getGroups()) {
+					if(flexibleElement != null) {
+						if ((flexibleElement.getElementType() == ElementTypeEnum.DEFAULT
+								|| flexibleElement.getElementType() == ElementTypeEnum.DEFAULT_CONTACT
+								|| currentModel.isUnderMaintenance())
+								&& layoutGroupDTO.getHasIterations()) {
+							continue;
+						}
+					}
+					groups.add(layoutGroupDTO);
+				}
+				view.getLayoutGroupField().getStore().add(groups);
+				view.getLayoutGroupField().getStore().commitChanges();
+			}
+
 			// Layout constraint.
 			final LayoutConstraintDTO constraint = flexibleElement.getConstraint();
 			view.getContainerField().setValue(flexibleElement.getContainerModel());
-			view.getLayoutGroupField().setValue(constraint != null ? constraint.getParentLayoutGroup() : null);
-			view.getOrderField().setValue(constraint != null ? constraint.getSortOrder() : null);
+			view.getContainerField().enable();
+			view.getLayoutGroupField().enable();
+
+			if (constraint != null) {
+				if (constraint.getParentLayoutGroup().getHasIterations() && currentModel.isUnderMaintenance()) {
+					view.getContainerField().disable();
+					view.getLayoutGroupField().disable();
+				}
+				view.getLayoutGroupField().setValue(constraint.getParentLayoutGroup());
+				view.getOrderField().setValue(constraint.getSortOrder());
+			} else {
+				view.getLayoutGroupField().setValue(null);
+				view.getOrderField().setValue(null);
+			}
 
 			if (currentModel.getModelType().canHaveMandatoryFields()) {
 				view.getMandatoryField().setValue(flexibleElement.getValidates());
