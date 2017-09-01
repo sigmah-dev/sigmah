@@ -15,6 +15,12 @@ rem Prompt user to give database name to dump
 set /p database="Sigmah instance unique Database & Files dir name? "
 rem set database=sigmah_2.2-demo3
 
+rem Warn user that this backup process is modifying temporary the database, and ask for confirmation
+echo !Warning: since v2.2, this backup process requires to temporary remove database constraints for backuping.
+echo Using this script on a running production database is not advised.
+echo If you want to quit this script, type Ctrl+C.
+pause
+
 rem Add check constraints defer/restore functions
 call "%postgresbindir%\psql.exe"  --host localhost --port %postgresport% --username "%postgresusername%" --dbname %database% -f %sqlscriptsdir%\Sigmah_DeferCheckConstraints.sql
 
