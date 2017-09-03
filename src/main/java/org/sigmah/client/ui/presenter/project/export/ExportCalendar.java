@@ -12,6 +12,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.sigmah.server.dao.PersonalEventDAO;
 import org.sigmah.server.domain.calendar.PersonalEvent;
 import com.google.inject.persist.PersistService;
+import java.net.URI;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Iterator;
@@ -25,6 +26,8 @@ import net.fortuna.ical4j.model.property.Created;
 import net.fortuna.ical4j.model.property.Description;
 import net.fortuna.ical4j.model.property.DtEnd;
 import net.fortuna.ical4j.model.property.DtStart;
+import net.fortuna.ical4j.model.property.Method;
+import net.fortuna.ical4j.model.property.Organizer;
 import net.fortuna.ical4j.model.property.ProdId;
 import net.fortuna.ical4j.model.property.Summary;
 import net.fortuna.ical4j.model.property.Transp;
@@ -86,13 +89,13 @@ public class ExportCalendar extends HttpServlet {
 //        String paramIdValue = request.getParameter(paramIdName);
         String paramEventTypeName = "type";
         String paramEventTypeValue = request.getParameter(paramEventTypeName);
-        LOGGER.error("1 paramEventTypeValue = " + paramEventTypeValue);      
+        LOGGER.error("1 paramEventTypeValue = " + paramEventTypeValue);
         DesEncrypterImpl theDesEncrypter = new DesEncrypterImpl();
-        String values = theDesEncrypter.decrypt(paramEventTypeValue.substring(0,paramEventTypeValue.length()-END_ICS_NAME.length()));
+        String values = theDesEncrypter.decrypt(paramEventTypeValue.substring(0, paramEventTypeValue.length() - END_ICS_NAME.length()));
         LOGGER.error("2 values before = " + values);
         paramEventTypeValue = values.substring(0, values.lastIndexOf("&id="));
         LOGGER.error("3 values paramEventTypeValue = " + paramEventTypeValue);
-        String paramIdValue = values.substring(values.indexOf("&id=")+"&id=".length());
+        String paramIdValue = values.substring(values.indexOf("&id=") + "&id=".length());
         LOGGER.error("4 values paramIdValue= " + paramIdValue);
         if (paramIdValue != null
                 && paramEventTypeValue != null) {
@@ -110,7 +113,7 @@ public class ExportCalendar extends HttpServlet {
                     session.enableFilter(EntityFilters.HIDE_DELETED);
 
                     List<PersonalEvent> personalEventList = personalEventDAO.findAll();
-                    String fileName = "Sigmah_" + (project.getFullName()!=null? project.getFullName():project.getName()) + "_calendar_" + paramEventTypeValue + ".ics";
+                    String fileName = "Sigmah_" + (project.getFullName() != null ? project.getFullName() : project.getName()) + "_calendar_" + paramEventTypeValue + ".ics";
                     net.fortuna.ical4j.model.Calendar sigmahICalendar = createICalForExport(personalEventList);
 
                     generateOutputToExportICal(response, fileName, sigmahICalendar);
@@ -213,23 +216,23 @@ public class ExportCalendar extends HttpServlet {
      */
     private net.fortuna.ical4j.model.Calendar createICalForExport(
             List<PersonalEvent> personalEventList) {
+
         net.fortuna.ical4j.model.Calendar calendar = new net.fortuna.ical4j.model.Calendar();
         calendar.getProperties().add(new ProdId("-//Sigmah 2.2//iCal4j 2.0//EN"));
         calendar.getProperties().add(Version.VERSION_2_0);
         calendar.getProperties().add(CalScale.GREGORIAN);
-//        calendar.getProperties().add(Method.PUBLISH);//Used to publish a calendar entry to one or more Calendar Users.
-//        Organizer organizer = new Organizer(URI.create("mailto:osarrat@urd.org"));
-//        calendar.getProperties().add(organizer);
+
         calendar.getProperties().add(new XProperty("X-WR-CALNAME", "Sigmah(Olivier Sarrat)"));
         calendar.getProperties().add(new XProperty("X-PUBLISHED-TTL", "PT1M"));
-
+        calendar.getProperties().add(Method.PUBLISH);//Used to publish a calendar entry to one or more Calendar Users.   
         calendar.getComponents().addAll(createICalEventsForExport(personalEventList));
         return calendar;
     }
 
     private List<VEvent> createICalEventsForExport(List<PersonalEvent> personalEventList) {
         List<VEvent> iCalEventList = new ArrayList<VEvent>();
-
+//        TimeZoneRegistry registry = TimeZoneRegistryFactory.getInstance().createRegistry();
+//        TimeZone timezone = registry.getTimeZone("Australia/Melbourne"); 
         for (Iterator<PersonalEvent> iterator = personalEventList.iterator(); iterator.hasNext();) {
             PersonalEvent nextPersonalEvent = iterator.next();
 
@@ -237,10 +240,22 @@ public class ExportCalendar extends HttpServlet {
             iCalEvent.getProperties().add(new Uid(nextPersonalEvent.getId().toString()));
             iCalEvent.getProperties().add(new Summary(nextPersonalEvent.getSummary()));
             iCalEvent.getProperties().add(new Description(nextPersonalEvent.getDescription()));
-            iCalEvent.getProperties().add(new DtStart(new DateTime(nextPersonalEvent.getStartDate().getTime())));
-            iCalEvent.getProperties().add(new DtEnd(new DateTime(nextPersonalEvent.getEndDate().getTime())));
+            DtStart theDtStart = new DtStart(new DateTime(nextPersonalEvent.getStartDate().getTime()));
+            //theDtStart.setTimeZone(timezone);
+            theDtStart.setUtc(true);
+            iCalEvent.getProperties().add(theDtStart);
+            DtEnd theDtEnd = new DtEnd(new DateTime(nextPersonalEvent.getEndDate().getTime()));
+            theDtEnd.setUtc(true);
+            iCalEvent.getProperties().add(theDtEnd);
             iCalEvent.getProperties().add(new Created(new DateTime(nextPersonalEvent.getDateCreated())));
             iCalEvent.getProperties().add(new Transp("OPAQUE"));
+            //https://sourceforge.net/p/ical4j/discussion/368291/thread/8f211c12/
+//      According to the iTIP spec the ORGANIZER property is required when you have METHOD:PUBLISH:
+//      http://tools.ietf.org/html/rfc5546#section-3.3.1
+//      However you can bypass this by enabling the relaxed validation flag. Just add the following to your ical4j.properties file in the classpath root:
+//      ical4j.validation.relaxed=true
+            Organizer organizer = new Organizer(URI.create("mailto:osarrat@urd.org"));
+            iCalEvent.getProperties().add(organizer);
 
             iCalEventList.add(iCalEvent);
         }
@@ -257,6 +272,7 @@ public class ExportCalendar extends HttpServlet {
 
     /**
      * get remote client ip address from HttpServletRequest header
+     *
      * @param request
      * @return
      */

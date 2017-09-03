@@ -86,6 +86,7 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
     private Button monitoredPointsAddButton;
     private static DesEncrypterAsync theDesEncrypter;
     private static final String END_ICS_NAME = ".ics";
+    private static final String SERVLET_URL_PREFIX = "ExportCalendar?type=";
 
     /**
      * {@inheritDoc}
@@ -132,7 +133,6 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
                 panel.setPixelSize(14, 14);
                 //SquaresColor
                 panel.getElement().getStyle().setMarginTop(3, Unit.PX);
-
                 panel.setStyleName("calendar-fullday-event-" + model.getCalendar().getStyle());
                 return panel;
             }
@@ -158,6 +158,10 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
 
                     @Override
                     public void componentSelected(final ButtonEvent ce) {
+                        createShareUrlPopUp();
+                    }
+
+                    private void createShareUrlPopUp() {
                         final String shareURL = createVisibleURL();
                         theDesEncrypter = GWT.create(DesEncrypter.class);
                         String toEncShareURL = createParameterURL();
@@ -194,7 +198,7 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
                         String projectId = currentPageHref.substring(currentPageHref.lastIndexOf("&id="), currentPageHref.length());
                         int posSigmah = currentPageHref.lastIndexOf(pathName);
                         String shareURL = currentPageHref.substring(0, posSigmah);
-                        shareURL += pathName + "ExportCalendar?type=";
+                        shareURL += pathName + SERVLET_URL_PREFIX;
                         shareURL += getEventTypeName(model.getCalendar().getStyle());
                         shareURL += projectId;
                         return shareURL;
@@ -213,7 +217,7 @@ public class CalendarView extends AbstractView implements CalendarPresenter.View
                         String pathName = Window.Location.getPath();
                         int posSigmah = currentPageHref.lastIndexOf(pathName);
                         String shareURL = currentPageHref.substring(0, posSigmah);
-                        shareURL += pathName + "ExportCalendar?type=";
+                        shareURL += pathName + SERVLET_URL_PREFIX;
                         return shareURL;
                     }
                 });

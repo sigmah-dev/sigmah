@@ -20,16 +20,16 @@ import javax.crypto.spec.PBEParameterSpec;
 @Singleton
 public class DesEncrypterImpl extends RemoteServiceServlet implements org.sigmah.client.ui.view.calendar.DesEncrypter {
 
-    Cipher ecipher;
-    Cipher dcipher;
+    private Cipher ecipher;
+    private Cipher dcipher;
 
-    byte[] salt = {
+    private byte[] salt = {
         (byte) 0xA9, (byte) 0x9B, (byte) 0xC8, (byte) 0x32,
         (byte) 0x56, (byte) 0x35, (byte) 0xE3, (byte) 0x03
     };
 
-    int iterationCount = 3;
-    String passPhrase = "e4ZqtzVDhs=x-eT";
+    private int iterationCount = 3;
+    private String passPhrase = "e4ZqtzVDhs=x-eT";
 
     public DesEncrypterImpl() {
 
