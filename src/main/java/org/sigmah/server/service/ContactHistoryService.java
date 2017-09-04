@@ -120,6 +120,11 @@ public class ContactHistoryService {
     for (LayoutGroup layoutGroup : contact.getContactModel().getDetails().getLayout().getGroups()) {
       Map<Integer, FlexibleElement> flexibleElementMap = new HashMap<Integer, FlexibleElement>();
       List<Integer> flexibleElementIds = new ArrayList<Integer>();
+      List<LayoutConstraint> layoutConstraints = layoutGroup.getConstraints();
+      // if there is no constraint, it means there is no element, so no history
+      if (layoutConstraints.isEmpty()) {
+        return Collections.emptyList();
+      }
       for (LayoutConstraint layoutConstraint : layoutGroup.getConstraints()) {
         FlexibleElement flexibleElement = layoutConstraint.getElement();
         flexibleElementIds.add(flexibleElement.getId());

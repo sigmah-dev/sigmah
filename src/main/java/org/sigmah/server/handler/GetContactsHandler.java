@@ -24,6 +24,7 @@ package org.sigmah.server.handler;
 import com.google.inject.Inject;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -67,6 +68,11 @@ public class GetContactsHandler extends AbstractCommandHandler<GetContacts, List
       if (!contact.isDeleted()) {
         contactIds.add(contact.getId());
       }
+    }
+
+    // if there is no available contact, no need to go further
+    if (contactIds.isEmpty()) {
+      return new ListResult<ContactDTO>(Collections.<ContactDTO>emptyList());
     }
 
     // Explicitly secondary OrgUnit (to avoid a query for each contact)

@@ -247,6 +247,10 @@ public class UsersAdminPresenter extends AbstractAdminPresenter<UsersAdminPresen
 				dispatch.execute(new GetContacts(ContactModelType.INDIVIDUAL, true, true), new CommandResultHandler<ListResult<ContactDTO>>() {
 					@Override
 					protected void onCommandSuccess(ListResult<ContactDTO> result) {
+						if (result.isEmpty()) {
+							N10N.warn(I18N.CONSTANTS.adminContactNoContactFound());
+							return;
+						}
 						view.buildAddUserByEmailWindow(result.getList(), new AddUserByEmailHandler() {
 							@Override
 							public void handleSubmit(ContactDTO contactDTO) {

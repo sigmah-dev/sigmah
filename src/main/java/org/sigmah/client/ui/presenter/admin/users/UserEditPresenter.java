@@ -369,7 +369,7 @@ public class UserEditPresenter extends AbstractPagePresenter<UserEditPresenter.V
 
 				// Let's find the default contact
 				for (ContactDTO contactDTO : result.getList()) {
-					if (userContact != null) {
+					if (userContact != null && userContact.getParent() != null) {
 						// Let's find the user contact
 						if (contactDTO.getId().equals(userContact.getParent().getId())) {
 							view.getContactOrganizationField().setValue(contactDTO);
