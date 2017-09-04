@@ -95,6 +95,16 @@ public class ValueHibernateDAO extends AbstractDAO<Value, Integer> implements Va
 	}
 
 	@Override
+	public List<Value> findValuesByFlexibleElementId(Integer flexibleElementId) {
+		return em().createQuery("" +
+				"SELECT v " +
+				"FROM Value v " +
+				"WHERE v.element.id = :flexibleElementId", Value.class)
+				.setParameter("flexibleElementId", flexibleElementId)
+				.getResultList();
+	}
+
+	@Override
 	@SuppressWarnings("unchecked")
 	public List<Value> findValuesByIdInSerializedValue(Integer id) {
 		return em().createNativeQuery("" +

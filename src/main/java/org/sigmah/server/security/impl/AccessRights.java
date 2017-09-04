@@ -165,6 +165,7 @@ final class AccessRights {
 		sperm(commandToken(GetContactModelCopy.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetContactModels.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetContactRelationships.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
+		sperm(commandToken(GetContactRelationshipsInFramework.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
 		sperm(commandToken(GetCountries.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetCountry.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(GetFilesFromFavoriteProjects.class), GrantType.AUTHENTICATED_ONLY);

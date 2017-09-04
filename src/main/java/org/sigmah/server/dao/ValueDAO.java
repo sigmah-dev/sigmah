@@ -52,6 +52,8 @@ public interface ValueDAO extends DAO<Value, Integer> {
 
 	List<Integer> findContainerIdByElementAndValue(Integer elementId, String value);
 
+	List<Value> findValuesByFlexibleElementId(Integer flexibleElementId);
+
 	/**
 	 * Find values with a value equals to or containing the given id.
 	 * <p>

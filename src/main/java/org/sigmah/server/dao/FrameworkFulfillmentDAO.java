@@ -30,4 +30,6 @@ import org.sigmah.server.domain.FrameworkFulfillment;
 
 public interface FrameworkFulfillmentDAO extends DAO<FrameworkFulfillment, Integer> {
 	List<FrameworkFulfillment> findByProjectModelId(Integer projectModelId);
+
+	List<FrameworkFulfillment> findByFrameworkId(Integer frameworkId);
 }

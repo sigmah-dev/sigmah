@@ -37,7 +37,9 @@ import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
 import org.sigmah.server.servlet.exporter.data.cells.ExportLinkCell;
 import org.sigmah.server.servlet.exporter.data.cells.ExportStringCell;
 import org.sigmah.shared.Language;
+import org.sigmah.shared.command.GetAvailableFrameworks;
 import org.sigmah.shared.command.GetContactRelationships;
+import org.sigmah.shared.command.GetContactRelationshipsInFramework;
 import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.GetLayoutGroupIterations;
 import org.sigmah.shared.command.GetProject;
@@ -46,6 +48,9 @@ import org.sigmah.shared.command.result.ContactRelationship;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dto.ContactDTO;
+import org.sigmah.shared.dto.FrameworkDTO;
+import org.sigmah.shared.dto.FrameworkElementDTO;
+import org.sigmah.shared.dto.FrameworkHierarchyDTO;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.element.ContactListElementDTO;
 import org.sigmah.shared.dto.element.DefaultContactFlexibleElementDTO;
@@ -57,6 +62,7 @@ import org.sigmah.shared.dto.layout.LayoutConstraintDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 import org.sigmah.shared.dto.layout.LayoutGroupIterationDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
+import org.sigmah.shared.dto.referential.ElementTypeEnum;
 import org.sigmah.shared.dto.referential.TextAreaType;
 import org.sigmah.shared.dto.value.ListableValue;
 import org.sigmah.shared.dto.value.TripletValueDTO;
@@ -320,11 +326,56 @@ public class ContactsSynthesisUtils {
 	}
 
 	public static List<ContactSheetData> createFrameworkRelationsData(final Integer contactId, final Exporter exporter,
-																												final I18nServer i18nTranslator, final Language language) throws Throwable {
+																											            	final I18nServer i18nTranslator, final Language language) throws Throwable {
 
-		// TODO : export relationships linked to available frameworks
+    final ListResult<ContactRelationship> contacts = exporter.execute(new GetContactRelationships(contactId));
 
-		return null;
+    if (contacts == null || contacts.isEmpty()) {
+      return null;
+    }
+
+    ListResult<FrameworkDTO> frameworkResult = exporter.execute(new GetAvailableFrameworks());
+
+    if (frameworkResult.isEmpty()) {
+      return null;
+    }
+
+    List<ContactSheetData> sheets = new ArrayList<>();
+
+    for (FrameworkDTO frameworkDTO : frameworkResult.getData()) {
+      for (FrameworkHierarchyDTO frameworkHierarchyDTO : frameworkDTO
+          .getFrameworkHierarchies()) {
+        for (FrameworkElementDTO frameworkElementDTO : frameworkHierarchyDTO
+            .getFrameworkElements()) {
+          if (ElementTypeEnum.CONTACT_LIST.equals(frameworkElementDTO.getDataType())) {
+
+            ContactSheetData sheet = new ContactSheetData(frameworkElementDTO.getLabel());
+            sheet.addHeader(new ExportStringCell(i18nTranslator.t(language, "contactRelationshipElementLabel")));
+            sheet.addHeader(new ExportStringCell(i18nTranslator.t(language, "contactRelationshipGroupTitle")));
+            sheet.addHeader(new ExportStringCell(i18nTranslator.t(language, "contactRelationshipType")));
+            sheet.addHeader(new ExportStringCell(i18nTranslator.t(language, "contactRelationshipName")));
+            sheet.addHeader(new ExportStringCell(i18nTranslator.t(language, "contactRelationshipMember")));
+
+            ListResult<ContactRelationship> contactsInFramework = exporter.execute(new GetContactRelationshipsInFramework(contactId, frameworkDTO.getId()));
+
+            for (ContactRelationship contactRelationship : contactsInFramework.getList()) {
+              List<ExportDataCell> line = new ArrayList<>();
+
+              line.add(new ExportStringCell(contactRelationship.getFieldName()));
+              line.add(new ExportStringCell(contactRelationship.getGroupName()));
+              line.add(new ExportStringCell(contactRelationship.getFormattedType()));
+              line.add(new ExportStringCell(contactRelationship.getName()));
+              String isMember = contactRelationship.getDirection() == ContactRelationship.Direction.INBOUND ? i18nTranslator.t(language, "yes"):i18nTranslator.t(language, "no");
+              line.add(new ExportStringCell(isMember));
+
+              sheet.addLine(line);
+            }
+            sheets.add(sheet);
+          }
+        }
+      }
+    }
+    return sheets;
 	}
 
 	public static List<ContactSheetData> createRelationsByElementData(final Integer contactId, final Exporter exporter,
