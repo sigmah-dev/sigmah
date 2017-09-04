@@ -23,9 +23,12 @@ package org.sigmah.server.dao.impl;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import javax.mail.internet.AddressException;
+import javax.mail.internet.InternetAddress;
 import javax.persistence.TypedQuery;
 import javax.persistence.criteria.CriteriaBuilder;
 import javax.persistence.criteria.CriteriaQuery;
@@ -41,6 +44,7 @@ import org.sigmah.server.dao.ValueDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.ContactModel;
+import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.referential.ContactModelType;
 
 public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implements ContactDAO {
@@ -162,6 +166,115 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
     criteriaQuery.orderBy(criteriaBuilder.asc(contactRoot.get("name")));
 
     return em().createQuery(criteriaQuery).getResultList();
+  }
+
+  @Override
+  public List<Contact> findContactsByNameOrEmail(Integer organizationId, String search, boolean withDeleted, ContactModelType allowedType, Set<Integer> allowedModelIds, Set<Integer> excludedIds, Integer checkboxElementId) {
+    CriteriaBuilder criteriaBuilder = em().getCriteriaBuilder();
+    CriteriaQuery<Contact> criteriaQuery = criteriaBuilder.createQuery(Contact.class);
+    Root<Contact> contactRoot = criteriaQuery.from(Contact.class);
+
+    Join<Object, Object> userJoin = contactRoot.join("user", JoinType.LEFT);
+    Join<Object, Object> contactModelJoin = contactRoot.join("contactModel", JoinType.LEFT);
+    Join<Object, Object> organizationJoin = contactModelJoin.join("organization", JoinType.LEFT);
+
+    List<Predicate> andPredicates = new ArrayList<>();
+    List<Predicate> orPredicates = new ArrayList<>();
+
+    andPredicates.add(criteriaBuilder.equal(organizationJoin.get("id"), organizationId));
+
+    if (search != null && !search.isEmpty()) {
+      Predicate searchContactCriteria;
+      Predicate searchUserCriteria;
+
+      if (isEmailAddress(search)) {
+        // case 1 : if it's an email adress, search exact adresses
+        searchContactCriteria = criteriaBuilder.equal(criteriaBuilder.upper(contactRoot.get("email").as(String.class)), search.toUpperCase());
+        searchUserCriteria = criteriaBuilder.equal(criteriaBuilder.upper(userJoin.get("email").as(String.class)), search.toUpperCase());
+      } else if (isNumber(search)) {
+        // case 2 : if it's a number, search exact ids and possible names (e.g partner123)
+        searchContactCriteria = criteriaBuilder.or(criteriaBuilder.equal(contactRoot.get("id").as(String.class),  search),
+            criteriaBuilder.like(criteriaBuilder.upper(contactRoot.get("name").as(String.class)), "%" + search + "%"));
+        searchUserCriteria = criteriaBuilder.or(criteriaBuilder.equal(userJoin.get("id").as(String.class),  search),
+            criteriaBuilder.like(criteriaBuilder.upper(userJoin.get("name").as(String.class)), "%" + search + "%"));
+      } else {
+        // default case/case 3 : search by firstname and/or name
+        searchContactCriteria = criteriaBuilder.or(
+            criteriaBuilder.greaterThanOrEqualTo(criteriaBuilder.function("similarity", Float.class,
+                criteriaBuilder.upper(contactRoot.get("name").as(String.class)),
+                criteriaBuilder.literal(search.toUpperCase())), MIN_SIMILARITY_SCORE),
+            criteriaBuilder.greaterThanOrEqualTo(criteriaBuilder.function("similarity", Float.class,
+                criteriaBuilder.upper(contactRoot.get("firstname").as(String.class)),
+                criteriaBuilder.literal(search.toUpperCase())), MIN_SIMILARITY_SCORE));
+        searchUserCriteria = criteriaBuilder.or(
+            criteriaBuilder.greaterThanOrEqualTo(criteriaBuilder.function("similarity", Float.class,
+                criteriaBuilder.upper(userJoin.get("name").as(String.class)),
+                criteriaBuilder.literal(search.toUpperCase())), MIN_SIMILARITY_SCORE),
+            criteriaBuilder.greaterThanOrEqualTo(criteriaBuilder.function("similarity", Float.class,
+                criteriaBuilder.upper(userJoin.get("firstName").as(String.class)),
+                criteriaBuilder.literal(search.toUpperCase())), MIN_SIMILARITY_SCORE));
+      }
+
+      orPredicates.add(searchContactCriteria);
+      orPredicates.add(criteriaBuilder.and(
+          criteriaBuilder.isNull(contactRoot.get("name")),
+          criteriaBuilder.isNull(contactRoot.get("firstname")),
+          criteriaBuilder.isNull(contactRoot.get("email")),
+          criteriaBuilder.isNotNull(userJoin.get("id")),
+          criteriaBuilder.or(searchUserCriteria)));
+    }
+
+    if (!withDeleted) {
+      andPredicates.add(criteriaBuilder.and(contactRoot.get("dateDeleted").isNull()));
+    }
+
+    if (allowedModelIds != null && !allowedModelIds.isEmpty()) {
+      andPredicates.add(criteriaBuilder.in(contactModelJoin.get("id").in(allowedModelIds)));
+    }
+
+    if (allowedType != null) {
+      andPredicates.add(criteriaBuilder.equal(contactModelJoin.get("type"), allowedType));
+    }
+
+    if (excludedIds != null && !excludedIds.isEmpty()) {
+      andPredicates.add(criteriaBuilder.not(contactRoot.get("id").in(excludedIds)));
+    }
+
+    if (checkboxElementId != null) {
+      List<Integer> contactIds = valueDAO.findContainerIdByElementAndValue(checkboxElementId, "true");
+      if (!contactIds.isEmpty()) {
+        andPredicates.add(contactRoot.get("id").in(contactIds));
+      } else {
+        // can't check IN clause, no need to execute query since there is no matching id
+        return Collections.emptyList();
+      }
+    }
+
+    andPredicates.add(criteriaBuilder.or(orPredicates.toArray(new Predicate[orPredicates.size()])));
+
+    criteriaQuery.where(andPredicates.toArray(new Predicate[andPredicates.size()]));
+    criteriaQuery.select(contactRoot);
+    criteriaQuery.orderBy(criteriaBuilder.asc(contactRoot.get("name")));
+
+    return em().createQuery(criteriaQuery).getResultList();
+  }
+
+  private static boolean isEmailAddress(String search) {
+    try {
+      new InternetAddress(search).validate();
+      return true;
+    } catch (AddressException ae) {
+      return false;
+    }
+  }
+
+  private static boolean isNumber(String search) {
+    try {
+      Integer.parseInt(search);
+      return true;
+    } catch (NumberFormatException nfe) {
+      return false;
+    }
   }
 
   @Override
