@@ -169,7 +169,7 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
   }
 
   @Override
-  public List<Contact> findContactsByNameOrEmail(Integer organizationId, String search, boolean withDeleted, ContactModelType allowedType, Set<Integer> allowedModelIds, Set<Integer> excludedIds, Integer checkboxElementId) {
+  public List<Contact> findContactsByNameOrEmail(Integer organizationId, String search, boolean withDeleted, boolean onlyWithoutUser, ContactModelType allowedType, Set<Integer> allowedModelIds, Set<Integer> excludedIds, Integer checkboxElementId) {
     CriteriaBuilder criteriaBuilder = em().getCriteriaBuilder();
     CriteriaQuery<Contact> criteriaQuery = criteriaBuilder.createQuery(Contact.class);
     Root<Contact> contactRoot = criteriaQuery.from(Contact.class);
@@ -216,16 +216,21 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
       }
 
       orPredicates.add(searchContactCriteria);
-      orPredicates.add(criteriaBuilder.and(
-          criteriaBuilder.isNull(contactRoot.get("name")),
-          criteriaBuilder.isNull(contactRoot.get("firstname")),
-          criteriaBuilder.isNull(contactRoot.get("email")),
-          criteriaBuilder.isNotNull(userJoin.get("id")),
-          criteriaBuilder.or(searchUserCriteria)));
+      if (!onlyWithoutUser) {
+        orPredicates.add(criteriaBuilder.and(
+            criteriaBuilder.isNull(contactRoot.get("name")),
+            criteriaBuilder.isNull(contactRoot.get("firstname")),
+            criteriaBuilder.isNotNull(userJoin.get("id")),
+            criteriaBuilder.or(searchUserCriteria)));
+      }
     }
 
     if (!withDeleted) {
       andPredicates.add(criteriaBuilder.and(contactRoot.get("dateDeleted").isNull()));
+    }
+
+    if (onlyWithoutUser) {
+      andPredicates.add(userJoin.get("id").isNull());
     }
 
     if (allowedModelIds != null && !allowedModelIds.isEmpty()) {

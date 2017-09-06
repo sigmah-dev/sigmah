@@ -33,6 +33,7 @@ public class GetContactByNameOrEmail extends AbstractCommand<ListResult<ContactD
 
   private String search;
   private boolean withDeleted;
+  private boolean onlyWithoutUser;
   private ContactModelType allowedType;
   private Set<Integer> allowedModelIds;
   private Set<Integer> excludedIds;
@@ -42,9 +43,10 @@ public class GetContactByNameOrEmail extends AbstractCommand<ListResult<ContactD
     // Serialization
   }
 
-  public GetContactByNameOrEmail(String search, boolean withDeleted, ContactModelType allowedType, Set<Integer> allowedModelIds, Set<Integer> excludedIds, Integer checkboxElementId) {
+  public GetContactByNameOrEmail(String search, boolean withDeleted, boolean onlyWithoutUser, ContactModelType allowedType, Set<Integer> allowedModelIds, Set<Integer> excludedIds, Integer checkboxElementId) {
     this.search = search;
     this.withDeleted = withDeleted;
+    this.onlyWithoutUser = onlyWithoutUser;
     this.allowedType = allowedType;
     this.allowedModelIds = allowedModelIds;
     this.excludedIds = excludedIds;
@@ -57,6 +59,10 @@ public class GetContactByNameOrEmail extends AbstractCommand<ListResult<ContactD
 
   public boolean getWithDeleted() {
     return withDeleted;
+  }
+
+  public boolean getOnlyWithoutUser() {
+    return onlyWithoutUser;
   }
 
   public ContactModelType getAllowedType() {

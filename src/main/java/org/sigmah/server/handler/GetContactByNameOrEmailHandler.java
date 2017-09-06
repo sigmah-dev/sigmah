@@ -44,7 +44,7 @@ public class GetContactByNameOrEmailHandler extends AbstractCommandHandler<GetCo
 
   @Override
   protected ListResult<ContactDTO> execute(GetContactByNameOrEmail command, UserDispatch.UserExecutionContext context) throws CommandException {
-    List<Contact> contacts = contactDAO.findContactsByNameOrEmail(context.getUser().getOrganization().getId(), command.getSearch(), command.getWithDeleted(), command.getAllowedType(), command.getAllowedModelIds(), command.getExcludedIds(), command.getCheckboxElementId());
+    List<Contact> contacts = contactDAO.findContactsByNameOrEmail(context.getUser().getOrganization().getId(), command.getSearch(), command.getWithDeleted(), command.getOnlyWithoutUser(), command.getAllowedType(), command.getAllowedModelIds(), command.getExcludedIds(), command.getCheckboxElementId());
 
     // FIXME: Add command.mode when dozer 5.5.2 will be ready
     // see https://github.com/DozerMapper/dozer/commit/5e179bb68c91e60d63bf9f44bf64b7ca70f61520

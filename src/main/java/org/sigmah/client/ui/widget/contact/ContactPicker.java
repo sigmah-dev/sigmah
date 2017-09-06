@@ -30,7 +30,7 @@ public class ContactPicker extends Composite {
 
   private final FlexibleGrid<ContactDTO> contactsGrid;
 
-  public ContactPicker(final ContactModelType allowedType, final Set<Integer> allowedModelIds, final Integer checkboxElementId, final Set<Integer> alreadySelectedContacts, final DispatchAsync dispatch) {
+  public ContactPicker(final ContactModelType allowedType, final boolean onlyWithoutUser, final Set<Integer> allowedModelIds, final Integer checkboxElementId, final Set<Integer> alreadySelectedContacts, final DispatchAsync dispatch) {
 
     final ListStore<ContactDTO> matchingContactsStore = new ListStore<ContactDTO>();
 
@@ -43,7 +43,7 @@ public class ContactPicker extends Composite {
       @Override
       public void componentSelected(ButtonEvent ce) {
         matchingContactsStore.removeAll();
-        dispatch.execute(new GetContactByNameOrEmail(searchTextbox.getValue(), false, allowedType, allowedModelIds, alreadySelectedContacts, checkboxElementId), new AsyncCallback<ListResult<ContactDTO>>() {
+        dispatch.execute(new GetContactByNameOrEmail(searchTextbox.getValue(), false, onlyWithoutUser, allowedType, allowedModelIds, alreadySelectedContacts, checkboxElementId), new AsyncCallback<ListResult<ContactDTO>>() {
           @Override
           public void onFailure(Throwable caught) {
             Log.error("Error while trying to get contacts for a contact list element.", caught);

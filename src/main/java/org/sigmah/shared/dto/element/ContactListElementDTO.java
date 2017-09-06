@@ -393,7 +393,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     window.setSize(700, 300);
     window.setHeadingHtml(I18N.CONSTANTS.selectContactDialogTitle());
 
-    final ContactPicker contactPicker = new ContactPicker(getAllowedType(), getAllowedModelIds(), getCheckboxElementId(), selectedContactIds, dispatch);
+    final ContactPicker contactPicker = new ContactPicker(getAllowedType(), false, getAllowedModelIds(), getCheckboxElementId(), selectedContactIds, dispatch);
 
     final FormPanel formPanel = Forms.panel(500);
     formPanel.add(contactPicker);
