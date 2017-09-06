@@ -29,6 +29,7 @@ import java.util.Map;
 import java.util.Map.Entry;
 
 import org.sigmah.client.dispatch.CommandResultHandler;
+import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.event.handler.UpdateHandler;
 import org.sigmah.client.i18n.I18N;
@@ -46,7 +47,6 @@ import org.sigmah.client.util.ClientUtils;
 import org.sigmah.shared.command.DeactivateUsers;
 import org.sigmah.shared.command.DeletePrivacyGroups;
 import org.sigmah.shared.command.DeleteProfiles;
-import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.GetPrivacyGroups;
 import org.sigmah.shared.command.GetProfilesWithDetails;
 import org.sigmah.shared.command.GetUsersWithProfiles;
@@ -59,7 +59,6 @@ import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
-import org.sigmah.shared.dto.referential.ContactModelType;
 
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.SelectionListener;
@@ -112,7 +111,7 @@ public class UsersAdminPresenter extends AbstractAdminPresenter<UsersAdminPresen
 
 		Loadable[] getUsersLoadable();
 
-		void buildAddUserByEmailWindow(List<ContactDTO> availableContacts, AddUserByEmailHandler handler);
+		void buildAddUserByEmailWindow(DispatchAsync dispatch, AddUserByEmailHandler handler);
 
 		/**
 		 * Clear the store filters as well as the search field.
@@ -244,19 +243,10 @@ public class UsersAdminPresenter extends AbstractAdminPresenter<UsersAdminPresen
 		view.getUsersAddByEmailButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				dispatch.execute(new GetContacts(ContactModelType.INDIVIDUAL, true, true), new CommandResultHandler<ListResult<ContactDTO>>() {
+				view.buildAddUserByEmailWindow(dispatch, new AddUserByEmailHandler() {
 					@Override
-					protected void onCommandSuccess(ListResult<ContactDTO> result) {
-						if (result.isEmpty()) {
-							N10N.warn(I18N.CONSTANTS.adminContactNoContactFound());
-							return;
-						}
-						view.buildAddUserByEmailWindow(result.getList(), new AddUserByEmailHandler() {
-							@Override
-							public void handleSubmit(ContactDTO contactDTO) {
-								eventBus.navigateRequest(Page.ADMIN_USER_EDIT.requestWith(RequestParameter.CONTACT_ID, contactDTO.getId()));
-							}
-						});
+					public void handleSubmit(ContactDTO contactDTO) {
+						eventBus.navigateRequest(Page.ADMIN_USER_EDIT.requestWith(RequestParameter.CONTACT_ID, contactDTO.getId()));
 					}
 				});
 			}
