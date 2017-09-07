@@ -21,6 +21,10 @@ package org.sigmah.shared.dto.element;
  * #L%
  */
 
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.widget.Window;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.google.gwt.dom.client.Style;
 import com.google.gwt.regexp.shared.RegExp;
 import com.google.gwt.user.client.rpc.AsyncCallback;
@@ -32,7 +36,6 @@ import com.extjs.gxt.ui.client.event.Events;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
-import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
@@ -51,17 +54,18 @@ import java.util.Set;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.notif.N10N;
+import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.widget.HistoryTokenText;
+import org.sigmah.client.ui.widget.contact.ContactPicker;
 import org.sigmah.client.ui.widget.form.ButtonFileUploadField;
 import org.sigmah.client.ui.widget.form.Forms;
+import org.sigmah.client.ui.widget.form.LabelButtonField;
 import org.sigmah.client.ui.widget.form.ListComboBox;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.ImageProvider;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.command.GetContact;
-import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.GetCountry;
-import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.country.CountryDTO;
@@ -84,7 +88,6 @@ public class DefaultContactFlexibleElementDTO extends AbstractDefaultFlexibleEle
   public static final String ENTITY_NAME = "element.DefaultContactFlexibleElement";
 
   private transient DefaultContactFlexibleElementContainer container;
-  private transient ListStore<ContactDTO> contactsStore;
   private transient FormPanel formPanel;
   private transient ImageProvider imageProvider;
 
@@ -173,93 +176,83 @@ public class DefaultContactFlexibleElementDTO extends AbstractDefaultFlexibleEle
   }
 
   private Field<?> buildDirectMembershipField(ContactDTO directMembership, boolean enabled) {
-    Field<?> field;
+    final LabelButtonField labelButtonField = buildLabelButtonField(enabled);
 
-    if (enabled) {
-      ensureContactsStore();
-
-      ComboBox<ContactDTO> comboBox = new ComboBox<ContactDTO>();
-      comboBox.setStore(contactsStore);
-      comboBox.setDisplayField(ContactDTO.FULLNAME);
-      comboBox.setValueField(ContactDTO.ID);
-      comboBox.setTriggerAction(ComboBox.TriggerAction.ALL);
-      comboBox.setEditable(true);
-      comboBox.setAllowBlank(true);
-      comboBox.setValue(directMembership);
-      addContactSelectionChangedListener(comboBox);
-
-      field = comboBox;
+    if (directMembership != null) {
+      labelButtonField.setValue(directMembership.getFullName());
     } else {
-      LabelField labelField = createLabelField();
-      if (directMembership != null) {
-        labelField.setValue(directMembership.getFullName());
-      } else {
-        labelField.setValue(EMPTY_VALUE);
-      }
-
-      field = labelField;
+      labelButtonField.setValue(EMPTY_VALUE);
     }
 
-    // Sets the field label.
-    setLabel(I18N.CONSTANTS.contactDirectMembership());
-    field.setFieldLabel(getLabel());
-
-    return field;
+    return labelButtonField;
   }
 
   private Field<?> buildDirectMembershipField(final String directMembershipId, boolean enabled) {
-    Field<?> field;
+    final LabelButtonField labelButtonField = buildLabelButtonField(enabled);
+
+    dispatch.execute(new GetContact(Integer.parseInt(directMembershipId), ContactDTO.Mode.BASIC_INFORMATION), new AsyncCallback<ContactDTO>() {
+      @Override
+      public void onFailure(Throwable caught) {
+        Log.error("Error while getting contact " + directMembershipId + ".", caught);
+      }
+
+      @Override
+      public void onSuccess(ContactDTO contactDTO) {
+        if (contactDTO != null) {
+          labelButtonField.setValue(contactDTO.getFullName());
+        } else {
+          labelButtonField.setValue(EMPTY_VALUE);
+        }
+      }
+    });
+
+    return labelButtonField;
+  }
+
+  private LabelButtonField buildLabelButtonField(boolean enabled) {
+    final LabelButtonField labelButtonField = new LabelButtonField(I18N.CONSTANTS.contactDirectMembership());
+    labelButtonField.setEnabled(enabled);
 
     if (enabled) {
-      ensureContactsStore();
+      labelButtonField.getButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+        @Override public void componentSelected(ButtonEvent buttonEvent) {
+          final Window window = new Window();
+          window.setPlain(true);
+          window.setModal(true);
+          window.setBlinkModal(true);
+          window.setLayout(new FitLayout());
+          window.setSize(700, 300);
+          window.setHeadingHtml(I18N.CONSTANTS.selectContactDialogTitle());
 
-      final ComboBox<ContactDTO> comboBox = new ComboBox<ContactDTO>();
-      comboBox.setStore(contactsStore);
-      comboBox.setDisplayField(ContactDTO.FULLNAME);
-      comboBox.setValueField(ContactDTO.ID);
-      comboBox.setTriggerAction(ComboBox.TriggerAction.ALL);
-      comboBox.setEditable(true);
-      comboBox.setAllowBlank(true);
-      dispatch.execute(new GetContact(Integer.parseInt(directMembershipId), ContactDTO.Mode.BASIC_INFORMATION), new AsyncCallback<ContactDTO>() {
-        @Override
-        public void onFailure(Throwable caught) {
-          Log.error("Error while getting contact " + directMembershipId + ".", caught);
-        }
+          final ContactPicker contactPicker = new ContactPicker(ContactModelType.ORGANIZATION,
+              false, null, null, null, dispatch);
 
-        @Override
-        public void onSuccess(ContactDTO contactDTO) {
-          comboBox.setValue(contactDTO);
-          addContactSelectionChangedListener(comboBox);
-        }
-      });
-
-      field = comboBox;
-    } else {
-      final LabelField labelField = createLabelField();
-      dispatch.execute(new GetContact(Integer.parseInt(directMembershipId), ContactDTO.Mode.BASIC_INFORMATION), new AsyncCallback<ContactDTO>() {
-        @Override
-        public void onFailure(Throwable caught) {
-          Log.error("Error while getting contact " + directMembershipId + ".", caught);
-        }
-
-        @Override
-        public void onSuccess(ContactDTO contactDTO) {
-          if (contactDTO != null) {
-            labelField.setValue(contactDTO.getFullName());
-          } else {
-            labelField.setValue(EMPTY_VALUE);
-          }
+          final FormPanel formPanel = Forms.panel(500);
+          formPanel.add(contactPicker);
+          formPanel.getButtonBar().add(Forms
+              .button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add(),
+                  new SelectionListener<ButtonEvent>() {
+                    @Override
+                    public void componentSelected(ButtonEvent ce) {
+                      ContactDTO value = contactPicker.getSelectedItem();
+                      if (value == null) {
+                        return;
+                      }
+                      boolean isValueOn = value.getId() != null && value.getId() != -1;
+                      handlerManager.fireEvent(new ValueEvent(DefaultContactFlexibleElementDTO.this, String.valueOf(value.getId())));
+                      if (getValidates()) {
+                        handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
+                      }
+                      labelButtonField.setValue(value.getName());
+                      window.hide();
+                    }
+                  }));
+          window.add(formPanel);
+          window.show();
         }
       });
-
-      field = labelField;
     }
-
-    // Sets the field label.
-    setLabel(I18N.CONSTANTS.contactTopMembership());
-    field.setFieldLabel(getLabel());
-
-    return field;
+    return labelButtonField;
   }
 
   private Field<?> buildTopMembershipField(ContactDTO topMembership) {
@@ -580,56 +573,6 @@ public class DefaultContactFlexibleElementDTO extends AbstractDefaultFlexibleEle
         if (getValidates()) {
           handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
         }
-      }
-    });
-  }
-
-  protected void addContactSelectionChangedListener(ComboBox<ContactDTO> comboBox) {
-    comboBox.addSelectionChangedListener(new SelectionChangedListener<ContactDTO>() {
-
-      @Override
-      public void selectionChanged(final SelectionChangedEvent<ContactDTO> se) {
-        String value = null;
-        final boolean isValueOn;
-
-        // Gets the selected choice.
-        final ContactDTO choice = se.getSelectedItem();
-
-        // Checks if the choice isn't the default empty choice.
-        isValueOn = choice != null && choice.getId() != null && choice.getId() != -1;
-
-        if (choice != null) {
-          value = String.valueOf(choice.getId());
-        }
-
-        if (value != null) {
-          // Fires value change event.
-          handlerManager.fireEvent(new ValueEvent(DefaultContactFlexibleElementDTO.this, value));
-        }
-
-        // Required element ?
-        if (getValidates()) {
-          handlerManager.fireEvent(new RequiredValueEvent(isValueOn));
-        }
-      }
-    });
-  }
-
-  protected void ensureContactsStore() {
-    if (contactsStore != null) {
-      return;
-    }
-
-    contactsStore = new ListStore<ContactDTO>();
-    dispatch.execute(new GetContacts(ContactModelType.ORGANIZATION), new AsyncCallback<ListResult<ContactDTO>>() {
-      @Override
-      public void onFailure(Throwable caught) {
-        Log.error("[getComponent] Error while getting users info.", caught);
-      }
-
-      @Override
-      public void onSuccess(ListResult<ContactDTO> contacts) {
-        contactsStore.add(contacts.getList());
       }
     });
   }
