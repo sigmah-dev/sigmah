@@ -41,7 +41,9 @@ public class CommandJS extends JavaScriptObject {
 		UPDATE_ENTITY,
 		UPDATE_LOG_FRAME,
 		UPDATE_MONITORED_POINTS,
+		UPDATE_LAYOUT_GROUP_ITERATION,
 		UPDATE_PROJECT,
+		UPDATE_CONTACT,
 		UPDATE_PROJECT_FAVORITE,
 		UPDATE_REMINDERS,
 		UPDATE_PROJECT_TEAM_MEMBERS
@@ -57,6 +59,8 @@ public class CommandJS extends JavaScriptObject {
 		UpdateProject.class,
 		UpdateProjectFavorite.class,
 		UpdateReminders.class,
+		UpdateLayoutGroupIterations.class,
+		UpdateContact.class,
 		UpdateProjectTeamMembers.class
 	};
 	
@@ -66,14 +70,18 @@ public class CommandJS extends JavaScriptObject {
 	public static CommandJS toJavaScript(Command command) {
 		CommandJS commandJS = null;
 		
-		if(command instanceof UpdateProject) {
+		if(command instanceof UpdateContact) {
+			commandJS = UpdateContactJS.toJavaScript((UpdateContact)command);
+			commandJS.setCommandType(Type.UPDATE_CONTACT);
+
+		} else if(command instanceof UpdateProject) {
 			commandJS = UpdateProjectJS.toJavaScript((UpdateProject)command);
 			commandJS.setCommandType(Type.UPDATE_PROJECT);
 			
 		} else if(command instanceof Delete) {
 			commandJS = DeleteJS.toJavaScript((Delete)command);
 			commandJS.setCommandType(Type.DELETE);
-			
+
 		} else if(command instanceof UpdateProjectFavorite) {
 			commandJS = UpdateProjectFavoriteJS.toJavaScript((UpdateProjectFavorite)command);
 			commandJS.setCommandType(Type.UPDATE_PROJECT_FAVORITE);
@@ -81,14 +89,18 @@ public class CommandJS extends JavaScriptObject {
 		} else if(command instanceof UpdateLogFrame) {
 			commandJS = UpdateLogFrameJS.toJavaScript((UpdateLogFrame)command);
 			commandJS.setCommandType(Type.UPDATE_LOG_FRAME);
-			
+
 		} else if(command instanceof CreateEntity) {
 			commandJS = CreateEntityJS.toJavaScript((CreateEntity)command);
 			commandJS.setCommandType(Type.CREATE_ENTITY);
-			
+
 		} else if(command instanceof UpdateMonitoredPoints) {
 			commandJS = UpdateMonitoredPointsJS.toJavaScript((UpdateMonitoredPoints)command);
 			commandJS.setCommandType(Type.UPDATE_MONITORED_POINTS);
+
+		} else if(command instanceof UpdateLayoutGroupIterations) {
+			commandJS = UpdateLayoutGroupIterationsJS.toJavaScript((UpdateLayoutGroupIterations)command);
+			commandJS.setCommandType(Type.UPDATE_LAYOUT_GROUP_ITERATION);
 			
 		} else if(command instanceof UpdateReminders) {
 			commandJS = UpdateRemindersJS.toJavaScript((UpdateReminders)command);
@@ -101,6 +113,7 @@ public class CommandJS extends JavaScriptObject {
 		} else if(command instanceof PrepareFileUpload) {
 			commandJS = PrepareFileUploadJS.toJavaScript((PrepareFileUpload)command);
 			commandJS.setCommandType(Type.PREPARE_FILE_UPLOAD);
+
 		} else if(command instanceof UpdateProjectTeamMembers) {
 			commandJS = UpdateProjectTeamMembersJs.toJavascript((UpdateProjectTeamMembers) command);
 			commandJS.setCommandType(Type.UPDATE_PROJECT_TEAM_MEMBERS);
@@ -134,6 +147,9 @@ public class CommandJS extends JavaScriptObject {
 			case UPDATE_PROJECT:
 				command = ((UpdateProjectJS)this).toUpdateProject();
 				break;
+			case UPDATE_CONTACT:
+				command = ((UpdateContactJS)this).toUpdateContact();
+				break;
 			case UPDATE_PROJECT_FAVORITE:
 				command = ((UpdateProjectFavoriteJS)this).toUpdateProjectFavorite();
 				break;
@@ -142,6 +158,9 @@ public class CommandJS extends JavaScriptObject {
 				break;
 			case UPDATE_PROJECT_TEAM_MEMBERS:
 				command = ((UpdateProjectTeamMembersJs)this).toUpdateProjectTeamMembers();
+				break;
+			case UPDATE_LAYOUT_GROUP_ITERATION:
+				command = ((UpdateLayoutGroupIterationsJS)this).toUpdateLayoutGroupIterations();
 				break;
 			default:
 				command = null;

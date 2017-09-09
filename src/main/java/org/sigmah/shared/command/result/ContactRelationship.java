@@ -27,6 +27,7 @@ public class ContactRelationship extends BaseModelData implements Result {
   private static final long serialVersionUID = 7831558378084550189L;
 
   public static final String RELATIONSHIP_ID = "relationId";
+  public static final String CONTACT_ID = "contactId";
   public static final String FIELD_NAME = "fieldName";
   public static final String GROUP_NAME = "groupName";
   public static final String TYPE = "type";
@@ -40,6 +41,14 @@ public class ContactRelationship extends BaseModelData implements Result {
 
   public void setRelationshipId(Integer relationshipId) {
     set(RELATIONSHIP_ID, relationshipId);
+  }
+
+  public Integer getContactId() {
+    return get(CONTACT_ID);
+  }
+
+  public void setContactId(Integer contactId) {
+    set(CONTACT_ID, contactId);
   }
 
   public String getFieldName() {

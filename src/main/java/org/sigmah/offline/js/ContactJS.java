@@ -34,7 +34,7 @@ import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.country.CountryDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
-public class ContactJS extends JavaScriptObject {
+public final class ContactJS extends JavaScriptObject {
   protected ContactJS() {
   }
 
@@ -97,6 +97,8 @@ public class ContactJS extends JavaScriptObject {
 	}-*/;
 
   public ContactModelDTO getContactModelDTO() {
+	if(getContactModel() == null)
+		return null;
     return getContactModel().toDTO();
   }
 
@@ -153,6 +155,8 @@ public class ContactJS extends JavaScriptObject {
   }-*/;
 
   public OrgUnitDTO getMainOrgUnitDTO() {
+    if(getMainOrgUnit() == null)
+    	return null;
     return getMainOrgUnit().toDTO();
   }
 
@@ -161,7 +165,10 @@ public class ContactJS extends JavaScriptObject {
   }-*/;
 
   public void setMainOrgUnit(OrgUnitDTO mainOrgUnit) {
-    setMainOrgUnit(OrgUnitJS.toJavaScript(mainOrgUnit));
+	if (mainOrgUnit == null) {
+		return;
+	}
+	setMainOrgUnit(OrgUnitJS.toJavaScript(mainOrgUnit));
   }
 
   public native void setMainOrgUnit(OrgUnitJS mainOrgUnit) /*-{
@@ -170,6 +177,9 @@ public class ContactJS extends JavaScriptObject {
 
   public List<OrgUnitDTO> getSecondaryOrgUnitDTOs() {
     JsArray<OrgUnitJS> secondaryOrgUnits = getSecondaryOrgUnits();
+    if(secondaryOrgUnits == null) {
+    	return null;
+    }
     List<OrgUnitDTO> secondaryOrgUnitDTOs = new ArrayList<OrgUnitDTO>(secondaryOrgUnits.length());
     for (int i = 0; i < secondaryOrgUnits.length(); i++) {
       secondaryOrgUnitDTOs.add(secondaryOrgUnits.get(i).toDTO());
@@ -183,12 +193,15 @@ public class ContactJS extends JavaScriptObject {
 
   @SuppressWarnings("unchecked")
   public void setSecondaryOrgUnits(List<OrgUnitDTO> secondaryOrgUnitDTOs) {
-    JsArray<OrgUnitJS> secondaryOrgUnits = (JsArray<OrgUnitJS>) JavaScriptObject.createArray();
-    for (OrgUnitDTO orgUnitDTO : secondaryOrgUnitDTOs) {
-      secondaryOrgUnits.push(OrgUnitJS.toJavaScript(orgUnitDTO));
-    }
+	if (secondaryOrgUnitDTOs == null) {
+		return;
+	}
+	JsArray<OrgUnitJS> secondaryOrgUnits = (JsArray<OrgUnitJS>) JavaScriptObject.createArray();
+	for (OrgUnitDTO orgUnitDTO : secondaryOrgUnitDTOs) {
+		secondaryOrgUnits.push(OrgUnitJS.toJavaScript(orgUnitDTO));
+	}
 
-    setSecondaryOrgUnits(secondaryOrgUnits);
+	setSecondaryOrgUnits(secondaryOrgUnits);
   }
 
   public native void setSecondaryOrgUnits(JsArray<OrgUnitJS> secondaryOrgUnits) /*-{
@@ -281,7 +294,9 @@ public class ContactJS extends JavaScriptObject {
 
   public Date getDateCreatedDTO() {
     JsDate dateCreated = getDateCreated();
-    return new Date((long) dateCreated.getTime());
+    if(dateCreated != null)
+    	return new Date((long) dateCreated.getTime());
+    return null;
   }
 
   public native JsDate getDateCreated() /*-{
@@ -289,7 +304,8 @@ public class ContactJS extends JavaScriptObject {
   }-*/;
 
   public void setDateCreated(Date dateCreated) {
-    setDateCreated(JsDate.create(dateCreated.getTime()));
+    if(dateCreated != null)
+    	setDateCreated(JsDate.create(dateCreated.getTime()));
   }
 
   public native void setDateCreated(JsDate dateCreated) /*-{

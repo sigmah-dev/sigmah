@@ -32,7 +32,7 @@ import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
-public class ContactModelJS extends JavaScriptObject {
+public final class ContactModelJS extends JavaScriptObject {
   protected ContactModelJS() {
   }
 
@@ -43,8 +43,8 @@ public class ContactModelJS extends JavaScriptObject {
     contactModelJS.setStatus(contactModelDTO.getStatus());
     contactModelJS.setType(contactModelDTO.getType());
     contactModelJS.setDateMaintenance(contactModelDTO.getDateMaintenance());
-    contactModelJS.setDetails(contactModelDTO.getDetails());
-    contactModelJS.setCard(contactModelDTO.getCard());
+    contactModelJS.setDetails(contactModelDTO.getDetails(), contactModelJS);
+    contactModelJS.setCard(contactModelDTO.getCard(), contactModelJS);
     return contactModelJS;
   }
 
@@ -55,8 +55,8 @@ public class ContactModelJS extends JavaScriptObject {
     contactModelDTO.setStatus(getStatusDTO());
     contactModelDTO.setType(getTypeDTO());
     contactModelDTO.setDateMaintenance(getDateMaintenanceDTO());
-    contactModelDTO.setDetails(getDetailsDTO());
-    contactModelDTO.setCard(getCardDTO());
+    contactModelDTO.setDetails(getDetailsDTO(contactModelDTO));
+    contactModelDTO.setCard(getCardDTO(contactModelDTO));
     return contactModelDTO;
   }
 
@@ -124,7 +124,8 @@ public class ContactModelJS extends JavaScriptObject {
   }-*/;
 
   public void setDateMaintenance(Date dateMaintenance) {
-    setDateMaintenance(JsDate.create(dateMaintenance.getTime()));
+	  if(dateMaintenance != null)
+		  setDateMaintenance(JsDate.create(dateMaintenance.getTime()));
   }
 
   public native void setDateMaintenance(JsDate dateMaintenance) /*-{
@@ -135,12 +136,20 @@ public class ContactModelJS extends JavaScriptObject {
     return getDetails().toDTO();
   }
 
+  public ContactDetailsDTO getDetailsDTO(ContactModelDTO contactModelDTO) {
+	    return getDetails().toDTO(contactModelDTO);
+  }
+
   public native ContactDetailsJS getDetails() /*-{
     return this.details;
   }-*/;
 
   public void setDetails(ContactDetailsDTO details) {
-    setDetails(ContactDetailsJS.toJavaScript(details));
+	setDetails(ContactDetailsJS.toJavaScript(details));
+  }
+  
+  public void setDetails(ContactDetailsDTO details, ContactModelJS contactModelJS) {
+	setDetails(ContactDetailsJS.toJavaScript(details, contactModelJS));
   }
 
   public native void setDetails(ContactDetailsJS details) /*-{
@@ -151,12 +160,20 @@ public class ContactModelJS extends JavaScriptObject {
     return getCard().toDTO();
   }
 
+  public ContactCardDTO getCardDTO(ContactModelDTO contactModelDTO) {
+	return getCard().toDTO(contactModelDTO);
+  }
+
   public native ContactCardJS getCard() /*-{
     return this.card;
   }-*/;
 
   public void setCard(ContactCardDTO card) {
     setCard(ContactCardJS.toJavaScript(card));
+  }
+  
+  public void setCard(ContactCardDTO card, ContactModelJS contactModelJS) {
+	setCard(ContactCardJS.toJavaScript(card, contactModelJS));
   }
 
   public native void setCard(ContactCardJS card) /*-{

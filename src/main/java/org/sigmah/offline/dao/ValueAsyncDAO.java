@@ -29,6 +29,7 @@ import org.sigmah.offline.indexeddb.Transaction;
 import org.sigmah.offline.js.ValueJS;
 import org.sigmah.offline.js.ValueJSIdentifierFactory;
 import org.sigmah.shared.command.GetValue;
+import org.sigmah.shared.command.UpdateContact;
 import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.VoidResult;
@@ -111,6 +112,36 @@ public class ValueAsyncDAO extends BaseAsyncDAO<Store> {
 		final ObjectStore valueObjectStore = transaction.getObjectStore(getRequiredStore());
 		final ValueJS valueJS = ValueJS.toJavaScript(updateProject, valueEventWrapper, originalValue);
 		valueObjectStore.put(valueJS).addCallback(new AsyncAdapter<Request, VoidResult>(callback));
+	}
+
+public void saveOrUpdate(final UpdateContact updateContact, final ValueEventWrapper valueEventWrapper, final ValueResult originalValue, final AsyncCallback<VoidResult> callback) {
+		openTransaction(Transaction.Mode.READ_WRITE, new OpenTransactionHandler<Store>() {
+
+			@Override
+			public void onTransaction(Transaction<Store> transaction) {
+				saveOrUpdate(updateContact, valueEventWrapper, originalValue, callback, transaction);
+			}
+		});
+	}
+
+	public void saveOrUpdate(final UpdateContact updateContact, final ValueEventWrapper valueEventWrapper, final ValueResult originalValue, final AsyncCallback<VoidResult> callback, Transaction transaction) {
+		final ObjectStore valueObjectStore = transaction.getObjectStore(getRequiredStore());
+
+		final ValueJS valueJS = ValueJS.toJavaScript(updateContact, valueEventWrapper, originalValue);
+		valueObjectStore.put(valueJS).addCallback(new AsyncCallback<Request>() {
+
+			@Override
+			public void onFailure(Throwable caught) {
+				Log.error("Error while saving value " + valueJS.getId() + ".");
+				callback.onFailure(caught);
+			}
+
+			@Override
+			public void onSuccess(Request result) {
+				Log.trace("Value " + valueJS.getId() + " has been successfully saved.");
+				callback.onSuccess(null);
+			}
+		});
 	}
 	
 	public void saveOrUpdate(final String value, final FlexibleElementDTO flexibleElement, final int projectId, final AsyncCallback<VoidResult> callback) {

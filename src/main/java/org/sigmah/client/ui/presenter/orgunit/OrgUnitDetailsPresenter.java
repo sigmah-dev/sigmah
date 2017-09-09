@@ -22,7 +22,6 @@ package org.sigmah.client.ui.presenter.orgunit;
  * #L%
  */
 
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -46,6 +45,8 @@ import org.sigmah.client.ui.widget.form.IterableGroupPanel;
 import org.sigmah.client.ui.widget.form.IterableGroupPanel.IterableGroupItem;
 import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.util.ClientUtils;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.shared.command.GetLayoutGroupIterations;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.UpdateLayoutGroupIterations;
@@ -97,7 +98,8 @@ import org.sigmah.client.event.UpdateEvent;
  * OrgUnit Details Presenter.
  */
 @Singleton
-public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDetailsPresenter.View> implements IterableGroupPanel.Delegate {
+public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDetailsPresenter.View>
+		implements IterableGroupPanel.Delegate {
 
 	/**
 	 * Presenter's view interface.
@@ -119,13 +121,12 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 	 * List of values changes.
 	 */
 	private List<ValueEvent> valueChanges;
-    
+
 	private final Map<Integer, IterationChange> iterationChanges = new HashMap<Integer, IterationChange>();
 
 	private final Map<Integer, IterableGroupItem> newIterationsTabItems = new HashMap<Integer, IterableGroupItem>();
 
-
-    /**
+	/**
 	 * Listen to the values of flexible elements to update computated values.
 	 */
 	@Inject
@@ -172,8 +173,8 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 			@Override
 			public void handleEvent(final ButtonEvent be) {
 
-				final ServletUrlBuilder urlBuilder =
-						new ServletUrlBuilder(injector.getAuthenticationProvider(), injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_ORG_UNIT);
+				final ServletUrlBuilder urlBuilder = new ServletUrlBuilder(injector.getAuthenticationProvider(),
+						injector.getPageManager(), Servlet.EXPORT, ServletMethod.EXPORT_ORG_UNIT);
 
 				urlBuilder.addParameter(RequestParameter.ID, getOrgUnit().getId());
 
@@ -210,11 +211,11 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 	 * Loads the presenter with the org unit details.
 	 * 
 	 * @param details
-	 *          The details.
+	 *            The details.
 	 */
 	private void load(OrgUnitDetailsDTO details) {
-        
-        // Prepare the manager of computation elements
+
+		// Prepare the manager of computation elements
 		computationTriggerManager.prepareForOrgUnit(getOrgUnit());
 
 		// Clear panel.
@@ -245,7 +246,7 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 		for (final LayoutGroupDTO groupLayout : layout.getGroups()) {
 
 			// simple group
-			if(!groupLayout.getHasIterations()) {
+			if (!groupLayout.getHasIterations()) {
 
 				FieldSet fieldSet = createGroupLayoutFieldSet(getOrgUnit(), groupLayout, queue, null, null, null);
 				fieldSet.setHeadingHtml(groupLayout.getTitle());
@@ -259,7 +260,8 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 			gridLayout.setWidget(groupLayout.getRow(), groupLayout.getColumn(), fieldSet);
 
 			// iterative group
-			final IterableGroupPanel tabPanel = Forms.iterableGroupPanel(dispatch, groupLayout, getOrgUnit(), ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CREATE_ITERATIONS));
+			final IterableGroupPanel tabPanel = Forms.iterableGroupPanel(dispatch, groupLayout, getOrgUnit(),
+					ProfileUtils.isGranted(auth(), GlobalPermissionEnum.CREATE_ITERATIONS), eventBus);
 			tabPanel.setDelegate(this);
 			fieldSet.add(tabPanel);
 
@@ -270,7 +272,8 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 			tabPanel.setBorders(true);
 			tabPanel.setBodyBorder(false);
 
-			GetLayoutGroupIterations getIterations = new GetLayoutGroupIterations(groupLayout.getId(), getOrgUnit().getId(), -1);
+			GetLayoutGroupIterations getIterations = new GetLayoutGroupIterations(groupLayout.getId(),
+					getOrgUnit().getId(), -1);
 
 			queue.add(getIterations, new CommandResultHandler<ListResult<LayoutGroupIterationDTO>>() {
 
@@ -286,23 +289,25 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 				protected void onCommandSuccess(ListResult<LayoutGroupIterationDTO> result) {
 					DispatchQueue iterationsQueue = new DispatchQueue(dispatch, true);
 
-					for(final LayoutGroupIterationDTO iteration : result.getList()) {
+					for (final LayoutGroupIterationDTO iteration : result.getList()) {
 
-						final IterableGroupItem tab = new IterableGroupItem(tabPanel, iteration.getId(), iteration.getName());
+						final IterableGroupItem tab = new IterableGroupItem(tabPanel, iteration.getId(),
+								iteration.getName());
 						tabPanel.addIterationTab(tab);
 
 						Layout tabLayout = Layouts.fitLayout();
 
 						tab.setLayout(tabLayout);
 
-						FieldSet tabSet = createGroupLayoutFieldSet(getOrgUnit(), groupLayout, iterationsQueue, iteration == null ? null : iteration.getId(), tabPanel, tab);
+						FieldSet tabSet = createGroupLayoutFieldSet(getOrgUnit(), groupLayout, iterationsQueue,
+								iteration == null ? null : iteration.getId(), tabPanel, tab);
 
 						tab.add(tabSet);
 					}
 
 					iterationsQueue.start();
 
-					if(tabPanel.getItemCount() > 0) {
+					if (tabPanel.getItemCount() > 0) {
 						tabPanel.setSelection(tabPanel.getItem(0));
 					}
 
@@ -335,123 +340,44 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 	}
 
 	@Override
-	public FieldSet createGroupLayoutFieldSet(FlexibleElementContainer container, LayoutGroupDTO groupLayout, DispatchQueue queue, final Integer iterationId, final IterableGroupPanel tabPanel, final IterableGroupItem tabItem) {
-		final OrgUnitDTO orgUnit = (OrgUnitDTO)container;
+	public FieldSet createGroupLayoutFieldSet(FlexibleElementContainer container, LayoutGroupDTO groupLayout,
+			DispatchQueue queue, final Integer iterationId, final IterableGroupPanel tabPanel,
+			final IterableGroupItem tabItem) {
+		final OrgUnitDTO orgUnit = (OrgUnitDTO) container;
 
-			// Creates the fieldset and positions it.
+		// Creates the fieldset and positions it.
 		final FieldSet fieldSet = (FieldSet) groupLayout.getWidget();
 
-			// For each constraint in the current layout group.
-			if (ClientUtils.isEmpty(groupLayout.getConstraints())) {
+		// For each constraint in the current layout group.
+		if (ClientUtils.isEmpty(groupLayout.getConstraints())) {
 			return fieldSet;
+		}
+
+		for (final LayoutConstraintDTO constraintDTO : groupLayout.getConstraints()) {
+
+			// Gets the element managed by this constraint.
+			final FlexibleElementDTO elementDTO = constraintDTO.getFlexibleElementDTO();
+
+			// --
+			// -- DISABLED ELEMENTS
+			// --
+
+			if (elementDTO.isDisabled()) {
+				continue;
 			}
 
-			for (final LayoutConstraintDTO constraintDTO : groupLayout.getConstraints()) {
+			// --
+			// -- ELEMENT VALUE
+			// --
 
-				// Gets the element managed by this constraint.
-				final FlexibleElementDTO elementDTO = constraintDTO.getFlexibleElementDTO();
-
-				// --
-				// -- DISABLED ELEMENTS
-				// --
-				
-				if(elementDTO.isDisabled()) {
-					continue;
-				}
-				
-				// --
-				// -- ELEMENT VALUE
-				// --
-
-				// Remote call to ask for this element value.
+			// Remote call to ask for this element value.
 			GetValue getValue;
 
 			getValue = new GetValue(orgUnit.getId(), elementDTO.getId(), elementDTO.getEntityName(), null, iterationId);
 
-			queue.add(getValue, new CommandResultHandler<ValueResult>() {
-
-					@Override
-					public void onCommandFailure(final Throwable throwable) {
-						if (Log.isErrorEnabled()) {
-							Log.error("Error, element value not loaded.", throwable);
-						}
-						throw new RuntimeException(throwable);
-					}
-
-					@Override
-					public void onCommandSuccess(final ValueResult valueResult) {
-
-						if (Log.isDebugEnabled()) {
-							Log.debug("Element value(s) object : " + valueResult);
-						}
-
-						// --
-						// -- ELEMENT COMPONENT
-						// --
-
-						// Configures the flexible element for the current application state before generating its component.
-						elementDTO.setService(dispatch);
-						elementDTO.setAuthenticationProvider(injector.getAuthenticationProvider());
-						elementDTO.setEventBus(eventBus);
-						elementDTO.setCache(injector.getClientCache());
-					elementDTO.setCurrentContainerDTO(orgUnit);
-						elementDTO.setTransfertManager(injector.getTransfertManager());
-						elementDTO.assignValue(valueResult);
-					elementDTO.setTabPanel(tabPanel);
-
-						// Generates element component (with the value).
-						elementDTO.init();
-						final Component elementComponent = elementDTO.getElementComponent(valueResult);
-
-						// Component width.
-						final FormData formData;
-						if (elementDTO.getPreferredWidth() == 0) {
-							formData = new FormData("100%");
-						} else {
-							formData = new FormData(elementDTO.getPreferredWidth(), -1);
-						}
-
-						if (elementComponent != null) {
-						fieldSet.add(elementComponent, formData);
-						}
-					fieldSet.layout();
-
-						// --
-						// -- ELEMENT HANDLERS
-						// --
-                        
-                        // Adds a value change handler if this element is a dependency of a ComputationElementDTO.
-						computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
-
-						// Adds a value change handler to this element.
-						elementDTO.addValueHandler(new ValueHandler() {
-
-							@Override
-						public void onValueChange(final ValueEvent event) {
-
-							if(tabPanel != null) {
-								event.setIterationId(tabPanel.getCurrentIterationId());
-							}
-
-							// TODO: Find linked computation fields if any and recompute the value.
-
-								// Stores the change to be saved later.
-								valueChanges.add(event);
-
-								// Enables the save action.
-								view.getSaveButton().enable();
-							}
-						});
-
-
-					if(elementDTO.getValidates() && tabItem != null) {
-						tabItem.setElementValidity(elementDTO, elementDTO.isCorrectRequiredValue(valueResult));
-						tabItem.refreshTitle();
-						elementDTO.addRequiredValueHandler(new RequiredValueHandlerImpl(elementDTO));
-					}
-					}
-				}, new LoadingMask(view.getContentOrgUnitDetailsPanel()));
-			}
+			queue.add(getValue, new ElementCommandResultHandler(elementDTO, fieldSet, orgUnit, tabPanel, tabItem),
+					new LoadingMask(view.getContentOrgUnitDetailsPanel()));
+		}
 
 		fieldSet.setCollapsible(false);
 		fieldSet.setAutoHeight(true);
@@ -459,7 +385,108 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 		fieldSet.setHeadingHtml("");
 
 		return fieldSet;
+	}
+
+	private class ElementCommandResultHandler extends CommandResultHandler<ValueResult> {
+
+		private FlexibleElementDTO elementDTO;
+		private FieldSet fieldSet;
+		private OrgUnitDTO orgUnit;
+		private IterableGroupPanel tabPanel;
+		private IterableGroupItem tabItem;
+
+		public ElementCommandResultHandler(FlexibleElementDTO elementDTO, FieldSet fieldSet, OrgUnitDTO orgUnit,
+																			 IterableGroupPanel tabPanel, IterableGroupItem tabItem) {
+			this.elementDTO = elementDTO;
+			this.fieldSet = fieldSet;
+			this.orgUnit = orgUnit;
+			this.tabPanel = tabPanel;
+			this.tabItem = tabItem;
 		}
+
+		@Override
+		public void onCommandFailure(final Throwable throwable) {
+			if (Log.isErrorEnabled()) {
+				Log.error("Error, element value not loaded.", throwable);
+			}
+			throw new RuntimeException(throwable);
+		}
+
+		@Override
+		public void onCommandSuccess(final ValueResult valueResult) {
+
+			if (Log.isDebugEnabled()) {
+				Log.debug("Element value(s) object : " + valueResult);
+			}
+
+			// --
+			// -- ELEMENT COMPONENT
+			// --
+
+			// Configures the flexible element for the current
+			// application state before generating its component.
+			elementDTO.setService(dispatch);
+			elementDTO.setAuthenticationProvider(injector.getAuthenticationProvider());
+			elementDTO.setEventBus(eventBus);
+			elementDTO.setCache(injector.getClientCache());
+			elementDTO.setCurrentContainerDTO(orgUnit);
+			elementDTO.setTransfertManager(injector.getTransfertManager());
+			elementDTO.assignValue(valueResult);
+			elementDTO.setTabPanel(tabPanel);
+
+			// Generates element component (with the value).
+			elementDTO.init();
+			final Component elementComponent = elementDTO.getElementComponent(valueResult);
+
+			// Component width.
+			final FormData formData;
+			if (elementDTO.getPreferredWidth() == 0) {
+				formData = new FormData("100%");
+			} else {
+				formData = new FormData(elementDTO.getPreferredWidth(), -1);
+			}
+
+			if (elementComponent != null) {
+				fieldSet.add(elementComponent, formData);
+			}
+			fieldSet.layout();
+
+			// --
+			// -- ELEMENT HANDLERS
+			// --
+
+			// Adds a value change handler if this element is a
+			// dependency of a ComputationElementDTO.
+			computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
+
+			// Adds a value change handler to this element.
+			elementDTO.addValueHandler(new ValueHandler() {
+
+				@Override
+				public void onValueChange(final ValueEvent event) {
+
+					if (tabPanel != null) {
+						event.setIterationId(tabPanel.getCurrentIterationId());
+					}
+
+					// TODO: Find linked computation fields if any and
+					// recompute the value.
+
+					// Stores the change to be saved later.
+					valueChanges.add(event);
+
+					// Enables the save action.
+					view.getSaveButton().enable();
+				}
+			});
+
+			if (elementDTO.getValidates() && tabItem != null) {
+				tabItem.setElementValidity(elementDTO, elementDTO.isCorrectRequiredValue(valueResult));
+				tabItem.refreshTitle();
+				elementDTO.addRequiredValueHandler(new RequiredValueHandlerImpl(elementDTO));
+			}
+		}
+	}
 
 	/**
 	 * Internal class handling the value changes of the required elements.
@@ -486,141 +513,210 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 	 */
 	private void onSaveAction() {
 
-		// Checks if there are any changes regarding layout group iterations
-		dispatch.execute(new UpdateLayoutGroupIterations(new ArrayList<IterationChange>(iterationChanges.values()), getOrgUnit().getId()), new CommandResultHandler<ListResult<IterationChange>>() {
+		if (!iterationChanges.isEmpty()) {
 
-			@Override
-			public void onCommandFailure(final Throwable caught) {
-				N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
+			// Checks if there are any changes regarding layout group iterations
+			final List<IterationChange> iterationChangesList = new ArrayList<IterationChange>(iterationChanges.values());
+			Iterator<IterationChange> iterator = iterationChangesList.iterator();
+			// Filter iteration
+			while (iterator.hasNext()) {
+				IterationChange iterationChange = iterator.next();
+				// iteration created and in offline mode not saved
+				if (iterationChange.isCreated() && Profiler.INSTANCE.isOfflineMode()) {
+					iterator.remove();
+				}
 			}
+			// Checks if there are any changes regarding layout group iterations
+			UpdateLayoutGroupIterations updateLayoutGroupIterations = new UpdateLayoutGroupIterations(iterationChangesList, getOrgUnit().getId());
+			dispatch.execute(updateLayoutGroupIterations, new CommandResultHandler<ListResult<IterationChange>>() {
 
-			@Override
-			protected void onCommandSuccess(ListResult<IterationChange> result) {
-
-				for(IterationChange iterationChange : result.getList()) {
-					if(iterationChange.isDeleted()) {
-						// remove corresponding valueEvents
-
-						Iterator<ValueEvent> valuesIterator = valueChanges.iterator();
-						while(valuesIterator.hasNext()) {
-							ValueEvent valueEvent = valuesIterator.next();
-
-							if(valueEvent.getIterationId() == iterationChange.getIterationId()) {
-								valuesIterator.remove();
-							}
-						}
-					} else if(iterationChange.isCreated()) {
-						// change ids in valueEvents
-						int oldId = iterationChange.getIterationId();
-						int newId = iterationChange.getNewIterationId();
-
-						// updating tabitem id
-						newIterationsTabItems.get(oldId).setIterationId(newId);
-
-						for(ValueEvent valueEvent : valueChanges) {
-							if(valueEvent.getIterationId() == oldId) {
-								valueEvent.setIterationId(newId);
-							}
-						}
-					}
+				@Override
+				public void onCommandFailure(final Throwable caught) {
+					N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
 				}
 
-				iterationChanges.clear();
-				newIterationsTabItems.clear();
+				@Override
+				protected void onCommandSuccess(ListResult<IterationChange> result) {
 
-				dispatch.execute(new UpdateProject(getOrgUnit().getId(), valueChanges), new CommandResultHandler<VoidResult>() {
+					if (result != null) {
+						for (IterationChange iterationChange : result.getList()) {
+							if (iterationChange.isDeleted()) {
+								// remove corresponding valueEvents
 
-					@Override
-					public void onCommandFailure(final Throwable caught) {
-						N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
-					}
+								Iterator<ValueEvent> valuesIterator = valueChanges.iterator();
+								while (valuesIterator.hasNext()) {
+									ValueEvent valueEvent = valuesIterator.next();
 
-					@Override
-					public void onCommandSuccess(final VoidResult result) {
+									if (valueEvent.getIterationId() == iterationChange.getIterationId()) {
+										valuesIterator.remove();
+									}
+								}
 
-						N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+							} else if (iterationChange.isCreated()) {
+								// change ids in valueEvents
+								int oldId = iterationChange.getIterationId();
+								int newId = iterationChange.getNewIterationId();
 
-						// Checks if there is any update needed to the local project instance.
+								// updating tabitem id
+								newIterationsTabItems.get(oldId).setIterationId(newId);
 
-						for (final ValueEvent event : valueChanges) {
-							if (event.getSource() instanceof DefaultFlexibleElementDTO) {
-								updateCurrentProject(((DefaultFlexibleElementDTO) event.getSource()), event.getSingleValue());
+								for (ValueEvent valueEvent : valueChanges) {
+									if (valueEvent.getIterationId() == oldId) {
+										valueEvent.setIterationId(newId);
+									}
+								}
 							}
 						}
 
-						valueChanges.clear();
+						iterationChanges.clear();
+						newIterationsTabItems.clear();
 
-						eventBus.fireEvent(new UpdateEvent(UpdateEvent.VALUE_UPDATE, getOrgUnit()));
+						UpdateProject command = new UpdateProject(getOrgUnit().getId(), valueChanges);
+						command.setOrgUnit(true);
+						dispatch.execute(command, new CommandResultHandler<VoidResult>() {
 
+							@Override
+							public void onCommandFailure(final Throwable caught) {
+								N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
+							}
+
+							@Override
+							public void onCommandSuccess(final VoidResult result) {
+
+								updateOrgUnit();
+
+							}
+
+						}, new LoadingMask(view.getContentOrgUnitDetailsPanel()));
+					} else {
+						N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
 					}
+				}
+			}, view.getSaveButton(), view.getExcelExportButton(), new LoadingMask(view.getContentOrgUnitDetailsPanel()));
 
-				}, view.getSaveButton(), view.getExcelExportButton(), new LoadingMask(view.getContentOrgUnitDetailsPanel()));
+		} else {
+
+			UpdateProject command = new UpdateProject(getOrgUnit().getId(), valueChanges);
+			command.setOrgUnit(true);
+			dispatch.execute(command, new CommandResultHandler<VoidResult>() {
+
+				@Override
+				public void onCommandFailure(final Throwable caught) {
+					N10N.error(I18N.CONSTANTS.save(), I18N.CONSTANTS.saveError());
+				}
+
+				@Override
+				public void onCommandSuccess(final VoidResult result) {
+
+					updateOrgUnit();
+
+				}
+
+			}, view.getSaveButton(), view.getExcelExportButton(),
+					new LoadingMask(view.getContentOrgUnitDetailsPanel()));
+		}
+	}
+
+	private void updateOrgUnit() {
+		N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.saveConfirm());
+
+		// Checks if there is any update needed
+		// to the local project instance.
+		boolean refreshBanner = false;
+		boolean coreVersionUpdated = false;
+		OrgUnitDTO newOrgUnit = null;
+
+		// Checks if there is any update needed to the local project instance.
+		for (final ValueEvent event : valueChanges) {
+			if (event.getSource() instanceof DefaultFlexibleElementDTO) {
+				newOrgUnit = updateCurrentProject(((DefaultFlexibleElementDTO) event.getSource()),
+						event.getSingleValue());
+				refreshBanner = true;
+				coreVersionUpdated |= event.getSourceElement().getAmendable();
 			}
-		}, view.getSaveButton(), view.getExcelExportButton(), new LoadingMask(view.getContentOrgUnitDetailsPanel()));
+		}
+
+		valueChanges.clear();
+		
+		if (refreshBanner) {
+			eventBus.fireEvent(new UpdateEvent(UpdateEvent.PROJECT_BANNER_UPDATE));
+		}
+
+		if (coreVersionUpdated) {
+			eventBus.fireEvent(new UpdateEvent(UpdateEvent.CORE_VERSION_UPDATED));
+		}
+
+		eventBus.fireEvent(new UpdateEvent(UpdateEvent.VALUE_UPDATE, getOrgUnit()));
+
+		if (newOrgUnit != null) {
+			load(newOrgUnit.getOrgUnitModel().getDetails());
+		}
 	}
 
 	/**
 	 * Updates locally the DTO to avoid a remote server call.
 	 * 
 	 * @param element
-	 *          The default flexible element.
+	 *            The default flexible element.
 	 * @param value
-	 *          The new value.
+	 *            The new value.
 	 */
-	private void updateCurrentProject(DefaultFlexibleElementDTO element, String value) {
+	private OrgUnitDTO updateCurrentProject(DefaultFlexibleElementDTO element, String value) {
 
 		final OrgUnitDTO currentOrgUnitDTO = getOrgUnit();
 
 		switch (element.getType()) {
-			case CODE:
-				currentOrgUnitDTO.setName(value);
-				break;
+		case CODE:
+			currentOrgUnitDTO.setName(value);
+			break;
 
-			case TITLE:
-				currentOrgUnitDTO.setFullName(value);
-				break;
+		case TITLE:
+			currentOrgUnitDTO.setFullName(value);
+			break;
 
-			case BUDGET:
-				try {
+		case BUDGET:
+			try {
 
-					final BudgetElementDTO budgetElement = (BudgetElementDTO) element;
-					final Map<Integer, String> values = ValueResultUtils.splitMapElements(value);
+				final BudgetElementDTO budgetElement = (BudgetElementDTO) element;
+				final Map<Integer, String> values = ValueResultUtils.splitMapElements(value);
 
-					double plannedBudget = 0.0;
-					double spendBudget = 0.0;
-					double receivedBudget = 0.0;
+				double plannedBudget = 0.0;
+				double spendBudget = 0.0;
+				double receivedBudget = 0.0;
 
-					for (final BudgetSubFieldDTO bf : budgetElement.getBudgetSubFields()) {
-						if (bf.getType() != null) {
-							switch (bf.getType()) {
-								case PLANNED:
-									plannedBudget = Double.parseDouble(values.get(bf.getId()));
-									break;
-								case RECEIVED:
-									receivedBudget = Double.parseDouble(values.get(bf.getId()));
-									break;
-								case SPENT:
-									spendBudget = Double.parseDouble(values.get(bf.getId()));
-									break;
-								default:
-									break;
-							}
+				for (final BudgetSubFieldDTO bf : budgetElement.getBudgetSubFields()) {
+					if (bf.getType() != null) {
+						switch (bf.getType()) {
+						case PLANNED:
+							plannedBudget = Double.parseDouble(values.get(bf.getId()));
+							break;
+						case RECEIVED:
+							receivedBudget = Double.parseDouble(values.get(bf.getId()));
+							break;
+						case SPENT:
+							spendBudget = Double.parseDouble(values.get(bf.getId()));
+							break;
+						default:
+							break;
 						}
 					}
-
-					currentOrgUnitDTO.setPlannedBudget(plannedBudget);
-					currentOrgUnitDTO.setSpendBudget(spendBudget);
-					currentOrgUnitDTO.setReceivedBudget(receivedBudget);
-
-				} catch (final Exception e) {
-					// nothing, invalid budget.
 				}
-				break;
 
-			default:
-				// Nothing, non managed type.
-				break;
+				currentOrgUnitDTO.setPlannedBudget(plannedBudget);
+				currentOrgUnitDTO.setSpendBudget(spendBudget);
+				currentOrgUnitDTO.setReceivedBudget(receivedBudget);
+
+			} catch (final Exception e) {
+				// nothing, invalid budget.
+			}
+			break;
+
+		default:
+			// Nothing, non managed type.
+			break;
 		}
+
+		return currentOrgUnitDTO;
 	}
 
 }

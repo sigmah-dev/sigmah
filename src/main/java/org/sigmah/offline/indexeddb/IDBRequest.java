@@ -105,15 +105,23 @@ class IDBRequest<R> extends JavaScriptObject {
 	}-*/;
 
 	public final native void setOnSuccess(JavaScriptEvent<?> handler) /*-{
-		this.onsuccess = handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;);
+		this.onsuccess = $entry(function(e) {
+			handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
+		});
 	}-*/;
 	
 	public final native void setOnError(JavaScriptEvent<?> handler) /*-{
-		this.onerror = handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;);
+		this.onerror = $entry(function(e) {
+			handler.@org.sigmah.offline.event.JavaScriptEvent::onEvent(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
+		});
 	}-*/;
 	
 	public final native void setRequestSuccessHandler(RequestSuccessHandler handler) /*-{
-		this.onsuccess = handler.@org.sigmah.offline.indexeddb.IDBRequest.RequestSuccessHandler::onSuccess(Lcom/google/gwt/core/client/JavaScriptObject;);
-		this.onerror = handler.@org.sigmah.offline.indexeddb.IDBRequest.RequestSuccessHandler::onError(Lcom/google/gwt/core/client/JavaScriptObject;);
+		this.onsuccess = $entry(function(e) {
+			handler.@org.sigmah.offline.indexeddb.IDBRequest.RequestSuccessHandler::onSuccess(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
+		});
+		this.onerror = $entry(function(e) {
+			handler.@org.sigmah.offline.indexeddb.IDBRequest.RequestSuccessHandler::onError(Lcom/google/gwt/core/client/JavaScriptObject;)(e);
+		});
 	}-*/;
 }

@@ -47,7 +47,7 @@ public class GetUserUnitsByUserHandler extends AbstractCommandHandler<GetUserUni
 	@Override
 	protected UserUnitsResult execute(GetUserUnitsByUser command, UserDispatch.UserExecutionContext context) throws CommandException {
 		OrgUnitProfile mainUserUnit = userUnitDAO.findMainOrgUnitProfileByUserId(command.getUserId());
-		UserUnitDTO mainUserUnitDTO = mapper().map(mainUserUnit, UserUnitDTO.class);
+		UserUnitDTO mainUserUnitDTO = mapper().map(mainUserUnit, new UserUnitDTO());
 		mainUserUnitDTO.setMainUserUnit(true);
 
 		List<OrgUnitProfile> secondaryUserUnits = userUnitDAO.findSecondaryOrgUnitProfilesByUserId(command.getUserId());

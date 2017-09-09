@@ -25,13 +25,14 @@ import com.google.gwt.core.client.JavaScriptObject;
 
 import org.sigmah.shared.command.result.ContactRelationship;
 
-public class ContactRelationshipJS extends JavaScriptObject {
+public final class ContactRelationshipJS extends JavaScriptObject {
   protected ContactRelationshipJS() {
   }
 
   public static ContactRelationshipJS toJavaScript(ContactRelationship contactRelationshipDTO) {
     ContactRelationshipJS contactRelationshipJS = (ContactRelationshipJS) JavaScriptObject.createObject();
     contactRelationshipJS.setRelationshipId(contactRelationshipDTO.getRelationshipId());
+    contactRelationshipJS.setContactId(contactRelationshipDTO.getContactId());
     contactRelationshipJS.setName(contactRelationshipDTO.getName());
     contactRelationshipJS.setFieldName(contactRelationshipDTO.getFieldName());
     contactRelationshipJS.setGroupName(contactRelationshipDTO.getGroupName());
@@ -59,6 +60,14 @@ public class ContactRelationshipJS extends JavaScriptObject {
 
   public native void setRelationshipId(int id) /*-{
 		this.id = id;
+	}-*/;
+
+  public native int getContactId() /*-{
+    return this.contactId;
+	}-*/;
+
+  public native void setContactId(int contactId) /*-{
+		this.contactId = contactId;
 	}-*/;
 
   public native String getFieldName() /*-{

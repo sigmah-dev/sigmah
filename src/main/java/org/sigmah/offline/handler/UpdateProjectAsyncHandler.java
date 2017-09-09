@@ -90,21 +90,35 @@ public class UpdateProjectAsyncHandler implements AsyncCommandHandler<UpdateProj
 	@Override
 	public void execute(final UpdateProject command, final OfflineExecutionContext executionContext, final AsyncCallback<VoidResult> callback) {
 		
-        checkComputations(command.getValues(), command.getProjectId(), new SuccessCallback<ProjectDTO>(callback) {
-			
-			@Override
-			public void onSuccess(final ProjectDTO project) {
-				saveValues(command, new SuccessCallback<VoidResult>(callback) {
+		if (!command.isOrgUnit()) {
+			checkComputations(command.getValues(), command.getProjectId(), new SuccessCallback<ProjectDTO>(callback) {
 
-					@Override
-					public void onSuccess(VoidResult result) {
-						updateImpactedComputations(command, project, callback);
-					}
-					
-				});
-			}
-			
-		});
+				@Override
+				public void onSuccess(final ProjectDTO project) {
+					saveValues(command, new SuccessCallback<VoidResult>(callback) {
+
+						@Override
+						public void onSuccess(VoidResult result) {
+							updateImpactedComputations(command, project, callback);
+						}
+
+					});
+				}
+
+			});
+		} else {
+
+			saveValues(command, new SuccessCallback<VoidResult>(callback) {
+
+				@Override
+				public void onSuccess(VoidResult result) {
+					// Success.
+					callback.onSuccess(result);
+				}
+
+			});
+
+		}
 	}
 
     /**

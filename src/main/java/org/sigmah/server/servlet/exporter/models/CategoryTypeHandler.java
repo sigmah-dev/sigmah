@@ -30,10 +30,10 @@ import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Objects;
 
 import javax.persistence.EntityManager;
 
-import org.h2.util.StringUtils;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.category.CategoryElement;
 import org.sigmah.server.domain.category.CategoryType;
@@ -223,7 +223,7 @@ public class CategoryTypeHandler implements ModelHandler {
 		} else if (mine == null || other == null) {
 			return false;
 			
-		} else if (!StringUtils.equals(mine.getLabel(), other.getLabel())) {
+		} else if (!Objects.equals(mine.getLabel(), other.getLabel())) {
 			// Compare the labels
 			return false;
 		}
@@ -258,11 +258,11 @@ public class CategoryTypeHandler implements ModelHandler {
 		} else if (mine == null || other == null) {
 			return false;
 			
-		} else if (!StringUtils.equals(mine.getLabel(), other.getLabel())) {
+		} else if (!Objects.equals(mine.getLabel(), other.getLabel())) {
 			// compare the labels
 			return false;
 			
-		} else if (!StringUtils.equals(mine.getColor(), other.getColor())) {
+		} else if (!Objects.equals(mine.getColor(), other.getColor())) {
 			// compare the colors
 			return false;
 			

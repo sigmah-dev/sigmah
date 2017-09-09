@@ -25,6 +25,7 @@ package org.sigmah.server.util;
 import org.sigmah.server.domain.element.CheckboxElement;
 import org.sigmah.server.domain.element.ComputationElement;
 import org.sigmah.server.domain.element.CoreVersionElement;
+import org.sigmah.server.domain.element.DefaultContactFlexibleElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.element.FilesListElement;
 import org.sigmah.server.domain.element.FlexibleElement;
@@ -68,6 +69,8 @@ public final class EntityLogicalElementTypes {
 			type = TextAreaType.fromCode(((TextAreaElement) element).getType());
 		} else if (element instanceof CheckboxElement) {
 			type = ElementTypeEnum.CHECKBOX;
+		} else if (element instanceof DefaultContactFlexibleElement) {
+			type = ((DefaultContactFlexibleElement) element).getType();
 		} else if (element instanceof DefaultFlexibleElement) {
 			type = ((DefaultFlexibleElement) element).getType();
 		} else if (element instanceof FilesListElement) {

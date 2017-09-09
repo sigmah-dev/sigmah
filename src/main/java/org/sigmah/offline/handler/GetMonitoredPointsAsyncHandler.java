@@ -90,37 +90,38 @@ public class GetMonitoredPointsAsyncHandler implements AsyncCommandHandler<GetMo
 			@Override
 			public void onSuccess(final ListResult<ProjectDTO> projectsResult) {
 				final List<MonitoredPointDTO> monitoredPointDTOs = new ArrayList<MonitoredPointDTO>();
-				for (ProjectDTO projectDTO : projectsResult.getData()) {
-					monitoredPointAsyncDAO.getAllByParentListId(projectDTO.getRemindersList().getId(), new AsyncCallback<List<MonitoredPointDTO>>() {
-						@Override
-						public void onFailure(Throwable caught) {
-							callback.onFailure(caught);
-						}
-
-						@Override
-						public void onSuccess(List<MonitoredPointDTO> result) {
-							final RequestManager<ListResult<MonitoredPointDTO>> manager = new RequestManager<ListResult<MonitoredPointDTO>>(new ListResult<MonitoredPointDTO>(monitoredPointDTOs), callback);
-
-							for (final MonitoredPointDTO monitoredPoint : result) {
-								if (monitoredPoint.getCompletionDate() != null) {
-									continue;
-								}
-
-								projectAsyncDAO.getByIndexWithoutDependencies("pointsListId", monitoredPoint.getParentListId(), new RequestManagerCallback<ListResult<MonitoredPointDTO>, ProjectDTO>(manager) {
-									@Override
-									public void onRequestSuccess(ProjectDTO result) {
-										if (result != null) {
-											monitoredPoint.setProjectId(result.getId());
-											monitoredPoint.setProjectCode(result.getName());
-											monitoredPoint.setProjectName(result.getFullName());
-										}
-									}
-								});
+				if(projectsResult.isNotEmpty())
+					for (ProjectDTO projectDTO : projectsResult.getData()) {
+						monitoredPointAsyncDAO.getAllByParentListId(projectDTO.getRemindersList().getId(), new AsyncCallback<List<MonitoredPointDTO>>() {
+							@Override
+							public void onFailure(Throwable caught) {
+								callback.onFailure(caught);
 							}
-							manager.ready();
-						}
-					});
-				}
+	
+							@Override
+							public void onSuccess(List<MonitoredPointDTO> result) {
+								final RequestManager<ListResult<MonitoredPointDTO>> manager = new RequestManager<ListResult<MonitoredPointDTO>>(new ListResult<MonitoredPointDTO>(monitoredPointDTOs), callback);
+	
+								for (final MonitoredPointDTO monitoredPoint : result) {
+									if (monitoredPoint.getCompletionDate() != null) {
+										continue;
+									}
+	
+									projectAsyncDAO.getByIndexWithoutDependencies("pointsListId", monitoredPoint.getParentListId(), new RequestManagerCallback<ListResult<MonitoredPointDTO>, ProjectDTO>(manager) {
+										@Override
+										public void onRequestSuccess(ProjectDTO result) {
+											if (result != null) {
+												monitoredPoint.setProjectId(result.getId());
+												monitoredPoint.setProjectCode(result.getName());
+												monitoredPoint.setProjectName(result.getFullName());
+											}
+										}
+									});
+								}
+								manager.ready();
+							}
+						});
+					}
 			}
 		});
 	}

@@ -269,6 +269,18 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 			@Override
 			public void handleEvent(OfflineEvent event) {
 				initializeMenuButtons(event.getState());
+
+				 boolean enableContact = true;
+				 if (ApplicationState.OFFLINE == event.getState()) {
+					 view.getContactsList().getView().clearContacts();
+					 view.getContactsList().getView().refreshToolbar();
+					 enableContact = false;
+				 } else {
+					 loadContacts();
+				 }
+				 view.getContactsList().getView().getAddButton().setEnabled(enableContact);
+				 view.getContactsList().getView().getExportButton().setEnabled(enableContact);
+				 view.getContactsList().getView().getImportButton().setEnabled(enableContact);
 			}
 		});
 	}

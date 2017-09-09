@@ -129,12 +129,24 @@ public class UpdateContact extends AbstractCommand<VoidResult> {
     return contactId;
   }
 
+  public void setContactId(int contactId) {
+    this.contactId = contactId;
+  }
+
   public List<ValueEventWrapper> getValues() {
     return values;
   }
 
+  public void setValues(List<ValueEventWrapper> values) {
+    this.values = values;
+  }
+
   public String getComment() {
     return comment;
+  }
+
+  public void setComment(String comment) {
+    this.comment = comment;
   }
 
   private static List<ValueEventWrapper> wrapEvents(List<ValueEvent> events) {

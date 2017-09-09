@@ -47,6 +47,7 @@ public class UpdateProject extends AbstractCommand<VoidResult> {
 	private int projectId;
 	private ArrayList<ValueEventWrapper> values = new ArrayList<ValueEventWrapper>();
 	private String comment;
+	private boolean isOrgUnit = false;
 
 	public UpdateProject() {
 		// Serialization.
@@ -68,7 +69,6 @@ public class UpdateProject extends AbstractCommand<VoidResult> {
 		final HashMap<Integer, List<ValueEvent>> multivaluedValues = new HashMap<Integer, List<ValueEvent>>();
 
 		for (final ValueEvent event : values) {
-
 			// Manages basic values changes.
 			if (event.getSingleValue() != null) {
 				// Keep only the last modification to avoid events repetition.
@@ -150,6 +150,14 @@ public class UpdateProject extends AbstractCommand<VoidResult> {
 	public void setValues(List<ValueEvent> values) {
 		this.values.clear();
 		this.values.addAll(wrapEvents(values));
+	}
+
+	public boolean isOrgUnit() {
+		return isOrgUnit;
+	}
+
+	public void setOrgUnit(boolean isOrgUnit) {
+		this.isOrgUnit = isOrgUnit;
 	}
 
 	/**

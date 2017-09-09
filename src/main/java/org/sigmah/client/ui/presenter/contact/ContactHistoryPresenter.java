@@ -38,6 +38,8 @@ import org.sigmah.client.ui.presenter.base.AbstractPresenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.contact.ContactHistoryView;
 import org.sigmah.client.util.ImageProvider;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.shared.command.GetContactHistory;
 import org.sigmah.shared.command.result.ContactHistory;
 import org.sigmah.shared.command.result.ListResult;
@@ -86,12 +88,16 @@ public class ContactHistoryPresenter extends AbstractPresenter<ContactHistoryPre
   @Override
   public void refresh(ContactDTO contactDTO) {
     view.setImageProvider(imageProvider);
-    dispatch.execute(new GetContactHistory(contactDTO.getId()), new CommandResultHandler<ListResult<ContactHistory>>() {
-      @Override
-      protected void onCommandSuccess(ListResult<ContactHistory> result) {
-        view.updateGridData(result.getList());
-      }
-    });
+
+    // History available in online mode not in offline
+    if(!Profiler.INSTANCE.isOfflineMode()) {
+	    dispatch.execute(new GetContactHistory(contactDTO.getId()), new CommandResultHandler<ListResult<ContactHistory>>() {
+	      @Override
+	      protected void onCommandSuccess(ListResult<ContactHistory> result) {
+	        view.updateGridData(result.getList());
+	      }
+	    });
+    }
   }
 
   public boolean hasValueChanged() {

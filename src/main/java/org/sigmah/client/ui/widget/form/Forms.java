@@ -22,10 +22,10 @@ package org.sigmah.client.ui.widget.form;
  * #L%
  */
 
-
 import java.util.Date;
 
 import org.sigmah.client.dispatch.DispatchAsync;
+import org.sigmah.client.event.EventBus;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.button.SplitButton;
@@ -98,7 +98,8 @@ public final class Forms {
 	 * Default forms fields width (in pixels).
 	 * </p>
 	 * <p>
-	 * Instead of specifying field width manually, use {@link #data()} to generate a {@code 100%} width.
+	 * Instead of specifying field width manually, use {@link #data()} to
+	 * generate a {@code 100%} width.
 	 * </p>
 	 */
 	private static final int DEFAULT_FIELD_WIDTH = 250;
@@ -110,8 +111,8 @@ public final class Forms {
 
 	/**
 	 * <p>
-	 * Default forms panels right padding (in pixels).
-	 * This specific right padding is used to properly display fields error icons.
+	 * Default forms panels right padding (in pixels). This specific right
+	 * padding is used to properly display fields error icons.
 	 * </p>
 	 */
 	static final int DEFAULT_RIGHT_PADDING = 25;
@@ -120,13 +121,14 @@ public final class Forms {
 	 * CSS style name of the headers.
 	 */
 	private static final String STYLE_FORM_HEADER_LABEL = "form-header-label";
-
+	
 	/**
-	 * Builds a new {@link org.sigmah.client.ui.widget.form.FormPanel} with default {@link FormLayout}.
+	 * Builds a new {@link org.sigmah.client.ui.widget.form.FormPanel} with
+	 * default {@link FormLayout}.
 	 * 
 	 * @param stylenames
-	 *          (optional) Style names added to the panel component.
-	 *          {@code null} values are ignored.
+	 *            (optional) Style names added to the panel component.
+	 *            {@code null} values are ignored.
 	 * @return The {@link org.sigmah.client.ui.widget.form.FormPanel} instance.
 	 */
 	public static org.sigmah.client.ui.widget.form.FormPanel panel(final String... stylenames) {
@@ -135,56 +137,64 @@ public final class Forms {
 	}
 
 	/**
-	 * Builds a new {@link org.sigmah.client.ui.widget.form.FormPanel} with default {@link FormLayout}.
+	 * Builds a new {@link org.sigmah.client.ui.widget.form.FormPanel} with
+	 * default {@link FormLayout}.
 	 * 
 	 * @param labelWidth
-	 *          The width of the form fields labels.
+	 *            The width of the form fields labels.
 	 * @param stylenames
-	 *          (optional) Style names added to the panel component.
-	 *          {@code null} values are ignored.
+	 *            (optional) Style names added to the panel component.
+	 *            {@code null} values are ignored.
 	 * @return The {@link org.sigmah.client.ui.widget.form.FormPanel} instance.
 	 */
-	public static org.sigmah.client.ui.widget.form.FormPanel panel(final Integer labelWidth, final String... stylenames) {
+	public static org.sigmah.client.ui.widget.form.FormPanel panel(final Integer labelWidth,
+			final String... stylenames) {
 
 		return panel(null, false, labelWidth, null, stylenames);
 	}
 
 	/**
-	 * Builds a new {@link org.sigmah.client.ui.widget.form.FormPanel} with default {@link FormLayout}.
+	 * Builds a new {@link org.sigmah.client.ui.widget.form.FormPanel} with
+	 * default {@link FormLayout}.
 	 * 
 	 * @param labelWidth
-	 *          The width of the form fields labels.
+	 *            The width of the form fields labels.
 	 * @param fieldWidth
-	 *          The width of the form fields. Set a default value if {@code null}.
+	 *            The width of the form fields. Set a default value if
+	 *            {@code null}.
 	 * @param stylenames
-	 *          (optional) Style names added to the panel component.
-	 *          {@code null} values are ignored.
+	 *            (optional) Style names added to the panel component.
+	 *            {@code null} values are ignored.
 	 * @return The {@link org.sigmah.client.ui.widget.form.FormPanel} instance.
 	 */
-	public static org.sigmah.client.ui.widget.form.FormPanel panel(final Integer labelWidth, final Integer fieldWidth, final String... stylenames) {
+	public static org.sigmah.client.ui.widget.form.FormPanel panel(final Integer labelWidth, final Integer fieldWidth,
+			final String... stylenames) {
 
 		return panel(null, false, labelWidth, fieldWidth, stylenames);
 	}
 
 	/**
-	 * Builds a new {@link org.sigmah.client.ui.widget.form.FormPanel} with default {@link FormLayout}.
+	 * Builds a new {@link org.sigmah.client.ui.widget.form.FormPanel} with
+	 * default {@link FormLayout}.
 	 * 
 	 * @param title
-	 *          The panel header title (html is supported).
-	 *          If {@code null}, header is disabled and automatically hidden.
+	 *            The panel header title (html is supported). If {@code null},
+	 *            header is disabled and automatically hidden.
 	 * @param collapsible
-	 *          {@code true} to set the panel collapsible (expand/collapse toggle button).
+	 *            {@code true} to set the panel collapsible (expand/collapse
+	 *            toggle button).
 	 * @param labelWidth
-	 *          The width of the form fields labels.
+	 *            The width of the form fields labels.
 	 * @param fieldWidth
-	 *          The width of the form fields. Set a default value if {@code null}.
+	 *            The width of the form fields. Set a default value if
+	 *            {@code null}.
 	 * @param stylenames
-	 *          (optional) Style names added to the panel component.
-	 *          {@code null} values are ignored.
+	 *            (optional) Style names added to the panel component.
+	 *            {@code null} values are ignored.
 	 * @return The {@link org.sigmah.client.ui.widget.form.FormPanel} instance.
 	 */
-	public static org.sigmah.client.ui.widget.form.FormPanel panel(final String title, final boolean collapsible, final Integer labelWidth,
-			final Integer fieldWidth, final String... stylenames) {
+	public static org.sigmah.client.ui.widget.form.FormPanel panel(final String title, final boolean collapsible,
+			final Integer labelWidth, final Integer fieldWidth, final String... stylenames) {
 
 		final org.sigmah.client.ui.widget.form.FormPanel panel = new org.sigmah.client.ui.widget.form.FormPanel();
 
@@ -213,20 +223,20 @@ public final class Forms {
 	 * Builds a new {@link org.sigmah.client.ui.widget.form.IterableGroupPanel}.
 	 *
 	 * @param title
-	 *          The panel header title (html is supported).
-	 *          If {@code null}, header is disabled and automatically hidden.
+	 *            The panel header title (html is supported). If {@code null},
+	 *            header is disabled and automatically hidden.
 	 * @param stylenames
-	 *          (optional) Style names added to the panel component.
-	 *          {@code null} values are ignored.
-	 * @return The {@link org.sigmah.client.ui.widget.form.IterableGroupPanel} instance.
+	 *            (optional) Style names added to the panel component.
+	 *            {@code null} values are ignored.
+	 * @return The {@link org.sigmah.client.ui.widget.form.IterableGroupPanel}
+	 *         instance.
 	 */
 	public static org.sigmah.client.ui.widget.form.IterableGroupPanel iterableGroupPanel(DispatchAsync dispatch,
-																																											 final LayoutGroupDTO layoutGroup,
-																																											 FlexibleElementContainer container,
-																																											 final boolean canEdit,
-																																											 final String... stylenames) {
+			final LayoutGroupDTO layoutGroup, FlexibleElementContainer container, final boolean canEdit, EventBus eventBus,
+			final String... stylenames) {
 
-		final org.sigmah.client.ui.widget.form.IterableGroupPanel panel = new org.sigmah.client.ui.widget.form.IterableGroupPanel(dispatch, layoutGroup, container, canEdit);
+		final org.sigmah.client.ui.widget.form.IterableGroupPanel panel = new org.sigmah.client.ui.widget.form.IterableGroupPanel(
+				dispatch, layoutGroup, container, canEdit, eventBus);
 
 		String title = layoutGroup.getTitle();
 
@@ -243,8 +253,6 @@ public final class Forms {
 
 		return panel;
 	}
-
-
 
 	// --------------------------------------------------------------------------------
 	//
@@ -266,12 +274,14 @@ public final class Forms {
 	 * Builds a new {@link FormLayout}.
 	 * 
 	 * @param labelWidth
-	 *          The width of the form fields labels. Set a default value if {@code null}.
+	 *            The width of the form fields labels. Set a default value if
+	 *            {@code null}.
 	 * @param fieldWidth
-	 *          The width of the form fields. Set a default value if {@code null}.
+	 *            The width of the form fields. Set a default value if
+	 *            {@code null}.
 	 * @param stylenames
-	 *          (optional) Style names added to the layout.
-	 *          {@code null} values are ignored.
+	 *            (optional) Style names added to the layout. {@code null}
+	 *            values are ignored.
 	 * @return The {@link FormLayout} instance.
 	 */
 	public static FormLayout layout(final Integer labelWidth, final Integer fieldWidth, final String... stylenames) {
@@ -313,7 +323,7 @@ public final class Forms {
 	 * Builds a new form header label widget.
 	 * 
 	 * @param label
-	 *          The form header label.
+	 *            The form header label.
 	 * @return A new form header label widget.
 	 */
 	public static Widget header(String label) {
@@ -336,11 +346,13 @@ public final class Forms {
 	 * Builds a {@link TextField}.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static <D> TextField<D> text(String label, boolean mandatory, String... stylenames) {
@@ -351,13 +363,15 @@ public final class Forms {
 	 * Builds a {@link TextField}.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param maxLength
-	 *          Max length of the value.
+	 *            Max length of the value.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static <D> TextField<D> text(String label, boolean mandatory, Integer maxLength, String... stylenames) {
@@ -388,11 +402,13 @@ public final class Forms {
 	 * Builds a {@link TextArea}.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static TextArea textarea(String label, boolean mandatory, String... stylenames) {
@@ -403,13 +419,15 @@ public final class Forms {
 	 * Builds a {@link TextArea}.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param maxLength
-	 *          Max length of the value.
+	 *            Max length of the value.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static TextArea textarea(String label, boolean mandatory, Integer maxLength, String... stylenames) {
@@ -440,11 +458,13 @@ public final class Forms {
 	 * Builds a {@link NumberField}.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static NumberField number(String label, boolean mandatory, String... stylenames) {
@@ -455,13 +475,15 @@ public final class Forms {
 	 * Builds a {@link NumberField}.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param allowNegative
-	 *          Sets whether negative value are allowed.
+	 *            Sets whether negative value are allowed.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static NumberField number(String label, boolean mandatory, boolean allowNegative, String... stylenames) {
@@ -472,18 +494,21 @@ public final class Forms {
 	 * Builds a {@link NumberField}.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param allowNegative
-	 *          Sets whether negative value are allowed.
+	 *            Sets whether negative value are allowed.
 	 * @param allowDecimals
-	 *          Sets whether decimal value are allowed.
+	 *            Sets whether decimal value are allowed.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
-	public static NumberField number(String label, boolean mandatory, boolean allowNegative, boolean allowDecimals, String... stylenames) {
+	public static NumberField number(String label, boolean mandatory, boolean allowNegative, boolean allowDecimals,
+			String... stylenames) {
 		return number(label, mandatory, allowNegative, allowDecimals, null, stylenames);
 	}
 
@@ -491,21 +516,23 @@ public final class Forms {
 	 * Builds a {@link NumberField}.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param allowNegative
-	 *          Sets whether negative value are allowed.
+	 *            Sets whether negative value are allowed.
 	 * @param allowDecimals
-	 *          Sets whether decimal value are allowed.
+	 *            Sets whether decimal value are allowed.
 	 * @param format
-	 *          The number format.
+	 *            The number format.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
-	public static NumberField number(String label, boolean mandatory, boolean allowNegative, boolean allowDecimals, final NumberFormat format,
-			String... stylenames) {
+	public static NumberField number(String label, boolean mandatory, boolean allowNegative, boolean allowDecimals,
+			final NumberFormat format, String... stylenames) {
 
 		final NumberField field = new NumberField();
 
@@ -556,9 +583,11 @@ public final class Forms {
 	 * Builds a {@link LabelField}.
 	 * 
 	 * @param label
-	 *          The field label (automatically includes proper form label separator).
+	 *            The field label (automatically includes proper form label
+	 *            separator).
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static LabelField label(String label, String... stylenames) {
@@ -580,22 +609,26 @@ public final class Forms {
 	// --
 
 	/**
-	 * Builds a {@link ComboBox} with a default empty {@link ListStore} and default {@link TriggerAction#ALL}.<br>
+	 * Builds a {@link ComboBox} with a default empty {@link ListStore} and
+	 * default {@link TriggerAction#ALL}.<br>
 	 * Generated field is not editable by default.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param valueField
-	 *          The value field name.
+	 *            The value field name.
 	 * @param displayField
-	 *          The display field.
+	 *            The display field.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
-	public static <D extends ModelData> ComboBox<D> combobox(String label, boolean mandatory, String valueField, String displayField, String... stylenames) {
+	public static <D extends ModelData> ComboBox<D> combobox(String label, boolean mandatory, String valueField,
+			String displayField, String... stylenames) {
 		return combobox(label, mandatory, valueField, displayField, null, null, stylenames);
 	}
 
@@ -604,21 +637,23 @@ public final class Forms {
 	 * Generated field is not editable by default.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param valueField
-	 *          The value field name.
+	 *            The value field name.
 	 * @param displayField
-	 *          The display field.
+	 *            The display field.
 	 * @param store
-	 *          The values store.
+	 *            The values store.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
-	public static <D extends ModelData> ComboBox<D> combobox(String label, boolean mandatory, String valueField, String displayField, ListStore<D> store,
-			String... stylenames) {
+	public static <D extends ModelData> ComboBox<D> combobox(String label, boolean mandatory, String valueField,
+			String displayField, ListStore<D> store, String... stylenames) {
 		return combobox(label, mandatory, valueField, displayField, null, store, stylenames);
 	}
 
@@ -627,23 +662,26 @@ public final class Forms {
 	 * Generated field is not editable by default.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param valueField
-	 *          The value field name.
+	 *            The value field name.
 	 * @param displayField
-	 *          The display field.
+	 *            The display field.
 	 * @param emptyText
-	 *          The empty text. If blank, a default empty text is set.
+	 *            The empty text. If blank, a default empty text is set.
 	 * @param store
-	 *          The values store. If {@code null}, an empty {@link ListStore} is set.
+	 *            The values store. If {@code null}, an empty {@link ListStore}
+	 *            is set.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
-	public static <D extends ModelData> ComboBox<D> combobox(String label, boolean mandatory, String valueField, String displayField, String emptyText,
-			ListStore<D> store, String... stylenames) {
+	public static <D extends ModelData> ComboBox<D> combobox(String label, boolean mandatory, String valueField,
+			String displayField, String emptyText, ListStore<D> store, String... stylenames) {
 
 		final ComboBox<D> field = new ComboBox<D>();
 		field.setTriggerAction(TriggerAction.ALL);
@@ -678,15 +716,18 @@ public final class Forms {
 	// --
 
 	/**
-	 * Builds a {@link SimpleComboBox} with default {@link TriggerAction#ALL}.<br>
+	 * Builds a {@link SimpleComboBox} with default
+	 * {@link TriggerAction#ALL}.<br>
 	 * Generated field is not editable by default.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static <T> SimpleComboBox<T> simpleCombobox(String label, boolean mandatory, String... stylenames) {
@@ -694,20 +735,24 @@ public final class Forms {
 	}
 
 	/**
-	 * Builds a {@link SimpleComboBox} with default {@link TriggerAction#ALL}.<br>
+	 * Builds a {@link SimpleComboBox} with default
+	 * {@link TriggerAction#ALL}.<br>
 	 * Generated field is not editable by default.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param emptyText
-	 *          The empty text. If blank, a default empty text is set.
+	 *            The empty text. If blank, a default empty text is set.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
-	public static <T> SimpleComboBox<T> simpleCombobox(String label, boolean mandatory, String emptyText, String... stylenames) {
+	public static <T> SimpleComboBox<T> simpleCombobox(String label, boolean mandatory, String emptyText,
+			String... stylenames) {
 
 		final SimpleComboBox<T> field = new SimpleComboBox<T>();
 		field.setTriggerAction(TriggerAction.ALL);
@@ -738,9 +783,10 @@ public final class Forms {
 	 * Builds a {@link Radio}.
 	 * 
 	 * @param boxLabel
-	 *          The field <b>radio</b> label.
+	 *            The field <b>radio</b> label.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static Radio radio(String boxLabel, String... stylenames) {
@@ -753,11 +799,12 @@ public final class Forms {
 	 * Builds a {@link Radio}.
 	 * 
 	 * @param boxLabel
-	 *          The field <b>radio</b> label.
+	 *            The field <b>radio</b> label.
 	 * @param value
-	 *          The field value ({@code null} means {@code false}).
+	 *            The field value ({@code null} means {@code false}).
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static Radio radio(String boxLabel, Boolean value, String... stylenames) {
@@ -770,13 +817,15 @@ public final class Forms {
 	 * Builds a {@link Radio}.
 	 * 
 	 * @param boxLabel
-	 *          The field <b>radio</b> label.
+	 *            The field <b>radio</b> label.
 	 * @param name
-	 *          The radio field name property (recommended for {@link RadioGroup} fields).
+	 *            The radio field name property (recommended for
+	 *            {@link RadioGroup} fields).
 	 * @param value
-	 *          The field value ({@code null} means {@code false}).
+	 *            The field value ({@code null} means {@code false}).
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static Radio radio(String boxLabel, String name, Boolean value, String... stylenames) {
@@ -789,15 +838,17 @@ public final class Forms {
 	 * Builds a {@link Radio}.
 	 * 
 	 * @param boxLabel
-	 *          The field <b>radio</b> label.
+	 *            The field <b>radio</b> label.
 	 * @param name
-	 *          The radio field name property (recommended for {@link RadioGroup} fields).
+	 *            The radio field name property (recommended for
+	 *            {@link RadioGroup} fields).
 	 * @param fieldLabel
-	 *          The field label.
+	 *            The field label.
 	 * @param value
-	 *          The field value ({@code null} means {@code false}).
+	 *            The field value ({@code null} means {@code false}).
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static Radio radio(String boxLabel, String name, String fieldLabel, Boolean value, String... stylenames) {
@@ -823,12 +874,13 @@ public final class Forms {
 	}
 
 	/**
-	 * Builds a {@link RadioGroup} with auto-generated name property and default horizontal orientation.
+	 * Builds a {@link RadioGroup} with auto-generated name property and default
+	 * horizontal orientation.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param radios
-	 *          The {@link Radio} fields that belong to the group.
+	 *            The {@link Radio} fields that belong to the group.
 	 * @return The field.
 	 */
 	public static RadioGroup radioGroup(String label, Radio... radios) {
@@ -841,11 +893,11 @@ public final class Forms {
 	 * Builds a {@link RadioGroup} with auto-generated name property.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param orientation
-	 *          The radios orientation.
+	 *            The radios orientation.
 	 * @param radios
-	 *          The {@link Radio} fields that belong to the group.
+	 *            The {@link Radio} fields that belong to the group.
 	 * @return The field.
 	 */
 	public static RadioGroup radioGroup(String label, Orientation orientation, Radio... radios) {
@@ -858,13 +910,15 @@ public final class Forms {
 	 * Builds a {@link Radio}.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param name
-	 *          The radios group name property. If {@code null}, default auto-generated name is set.
+	 *            The radios group name property. If {@code null}, default
+	 *            auto-generated name is set.
 	 * @param orientation
-	 *          The radios orientation. If {@code null}, default horizontal orientation is set.
+	 *            The radios orientation. If {@code null}, default horizontal
+	 *            orientation is set.
 	 * @param radios
-	 *          The {@link Radio} fields that belong to the group.
+	 *            The {@link Radio} fields that belong to the group.
 	 * @return The field.
 	 */
 	public static RadioGroup radioGroup(String label, String name, Orientation orientation, Radio... radios) {
@@ -902,9 +956,11 @@ public final class Forms {
 	 * Builds a {@link CheckBox}.
 	 * 
 	 * @param boxLabel
-	 *          The field <b>checkbox</b> label. None if {@code null}, but <em>empty</em> will generate one.
+	 *            The field <b>checkbox</b> label. None if {@code null}, but
+	 *            <em>empty</em> will generate one.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static CheckBox checkbox(String boxLabel, String... stylenames) {
@@ -917,11 +973,13 @@ public final class Forms {
 	 * Builds a {@link CheckBox}.
 	 * 
 	 * @param boxLabel
-	 *          The field <b>checkbox</b> label. None if {@code null}, but <em>empty</em> will generate one.
+	 *            The field <b>checkbox</b> label. None if {@code null}, but
+	 *            <em>empty</em> will generate one.
 	 * @param value
-	 *          The field value ({@code null} means {@code false}).
+	 *            The field value ({@code null} means {@code false}).
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static CheckBox checkbox(String boxLabel, Boolean value, String... stylenames) {
@@ -934,13 +992,16 @@ public final class Forms {
 	 * Builds a {@link CheckBox}.
 	 * 
 	 * @param boxLabel
-	 *          The field <b>checkbox</b> label. None if {@code null}, but <em>empty</em> will generate one.
+	 *            The field <b>checkbox</b> label. None if {@code null}, but
+	 *            <em>empty</em> will generate one.
 	 * @param name
-	 *          The field name property (recommended for {@link CheckBoxGroup} fields).
+	 *            The field name property (recommended for {@link CheckBoxGroup}
+	 *            fields).
 	 * @param value
-	 *          The field value ({@code null} means {@code false}).
+	 *            The field value ({@code null} means {@code false}).
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static CheckBox checkbox(String boxLabel, String name, Boolean value, String... stylenames) {
@@ -953,22 +1014,27 @@ public final class Forms {
 	 * Builds a {@link CheckBox}.
 	 * 
 	 * @param boxLabel
-	 *          The field <b>checkbox</b> label. None if {@code null}, but <em>empty</em> will generate one.
+	 *            The field <b>checkbox</b> label. None if {@code null}, but
+	 *            <em>empty</em> will generate one.
 	 * @param name
-	 *          The field name property (recommended for {@link CheckBoxGroup} fields).
+	 *            The field name property (recommended for {@link CheckBoxGroup}
+	 *            fields).
 	 * @param fieldLabel
-	 *          The field label.
+	 *            The field label.
 	 * @param value
-	 *          The field value ({@code null} means {@code false}).
+	 *            The field value ({@code null} means {@code false}).
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
-	public static CheckBox checkbox(String boxLabel, String name, String fieldLabel, Boolean value, String... stylenames) {
+	public static CheckBox checkbox(String boxLabel, String name, String fieldLabel, Boolean value,
+			String... stylenames) {
 
 		final CheckBox field = new CheckBox();
 
-		// Should not process a 'null/blank' control to let the user set an empty boxLabel.
+		// Should not process a 'null/blank' control to let the user set an
+		// empty boxLabel.
 		field.setBoxLabel(boxLabel);
 
 		if (ClientUtils.isNotBlank(name)) {
@@ -986,12 +1052,13 @@ public final class Forms {
 	}
 
 	/**
-	 * Builds a {@link CheckBoxGroup} with auto-generated name property and default horizontal orientation.
+	 * Builds a {@link CheckBoxGroup} with auto-generated name property and
+	 * default horizontal orientation.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param checkBoxes
-	 *          The {@link CheckBox} fields that belong to the group.
+	 *            The {@link CheckBox} fields that belong to the group.
 	 * @return The field.
 	 */
 	public static CheckBoxGroup checkBoxGroup(String label, CheckBox... checkBoxes) {
@@ -1004,11 +1071,11 @@ public final class Forms {
 	 * Builds a {@link CheckBoxGroup} with auto-generated name property.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param orientation
-	 *          The radios orientation.
+	 *            The radios orientation.
 	 * @param checkBoxes
-	 *          The {@link CheckBox} fields that belong to the group.
+	 *            The {@link CheckBox} fields that belong to the group.
 	 * @return The field.
 	 */
 	public static CheckBoxGroup checkBoxGroup(String label, Orientation orientation, CheckBox... checkBoxes) {
@@ -1021,16 +1088,19 @@ public final class Forms {
 	 * Builds a {@link CheckBoxGroup}.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param name
-	 *          The checkboxes group name property. If {@code null}, default auto-generated name is set.
+	 *            The checkboxes group name property. If {@code null}, default
+	 *            auto-generated name is set.
 	 * @param orientation
-	 *          The checkboxes orientation. If {@code null}, default horizontal orientation is set.
+	 *            The checkboxes orientation. If {@code null}, default
+	 *            horizontal orientation is set.
 	 * @param checkBoxes
-	 *          The {@link CheckBox} fields that belong to the group.
+	 *            The {@link CheckBox} fields that belong to the group.
 	 * @return The field.
 	 */
-	public static CheckBoxGroup checkBoxGroup(String label, String name, Orientation orientation, CheckBox... checkBoxes) {
+	public static CheckBoxGroup checkBoxGroup(String label, String name, Orientation orientation,
+			CheckBox... checkBoxes) {
 
 		final CheckBoxGroup field = new CheckBoxGroup();
 
@@ -1065,7 +1135,7 @@ public final class Forms {
 	 * Builds a {@link FileUploadField}.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @return The field.
 	 */
 	public static FileUploadField upload(String label) {
@@ -1078,9 +1148,9 @@ public final class Forms {
 	 * Builds a {@link FileUploadField}.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param name
-	 *          The field name property.
+	 *            The field name property.
 	 * @return The field.
 	 */
 	public static FileUploadField upload(String label, String name) {
@@ -1107,11 +1177,13 @@ public final class Forms {
 	 * Builds a {@link DateField}.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static DateField date(String label, boolean mandatory, String... stylenames) {
@@ -1122,15 +1194,17 @@ public final class Forms {
 	 * Builds a {@link DateField}.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param minValue
-	 *          The min value date.
+	 *            The min value date.
 	 * @param maxValue
-	 *          The max value date.
+	 *            The max value date.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static DateField date(String label, boolean mandatory, Date minValue, Date maxValue, String... stylenames) {
@@ -1165,11 +1239,13 @@ public final class Forms {
 	 * Builds a {@link TimeField}.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static TimeField time(String label, boolean mandatory, String... stylenames) {
@@ -1180,15 +1256,17 @@ public final class Forms {
 	 * Builds a {@link TimeField}.
 	 * 
 	 * @param label
-	 *          The field label.
+	 *            The field label.
 	 * @param mandatory
-	 *          <code>true</code> if the field doesn't allow blanks, <code>false</code> otherwise.
+	 *            <code>true</code> if the field doesn't allow blanks,
+	 *            <code>false</code> otherwise.
 	 * @param minValue
-	 *          The min value date.
+	 *            The min value date.
 	 * @param maxValue
-	 *          The max value date.
+	 *            The max value date.
 	 * @param stylenames
-	 *          (optional) Style name(s) added to the field. Blank values are ignored.
+	 *            (optional) Style name(s) added to the field. Blank values are
+	 *            ignored.
 	 * @return The field.
 	 */
 	public static TimeField time(String label, boolean mandatory, Date minValue, Date maxValue, String... stylenames) {
@@ -1213,7 +1291,7 @@ public final class Forms {
 
 		// Necessary to avoid NPE in 'clear()' method.
 		field.setStore(new ListStore<Time>());
-		
+
 		field.setTriggerAction(TriggerAction.ALL);
 
 		return addStyles(field, stylenames);
@@ -1223,23 +1301,26 @@ public final class Forms {
 	// --
 	// -- AdapterField
 	// --
-	
+
 	/**
-	 * Wraps the given {@code widget} with a ScollPanel and builds an 
+	 * Wraps the given {@code widget} with a ScollPanel and builds an
 	 * {@link AdapterField} for it.
 	 * 
 	 * @param label
-	 *			The field label. If {@code blank}, label separator is automatically disabled.
+	 *            The field label. If {@code blank}, label separator is
+	 *            automatically disabled.
 	 * @param widget
-	 *			The widget wrapped into the scroll panel and into the adapter field.
+	 *            The widget wrapped into the scroll panel and into the adapter
+	 *            field.
 	 * @param width
-	 *			Width of the given widget.
+	 *            Width of the given widget.
 	 * @param height
-	 *			Height of the scroll panel.
+	 *            Height of the scroll panel.
 	 * @return The field.
 	 */
-	public static AdapterField adapterWithScrollbars(final String label, final IsWidget widget, final int width, final int height) {
-		
+	public static AdapterField adapterWithScrollbars(final String label, final IsWidget widget, final int width,
+			final int height) {
+
 		final ScrollPanel scrollPanel = new ScrollPanel();
 		scrollPanel.setWidget(Widget.asWidgetOrNull(widget));
 		scrollPanel.addAttachHandler(new AttachEvent.Handler() {
@@ -1249,18 +1330,19 @@ public final class Forms {
 			}
 		});
 		scrollPanel.setHeight(height + "px");
-		
+
 		return adapter(label, scrollPanel);
-		
+
 	}
 
 	/**
 	 * Builds an {@link AdapterField} for the given {@code widget}.
 	 * 
 	 * @param label
-	 *          The field label. If {@code blank}, label separator is automatically disabled.
+	 *            The field label. If {@code blank}, label separator is
+	 *            automatically disabled.
 	 * @param widget
-	 *          The widget wrapped into the adapter field.
+	 *            The widget wrapped into the adapter field.
 	 * @return The field.
 	 */
 	public static AdapterField adapter(final String label, final IsWidget widget) {
@@ -1273,11 +1355,12 @@ public final class Forms {
 	 * Builds an {@link AdapterField} for the given {@code widget}.
 	 * 
 	 * @param label
-	 *          The field label. If {@code blank}, label separator is automatically disabled.
+	 *            The field label. If {@code blank}, label separator is
+	 *            automatically disabled.
 	 * @param widget
-	 *          The widget wrapped into the adapter field.
+	 *            The widget wrapped into the adapter field.
 	 * @param resizeWidget
-	 *          {@code true} to resize the widget.
+	 *            {@code true} to resize the widget.
 	 * @return The field.
 	 */
 	public static AdapterField adapter(final String label, final IsWidget widget, final Boolean resizeWidget) {
@@ -1299,7 +1382,7 @@ public final class Forms {
 		return field;
 
 	}
-	
+
 	// --
 	// -- HiddenField
 	// --
@@ -1308,9 +1391,9 @@ public final class Forms {
 	 * Builds a {@link HiddenField}.
 	 * 
 	 * @param <D>
-	 *          The hidden field value type.
+	 *            The hidden field value type.
 	 * @param name
-	 *          The field name property.
+	 *            The field name property.
 	 * @return The field.
 	 */
 	public static <D> HiddenField<D> hidden(final String name) {
@@ -1343,7 +1426,7 @@ public final class Forms {
 	 * Creates a new button with the given HTML.
 	 * 
 	 * @param html
-	 *          the button text as HTML.
+	 *            the button text as HTML.
 	 * 
 	 * @return A new button with the given label.
 	 */
@@ -1355,9 +1438,9 @@ public final class Forms {
 	 * Creates a new button with the given HTML and icon.
 	 * 
 	 * @param html
-	 *          the button text as HTML.
+	 *            the button text as HTML.
 	 * @param icon
-	 *          the icon.
+	 *            the icon.
 	 * 
 	 * @return A new button with the given label and the given icon.
 	 */
@@ -1366,63 +1449,67 @@ public final class Forms {
 	}
 
 	/**
-	 * Creates a new button with the given HTML, icon and specified selection listener.
+	 * Creates a new button with the given HTML, icon and specified selection
+	 * listener.
 	 * 
 	 * @param html
-	 *          the button text as HTML.
+	 *            the button text as HTML.
 	 * @param icon
-	 *          the icon.
+	 *            the icon.
 	 * @param listener
-	 *          the selection listener.
+	 *            the selection listener.
 	 * 
 	 * @return A new button with the given listener.
 	 */
-	public static Button button(final String html, final AbstractImagePrototype icon, final SelectionListener<ButtonEvent> listener) {
+	public static Button button(final String html, final AbstractImagePrototype icon,
+			final SelectionListener<ButtonEvent> listener) {
 		return new Button(html, icon, listener);
 	}
 
 	/**
-	 * Creates a new button with the given HTML and specified selection listener.
+	 * Creates a new button with the given HTML and specified selection
+	 * listener.
 	 * 
 	 * @param html
-	 *          the button's text as HTML.
+	 *            the button's text as HTML.
 	 * @param listener
-	 *          the selection listener.
+	 *            the selection listener.
 	 * 
 	 * @return A new button with the given listener.
 	 */
 	public static Button button(final String html, final SelectionListener<ButtonEvent> listener) {
 		return new Button(html, listener);
 	}
-	
+
 	/**
 	 * Creates a new button with the given HTML and icon.
 	 * 
 	 * @param html
-	 *          the button text as HTML.
+	 *            the button text as HTML.
 	 * @param icon
-	 *          the icon.
+	 *            the icon.
 	 * 
 	 * @return A new button with the given label and the given icon.
 	 */
 	public static SplitButton splitButton(final String html, final AbstractImagePrototype icon) {
 		return new SplitButton(html, icon);
 	}
-	
+
 	/**
-	 * Creates a new save split button and its menu composed of a save item and a discard changes item.
+	 * Creates a new save split button and its menu composed of a save item and
+	 * a discard changes item.
 	 * 
 	 * @return A new save split button.
 	 */
 	public static SplitButton saveSplitButton() {
 		final SplitButton saveButton = Forms.splitButton(I18N.CONSTANTS.save(), IconImageBundle.ICONS.save());
-		
+
 		// Menu attached to the save button.
 		final Menu menu = new Menu();
 		menu.add(new MenuItem(I18N.CONSTANTS.save(), IconImageBundle.ICONS.save()));
 		menu.add(new MenuItem(I18N.CONSTANTS.discardChanges(), IconImageBundle.ICONS.cancel()));
 		saveButton.setMenu(menu);
-		
+
 		return saveButton;
 	}
 
@@ -1434,9 +1521,9 @@ public final class Forms {
 	 * Adds the given {@code stylenames} to the given {@code ui}.
 	 * 
 	 * @param ui
-	 *          The UI object. Does nothing if {@code null}.
+	 *            The UI object. Does nothing if {@code null}.
 	 * @param stylenames
-	 *          The style name(s). Does nothing if {@code null}.
+	 *            The style name(s). Does nothing if {@code null}.
 	 * @return The given {@code ui} with added style(s).
 	 */
 	private static <U extends UIObject> U addStyles(final U ui, String... stylenames) {

@@ -126,8 +126,10 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> implements D
   }
 
   public void setContactModel(ContactModelDTO contactModel) {
-    set(CONTACT_MODEL, contactModel);
-    initType();
+	if(contactModel != null) {
+		set(CONTACT_MODEL, contactModel);
+    	initType();
+	}
   }
 
   public Integer getUserId() {

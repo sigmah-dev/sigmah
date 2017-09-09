@@ -60,7 +60,7 @@ public class NativeOpenDatabaseRequest<S extends Enum<S> & Schema> extends Reque
 	 */
 	private native void registerEvents(IDBOpenDBRequest request) /*-{
 		if(typeof $wnd.Object.getPrototypeOf != 'undefined') {
-			$wnd.Object.getPrototypeOf(this).handleEvent = function(event) {
+			$wnd.Object.getPrototypeOf(this).handleEvent = $entry(function(event) {
 				switch(event.type) {
 					case 'success':
 						this.@org.sigmah.offline.indexeddb.NativeOpenDatabaseRequest::fireSuccess(Lcom/google/gwt/core/client/JavaScriptObject;)(event);
@@ -77,7 +77,7 @@ public class NativeOpenDatabaseRequest<S extends Enum<S> & Schema> extends Reque
 					default:
 						break;
 				}
-			};
+			});
 			request.addEventListener('upgradeneeded', this);
 			request.addEventListener('blocked', this);
 		}

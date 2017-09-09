@@ -107,6 +107,8 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 
 		void clearContacts();
 
+		void refreshToolbar();
+
 		void updateToolbar(boolean addContact, boolean importContact, boolean exportContact);
 
 		Button getAddButton();

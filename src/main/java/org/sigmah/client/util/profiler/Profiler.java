@@ -157,5 +157,9 @@ public class Profiler implements ProfilerStrategy {
 	public void setAuthenticationProvider(AuthenticationProvider authenticationProvider) {
 		this.authenticationProvider = authenticationProvider;
 	}
+
+	public boolean isOfflineMode() {
+		return this.getApplicationStateManager().getLastState() == ApplicationState.OFFLINE;
+	}
 	
 }

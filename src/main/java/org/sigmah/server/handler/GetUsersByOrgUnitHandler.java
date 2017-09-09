@@ -62,7 +62,7 @@ public class GetUsersByOrgUnitHandler extends AbstractCommandHandler<GetUsersByO
 			// Currently loaded OrgUnits doesn't have a link to their parent and to their children
 			// Let's force the UserDTO to have these links
 			if (user.getMainOrgUnitWithProfiles() != null) {
-				userDTO.setMainOrgUnit(mapper().map(user.getMainOrgUnitWithProfiles().getOrgUnit(), OrgUnitDTO.class));
+				userDTO.setMainOrgUnit(mapper().map(user.getMainOrgUnitWithProfiles().getOrgUnit(), new OrgUnitDTO()));
 			}
 			List<OrgUnit> secondaryOrgUnits = user.getSecondaryOrgUnits();
 			if (secondaryOrgUnits != null && !secondaryOrgUnits.isEmpty()) {
