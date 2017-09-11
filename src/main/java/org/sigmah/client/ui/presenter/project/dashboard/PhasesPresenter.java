@@ -1521,8 +1521,8 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 				Iterator<ValueEvent> valuesIterator = valueChanges.iterator();
 				while (valuesIterator.hasNext()) {
 					ValueEvent valueEvent = valuesIterator.next();
-
-					if (valueEvent.getIterationId() == iterationChange.getIterationId()) {
+					Integer iterationId = valueEvent.getIterationId();
+					if (iterationId != null && iterationId == iterationChange.getIterationId()) {
 						valuesIterator.remove();
 					}
 				}
@@ -1535,7 +1535,8 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 				newIterationsTabItems.get(oldId).setIterationId(newId);
 
 				for (ValueEvent valueEvent : valueChanges) {
-					if (valueEvent.getIterationId() == oldId) {
+					Integer iterationId = valueEvent.getIterationId();
+					if (iterationId != null && iterationId == oldId) {
 						valueEvent.setIterationId(newId);
 					}
 				}
