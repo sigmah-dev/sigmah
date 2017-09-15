@@ -1644,11 +1644,11 @@ public final class ClientUtils {
 		mailTos.deleteCharAt(mailTos.length() - 1);
 		if (isNotBlank(subject)) {
 			mailTos.append("?subject=");
-			mailTos.append(URL.encodeQueryString(subject));
+			mailTos.append(subject);
 		}
 		if (isNotBlank(body)) {
 			mailTos.append((isNotBlank(subject) ? "&" : "?") + "body=");
-			mailTos.append(URL.encodeQueryString(body));
+			mailTos.append(body);
 		}
 
 		Window.Location.assign(mailTos.toString());
