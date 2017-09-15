@@ -283,6 +283,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String CATEGORY_ELEMENT_COLUMN_ID = "id_category_element";
 	public static final String CATEGORY_ELEMENT_COLUMN_COLOR_HEX = "color_hex";
 	public static final String CATEGORY_ELEMENT_COLUMN_LABEL = "label";
+	public static final String IS_DISABLED = "isdisabled"; 
 
 	public static final int CATEGORY_ELEMENT_COLOR_HEX_MAX_LENGTH = 6;
 
