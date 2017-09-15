@@ -865,7 +865,7 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 
 				// Notifies the project creation.
 				eventBus.fireEvent(new UpdateEvent(UpdateEvent.PROJECT_CREATE, eventParams));
-
+				N10N.notification(I18N.CONSTANTS.createProjectSucceeded(),I18N.CONSTANTS.createProjectSucceededDetails(),MessageType.INFO);
 			}
 		}, view.getCreateButton());
 	}
