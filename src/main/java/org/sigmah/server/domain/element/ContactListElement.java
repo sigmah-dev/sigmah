@@ -56,7 +56,7 @@ public class ContactListElement extends FlexibleElement {
   private int limit;
 
   @Column(name = EntityConstants.CONTACT_LIST_ELEMENT_COLUMN_IS_MEMBER, nullable = false)
-  private boolean isMember;
+  private boolean member;
 
   // TODO: Add isMemberOfOrganization parameter
 
@@ -95,11 +95,11 @@ public class ContactListElement extends FlexibleElement {
   }
 
   public boolean isMember() {
-    return isMember;
+    return member;
   }
 
   public void setMember(boolean member) {
-    isMember = member;
+    this.member = member;
   }
 
   @Override

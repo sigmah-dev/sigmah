@@ -83,7 +83,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
   public static final String ALLOWED_TYPE = "allowedType";
   public static final String ALLOWED_MODEL_IDS = "allowedModels";
   public static final String LIMIT = "limit";
-  public static final String IS_MEMBER = "isMember";
+  public static final String IS_MEMBER = "member";
 
   public Component getElementComponent(ValueResult valueResult, EventBus eventBus) {
 	
@@ -259,8 +259,8 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     return get(IS_MEMBER);
   }
 
-  public void setMember(boolean isMember) {
-    set(IS_MEMBER, isMember);
+  public void setMember(boolean member) {
+    set(IS_MEMBER, member);
   }
 
   @Override
