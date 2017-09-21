@@ -27,6 +27,7 @@ import java.util.List;
 
 
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
+import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.User;
 import org.sigmah.server.domain.element.FlexibleElement;
@@ -221,7 +222,7 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		}
 			
 		final Project updatedProject = em().find(Project.class, projectId);
-		if (updatedProject == null) {
+		if (updatedProject != null) {
 			if(coreVersionHasBeenModified) {
 				// Update the revision number
 				updatedProject.setAmendmentRevision(updatedProject.getAmendmentRevision() == null ? 2 : updatedProject.getAmendmentRevision() + 1);
@@ -259,6 +260,14 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 		} else {
 			// If project is null, it means the user is not trying to update a project but an org unit
 			final OrgUnit orgUnit = em().find(OrgUnit.class, containerId);
+
+			if(orgUnit == null) {
+				// it is a contact
+				final Contact contact = em().find(Contact.class, containerId);
+
+				return contact.toContainerInformation();
+			}
+
 			if (!Handlers.isOrgUnitVisible(orgUnit, user)) {
 				throw new FunctionalException(FunctionalException.ErrorCode.ACCESS_DENIED, i18nServer.t(language, "orgunit"), orgUnit.getId().toString(), user.getId().toString());
 			}

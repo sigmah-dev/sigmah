@@ -29,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.sigmah.client.ui.presenter.CreateProjectPresenter;
+import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.User;
 import org.sigmah.shared.command.AmendmentActionCommand;
 import org.sigmah.shared.command.AutomatedImport;
@@ -38,6 +39,7 @@ import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dispatch.FunctionalException;
+import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.ElementExtractedValue;
 import org.sigmah.shared.dto.ImportDetails;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -52,6 +54,7 @@ import org.sigmah.shared.dto.referential.AmendmentAction;
 import org.sigmah.shared.dto.referential.AutomatedImportStatus;
 import org.sigmah.shared.dto.referential.BudgetSubFieldType;
 import org.sigmah.shared.dto.referential.ContainerInformation;
+import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.LogicalElementType;
 import org.sigmah.shared.dto.referential.LogicalElementTypes;
@@ -103,10 +106,12 @@ public class AutomatedImporter {
 			switch (details.getEntityStatus()) {
 			case PROJECT_FOUND_CODE:
 			case ORGUNIT_FOUND_CODE:
+			case CONTACT_FOUND_CODE:
 				result.add(onContainerFound(details, configuration));
 				break;
 			case SEVERAL_PROJECTS_FOUND_CODE:
 			case SEVERAL_ORGUNITS_FOUND_CODE:
+			case SEVERAL_CONTACTS_FOUND_CODE:
 				result.addAll(onSeveralContainersFound(details, configuration));
 				break;
 			case PROJECT_LOCKED_CODE:
@@ -118,6 +123,9 @@ public class AutomatedImporter {
 			case ORGUNIT_NOT_FOUND_CODE:
 				result.add(onOrgUnitNotFound(details, configuration));
 				break;
+			case CONTACT_NOT_FOUND_CODE:
+					result.add(onContactNotFound(details, configuration));
+					break;
 			default:
 				throw new UnsupportedOperationException("Entity status '" + details.getEntityStatus() + "' is not supported.");
 			}
@@ -297,6 +305,40 @@ public class AutomatedImporter {
 		
 		return toBaseModelData(orgUnit, AutomatedImportStatus.NOT_FOUND);
 	}
+
+	/**
+	 * Mark the given contact as not found.
+	 *
+	 * @param details
+	 *          Import details.
+	 * @param configuration
+	 *          Import configuration.
+	 * @return A pair containing information about the container and the status
+	 * of the importation.
+	 */
+	private BaseModelData onContactNotFound(final ImportDetails details, final AutomatedImport configuration) {
+		AutomatedImportStatus status;
+		final List<ElementExtractedValue> values = details.getEntitiesToImport().values().iterator().next();
+		final Map<String, Object> properties = toBasicProperties(values);
+
+		ContactDTO contact = new ContactDTO();
+		contact.setName((String) properties.get(ContactDTO.NAME));
+		contact.setEmail((String) properties.get(ContactDTO.EMAIL));
+
+		properties.putAll(toContactCreationProperties(details));
+		properties.put(ContactDTO.MAIN_ORG_UNIT, properties.get(ContactDTO.MAIN_ORG_UNIT));
+
+		try {
+			contact = createContactWithProperties(properties);
+			updateContainerWithDetails(contact, values, configuration.getFileName());
+			status = AutomatedImportStatus.CREATED_AND_UPDATED;
+		} catch (CommandException ex) {
+			LOGGER.warn("An error occured while trying to create a new contact.", ex);
+			status = AutomatedImportStatus.CREATION_FAILED;
+		}
+
+		return toBaseModelData(contact, status);
+	}
 	
 	// --
 	// ENTITY CREATION AND UPDATE.
@@ -315,6 +357,20 @@ public class AutomatedImporter {
 		
 		final CreateResult createResult = importer.getExecutionContext().execute(new CreateEntity(ProjectDTO.ENTITY_NAME, projectProperties));
 		return (ProjectDTO) createResult.getEntity();
+	}
+	/**
+	 * Creates a new contact with the given properties.
+	 *
+	 * @param contactProperties
+	 *          Properties of the contact to create.
+	 * @return The new contact.
+	 * @throws CommandException
+	 *          If an error occured during the creation of the contact.
+	 */
+	private ContactDTO createContactWithProperties(final Map<String, Object> contactProperties) throws CommandException {
+
+		final CreateResult createResult = importer.getExecutionContext().execute(new CreateEntity(ContactDTO.ENTITY_NAME, contactProperties));
+		return (ContactDTO) createResult.getEntity();
 	}
 	
 	/**
@@ -387,6 +443,18 @@ public class AutomatedImporter {
 					break;
 				default:
 					break;
+			} else if (type instanceof DefaultContactFlexibleElementType) {
+				switch((DefaultContactFlexibleElementType)type) {
+					case FAMILY_NAME:
+						projectProperties.put(ContactDTO.NAME, extractedValue.getNewValue());
+						break;
+					case EMAIL_ADDRESS:
+						projectProperties.put(ContactDTO.EMAIL, extractedValue.getNewValue());
+						break;
+					case MAIN_ORG_UNIT:
+						projectProperties.put(ContactDTO.MAIN_ORG_UNIT, extractedValue.getNewValue());
+						break;
+				}
 			}
 		}
 		
@@ -435,6 +503,29 @@ public class AutomatedImporter {
 		projectProperties.put(ProjectDTO.CREATION_MODE, creationMode);
 		
 		return projectProperties;
+	}
+
+	/**
+	 * Retrieve the properties required to create a new contact.
+	 * <p>
+	 * The properties are:<ul>
+	 * <li>Creation mode (project or test project)</li>
+	 * <li>Project model identifier</li>
+	 * <li>Organizational unit identifier</li>
+	 * <li>Name of the calendar</li>
+	 * </ul>
+	 *
+	 * @param details
+	 *          Importation details.
+	 * @return A map of the properties required to create a new contact.
+	 */
+	private Map<String, Object> toContactCreationProperties(final ImportDetails details) {
+
+		final HashMap<String, Object> contactProperties = new HashMap<>();
+
+		contactProperties.put(ContactDTO.CONTACT_MODEL, getContactModelIdForName(details.getModelName()));
+
+		return contactProperties;
 	}
 
 	/**
@@ -492,6 +583,27 @@ public class AutomatedImporter {
 			LOGGER.warn("Multiple project models with name '" + projectModelName + "' exists, using #" + projectModels.get(0) + " for the creation.");
 		}
 		return projectModels.get(0);
+	}
+
+	/**
+	 * Find the identifier of one of the contact model that has the given name.
+	 * If multiple models have the same name, result of this method is random.
+	 *
+	 * @param contactModelName
+	 *          Name of the contact model to search.
+	 * @return the identifier of a contact model named with the given name.
+	 */
+	private Integer getContactModelIdForName(final String contactModelName) {
+		final List<Integer> contactModels = importer.em().createQuery("SELECT cm.id FROM ContactModel AS cm WHERE cm.name = :name", Integer.class)
+				.setParameter("name", contactModelName)
+				.getResultList();
+
+		if (contactModels.isEmpty()) {
+			throw new IllegalArgumentException("Contact model '" + contactModelName + "' was not found.");
+		} else if (contactModels.size() > 1) {
+			LOGGER.warn("Multiple contact models with name '" + contactModelName + "' exists, using #" + contactModels.get(0) + " for the creation.");
+		}
+		return contactModels.get(0);
 	}
 	
 	/**

@@ -91,6 +91,23 @@ public class DefaultContactFlexibleElementDTO extends AbstractDefaultFlexibleEle
   private transient FormPanel formPanel;
   private transient ImageProvider imageProvider;
 
+  /**
+   * Creates a new default flexible element DTO.
+   */
+  public DefaultContactFlexibleElementDTO() {
+    // Empty constructor.
+  }
+
+  /**
+   * Creates a new default contact flexible DTO with the given type.
+   *
+   * @param type
+   *			Type of the default flexible element DTO to create.
+   */
+  public DefaultContactFlexibleElementDTO(final DefaultContactFlexibleElementType type) {
+    setType(type);
+  }
+
   @Override
   protected Component getComponent(ValueResult valueResult, boolean enabled) {
     if (currentContainerDTO instanceof DefaultContactFlexibleElementContainer) {

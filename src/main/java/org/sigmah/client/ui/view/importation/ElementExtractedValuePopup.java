@@ -42,6 +42,7 @@ import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.ui.widget.popup.PopupWidget;
+import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.ElementExtractedValue;
 import org.sigmah.shared.dto.ImportDetails;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -176,6 +177,10 @@ public class ElementExtractedValuePopup extends PopupWidget implements HasGrid<E
 			final ProjectDTO project = (ProjectDTO)entity;
 			information = project.getFullName() + " (" + project.getName() + ')';
 			
+		} else if(entity instanceof ContactDTO) {
+			final ContactDTO contact = (ContactDTO)entity;
+			information = contact.getFullName() + " (" + contact.getName() + ')';
+
 		} else {
 			throw new IllegalArgumentException("Type not supported: " + entity);
 		}
