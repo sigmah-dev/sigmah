@@ -177,28 +177,39 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
     Root<Contact> contactRoot = criteriaQuery.from(Contact.class);
 
     Join<Object, Object> userJoin = contactRoot.join("user", JoinType.LEFT);
+    Join<Object, Object> organizationJoin = contactRoot.join("organization", JoinType.LEFT);
     Join<Object, Object> contactModelJoin = contactRoot.join("contactModel", JoinType.LEFT);
-    Join<Object, Object> organizationJoin = contactModelJoin.join("organization", JoinType.LEFT);
+    Join<Object, Object> contactModelOrganizationJoin = contactModelJoin.join("organization", JoinType.LEFT);
 
     List<Predicate> andPredicates = new ArrayList<>();
     List<Predicate> orPredicates = new ArrayList<>();
 
-    andPredicates.add(criteriaBuilder.equal(organizationJoin.get("id"), organizationId));
+    andPredicates.add(criteriaBuilder.equal(contactModelOrganizationJoin.get("id"), organizationId));
 
     if (search != null && !search.isEmpty()) {
       Predicate searchContactCriteria;
       Predicate searchUserCriteria;
+      Predicate searchOrganizationCriteria;
 
       if (isEmailAddress(search)) {
         // case 1 : if it's an email adress, search exact adresses
         searchContactCriteria = criteriaBuilder.equal(criteriaBuilder.upper(contactRoot.get("email").as(String.class)), search.toUpperCase());
         searchUserCriteria = criteriaBuilder.equal(criteriaBuilder.upper(userJoin.get("email").as(String.class)), search.toUpperCase());
+        // No Organization search
       } else if (isNumber(search)) {
         // case 2 : if it's a number, search exact ids and possible names (e.g partner123)
         searchContactCriteria = criteriaBuilder.or(criteriaBuilder.equal(contactRoot.get("id").as(String.class),  search),
             criteriaBuilder.like(criteriaBuilder.upper(contactRoot.get("name").as(String.class)), "%" + search + "%"));
         searchUserCriteria = criteriaBuilder.or(criteriaBuilder.equal(userJoin.get("id").as(String.class),  search),
             criteriaBuilder.like(criteriaBuilder.upper(userJoin.get("name").as(String.class)), "%" + search + "%"));
+        searchOrganizationCriteria =
+            criteriaBuilder.and(
+                criteriaBuilder.isNull(contactRoot.get("name")),
+                criteriaBuilder.isNull(contactRoot.get("firstname")),
+                criteriaBuilder.isNotNull(organizationJoin.get("id")),
+                criteriaBuilder.equal(criteriaBuilder.upper(organizationJoin.get("name").as(String.class)), "%" + search + "%")
+            );
+        orPredicates.add(searchOrganizationCriteria);
       } else {
         // default case/case 3 : search by firstname and/or name
         searchContactCriteria = criteriaBuilder.or(
@@ -215,6 +226,16 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
             criteriaBuilder.greaterThanOrEqualTo(criteriaBuilder.function("similarity", Float.class,
                 criteriaBuilder.upper(userJoin.get("firstName").as(String.class)),
                 criteriaBuilder.literal(search.toUpperCase())), MIN_SIMILARITY_SCORE));
+        searchOrganizationCriteria =
+            criteriaBuilder.and(
+                criteriaBuilder.isNull(contactRoot.get("name")),
+                criteriaBuilder.isNull(contactRoot.get("firstname")),
+                criteriaBuilder.isNotNull(organizationJoin.get("id")),
+                criteriaBuilder.greaterThanOrEqualTo(criteriaBuilder.function("similarity", Float.class,
+                    criteriaBuilder.upper(organizationJoin.get("name").as(String.class)),
+                    criteriaBuilder.literal(search.toUpperCase())), MIN_SIMILARITY_SCORE)
+            );
+        orPredicates.add(searchOrganizationCriteria);
       }
 
       orPredicates.add(searchContactCriteria);
