@@ -70,7 +70,7 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
     // Too much nullable parameters, let's use criteria query builder to ease the query creation
     // and to avoid using dangerous string concatenation
     CriteriaBuilder criteriaBuilder = em().getCriteriaBuilder();
-    CriteriaQuery<Contact> criteriaQuery = criteriaBuilder.createQuery(Contact.class);
+    CriteriaQuery<Contact> criteriaQuery = criteriaBuilder.createQuery(Contact.class).distinct(true);
     Root<Contact> contactRoot = criteriaQuery.from(Contact.class);
     Join<Object, Object> contactModelJoin = contactRoot.join("contactModel", JoinType.INNER);
     Join<Object, Object> organizationJoin = contactModelJoin.join("organization", JoinType.INNER);
@@ -78,7 +78,7 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
     Join<Object, Object> mainOrgUnitJoin = contactRoot.join("mainOrgUnit", JoinType.LEFT);
     Join<Object, Object> secondaryOrgUnitJoin = contactRoot.join("secondaryOrgUnits", JoinType.LEFT);
     Join<Object, Object> userOrgUnitsJoin = userJoin.join("orgUnitsWithProfiles", JoinType.LEFT);
-    Join<Object, Object> organizationOrgUnitsJoin = contactRoot.join("organization", JoinType.LEFT).join("orgUnit", JoinType.LEFT);
+    Join<Object, Object> organizationOrgUnitsJoin = contactRoot.join("organization", JoinType.LEFT);
 
     List<Predicate> predicates = new ArrayList<>();
     predicates.add(criteriaBuilder.equal(organizationJoin.get("id"), organizationId));
@@ -102,10 +102,13 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
     }
 
     if(orgUnitsIds != null && !orgUnitsIds.isEmpty()) {
-      predicates.add(criteriaBuilder.or(
-          criteriaBuilder.or(mainOrgUnitJoin.get("id").in(orgUnitsIds), secondaryOrgUnitJoin.get("id").in(orgUnitsIds)),
-          criteriaBuilder.or(userOrgUnitsJoin.get("orgUnit").get("id").in(orgUnitsIds), organizationOrgUnitsJoin.get("id").in(orgUnitsIds))
-      ));
+      predicates.add(
+          criteriaBuilder.or(
+            mainOrgUnitJoin.get("id").in(orgUnitsIds),
+            secondaryOrgUnitJoin.get("id").in(orgUnitsIds),
+            userOrgUnitsJoin.get("orgUnit").get("id").in(orgUnitsIds),
+            organizationOrgUnitsJoin.get("root").get("id").in(orgUnitsIds))
+      );
     }
 
     criteriaQuery.where(predicates.toArray(new Predicate[predicates.size()]));

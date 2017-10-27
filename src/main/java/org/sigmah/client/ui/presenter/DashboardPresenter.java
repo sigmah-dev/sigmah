@@ -238,6 +238,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 			view.getOrgUnitsTreeGrid().getDisplayOnlyMainOrgUnitCheckbox().setVisible(false);
 		} else {
 			view.getOrgUnitsTreeGrid().getDisplayOnlyMainOrgUnitCheckbox().setValue(true);
+			view.getOrgUnitsTreeGrid().getDisplayOnlyMainOrgUnitCheckbox().setVisible(true);
 			view.getOrgUnitsTreeGrid().getDisplayOnlyMainOrgUnitCheckbox().addListener(Events.Change, new Listener<BaseEvent>() {
 				@Override
 				public void handleEvent(BaseEvent event) {

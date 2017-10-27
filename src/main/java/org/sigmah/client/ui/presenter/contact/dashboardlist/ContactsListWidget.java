@@ -22,6 +22,7 @@ package org.sigmah.client.ui.presenter.contact.dashboardlist;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
@@ -61,7 +62,6 @@ import org.sigmah.client.page.Page;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.AbstractPresenter;
-import org.sigmah.client.ui.presenter.project.treegrid.ProjectsListWidget;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.contact.dashboardlist.ContactsListView;
 import org.sigmah.client.ui.view.contact.dashboardlist.DashboardContact;
@@ -75,6 +75,7 @@ import org.sigmah.client.util.ImageProvider;
 import org.sigmah.client.util.profiler.Profiler;
 import org.sigmah.client.util.profiler.Scenario;
 import org.sigmah.offline.sync.SuccessCallback;
+import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.shared.command.CheckContactDuplication;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.DedupeContact;
@@ -405,18 +406,45 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 
 		// Builds the next refresh command.
 		command = new GetContacts();
-		Set<Integer> orgUnitsIds = new HashSet<Integer>();
+		final Set<Integer> orgUnitsIds = new HashSet<Integer>();
 		if(mainOrgUnitOnly) {
 			orgUnitsIds.add(auth().getMainOrgUnitId());
 		} else {
 			orgUnitsIds.addAll(auth().getOrgUnitIds());
 		}
-		command.setOrgUnitsIds(orgUnitsIds);
 
-		if (forceRefresh || !loaded) {
-			refreshContactGrid(command);
-			loaded = true;
+		dispatch.execute(new GetOrgUnits(orgUnitsIds, OrgUnitDTO.Mode.BASE),
+				new CommandResultHandler<ListResult<OrgUnitDTO>>() {
+					@Override
+					protected void onCommandSuccess(ListResult<OrgUnitDTO> result) {
+						for (OrgUnitDTO child : result.getList()) {
+							orgUnitsIds.addAll(computeChildren(child));
+
+							command.setOrgUnitsIds(orgUnitsIds);
+
+							if (forceRefresh || !loaded) {
+								refreshContactGrid(command);
+								loaded = true;
+							}
+						}
+					}
+				});
+	}
+
+	private List<Integer> computeChildren(OrgUnitDTO orgUnitDTO) {
+		List<Integer> ids = new ArrayList<Integer>();
+		ids.add(orgUnitDTO.getId());
+		if (!orgUnitDTO.getChildrenOrgUnits().isEmpty()) {
+			for (OrgUnitDTO child : orgUnitDTO.getChildrenOrgUnits()) {
+				for (Integer childId : computeChildren(child)) {
+					if (ids.contains(childId)) {
+						continue;
+					}
+					ids.add(childId);
+				}
+			}
 		}
+		return ids;
 	}
 
 	// ---------------------------------------------------------------------------------------------------------
