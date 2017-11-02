@@ -27,7 +27,6 @@ import org.sigmah.client.dispatch.DispatchListener;
 import org.sigmah.offline.dao.ContactHistoryAsyncDAO;
 import org.sigmah.offline.dispatch.AsyncCommandHandler;
 import org.sigmah.offline.dispatch.OfflineExecutionContext;
-import org.sigmah.shared.command.GetContactHistory;
 import org.sigmah.shared.command.GetContactsLatestHistory;
 import org.sigmah.shared.command.result.Authentication;
 import org.sigmah.shared.command.result.ContactHistory;

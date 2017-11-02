@@ -44,7 +44,6 @@ import org.sigmah.server.dao.ValueDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.ContactModel;
-import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.referential.ContactModelType;
 
 public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implements ContactDAO {

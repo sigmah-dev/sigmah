@@ -75,7 +75,6 @@ import org.sigmah.client.util.ImageProvider;
 import org.sigmah.client.util.profiler.Profiler;
 import org.sigmah.client.util.profiler.Scenario;
 import org.sigmah.offline.sync.SuccessCallback;
-import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.shared.command.CheckContactDuplication;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.DedupeContact;

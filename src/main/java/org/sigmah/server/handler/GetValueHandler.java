@@ -41,7 +41,6 @@ import org.sigmah.server.domain.element.ComputationElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.element.FlexibleElement;
 import org.sigmah.server.domain.layout.LayoutGroup;
-import org.sigmah.server.domain.layout.LayoutGroupIteration;
 import org.sigmah.server.file.FileStorageProvider;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.server.service.ComputationService;

@@ -80,7 +80,6 @@ import org.sigmah.shared.dto.element.TripletsListElementDTO;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.AmendmentState;
-import org.sigmah.shared.dto.referential.DefaultContactFlexibleElementType;
 import org.sigmah.shared.dto.referential.DefaultFlexibleElementType;
 import org.sigmah.shared.dto.referential.ElementExtractedValueStatus;
 import org.sigmah.shared.dto.referential.ImportStatusCode;
@@ -1155,13 +1154,7 @@ public abstract class Importer implements Iterator<ImportDetails> {
 	 * @return
 	 */
 	public Boolean getCheckboxValue(final ValueResult valueResult, final FlexibleElement element) {
-		Boolean value = false;
-		if (valueResult != null && valueResult.getValueObject() != null) {
-			if ((valueResult.getValueObject()).equalsIgnoreCase("true"))
-				value = true;
-
-		}
-		return value;
+		return (valueResult != null && valueResult.getValueObject() != null && (valueResult.getValueObject()).equalsIgnoreCase("true"));
 	}
 
 	public HashSet<Integer> getContactListValue(ValueResult valueResult) {

@@ -114,6 +114,125 @@ public class ContactListElementDTO extends FlexibleElementDTO {
 
   private static final String STYLE_CONTACT_GRID_NAME = "contact-grid-name";
 
+  private static class OrgUnitSelectionChangedListener extends SelectionChangedListener<OrgUnitDTO> {
+    private final AdapterField secondaryOrgUnitsFieldAdapter;
+
+    public OrgUnitSelectionChangedListener(AdapterField secondaryOrgUnitsFieldAdapter) {
+      this.secondaryOrgUnitsFieldAdapter = secondaryOrgUnitsFieldAdapter;
+    }
+
+    @Override
+    public void selectionChanged(SelectionChangedEvent<OrgUnitDTO> se) {
+      if (se.getSelectedItem() == null) {
+        secondaryOrgUnitsFieldAdapter.setVisible(false);
+        return;
+      }
+      secondaryOrgUnitsFieldAdapter.setVisible(true);
+    }
+  }
+
+  private static class ContactModelSelectionChangedListener extends SelectionChangedListener<ContactModelDTO> {
+    private final TextField<String> firstNameField;
+    private final TextField<String> familyNameField;
+    private final TextField<String> organizationNameField;
+
+    public ContactModelSelectionChangedListener(TextField<String> firstNameField, TextField<String> familyNameField, TextField<String> organizationNameField) {
+      this.firstNameField = firstNameField;
+      this.familyNameField = familyNameField;
+      this.organizationNameField = organizationNameField;
+    }
+
+    @Override
+    public void selectionChanged(SelectionChangedEvent<ContactModelDTO> event) {
+      ContactModelType currentType = null;
+      if (event.getSelectedItem() != null) {
+        currentType = event.getSelectedItem().getType();
+      }
+      firstNameField.setVisible(currentType == ContactModelType.INDIVIDUAL);
+      familyNameField.setVisible(currentType == ContactModelType.INDIVIDUAL);
+      organizationNameField.setVisible(currentType == ContactModelType.ORGANIZATION);
+      firstNameField.setAllowBlank(currentType != ContactModelType.INDIVIDUAL);
+      familyNameField.setAllowBlank(currentType != ContactModelType.INDIVIDUAL);
+      organizationNameField.setAllowBlank(currentType != ContactModelType.ORGANIZATION);
+    }
+  }
+
+  private class ContactStoreEventListener implements Listener<StoreEvent<ContactDTO>> {
+    private final ListStore<ContactDTO> store;
+    private final ToolBar actionsToolBar;
+
+    private List<ContactDTO> clearedValues;
+
+    public ContactStoreEventListener(ListStore<ContactDTO> store, ToolBar actionsToolBar) {
+      this.store = store;
+      this.actionsToolBar = actionsToolBar;
+    }
+
+    @Override
+    public void handleEvent(StoreEvent<ContactDTO> e) {
+      EventType type = e.getType();
+      if (type == Store.BeforeAdd) {
+        storeBeforeAdd(e);
+      } else if (type == Store.Add) {
+        storeAdd(e);
+      } else if (type == Store.BeforeClear) {
+        storeBeforeClear(e);
+      } else if (type == Store.Clear) {
+        storeClear(e);
+      } if (type == Store.Remove) {
+        storeRemove(e);
+      }
+    }
+
+    private void storeBeforeAdd(StoreEvent<ContactDTO> se) {
+      if (getLimit() > 0 && store.getCount() >= getLimit()) {
+        se.setCancelled(true);
+        return;
+      }
+      assert se.getModels().size() == 1;
+      ContactDTO contactDTO = se.getModels().get(0);
+      // Avoid selection of filtered type and models
+      if (getAllowedType() != null && contactDTO.getContactModel().getType() != getAllowedType()) {
+        se.setCancelled(true);
+        return;
+      }
+      if (getAllowedModelIds() != null && !getAllowedModelIds().isEmpty() && !getAllowedModelIds().contains(contactDTO.getContactModel().getId())) {
+        se.setCancelled(true);
+        return;
+      }
+      // XXX: verify the contact has TRUE for the checkboxElement defined in the ContactListElement ?
+      // (to do that we need to retrive this flexibleElement for all ContactDTO)
+      // Not very useful, the availableContactsStore only contains valid values and
+      // created contacts have the value set to TRUE
+    }
+
+    private void storeAdd(StoreEvent<ContactDTO> se) {
+      handleChange(se.getModels(), ValueEventChangeType.ADD);
+    }
+
+    private void storeBeforeClear(StoreEvent<ContactDTO> se) {
+      assert clearedValues == null;
+      clearedValues = store.getRange(0, store.getCount() - 1);
+    }
+
+    private void storeClear(StoreEvent<ContactDTO> se) {
+      assert clearedValues != null;
+      handleChange(clearedValues, ValueEventChangeType.REMOVE);
+      clearedValues = null;
+    }
+
+    private void storeRemove(StoreEvent<ContactDTO> se) {
+      handleChange(Collections.singletonList(se.getModel()), ValueEventChangeType.REMOVE);
+    }
+
+    private void handleChange(List<ContactDTO> contacts, ValueEventChangeType changeType) {
+      actionsToolBar.setEnabled(!Profiler.INSTANCE.isOfflineMode() && !isReadOnly(store));
+
+      handlerManager.fireEvent(new ValueEvent(ContactListElementDTO.this, serializeValue(contacts), changeType));
+      handlerManager.fireEvent(new RequiredValueEvent(store.getCount() > 0, true));
+    }
+  }
+
   @Override
   @SuppressWarnings("unchecked")
   protected Component getComponent(final ValueResult valueResult, boolean enabled) {
@@ -138,117 +257,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     Runnable afterGetContacts = null;
 
     if (enabled) {
-      final ToolBar actionsToolBar = new ToolBar();
-      actionsToolBar.setAlignment(HorizontalAlignment.LEFT);
-
-      actionsToolBar.add(Forms.button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add(), new SelectionListener<ButtonEvent>() {
-        @Override
-        public void componentSelected(ButtonEvent ce) {
-          showContactSelector(store);
-        }
-      }));
-
-      final Label offlineLabel = new Label(I18N.CONSTANTS.sigmahContactsOfflineUnavailable());
-      actionsToolBar.add(offlineLabel);
-
-      mainPanel.setTopComponent(actionsToolBar);
-
-      // if offline mode, no contact can be used
-      actionsToolBar.setEnabled(!Profiler.INSTANCE.isOfflineMode());
-      offlineLabel.setVisible(Profiler.INSTANCE.isOfflineMode());
-      if (eventBus != null) {
-        eventBus.addHandler(OfflineEvent.getType(), new OfflineHandler() {
-          @Override
-          public void handleEvent(OfflineEvent event) {
-            final boolean isOffline = ApplicationState.OFFLINE == event.getState();
-            actionsToolBar.setEnabled(!isOffline && !isReadOnly(store));
-            offlineLabel.setVisible(isOffline);
-          }
-        });
-      }
-
-      final Listener<StoreEvent<ContactDTO>> listener = new Listener<StoreEvent<ContactDTO>>() {
-        @Override
-        public void handleEvent(StoreEvent<ContactDTO> e) {
-          EventType type = e.getType();
-          if (type == Store.BeforeAdd) {
-            storeBeforeAdd(e);
-          } else if (type == Store.Add) {
-            storeAdd(e);
-          } else if (type == Store.BeforeClear) {
-            storeBeforeClear(e);
-          } else if (type == Store.Clear) {
-            storeClear(e);
-          } if (type == Store.Remove) {
-            storeRemove(e);
-          }
-        }
-
-        private void storeBeforeAdd(StoreEvent<ContactDTO> se) {
-          if (getLimit() > 0 && store.getCount() >= getLimit()) {
-            se.setCancelled(true);
-            return;
-          }
-          assert se.getModels().size() == 1;
-          ContactDTO contactDTO = se.getModels().get(0);
-          // Avoid selection of filtered type and models
-          if (getAllowedType() != null && contactDTO.getContactModel().getType() != getAllowedType()) {
-            se.setCancelled(true);
-            return;
-          }
-          if (getAllowedModelIds() != null && !getAllowedModelIds().isEmpty() && !getAllowedModelIds().contains(contactDTO.getContactModel().getId())) {
-            se.setCancelled(true);
-            return;
-          }
-          // XXX: verify the contact has TRUE for the checkboxElement defined in the ContactListElement ?
-          // (to do that we need to retrive this flexibleElement for all ContactDTO)
-          // Not very useful, the availableContactsStore only contains valid values and
-          // created contacts have the value set to TRUE
-        }
-
-        private void storeAdd(StoreEvent<ContactDTO> se) {
-          handleChange(se.getModels(), ValueEventChangeType.ADD);
-        }
-
-        private List<ContactDTO> clearedValues;
-
-        private void storeBeforeClear(StoreEvent<ContactDTO> se) {
-          assert clearedValues == null;
-          clearedValues = store.getRange(0, store.getCount() - 1);
-        }
-
-        private void storeClear(StoreEvent<ContactDTO> se) {
-          assert clearedValues != null;
-          handleChange(clearedValues, ValueEventChangeType.REMOVE);
-          clearedValues = null;
-        }
-
-        private void storeRemove(StoreEvent<ContactDTO> se) {
-          handleChange(Collections.singletonList(se.getModel()), ValueEventChangeType.REMOVE);
-        }
-
-        private void handleChange(List<ContactDTO> contacts, ValueEventChangeType changeType) {
-          actionsToolBar.setEnabled(!Profiler.INSTANCE.isOfflineMode() && !isReadOnly(store));
-
-          handlerManager.fireEvent(new ValueEvent(ContactListElementDTO.this, serializeValue(contacts), changeType));
-          handlerManager.fireEvent(new RequiredValueEvent(store.getCount() > 0, true));
-        }
-      };
-
-      afterGetContacts = new Runnable() {
-        @Override
-        public void run() {
-          actionsToolBar.setEnabled(!Profiler.INSTANCE.isOfflineMode() && !isReadOnly(store));
-
-          store.addListener(Store.BeforeAdd, listener);
-          store.addListener(Store.Add, listener);
-          store.addListener(Store.BeforeClear, listener);
-          store.addListener(Store.Clear, listener);
-          store.addListener(Store.Remove, listener);
-
-          handlerManager.fireEvent(new RequiredValueEvent(store.getCount() > 0, true));
-        }
-      };
+      afterGetContacts = prepareAfterGetContacts(mainPanel, store);
     }
 
     if (!contactIds.isEmpty()) {
@@ -272,6 +281,56 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     }
 
     return mainPanel;
+  }
+
+  private Runnable prepareAfterGetContacts(ContentPanel mainPanel, final ListStore<ContactDTO> store) {
+    Runnable afterGetContacts;
+    final ToolBar actionsToolBar = new ToolBar();
+    actionsToolBar.setAlignment(HorizontalAlignment.LEFT);
+
+    actionsToolBar.add(Forms.button(I18N.CONSTANTS.addItem(), IconImageBundle.ICONS.add(), new SelectionListener<ButtonEvent>() {
+      @Override
+      public void componentSelected(ButtonEvent ce) {
+        showContactSelector(store);
+      }
+    }));
+
+    final Label offlineLabel = new Label(I18N.CONSTANTS.sigmahContactsOfflineUnavailable());
+    actionsToolBar.add(offlineLabel);
+
+    mainPanel.setTopComponent(actionsToolBar);
+
+    // if offline mode, no contact can be used
+    actionsToolBar.setEnabled(!Profiler.INSTANCE.isOfflineMode());
+    offlineLabel.setVisible(Profiler.INSTANCE.isOfflineMode());
+    if (eventBus != null) {
+      eventBus.addHandler(OfflineEvent.getType(), new OfflineHandler() {
+        @Override
+        public void handleEvent(OfflineEvent event) {
+          final boolean isOffline = ApplicationState.OFFLINE == event.getState();
+          actionsToolBar.setEnabled(!isOffline && !isReadOnly(store));
+          offlineLabel.setVisible(isOffline);
+        }
+      });
+    }
+
+    final Listener<StoreEvent<ContactDTO>> listener = new ContactStoreEventListener(store, actionsToolBar);
+
+    afterGetContacts = new Runnable() {
+      @Override
+      public void run() {
+        actionsToolBar.setEnabled(!Profiler.INSTANCE.isOfflineMode() && !isReadOnly(store));
+
+        store.addListener(Store.BeforeAdd, listener);
+        store.addListener(Store.Add, listener);
+        store.addListener(Store.BeforeClear, listener);
+        store.addListener(Store.Clear, listener);
+        store.addListener(Store.Remove, listener);
+
+        handlerManager.fireEvent(new RequiredValueEvent(store.getCount() > 0, true));
+      }
+    };
+    return afterGetContacts;
   }
 
   private boolean isReadOnly(ListStore<ContactDTO> store) {
@@ -381,7 +440,8 @@ public class ContactListElementDTO extends FlexibleElementDTO {
 
   private void showContactSelector(final ListStore<ContactDTO> store) {
     final Set<Integer> selectedContactIds = new HashSet<Integer>(store.getCount(), 1f);
-    for (int i = 0, l = store.getCount(); i < l; i++) {
+    for (int i = 0,
+         l = store.getCount(); i < l; i++) {
       selectedContactIds.add(store.getAt(i).getId());
     }
 
@@ -451,58 +511,12 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     final AdapterField secondaryOrgUnitsFieldAdapter = Forms.adapter(I18N.CONSTANTS.contactSecondaryOrgUnits(), secondaryOrgUnitsComboBox);
     secondaryOrgUnitsFieldAdapter.setVisible(false);
 
-    dispatch.execute(new GetContactModels(getAllowedType(), getAllowedModelIds(), true), new AsyncCallback<ListResult<ContactModelDTO>>() {
-      @Override
-      public void onFailure(Throwable caught) {
-        Log.error("Error while retrieving contact models for contact creation dialog.");
-      }
+    getContactModels(contactModelComboBox);
 
-      @Override
-      public void onSuccess(ListResult<ContactModelDTO> result) {
-        contactModelComboBox.getStore().add(result.getList());
-      }
-    });
+    getOrgUnits(mainOrgUnitComboBox, secondaryOrgUnitsComboBox);
 
-    dispatch.execute(new GetOrgUnits(OrgUnitDTO.Mode.WITH_TREE), new AsyncCallback<ListResult<OrgUnitDTO>>() {
-      @Override
-      public void onFailure(Throwable caught) {
-        Log.error("Error while retrieving org units for contact creation dialog.");
-      }
-
-      @Override
-      public void onSuccess(ListResult<OrgUnitDTO> result) {
-
-        for (OrgUnitDTO orgUnitDTO : result.getData()) {
-          fillOrgUnitsComboboxes(orgUnitDTO, mainOrgUnitComboBox, secondaryOrgUnitsComboBox);
-        }
-      }
-    });
-
-    mainOrgUnitComboBox.addSelectionChangedListener(new SelectionChangedListener<OrgUnitDTO>() {
-      @Override
-      public void selectionChanged(SelectionChangedEvent<OrgUnitDTO> se) {
-        if (se.getSelectedItem() == null) {
-          secondaryOrgUnitsFieldAdapter.setVisible(false);
-          return;
-        }
-        secondaryOrgUnitsFieldAdapter.setVisible(true);
-      }
-    });
-    contactModelComboBox.addSelectionChangedListener(new SelectionChangedListener<ContactModelDTO>() {
-      @Override
-      public void selectionChanged(SelectionChangedEvent<ContactModelDTO> event) {
-        ContactModelType currentType = null;
-        if (event.getSelectedItem() != null) {
-          currentType = event.getSelectedItem().getType();
-        }
-        firstNameField.setVisible(currentType == ContactModelType.INDIVIDUAL);
-        familyNameField.setVisible(currentType == ContactModelType.INDIVIDUAL);
-        organizationNameField.setVisible(currentType == ContactModelType.ORGANIZATION);
-        firstNameField.setAllowBlank(currentType != ContactModelType.INDIVIDUAL);
-        familyNameField.setAllowBlank(currentType != ContactModelType.INDIVIDUAL);
-        organizationNameField.setAllowBlank(currentType != ContactModelType.ORGANIZATION);
-      }
-    });
+    mainOrgUnitComboBox.addSelectionChangedListener(new OrgUnitSelectionChangedListener(secondaryOrgUnitsFieldAdapter));
+    contactModelComboBox.addSelectionChangedListener(new ContactModelSelectionChangedListener(firstNameField, familyNameField, organizationNameField));
     org.sigmah.client.ui.widget.button.Button button = Forms.button(I18N.CONSTANTS.createContact());
 
     final FormPanel formPanel = Forms.panel(200);
@@ -531,6 +545,37 @@ public class ContactListElementDTO extends FlexibleElementDTO {
 
     window.add(formPanel);
     window.show();
+  }
+
+  private void getOrgUnits(final ComboBox<OrgUnitDTO> mainOrgUnitComboBox, final ListComboBox<OrgUnitDTO> secondaryOrgUnitsComboBox) {
+    dispatch.execute(new GetOrgUnits(OrgUnitDTO.Mode.WITH_TREE), new AsyncCallback<ListResult<OrgUnitDTO>>() {
+      @Override
+      public void onFailure(Throwable caught) {
+        Log.error("Error while retrieving org units for contact creation dialog.");
+      }
+
+      @Override
+      public void onSuccess(ListResult<OrgUnitDTO> result) {
+
+        for (OrgUnitDTO orgUnitDTO : result.getData()) {
+          fillOrgUnitsComboboxes(orgUnitDTO, mainOrgUnitComboBox, secondaryOrgUnitsComboBox);
+        }
+      }
+    });
+  }
+
+  private void getContactModels(final ComboBox<ContactModelDTO> contactModelComboBox) {
+    dispatch.execute(new GetContactModels(getAllowedType(), getAllowedModelIds(), true), new AsyncCallback<ListResult<ContactModelDTO>>() {
+      @Override
+      public void onFailure(Throwable caught) {
+        Log.error("Error while retrieving contact models for contact creation dialog.");
+      }
+
+      @Override
+      public void onSuccess(ListResult<ContactModelDTO> result) {
+        contactModelComboBox.getStore().add(result.getList());
+      }
+    });
   }
 
   private void fillOrgUnitsComboboxes(OrgUnitDTO unit, final ComboBox<OrgUnitDTO> mainOrgUnitComboBox, final ListComboBox<OrgUnitDTO> secondaryOrgUnitsComboBox) {

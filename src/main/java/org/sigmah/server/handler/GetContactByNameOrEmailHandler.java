@@ -28,7 +28,6 @@ import org.sigmah.server.dao.ContactDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.domain.Contact;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
-import org.sigmah.shared.command.GetContact;
 import org.sigmah.shared.command.GetContactByNameOrEmail;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dispatch.CommandException;

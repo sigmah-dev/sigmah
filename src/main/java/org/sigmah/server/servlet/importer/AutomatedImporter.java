@@ -29,7 +29,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import org.sigmah.client.ui.presenter.CreateProjectPresenter;
-import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.User;
 import org.sigmah.shared.command.AmendmentActionCommand;
 import org.sigmah.shared.command.AutomatedImport;
@@ -454,6 +453,8 @@ public class AutomatedImporter {
 					case MAIN_ORG_UNIT:
 						projectProperties.put(ContactDTO.MAIN_ORG_UNIT, extractedValue.getNewValue());
 						break;
+					default :
+						// no-op
 				}
 			}
 		}

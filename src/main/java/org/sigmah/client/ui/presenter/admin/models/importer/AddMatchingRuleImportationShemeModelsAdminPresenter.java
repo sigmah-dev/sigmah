@@ -33,7 +33,6 @@ import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.presenter.base.AbstractPagePresenter;
 import org.sigmah.client.ui.view.admin.models.importer.AddMatchingRuleImportationShemeModelsAdminView;
 import org.sigmah.client.ui.view.base.ViewPopupInterface;
-import org.sigmah.server.domain.element.DefaultContactFlexibleElement;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.DefaultContactFlexibleElementDTO;

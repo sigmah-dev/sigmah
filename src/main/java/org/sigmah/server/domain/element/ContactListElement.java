@@ -28,7 +28,6 @@ import java.util.Set;
 import javax.persistence.*;
 
 import org.sigmah.server.domain.ContactModel;
-import org.sigmah.server.domain.LocationType;
 import org.sigmah.server.domain.util.EntityConstants;
 import org.sigmah.shared.dto.referential.ContactModelType;
 

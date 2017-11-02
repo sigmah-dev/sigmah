@@ -29,7 +29,6 @@ import java.util.Map;
 import org.sigmah.shared.computation.instruction.Instructions;
 import org.sigmah.shared.computation.value.ComputationError;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
-import org.sigmah.shared.dto.layout.LayoutGroupDTO;
 
 /**
  * Parse and creates <code>Computation</code> objects.
