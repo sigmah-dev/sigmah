@@ -412,7 +412,7 @@ enum ParserState {
 			return;
 		}
 		if (!inIteration) {
-			if (element.getGroup().getHasIterations()) {
+			if (element.getGroup() != null && element.getGroup().getHasIterations()) {
 				environment.add(new BadVariable(variable));
 				return;
 			}
@@ -423,7 +423,7 @@ enum ParserState {
 			environment.add(new Variable(element));
 			return;
 		}
-		if (element.getGroup().getId().equals(layoutGroupId)) {
+		if (element.getGroup() != null && element.getGroup().getId().equals(layoutGroupId)) {
 			environment.add(new Variable(element));
 		} else {
 			environment.add(new BadVariable(variable));
