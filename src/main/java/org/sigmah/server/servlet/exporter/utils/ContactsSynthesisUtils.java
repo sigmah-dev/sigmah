@@ -229,7 +229,7 @@ public class ContactsSynthesisUtils {
 		for (LayoutConstraintDTO constraint : layoutGroup.getConstraints()) {
 			FlexibleElementDTO element = constraint.getFlexibleElementDTO();
 
-			ValueResult valueResult = exporter.execute(new GetValue(projectId, element.getId(), "element." + element.getClass().getSimpleName(), -1, null));
+			ValueResult valueResult = exporter.execute(new GetValue(projectId, element.getId(), "element." + element.getClass().getSimpleName(), null, null));
 
 			if (element == contactListElement) {
 				Set<Integer> contactIds = new HashSet(ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject()));

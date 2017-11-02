@@ -65,6 +65,7 @@ import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.ContactModelDTO;
+import org.sigmah.shared.dto.element.event.RequiredValueEvent;
 import org.sigmah.shared.dto.element.event.ValueEvent;
 import org.sigmah.shared.dto.history.HistoryTokenDTO;
 import org.sigmah.shared.dto.history.HistoryTokenListDTO;
@@ -83,7 +84,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
   public static final String ALLOWED_TYPE = "allowedType";
   public static final String ALLOWED_MODEL_IDS = "allowedModels";
   public static final String LIMIT = "limit";
-  public static final String IS_MEMBER = "isMember";
+  public static final String IS_MEMBER = "member";
 
   public Component getElementComponent(ValueResult valueResult, EventBus eventBus) {
 	
@@ -121,6 +122,9 @@ public class ContactListElementDTO extends FlexibleElementDTO {
       @Override
       public void handleChange(List<ContactDTO> contacts, ValueEventChangeType changeType) {
         fireEvents(serializeValue(contacts), changeType);
+        if (getValidates()) {
+          handlerManager.fireEvent(new RequiredValueEvent(listComboBox.getListStore().getCount() > 0, true));
+        }
       }
     });
     listComboBox.setCreateContactHandler(new ContactListComboBox.CreateContactHandler() {
@@ -259,8 +263,8 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     return get(IS_MEMBER);
   }
 
-  public void setMember(boolean isMember) {
-    set(IS_MEMBER, isMember);
+  public void setMember(boolean member) {
+    set(IS_MEMBER, member);
   }
 
   @Override
