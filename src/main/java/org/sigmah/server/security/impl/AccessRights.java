@@ -132,6 +132,7 @@ final class AccessRights {
 		sperm(commandToken(AddOrgUnit.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(AmendmentActionCommand.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(BackupArchiveManagementCommand.class), GrantType.AUTHENTICATED_ONLY);
+		sperm(commandToken(FilesSolrIndexCommand.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(BatchCommand.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(ChangePasswordCommand.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.CHANGE_PASSWORD);
 		sperm(commandToken(ChangePhase.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.CHANGE_PHASE);

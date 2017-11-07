@@ -35,6 +35,7 @@ import org.sigmah.client.ui.presenter.zone.MenuBannerPresenter;
 import org.sigmah.client.ui.presenter.zone.MessageBannerPresenter;
 import org.sigmah.client.ui.presenter.zone.OfflineBannerPresenter;
 import org.sigmah.client.ui.presenter.zone.OrganizationBannerPresenter;
+import org.sigmah.client.ui.presenter.zone.SearchPresenter;
 import org.sigmah.client.ui.view.ApplicationView;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.base.ViewPopupInterface;
@@ -95,7 +96,7 @@ public class ApplicationPresenter extends AbstractPresenter<ApplicationPresenter
 		 */
 		void initZones(OrganizationBannerPresenter.View organizationBannerView, AuthenticationBannerPresenter.View authenticationBannerPresenter,
 				OfflineBannerPresenter.View offlineBannerPresenter, AppLoaderPresenter.View appLoaderPresenter, MenuBannerPresenter.View menuBannerPresenter,
-				MessageBannerPresenter.View messageBannerPresenter);
+				MessageBannerPresenter.View messageBannerPresenter, SearchPresenter.View searchPresenter);
 
 		/**
 		 * Returns the <em>credits</em> widget capable of handling a {@code ClickHandler}.
@@ -142,7 +143,7 @@ public class ApplicationPresenter extends AbstractPresenter<ApplicationPresenter
 
 		view.initZones(injector.getOrganizationBannerPresenter().getView(), injector.getAuthenticationBannerPresenter().getView(), injector
 			.getOfflineBannerPresenter().getView(), injector.getAppLoaderPresenter().getView(), injector.getMenuBannerPresenter().getView(), injector
-			.getMessageBannerPresenter().getView());
+			.getMessageBannerPresenter().getView(), injector.getSearchPresenter().getView());
 
 	}
 

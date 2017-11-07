@@ -37,6 +37,7 @@ import com.google.inject.Guice;
 import com.google.inject.Injector;
 import com.google.inject.servlet.GuiceServletContextListener;
 import org.sigmah.server.autoExport.QuartzScheduler;
+import org.sigmah.server.search.SolrIndexJobActivator;
 
 /**
  * Builds the Guice injector.
@@ -88,7 +89,6 @@ public class ServletContextListener extends GuiceServletContextListener {
 		super.contextInitialized(servletContextEvent);
 
 		final Injector injector = (Injector) servletContextEvent.getServletContext().getAttribute(Injector.class.getName());
-
 		executorService = Executors.newScheduledThreadPool(1);
 		executorService.schedule(new Runnable() {
 
@@ -97,6 +97,7 @@ public class ServletContextListener extends GuiceServletContextListener {
 				if(!Thread.currentThread().isInterrupted()) {
 					// Context has been initialized.
 					injector.getInstance(GlobalExportJobActivator.class);
+					injector.getInstance(SolrIndexJobActivator.class);
 				}
 			}
 			

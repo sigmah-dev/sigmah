@@ -93,6 +93,11 @@ public class Authentication implements Result {
 	 * The currently authenticated user's Organization logo path.
 	 */
 	private String organizationLogo;
+	
+	/**
+	 * The currently authenticated user's Organization solr core path.
+	 */
+	private String organizationSolrCoreUrl;
 
 	/**
 	 * The currently authenticated user's OrgUnit id.
@@ -157,8 +162,8 @@ public class Authentication implements Result {
 	 */
 	public Authentication(Integer userId, String userEmail, String userName, String userFirstName, Language language,
 		Integer organizationId, String organizationName, String organizationLogo, Integer mainOrgUnitId,
-		Set<Integer> secondaryOrgUnitIds, Map<Integer, ProfileDTO> aggregatedProfiles, Set<Integer> memberOfProjectIds) {
-		this(userId, userEmail, userName, userFirstName, language, organizationId, organizationName, organizationLogo,
+		Set<Integer> secondaryOrgUnitIds, Map<Integer, ProfileDTO> aggregatedProfiles, Set<Integer> memberOfProjectIds, String solrcore_url) {
+		this(userId, userEmail, userName, userFirstName, language, organizationId, organizationName, organizationLogo, solrcore_url,
 			mainOrgUnitId, secondaryOrgUnitIds,  aggregatedProfiles, memberOfProjectIds, false);
 	}
 
@@ -189,7 +194,7 @@ public class Authentication implements Result {
 	 *			<code>true</code> to allow the user to use Sigmah without cookie.
 	 */
 	public Authentication(Integer userId, String userEmail, String userName, String userFirstName, Language language,
-		Integer organizationId, String organizationName, String organizationLogo, Integer mainOrgUnitId,
+		Integer organizationId, String organizationName, String organizationLogo, String organizationSolrCoreUrl, Integer mainOrgUnitId,
 		Set<Integer> secondaryOrgUnitIds, Map<Integer, ProfileDTO> aggregatedProfiles, Set<Integer> memberOfProjectIds, boolean authorized) {
 		this.userId = userId;
 		this.userEmail = userEmail;
@@ -204,6 +209,7 @@ public class Authentication implements Result {
 		this.aggregatedProfiles = aggregatedProfiles;
 		this.memberOfProjectIds = memberOfProjectIds;
 		this.authorized = authorized;
+		this.organizationSolrCoreUrl = organizationSolrCoreUrl;
 	}
 
 	/**
@@ -222,6 +228,7 @@ public class Authentication implements Result {
 		builder.append("organizationId", organizationId);
 		builder.append("organizationName", organizationName);
 		builder.append("organizationLogo", organizationLogo);
+		builder.append("organizationSolrCoreUrl", organizationSolrCoreUrl);
 		builder.append("mainOrgUnitId", mainOrgUnitId);
 
 		StringBuilder serializedSecondaryOrgUnitIds = new StringBuilder("[");
@@ -362,6 +369,16 @@ public class Authentication implements Result {
 	 */
 	public String getOrganizationLogo() {
 		return organizationLogo;
+	}
+
+
+	/**
+	 * Returns the authenticated user's Organization Solr Core Url or {@code null} if anonymous.
+	 *
+	 * @return The authenticated user's Organization Solr Core Url or {@code null} if anonymous.
+	 */
+	public String getOrganizationSolrCoreUrl() {
+		return organizationSolrCoreUrl;
 	}
 
 	/**

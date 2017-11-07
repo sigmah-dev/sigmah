@@ -46,6 +46,7 @@ public class OrganizationDTO extends AbstractModelDataEntityDTO<Integer> {
 	private static final String ROOT = "root";
 	private static final String NAME = "name";
 	private static final String LOGO = "logo";
+	private static final String SOLRCORE_URL = "solrcore_url";
 
 	/**
 	 * Mapping configurations.
@@ -108,6 +109,7 @@ public class OrganizationDTO extends AbstractModelDataEntityDTO<Integer> {
 		builder.append(NAME, getName());
 		builder.append(LOGO, getLogo());
 		builder.append(ROOT, getRoot());
+		builder.append(SOLRCORE_URL, getSolrCoreUrl());
 	}
 
 	/**
@@ -143,6 +145,14 @@ public class OrganizationDTO extends AbstractModelDataEntityDTO<Integer> {
 
 	public void setRoot(OrgUnitDTO root) {
 		set(ROOT, root);
+	}
+	
+	public String getSolrCoreUrl(){
+		return get(SOLRCORE_URL);
+	}
+	
+	public void setSolrCoreUrl(String solrCoreUrl){
+		set(SOLRCORE_URL, solrCoreUrl);
 	}
 
 }

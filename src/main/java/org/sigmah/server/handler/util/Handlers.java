@@ -103,9 +103,10 @@ public final class Handlers {
 		final String organizationName = organization != null ? organization.getName() : null;
 		final String organizationLogo = organization != null ? organization.getLogo() : null;
 		final Integer orgUnitId = orgUnitWithProfiles != null && orgUnitWithProfiles.getOrgUnit() != null ? orgUnitWithProfiles.getOrgUnit().getId() : null;
+		final String organization_solrcore_url = organization != null ? organization.getSolrCoreUrl() : null;
 
 		return new Authentication(user.getId(), user.getEmail(), user.getName(), user.getFirstName(), Languages.notNull(language), organizationId,
-			organizationName, organizationLogo, orgUnitId, secondaryOrgUnitIds, Handlers.aggregateProfiles(user, mapper), memberOfProjectIds);
+			organizationName, organizationLogo, orgUnitId, secondaryOrgUnitIds, Handlers.aggregateProfiles(user, mapper), memberOfProjectIds, organization_solrcore_url);
 	}
 
 	/**

@@ -896,6 +896,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String ORGANIZATION_COLUMN_ID = "id_organization";
 	public static final String ORGANIZATION_COLUMN_NAME = "name";
 	public static final String ORGANIZATION_COLUMN_LOGO = "logo";
+	public static final String ORGANIZATION_SOLRCORE_URL = "solrcore_url";
 	// TODO Replace with 'OrgUnit' id column.
 	public static final String ORGANIZATION_COLUMN_ROOT_ORG_UNIT = "id_root_org_unit";
 
@@ -1506,6 +1507,7 @@ public final class EntityConstants extends org.sigmah.shared.dto.util.EntityCons
 	public static final String USER_COLUMN_PASSWORD = "Password";
 	public static final String USER_COLUMN_ACTIVE = "Active";
 	public static final String USER_COLUMN_DATE_CHANGE_PASSWORD_KEY_ISSUED = "dateChangePasswordKeyIssued";
+	public static final String USER_CAN_SEARCH = "Search";
 
 	public static final int CHANGE_PASSWORD_KEY_MAX_LENGTH = 34;
 	public static final int PASSWORD_MAX_LENGTH = 150;

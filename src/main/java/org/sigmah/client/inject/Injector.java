@@ -35,6 +35,7 @@ import org.sigmah.client.ui.presenter.DashboardPresenter;
 import org.sigmah.client.ui.presenter.HelpPresenter;
 import org.sigmah.client.ui.presenter.LoginPresenter;
 import org.sigmah.client.ui.presenter.MockUpPresenter;
+import org.sigmah.client.ui.presenter.SearchResultsPresenter;
 import org.sigmah.client.ui.presenter.admin.AdminPresenter;
 import org.sigmah.client.ui.presenter.admin.CategoriesAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.ParametersAdminPresenter;
@@ -99,6 +100,7 @@ import org.sigmah.client.ui.presenter.zone.MenuBannerPresenter;
 import org.sigmah.client.ui.presenter.zone.MessageBannerPresenter;
 import org.sigmah.client.ui.presenter.zone.OfflineBannerPresenter;
 import org.sigmah.client.ui.presenter.zone.OrganizationBannerPresenter;
+import org.sigmah.client.ui.presenter.zone.SearchPresenter;
 import org.sigmah.client.ui.theme.Theme;
 import org.sigmah.offline.dao.FileDataAsyncDAO;
 import org.sigmah.offline.dao.TransfertAsyncDAO;
@@ -178,6 +180,8 @@ public interface Injector extends Ginjector {
 	MenuBannerPresenter getMenuBannerPresenter();
 
 	MessageBannerPresenter getMessageBannerPresenter();
+	
+	SearchPresenter getSearchPresenter();
 
 	CreditsPresenter getCreditsPresenter();
 
@@ -204,6 +208,8 @@ public interface Injector extends Ginjector {
 	AttachFilePresenter getAttachFilePresenter();
 
 	ImportationPresenter getImportationPresenter();
+	
+	SearchResultsPresenter getSearchResultsPresenter();
 
 	// ---- Project presenters.
 

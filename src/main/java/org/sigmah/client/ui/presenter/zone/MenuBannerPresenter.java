@@ -22,8 +22,6 @@ package org.sigmah.client.ui.presenter.zone;
  * #L%
  */
 
-
-import com.allen_sauer.gwt.log.client.Log;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -53,7 +51,6 @@ import com.google.gwt.user.client.ui.Panel;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
-
 /**
  * Menu banner presenter displaying main tabs.
  * 
@@ -71,9 +68,11 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 	 * Project tab id.
 	 */
 	private final static String DASHBOARD_PROJECT_TAB_ID="dashboardProjectTabId";
+	
 	/**
 	 * View interface.
 	 */
+	
 	@ImplementedBy(MenuBannerView.class)
 	public static interface View extends ViewInterface {
 
@@ -270,15 +269,28 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 
 		if(request.getPage()==Page.DASHBOARD){
 			tab.getElement().setId(DASHBOARD_HOME_TAB_ID);
-		}		
+		}
+		
+		String searchTabTitle = "";
+		
+		if(request.getPage()==Page.SEARCH_RESULTS){
+			searchTabTitle = request.getData(RequestParameter.TITLE);
+			request.getPage().setTitle(searchTabTitle);
+			tab.setTitle(searchTabTitle);
+		}
+		
 		// Adds the tab.
 		view.getTabBar().addTab(tab);
 		requests.put(tab.getId(), new PageRequest(request)); // Important: create a new instance.
-
-		// Sets the first title.
-		final String pageTitle = Page.getTitle(request.getPage());
-		final String tabTitle = ClientUtils.isNotBlank(pageTitle) && !PropertyName.isErrorKey(pageTitle) ? pageTitle : I18N.CONSTANTS.loading();
-		view.getTabBar().updateTitle(tab.getId(), tabTitle);
+		
+		if(request.getPage()==Page.SEARCH_RESULTS){
+			view.getTabBar().updateTitle(tab.getId(), "\""+ searchTabTitle + "\"");
+		}else{
+			// Sets the first title.
+			final String pageTitle = Page.getTitle(request.getPage());
+			final String tabTitle = ClientUtils.isNotBlank(pageTitle) && !PropertyName.isErrorKey(pageTitle) ? pageTitle : I18N.CONSTANTS.loading();
+			view.getTabBar().updateTitle(tab.getId(), tabTitle);
+		}
 
 	}
 
@@ -292,7 +304,7 @@ public class MenuBannerPresenter extends AbstractZonePresenter<MenuBannerPresent
 		private final String token;
 		private final Map<RequestParameter, String> params;
 
-		private MenuTabId(final PageRequest request) {
+		private MenuTabId(PageRequest request) {
 
 			this.token = request.getPage().getParentKey() != null ? request.getPage().getParentKey() : request.getPage().getToken();
 			this.params = request.getParameters(true);

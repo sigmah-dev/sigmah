@@ -28,6 +28,8 @@ body {font-family:Arial;font-size:8pt}
 #header{height:56px;width:100%;float:left;background:url(../images/header/header-bg.jpg) repeat-x;clear:both;}
 #header-left{height:56px;width:135px;float:left;padding-left:25px;background-color:#E86F00;background:url(../images/header/header-bg-left.jpg) no-repeat;}
 #header-middle{height:56px;width:420px;float:left;background:url(../images/header/header-bg-middle.jpg) no-repeat;}
+#header-middle-right{height:56px;float:left;background-color:transparent;vertical-align:middle;padding-top:23px;}
+#search-for{font-family:Arial;font-size:11pt;color:#fff;padding-top:2px;padding-right:5px;}
 #header-right{height:56px;width:360px;float:right;background:url(../images/header/header-bg-right.jpg) no-repeat top right}
 #orglogo{width:100%;height:100%;background-color:transparent;background-position:left center;background-repeat:no-repeat;opacity:0.5;}
 #orgname{height:40px;width:420px;float:left;padding-top:9px;padding-left:6px;font-size:18px;font-weight:700;color:#fff;clear:both;text-transform:uppercase;}

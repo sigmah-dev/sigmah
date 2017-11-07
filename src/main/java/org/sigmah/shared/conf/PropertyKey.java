@@ -38,34 +38,49 @@ public enum PropertyKey implements IsSerializable {
 	//
 	// --------------------------------------------------------------------------------
 
-	APP_NAME(PropertyName.n("app", "name")),
-	VERSION_NAME(PropertyName.n(PropertyName.PREFIX_VERSION, "name")),
-	VERSION_NUMBER(PropertyName.n(PropertyName.PREFIX_VERSION, "number")),
-	VERSION_DATE(PropertyName.n(PropertyName.PREFIX_VERSION, "date")),
-	VERSION_REFERENCE(PropertyName.n(PropertyName.PREFIX_VERSION, "reference")),
-	VERSION_MANAGERS(PropertyName.n(PropertyName.PREFIX_VERSION, "managers")),
-	VERSION_PARTNERS(PropertyName.n(PropertyName.PREFIX_VERSION, "partners")),
-	VERSION_DEVELOPERS(PropertyName.n(PropertyName.PREFIX_VERSION, "developers")),
-	VERSION_CONTRIBUTORS(PropertyName.n(PropertyName.PREFIX_VERSION, "contributors")),
+	APP_NAME(PropertyName.n("app", "name")), VERSION_NAME(PropertyName.n(PropertyName.PREFIX_VERSION,
+			"name")), VERSION_NUMBER(PropertyName.n(PropertyName.PREFIX_VERSION, "number")), VERSION_DATE(
+					PropertyName.n(PropertyName.PREFIX_VERSION, "date")), VERSION_REFERENCE(
+							PropertyName.n(PropertyName.PREFIX_VERSION, "reference")), VERSION_MANAGERS(
+									PropertyName.n(PropertyName.PREFIX_VERSION, "managers")), VERSION_PARTNERS(
+											PropertyName.n(PropertyName.PREFIX_VERSION,
+													"partners")), VERSION_DEVELOPERS(
+															PropertyName.n(PropertyName.PREFIX_VERSION,
+																	"developers")), VERSION_CONTRIBUTORS(
+																			PropertyName.n(PropertyName.PREFIX_VERSION,
+																					"contributors")),
 
 	// --------------------------------------------------------------------------------
 	//
 	// Mails properties.
 	//
 	// --------------------------------------------------------------------------------
-	MAIL_HOSTNAME(PropertyName.n(PropertyName.PREFIX_MAIL, "hostname")),
-	MAIL_PORT(PropertyName.n(PropertyName.PREFIX_MAIL, "port")),
-	MAIL_FROM_ADDRESS(PropertyName.n(PropertyName.PREFIX_MAIL, "from", "address")),
-	MAIL_FROM_NAME(PropertyName.n(PropertyName.PREFIX_MAIL, "from", "name")),
-	MAIL_AUTH_USERNAME(PropertyName.n(PropertyName.PREFIX_MAIL, "auth", "username")),
-	MAIL_AUTH_PASSWORD(PropertyName.n(PropertyName.PREFIX_MAIL, "auth", "password")),
-	MAIL_ENCODING(PropertyName.n(PropertyName.PREFIX_MAIL, "encoding")),
-	MAIL_CONTENT_TYPE(PropertyName.n(PropertyName.PREFIX_MAIL, "contentType")),
-	MAIL_SUPPORT_TO(PropertyName.n(PropertyName.PREFIX_MAIL, "support", "to")),
-	MAIL_OPTIMISATION_TO_ADDRESS(PropertyName.n(PropertyName.PREFIX_MAIL,"optimisation", "to", "address")),
-	MAIL_OPTIMISATION_COPY_ADDRESS(PropertyName.n(PropertyName.PREFIX_MAIL,"optimisation", "copy", "address")),
-	MAIL_OPTIMISATION_MARKDOWN_FILE_NAME(PropertyName.n(PropertyName.PREFIX_MAIL,"optimisation", "markdownfile","name")),
-	MAIL_OPTIMISATION_JSON_FILE_NAME(PropertyName.n(PropertyName.PREFIX_MAIL,"optimisation", "jsonfile","name")),
+	MAIL_HOSTNAME(PropertyName.n(PropertyName.PREFIX_MAIL, "hostname")), MAIL_PORT(PropertyName.n(
+			PropertyName.PREFIX_MAIL,
+			"port")), MAIL_FROM_ADDRESS(PropertyName.n(PropertyName.PREFIX_MAIL, "from", "address")), MAIL_FROM_NAME(
+					PropertyName.n(PropertyName.PREFIX_MAIL, "from", "name")), MAIL_AUTH_USERNAME(PropertyName
+							.n(PropertyName.PREFIX_MAIL, "auth", "username")), MAIL_AUTH_PASSWORD(PropertyName.n(
+									PropertyName.PREFIX_MAIL, "auth",
+									"password")), MAIL_ENCODING(PropertyName.n(PropertyName.PREFIX_MAIL,
+											"encoding")), MAIL_CONTENT_TYPE(PropertyName.n(PropertyName.PREFIX_MAIL,
+													"contentType")), MAIL_SUPPORT_TO(PropertyName.n(
+															PropertyName.PREFIX_MAIL, "support",
+															"to")), MAIL_OPTIMISATION_TO_ADDRESS(PropertyName.n(
+																	PropertyName.PREFIX_MAIL, "optimisation", "to",
+																	"address")), MAIL_OPTIMISATION_COPY_ADDRESS(
+																			PropertyName.n(PropertyName.PREFIX_MAIL,
+																					"optimisation", "copy",
+																					"address")), MAIL_OPTIMISATION_MARKDOWN_FILE_NAME(
+																							PropertyName.n(
+																									PropertyName.PREFIX_MAIL,
+																									"optimisation",
+																									"markdownfile",
+																									"name")), MAIL_OPTIMISATION_JSON_FILE_NAME(
+																											PropertyName
+																													.n(PropertyName.PREFIX_MAIL,
+																															"optimisation",
+																															"jsonfile",
+																															"name")),
 	// --------------------------------------------------------------------------------
 	//
 	// Maps API properties.
@@ -80,11 +95,17 @@ public enum PropertyKey implements IsSerializable {
 	//
 	// --------------------------------------------------------------------------------
 
-	FILE_REPOSITORY_NAME(PropertyName.n("files", "repository", "name")),
-	FILE_UPLOAD_MAX_SIZE(PropertyName.n("files", "upload", "maxSize")),
-	ARCHIVE_REPOSITORY_NAME(PropertyName.n("archives", "repository", "name")),
-	
+	FILE_REPOSITORY_NAME(PropertyName.n("files", "repository", "name")), FILE_UPLOAD_MAX_SIZE(
+			PropertyName.n("files", "upload", "maxSize")), ARCHIVE_REPOSITORY_NAME(
+					PropertyName.n("archives", "repository", "name")),
 
+	// --------------------------------------------------------------------------------
+	//
+	// Solr properties.
+	//
+	// --------------------------------------------------------------------------------
+
+	SOLR_CORE_URL(PropertyName.n("solr", "core", "url"))
 	;
 
 	private final String key;

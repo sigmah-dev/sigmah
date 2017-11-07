@@ -86,7 +86,7 @@ public class SecureNavigationAsyncHandler implements AsyncCommandHandler<SecureN
 					}
 
 					result.setAuthentication(new Authentication(null, "anonymous@nowhere.com", "anonymous", null, language, null,
-						null, null, null, null, null, Collections.<Integer>emptySet()));
+						null, null, null, null, null, Collections.<Integer>emptySet(), null));
 				}
 			}
 		});

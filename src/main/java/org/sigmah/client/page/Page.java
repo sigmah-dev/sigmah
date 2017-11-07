@@ -114,7 +114,8 @@ public enum Page implements IsSerializable {
 	CREDITS("credits", true),
 	HELP("help", true),
 	CREATE_PROJECT("create-project", true),
-	IMPORT_VALUES("import-values"), ;
+	IMPORT_VALUES("import-values"), 
+	SEARCH_RESULTS("search-results") ;
 
 	private final String parentKey;
 	private final String token;
@@ -320,6 +321,8 @@ public enum Page implements IsSerializable {
 				return I18N.CONSTANTS.adminboard();
 			case CREATE_PROJECT:
 				return I18N.CONSTANTS.createProject();
+			case SEARCH_RESULTS:
+				return "Search Results";
 			default:
 				return PropertyName.error(page.token);
 		}

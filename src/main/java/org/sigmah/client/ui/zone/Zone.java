@@ -44,6 +44,7 @@ public enum Zone implements IsSerializable {
 	OFFLINE_BANNER("offline-banner"),
 	MENU_BANNER("menu-banner"),
 	MESSAGE_BANNER("message-banner"),
+	SEARCH_BANNER("search-banner"),
 
 	;
 

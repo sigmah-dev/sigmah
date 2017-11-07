@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+
+<dataConfig>
+  <dataSource driver="org.postgresql.Driver"
+     url="jdbc:postgresql://localhost:5432/sigmah_demo?zeroDateTimeBehavior=convertToNull"
+     user="sigmah"
+     password="hamsig" />
+  <document>
+
+    <!-- PROJECT -->
+
+
+   	<entity name = "project" transformer="TemplateTransformer, DateFormatTransformer" query = "select activity_advancement, amendment_revision, amendment_status, amendment_version, calendarid, close_date, end_date, planned_budget, received_budget, spend_budget, COALESCE( databaseid, 0 ) as databaseid, COALESCE( id_current_phase, 0 ) as id_current_phase, id_manager, id_monitored_points_list, COALESCE( id_project_model, 0 ) as id_project_model, id_reminder_list, mainsite from project" >
+      <!-- pk = "databaseid"  deltaImportQuery="select * from project where ID='${dih.delta.id}'"
+      deltaQuery="select id from item where last_modified &gt; '${dih.last_index_time}'" -->
+      <field column="doc_id" template="PROJECT_${project.databaseid}" />
+      <field column="doc_type" template="PROJECT" />
+
+   		<field column="activity_advancement" name="activity_advancement" />
+   		<field column="amendment_revision" name="amendment_revision" />
+   		<field column="amendment_status" name="amendment_status" />
+   		<field column="amendment_version" name="amendment_version" />
+   		<field column="calendarid" name="calendarid" />
+   		<field column="close_date" name="close_date" dateTimeFormat="yyyy-MM-dd HH:mm:ss"/>
+   		<field column="end_date" name="end_date" dateTimeFormat="yyyy-MM-dd HH:mm:ss"/>
+   		<field column="planned_budget" name="planned_budget" />
+   		<field column="received_budget" name="received_budget" />
+   		<field column="spend_budget" name="spend_budget" />
+   		<field column="databaseid" name="databaseid" />
+   		<field column="id_current_phase" name="id_current_phase" />
+   		<field column="id_manager" name="id_manager" />
+   		<field column="id_monitored_points_list" name="id_monitored_points_list" />
+   		<field column="id_project_model" name="id_project_model" />
+   		<field column="id_reminder_list" name="id_reminder_list" />
+   		<field column="mainsite" name="mainsite" />
+
+      <entity name = "user_database" query = "select fullname, name, startdate, datedeleted, COALESCE( countryid, 0 ) as countryid, owneruserid from userdatabase where databaseid = ${project.databaseid}" transformer="DateFormatTransformer"> 
+
+        <field column="fullname" name="project_fullname" />
+        <field column="name" name="project_name" />
+        <field column="startdate" name="project_startdate" dateTimeFormat="yyyy-MM-dd"/>
+        <field column="datedeleted" name="project_datedeleted" dateTimeFormat="yyyy-MM-dd HH:mm:ss"/>
+        <field column="countryid" name="project_countryid" />
+        <field column="owneruserid" name="project_owneruserid" />
+
+        <entity name = "project_country" query = "select iso2, name from country where countryid=${user_database.countryid}"> 
+
+          <field column="iso2" name="project_country_iso2" />
+          <field column="name" name="project_country_name" />
+
+        </entity>
+
+      </entity>
+
+      <entity name = "project_partner" query = "select COALESCE( partnerid, 0 ) as partnerid from partnerindatabase where databaseid = ${project.databaseid}">
+
+        <field column="partnerid" name="project_partnerid" />
+
+        <entity name = "project_org_unit" query = "select name, fullname from partner where partnerid = ${project_partner.partnerid}">
+
+          <field column="name" name="project_org_unit_name" />
+          <field column="fullname" name="project_org_unit_fullname" />
+
+        </entity>
+
+      </entity>
+
+   		<entity name = "project_model" query = "select name, status, date_deleted, date_maintenance from project_model where id_project_model = ${project.id_project_model}" transformer="DateFormatTransformer"> 
+
+	   		<field column="name" name="pmodel_name" />
+	   		<field column="status" name="pmodel_status" />
+	   		<field column="date_deleted" name="pmodel_date_deleted" dateTimeFormat="yyyy-MM-dd"/>
+	   		<field column="date_maintenance" name="pmodel_date_maintenance" dateTimeFormat="yyyy-MM-dd HH:mm:ss"/>
+
+   		</entity>
+
+      <entity name = "pmodel_visibility" query = "select type from project_model_visibility where id_project_model = ${project.id_project_model}"> 
+
+        <field column="type" name="type_pmodel" />
+
+      </entity>
+
+      <entity name = "phase" query = "select start_date, end_date, id_phase_model from phase where id_phase = ${project.id_current_phase}" transformer="DateFormatTransformer"> 
+
+        <field column="start_date" name="current_phase_start_date" dateTimeFormat="yyyy-MM-dd HH:mm:ss"/>
+        <field column="end_date" name="current_phase_end_date" dateTimeFormat="yyyy-MM-dd HH:mm:ss"/>
+        <field column="id_phase_model" name="id_current_phase_model"/>
+
+        <entity name = "phase_model" query = "select name from phase_model where id_phase_model =${phase.id_phase_model}"> 
+
+          <field column="name" name="phase_model_name" />
+
+        </entity>
+
+      </entity>
+      
+   	</entity>
+
+
+    <!-- CONTACT -->
+
+
+    <entity name = "contact" transformer="TemplateTransformer, DateFormatTransformer" query = "select id_contact, COALESCE( id_contact_model, 0 ) as id_contact_model, COALESCE( id_user, 0 ) as id_user, COALESCE( id_organization, 0 ) as id_organization, name, firstname, id_main_org_unit, login, email, phone_number, postal_address, photo, COALESCE( id_country, 0 ) as id_country, id_parent, date_created, date_deleted from contact">
+
+      <field column="doc_id" template="CONTACT_${contact.id_contact}" />
+      <field column="doc_type" template="CONTACT" />
+
+      <field column="id_contact" name="id_contact" />
+      <field column="id_contact_model" name="id_contact_model" />
+      <field column="id_user" name="id_user" />
+      <field column="id_organization" name="id_organization" />
+      <field column="name" name="contact_name" />
+      <field column="firstname" name="contact_firstname" />
+      <field column="id_main_org_unit" name="id_main_org_unit" />
+      <field column="login" name="login" />
+      <field column="email" name="email" />
+      <field column="phone_number" name="phone_number" />
+      <field column="postal_address" name="postal_address" />
+      <field column="photo" name="photo" />
+      <field column="id_country" name="id_country" />
+      <field column="id_parent" name="id_parent" />
+      <field column="date_created" name="contact_date_created" dateTimeFormat="yyyy-MM-dd HH:mm:ss"/>
+      <field column="date_deleted" name="contact_date_deleted" dateTimeFormat="yyyy-MM-dd HH:mm:ss"/>
+
+     <!--  HOW TO IGNORE SUB-ENTITIES WHICH MAY NOT JOIN DUE TO NULL VALUES? IMPORTANT: HAVE REPLACED PARENT ENTITY'S NULL FIELDS WITH 0 WHERE REQUIRED-->
+
+      <entity name = "country" query = "select iso2, name from country where countryid=${contact.id_country}"> 
+
+        <field column="iso2" name="country_iso2" />
+        <field column="name" name="country_name" />
+
+      </entity>
+
+      <entity name = "user" query = "select email, firstname, locale, name from userlogin where userid=${contact.id_user}"> 
+
+        <field column="email" name="user_email" />
+        <field column="firstname" name="user_firstname" />
+        <field column="locale" name="user_locale" />
+        <field column="name" name="user_name" />
+
+      </entity>
+
+      <entity name = "organization" query = "select name from organization where id_organization=${contact.id_organization}"> 
+
+        <field column="name" name="organization_name" />
+
+      </entity>
+
+      <entity name = "contact_model" query = "select type, name from contact_model where id_contact_model=${contact.id_contact_model}"> 
+
+        <field column="type" name="contact_model_type" />
+        <field column="name" name="contact_model_name" />
+
+      </entity>
+
+    </entity>
+
+
+    <!-- ORG_UNIT -->
+
+
+    <entity name = "org_unit" transformer="TemplateTransformer, DateFormatTransformer" query = "select partnerid, fullname, name, planned_budget, received_budget, spend_budget, location_locationid, COALESCE( office_country_id, 0 ) as office_country_id, id_org_unit_model, parent_partnerid, deleted from partner" >
+
+      <field column="doc_id" template="ORG_UNIT_${org_unit.partnerid}" />
+      <field column="doc_type" template="ORG_UNIT" />
+
+      <field column="partnerid" name="org_unit_id" />
+      <field column="fullname" name="org_unit_fullname" />
+      <field column="name" name="org_unit_name" />
+      <field column="planned_budget" name="org_unit_planned_budget"/>
+      <field column="received_budget" name="org_unit_received_budget"/>
+      <field column="spend_budget" name="org_unit_spend_budget"/>
+      <field column="location_locationid" name="org_unit_locationid"/>
+      <field column="office_country_id" name="org_unit_office_countryid" />
+      <field column="id_org_unit_model" name="id_org_unit_model" />
+      <field column="parent_partnerid" name="org_unit_parent_partnerid" />
+      <field column="deleted" name="org_unit_date_deleted" dateTimeFormat="yyyy-MM-dd HH:mm:ss"/>
+
+      <entity name = "country" query = "select iso2, name from country where countryid=${org_unit.office_country_id}"> 
+
+        <field column="iso2" name="org_unit_country_iso2" />
+        <field column="name" name="org_unit_country_name" />
+
+      </entity>
+
+
+      <entity name = "org_unit_model" query = "select can_contain_projects, has_budget, name, status, title, COALESCE( id_organization, 0 ) as id_organization, date_deleted, date_maintenance from org_unit_model where org_unit_model_id = ${org_unit.id_org_unit_model}">
+
+        <field column="can_contain_projects" name="can_contain_projects" />
+        <field column="has_budget" name="has_budget" />
+        <field column="name" name="org_unit_model_name" />
+        <field column="status" name="org_unit_model_status" />
+        <field column="title" name="org_unit_model_title" />
+        <field column="id_organization" name="org_unit_id_organization" />
+        <field column="date_deleted" name="org_unit_model_date_deleted" dateTimeFormat="yyyy-MM-dd HH:mm:ss"/>
+        <field column="date_maintenance" name="org_unit_model_date_maintenance" dateTimeFormat="yyyy-MM-dd HH:mm:ss"/>
+
+        <entity name = "organization" query = "select name from organization where id_organization=${org_unit_model.id_organization}"> 
+
+          <field column="name" name="org_unit_model_organization_name" />
+
+        </entity>
+
+      </entity>
+
+
+    </entity>
+
+
+
+
+  </document>
+
+</dataConfig>

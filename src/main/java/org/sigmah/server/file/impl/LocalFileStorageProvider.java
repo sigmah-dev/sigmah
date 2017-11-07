@@ -59,8 +59,9 @@ public class LocalFileStorageProvider implements FileStorageProvider {
 	 */
 	@Override
 	public OutputStream create(final String storageId) throws IOException {
-
+		//Files.
 		return Files.newOutputStream(Paths.get(getStorageRootPath(), storageId));
+		
 
 	}
 

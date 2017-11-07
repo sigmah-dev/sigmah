@@ -66,6 +66,7 @@ public final class AuthenticationJS extends JavaScriptObject {
 		authenticationJS.setSecondaryOrgUnitIds(authentication.getSecondaryOrgUnitIds());
 		authenticationJS.setAggregatedProfiles(authentication.getAggregatedProfiles());
 		authenticationJS.setMemberOfProjectIds(authentication.getMemberOfProjectIds());
+		authenticationJS.setOrganizationSolrCoreUrl(authentication.getOrganizationSolrCoreUrl());
 
 		return authenticationJS;
 	}
@@ -80,6 +81,7 @@ public final class AuthenticationJS extends JavaScriptObject {
 			getOrganizationId(),
 			getOrganizationName(),
 			getOrganizationLogo(),
+			getOrganizationSolrCoreUrl(),
 			getMainOrgUnitId(),
 			getSecondaryOrgUnitIdsDTO(),
 			getAggregatedProfilesDTO(),
@@ -167,6 +169,14 @@ public final class AuthenticationJS extends JavaScriptObject {
 
 	public native void setOrganizationLogo(String organizationLogo) /*-{
 		this.organizationLogo = organizationLogo;
+	}-*/;
+	
+	public native String getOrganizationSolrCoreUrl() /*-{
+		return this.organizationSolrCoreUrl;
+	}-*/;
+
+	public native void setOrganizationSolrCoreUrl(String organizationSolrCoreUrl) /*-{
+		this.organizationSolrCoreUrl = organizationSolrCoreUrl;
 	}-*/;
 
 	public Integer getMainOrgUnitId() {

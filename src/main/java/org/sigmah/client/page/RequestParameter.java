@@ -65,7 +65,8 @@ public enum RequestParameter {
 	CLOSE_CURRENT_TAB,
 	CONTACT_ID,
     ELEMENTS,
-	PROJECT_ID;
+	PROJECT_ID,
+	;
 
 	// If the parameter is part of the tab uniqueness logic.
 	private final boolean unique;

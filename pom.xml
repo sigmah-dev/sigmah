@@ -544,6 +544,15 @@
 			<artifactId>mail</artifactId>
 			<version>1.4.5</version>
 		</dependency>
+		
+		<!-- SolrJ -->
+		<dependency>
+               <artifactId>solr-solrj</artifactId>
+               <groupId>org.apache.solr</groupId>
+               <version>6.5.0</version>
+               <type>jar</type>
+               <scope>compile</scope>
+        </dependency>
 
 		<!-- MISC -->
 		<dependency>
