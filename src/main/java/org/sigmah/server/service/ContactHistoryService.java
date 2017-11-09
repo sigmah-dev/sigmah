@@ -179,7 +179,7 @@ public class ContactHistoryService {
       // The flexible element must be a contact list element
       // This should have already been filtered by the request.
       if (!(flexibleElement instanceof ContactListElement)) {
-        continue;
+        throw new IllegalStateException("FlexibleElement is instance of " + flexibleElement.getClass().getSimpleName() + " instead of ContactListElement");
       }
 
       ContactHistory contactHistory = new ContactHistory();

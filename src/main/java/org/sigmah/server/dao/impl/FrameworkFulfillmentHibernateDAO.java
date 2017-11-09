@@ -26,6 +26,7 @@ import java.util.List;
 
 import org.sigmah.server.dao.FrameworkFulfillmentDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
+import org.sigmah.server.domain.Framework;
 import org.sigmah.server.domain.FrameworkFulfillment;
 
 public class FrameworkFulfillmentHibernateDAO extends AbstractDAO<FrameworkFulfillment, Integer> implements FrameworkFulfillmentDAO {
@@ -37,9 +38,11 @@ public class FrameworkFulfillmentHibernateDAO extends AbstractDAO<FrameworkFulfi
             "JOIN pm.frameworkFulfillments ff " +
             "JOIN FETCH ff.frameworkElementImplementations fei " +
             "WHERE pm.id = :projectModelId " +
-            "AND ff.framework.availabilityStatus = 'AVAILABLE' ",
-        FrameworkFulfillment.class
-    ).setParameter("projectModelId", projectModelId).getResultList();
+            "AND ff.framework.availabilityStatus = :status ",
+        FrameworkFulfillment.class)
+        .setParameter("projectModelId", projectModelId)
+        .setParameter("status", Framework.AvailabilityStatus.AVAILABLE.name())
+        .getResultList();
   }
 
   @Override
@@ -48,8 +51,10 @@ public class FrameworkFulfillmentHibernateDAO extends AbstractDAO<FrameworkFulfi
         "SELECT ff " +
             "FROM FrameworkFulfillment ff " +
             "WHERE ff.framework.id = :frameworkId " +
-            "AND ff.framework.availabilityStatus = 'AVAILABLE' ",
-        FrameworkFulfillment.class
-    ).setParameter("frameworkId", frameworkId).getResultList();
+            "AND ff.framework.availabilityStatus = :status ",
+        FrameworkFulfillment.class)
+        .setParameter("frameworkId", frameworkId)
+        .setParameter("status", Framework.AvailabilityStatus.AVAILABLE.name())
+        .getResultList();
   }
 }

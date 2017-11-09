@@ -700,16 +700,16 @@ public class ContactListElementDTO extends FlexibleElementDTO {
   }
 
   public CheckboxElementDTO getCheckboxElement() {
-		return get(CHECKBOX_ELEMENT);
-	}
+    return get(CHECKBOX_ELEMENT);
+  }
 
   public Integer getCheckboxElementId() {
     return getCheckboxElement() == null ? null : getCheckboxElement().getId();
   }
 
   public void setCheckboxElement(CheckboxElementDTO checkboxElement) {
-		set(CHECKBOX_ELEMENT, checkboxElement);
-	}
+    set(CHECKBOX_ELEMENT, checkboxElement);
+  }
 
 
   @Override

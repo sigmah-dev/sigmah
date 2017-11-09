@@ -23,6 +23,7 @@ package org.sigmah.server.dao.impl;
 
 import java.util.List;
 
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.sigmah.server.dao.HistoryTokenDAO;
@@ -51,15 +52,17 @@ public class HistoryTokenHibernateDAO extends AbstractDAO<HistoryToken, Integer>
   @Override
   @SuppressWarnings("unchecked")
   public List<HistoryToken> findByIdInSerializedValueAndElementType(Integer id, String elementTypeTableName, boolean lastOnly) {
-    return em().createNativeQuery("" +
+    Query q = em().createNativeQuery("" +
         "SELECT ht.* " +
         "FROM " + EntityConstants.HISTORY_TOKEN_TABLE + " ht " +
         "WHERE (ht." + EntityConstants.HISTORY_TOKEN_COLUMN_VALUE + " = :id " +
         "OR ht." + EntityConstants.HISTORY_TOKEN_COLUMN_VALUE + " ~ ('^(.*~)?'||:id||'(~.*)?$') ) " +
         (elementTypeTableName == null ? "" : "AND EXISTS (SELECT * FROM " + elementTypeTableName + ") ") +
-        "ORDER BY ht." + EntityConstants.HISTORY_TOKEN_COLUMN_DATE + " DESC" +
-        (lastOnly ? " LIMIT 1" : ""), HistoryToken.class)
-        .setParameter("id", String.valueOf(id))
-        .getResultList();
+        "ORDER BY ht." + EntityConstants.HISTORY_TOKEN_COLUMN_DATE + " DESC", HistoryToken.class)
+        .setParameter("id", String.valueOf(id));
+    if (lastOnly) {
+      q = q.setMaxResults(1);
+    }
+    return q.getResultList();
   }
 }

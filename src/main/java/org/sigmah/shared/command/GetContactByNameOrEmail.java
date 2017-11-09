@@ -73,7 +73,9 @@ public class GetContactByNameOrEmail extends AbstractCommand<ListResult<ContactD
     return allowedModelIds;
   }
 
-  public Set<Integer> getExcludedIds() { return excludedIds; }
+  public Set<Integer> getExcludedIds() {
+    return excludedIds;
+  }
 
   public Integer getCheckboxElementId() {
     return checkboxElementId;
