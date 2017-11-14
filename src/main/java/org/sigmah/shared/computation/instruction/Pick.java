@@ -28,6 +28,13 @@ import java.util.Stack;
 import org.sigmah.shared.computation.dependency.Dependency;
 import org.sigmah.shared.computation.value.ComputedValue;
 
+/**
+ * Pick function.
+ *
+ * Extract the value of a field from the same iterative group than the computation field
+ * and corresponding to the same iteration.
+ *
+ */
 public class Pick implements Function {
 
 	/**
