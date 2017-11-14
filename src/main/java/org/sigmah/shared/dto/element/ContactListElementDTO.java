@@ -176,9 +176,9 @@ public class ContactListElementDTO extends FlexibleElementDTO {
       } else if (type == Store.Add) {
         storeAdd(e);
       } else if (type == Store.BeforeClear) {
-        storeBeforeClear(e);
+        storeBeforeClear();
       } else if (type == Store.Clear) {
-        storeClear(e);
+        storeClear();
       } if (type == Store.Remove) {
         storeRemove(e);
       }
@@ -210,12 +210,12 @@ public class ContactListElementDTO extends FlexibleElementDTO {
       handleChange(se.getModels(), ValueEventChangeType.ADD);
     }
 
-    private void storeBeforeClear(StoreEvent<ContactDTO> se) {
+    private void storeBeforeClear() {
       assert clearedValues == null;
       clearedValues = store.getRange(0, store.getCount() - 1);
     }
 
-    private void storeClear(StoreEvent<ContactDTO> se) {
+    private void storeClear() {
       assert clearedValues != null;
       handleChange(clearedValues, ValueEventChangeType.REMOVE);
       clearedValues = null;

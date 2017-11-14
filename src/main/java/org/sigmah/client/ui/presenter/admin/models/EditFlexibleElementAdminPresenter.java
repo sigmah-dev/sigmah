@@ -753,13 +753,12 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 				List<LayoutGroupDTO> groups = new ArrayList<LayoutGroupDTO>();
 				// iterative groups are not available for default fields or when editing an element when model is under maintenance
 				for (LayoutGroupDTO layoutGroupDTO : selectedContainer.getGroups()) {
-					if(flexibleElement != null) {
-						if ((flexibleElement.getElementType() == ElementTypeEnum.DEFAULT
-								|| flexibleElement.getElementType() == ElementTypeEnum.DEFAULT_CONTACT
-								|| currentModel.isUnderMaintenance())
-								&& layoutGroupDTO.getHasIterations()) {
-							continue;
-						}
+					if(flexibleElement != null && (
+							(flexibleElement.getElementType() == ElementTypeEnum.DEFAULT
+									|| flexibleElement.getElementType() == ElementTypeEnum.DEFAULT_CONTACT
+									|| currentModel.isUnderMaintenance())
+									&& layoutGroupDTO.getHasIterations())) {
+						continue;
 					}
 					groups.add(layoutGroupDTO);
 				}

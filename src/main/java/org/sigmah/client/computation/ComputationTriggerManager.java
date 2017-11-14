@@ -212,25 +212,7 @@ public class ComputationTriggerManager {
 		final List<ComputationElementDTO> computationElements = dependencies.get(element);
 
 		if (computationElements != null) {
-			element.addValueHandler(new ValueHandler() {
-
-				@Override
-				public void onValueChange(ValueEvent event) {
-					updateComputations(computationElements, modifications, iterationId);
-					if (iterationId == null) {
-						// Field is not in an iteration -> compute elements in every iteration
-						for (ComputationElementDTO computationElement : computationElements) {
-							List<Integer> iterations = iterationsByComputation.get(computationElement.getId());
-							if (iterations == null) {
-								continue;
-							}
-							for(Integer iteration : iterations) {
-								updateComputation(computationElement, modifications, true, iteration);
-							}
-						}
-					}
-				}
-			});
+			element.addValueHandler(new elementInComputationValueChangeHandler(computationElements, modifications, iterationId));
 		}
 	}
 
@@ -349,4 +331,33 @@ public class ComputationTriggerManager {
 		}
 	}
 
+	private class elementInComputationValueChangeHandler implements ValueHandler {
+
+		private final List<ComputationElementDTO> computationElements;
+		private final List<ValueEvent> modifications;
+		private final Integer iterationId;
+
+		public elementInComputationValueChangeHandler(List<ComputationElementDTO> computationElements, List<ValueEvent> modifications, Integer iterationId) {
+			this.computationElements = computationElements;
+			this.modifications = modifications;
+			this.iterationId = iterationId;
+		}
+
+		@Override
+    public void onValueChange(ValueEvent event) {
+      updateComputations(computationElements, modifications, iterationId);
+      if (iterationId == null) {
+        // Field is not in an iteration -> compute elements in every iteration
+        for (ComputationElementDTO computationElement : computationElements) {
+          List<Integer> iterations = iterationsByComputation.get(computationElement.getId());
+          if (iterations == null) {
+            continue;
+          }
+          for(Integer iteration : iterations) {
+            updateComputation(computationElement, modifications, true, iteration);
+          }
+        }
+      }
+    }
+	}
 }
