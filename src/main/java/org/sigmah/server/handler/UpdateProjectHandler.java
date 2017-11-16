@@ -349,8 +349,20 @@ public class UpdateProjectHandler extends AbstractCommandHandler<UpdateProject, 
 
 				if (projectIsClosed || phaseIsClosed || (source.getAmendable() && projectIsLocked)) {
 					final ValueResult result = new ValueResult();
-					result.setValueObject(value.getSingleValue());
-					result.setValuesObject(value.getTripletValue() != null ? Collections.<ListableValue>singletonList(value.getTripletValue()) : null);
+
+					final String updateSingleValue = value.getSingleValue();
+					final TripletValueDTO updateListValue = value.getTripletValue();
+					final Set<Integer> multivaluedIdsValue = value.getMultivaluedIdsValue();
+
+					if (updateSingleValue != null) {
+						result.setValueObject(updateSingleValue);
+					} else if (updateListValue != null) {
+						result.setValuesObject(Collections.<ListableValue>singletonList(value.getTripletValue()));
+					} else if (multivaluedIdsValue != null) {
+						result.setValueObject(ValueResultUtils.mergeElements(new ArrayList<Integer>(multivaluedIdsValue)));
+					} else {
+						LOGGER.warn("Empty value event received for element #{} ({}) of container #{}.", source.getId(), source.getEntityName(), project.getId());
+					}
 
 					if(!source.isCorrectRequiredValue(result)) {
 						conflicts.add(i18nServer.t(language, "conflictModifyLockedContentEmptyValue",
