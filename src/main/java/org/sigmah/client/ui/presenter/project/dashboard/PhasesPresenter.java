@@ -922,7 +922,16 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 				// of the current project must be refreshed
 				// here.
 				if (event.isImmediate()) {
-					view.getButtonSavePhase().fireEvent(Events.OnClick);
+					if (view.getButtonSavePhase().isEnabled()) {
+						view.getButtonSavePhase().fireEvent(Events.OnClick);
+					} else {
+						currentPhaseRequiredElements.saveState();
+
+						if (isActivePhase(getCurrentDisplayedPhase())) {
+							activePhaseRequiredElements.saveState();
+						}
+						refreshActionsToolbar();
+					}
 				}
 
 				// Updates the element state for the new value.
