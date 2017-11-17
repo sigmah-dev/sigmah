@@ -35,6 +35,7 @@ import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.client.ui.widget.form.StringField;
 import org.sigmah.offline.sync.SuccessCallback;
 import org.sigmah.shared.computation.Computation;
+import org.sigmah.shared.computation.dependency.CollectionDependency;
 import org.sigmah.shared.computation.dependency.Dependency;
 import org.sigmah.shared.computation.dependency.SingleDependency;
 import org.sigmah.shared.dto.ContactDTO;
@@ -153,8 +154,14 @@ public class ComputationTriggerManager {
 		computations.put(computationElement, computation);
 
 		for (final Dependency dependency : computation.getDependencies()) {
-			List<ComputationElementDTO> list = dependencies.get(((SingleDependency) dependency).getFlexibleElement());
-
+			List<ComputationElementDTO> list;
+			if(dependency instanceof SingleDependency) {
+					 list = dependencies.get(((SingleDependency) dependency).getFlexibleElement());
+			} else if(dependency instanceof CollectionDependency) {
+				list = dependencies.get(((CollectionDependency) dependency).getFlexibleElement());
+			} else {
+				continue;
+			}
 			if (list == null) {
 				list = new ArrayList<ComputationElementDTO>();
 				
