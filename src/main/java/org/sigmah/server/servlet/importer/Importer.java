@@ -25,6 +25,8 @@ package org.sigmah.server.servlet.importer;
 
 import com.google.inject.Injector;
 import org.sigmah.server.dispatch.impl.UserDispatch;
+import org.sigmah.server.domain.Contact;
+import org.sigmah.server.domain.ContactModel;
 import org.sigmah.server.domain.Country;
 import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.domain.OrgUnitModel;
@@ -53,6 +55,7 @@ import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dispatch.FunctionalException;
+import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.ElementExtractedValue;
 import org.sigmah.shared.dto.ImportDetails;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -63,6 +66,7 @@ import org.sigmah.shared.dto.element.CheckboxElementDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.element.ContactListElementDTO;
 import org.sigmah.shared.dto.element.CoreVersionElementDTO;
+import org.sigmah.shared.dto.element.DefaultContactFlexibleElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
@@ -89,6 +93,7 @@ import org.slf4j.LoggerFactory;
 
 import javax.persistence.EntityManager;
 import javax.persistence.NoResultException;
+import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 import java.io.IOException;
 import java.io.InputStream;
@@ -277,7 +282,7 @@ public abstract class Importer implements Iterator<ImportDetails> {
 	/**
 	 * Get the map mapping a variable value and a flexible element value.
 	 * 
-	 * @param variableFlexibleElementsDTO
+	 * @param variableFlexibleElements
 	 * @param lineNumber
 	 *            number of the line
 	 * @param sheetName
@@ -364,8 +369,7 @@ public abstract class Importer implements Iterator<ImportDetails> {
 	 * Get the value of the flexible Element.
 	 * 
 	 * @param flexibleElement
-	 * @param entityDTO
-	 * @param forkey
+	 * @param entity
 	 * @return
 	 * @throws CommandException
 	 */
@@ -381,48 +385,41 @@ public abstract class Importer implements Iterator<ImportDetails> {
 			return null;
 		}
 
-		final FlexibleElement element;
 		final Serializable valueObject;
 		
 		final LogicalElementType type = flexibleElement.type();
 		
 		switch (type.toElementTypeEnum()) {
 		case CHECKBOX:
-			element = mapper.map(flexibleElement, new CheckboxElement());
-			valueObject = getCheckboxValue(valueResult, element);
+			valueObject = getCheckboxValue(valueResult, flexibleElement);
 			break;
 		case CONTACT_LIST:
 			valueObject = getContactListValue(valueResult);
 			break;
 		case DEFAULT:
-			element = mapper.map(flexibleElement, new DefaultFlexibleElement());
-			if (!DefaultFlexibleElementType.BUDGET.equals(((DefaultFlexibleElement) element).type())) {
-				valueObject = (Serializable) ExporterUtil.getDefElementPair(valueResult, element, entity, entity.getClass(), em(),
+			if (!DefaultFlexibleElementType.BUDGET.equals((flexibleElement).type())) {
+				valueObject = (Serializable) ExporterUtil.getDefElementPair(valueResult, flexibleElement, entity, entity.getClass(), em(),
 				                translator, language).getValue();
 			} else {
 				valueObject = null;
 			}
 			break;
 		case DEFAULT_CONTACT:
-			element = mapper.map(flexibleElement, new DefaultContactFlexibleElement());
-			if (!DefaultFlexibleElementType.BUDGET.equals(((DefaultContactFlexibleElement) element).type())) {
-				valueObject = (Serializable) ExporterUtil.getDefElementPair(valueResult, element, entity, entity.getClass(), em(),
+			if (!DefaultFlexibleElementType.BUDGET.equals((flexibleElement).type())) {
+				valueObject = (Serializable) ExporterUtil.getDefElementPair(valueResult, flexibleElement, (Contact)entity, em(),
 				                translator, language).getValue();
 			} else {
 				valueObject = null;
 			}
 			break;
 		case QUESTION:
-			element = mapper.map(flexibleElement, new QuestionElement());
-			valueObject = (Serializable) ExporterUtil.getChoicePair(element, valueResult).getValue();
+			valueObject = (Serializable) ExporterUtil.getChoicePair(flexibleElement, valueResult).getValue();
 			break;
 		case TEXT_AREA:
-			element = mapper.map(flexibleElement, new TextAreaElement());
-			valueObject = (Serializable) ExporterUtil.getTextAreaElementPair(valueResult, element).getValue();
+			valueObject = (Serializable) ExporterUtil.getTextAreaElementPair(valueResult, flexibleElement).getValue();
 			break;
 		case TRIPLETS:
-			element = mapper.map(flexibleElement, new TripletsListElement());
-			valueObject = (Serializable) ExporterUtil.getTripletPair(element, valueResult).getValue();
+			valueObject = (Serializable) ExporterUtil.getTripletPair(flexibleElement, valueResult).getValue();
 			break;
 		default:
 			valueObject = null;
@@ -448,8 +445,7 @@ public abstract class Importer implements Iterator<ImportDetails> {
 
 	/**
 	 * Build the resultMap for the importationSchemeModel provided
-	 * 
-	 * @param schemeModelDTO
+	 *
 	 * @param lineNumber
 	 *            number of line
 	 * @param sheetName
@@ -534,6 +530,56 @@ public abstract class Importer implements Iterator<ImportDetails> {
 			}
 			importEntity.setEntitiesToImport(entityCorrespondances);
 
+		} else if (schemeModel.getContactModel() != null) {
+
+			final ContactModel contactModel = schemeModel.getContactModel();
+
+			LOGGER.debug("Import for contact model : " + contactModel.getName());
+
+			importEntity.setModelName(contactModel.getName());
+			importEntity.setModelStatus(contactModel.getStatus());
+
+			// Get all the contacts of a contact model
+			final List<Contact> contacts = em().createQuery("SELECT c FROM Contact as c WHERE c.contactModel = :contactModel", Contact.class)
+					.setParameter("contactModel", contactModel)
+					.getResultList();
+			
+			// For each contact get the value of the corresponding
+			// identification key
+			for (Contact contact : contacts) {
+				final String valueString = (String) getFlexibleElementValue(flexibleElement, contact);
+				
+				if (valueString != null && valueString.equals(keyValue)) {
+				
+					final List<ElementExtractedValue> correspondances = getCorrespondancesVariableFlexibleElement(
+							schemeModel.getVariableFlexibleElements(), contact, lineNumber,
+							sheetName);
+				
+					final ContactDTO contactDTO = mapper.map(contact, new ContactDTO());
+					entityCorrespondances.put(contactDTO, correspondances);
+				}
+			}
+
+			// Initializes the importEntity according to the number of
+			// contacts found
+			importEntity.setKeyIdentification(label + " : " + keyValue);
+			if (entityCorrespondances.isEmpty()) {
+				importEntity.setEntityStatus(ImportStatusCode.CONTACT_NOT_FOUND_CODE);
+				List<ElementExtractedValue> correspondances = getCorrespondancesVariableFlexibleElement(
+								schemeModel.getVariableFlexibleElements(), null, lineNumber, sheetName);
+				ContactDTO c = new ContactDTO();
+				c.setId(0);
+				entityCorrespondances.put(c, correspondances);
+				importEntity.setEntitiesToImport(entityCorrespondances);
+
+			} else if (entityCorrespondances.size() == 1) {
+				importEntity.setEntityStatus(ImportStatusCode.CONTACT_FOUND_CODE);
+				importEntity.setEntitiesToImport(entityCorrespondances);
+
+			} else {
+				importEntity.setEntityStatus(ImportStatusCode.SEVERAL_CONTACTS_FOUND_CODE);
+				importEntity.setEntitiesToImport(entityCorrespondances);
+			}
 		} else if (schemeModel.getProjectModel() != null) {
 			final Map<EntityDTO<Integer>, List<ElementExtractedValue>> lockedEntityCorrespondances = new HashMap<EntityDTO<Integer>, List<ElementExtractedValue>>();
 
@@ -548,18 +594,18 @@ public abstract class Importer implements Iterator<ImportDetails> {
 			final List<Project> projects = em().createQuery("SELECT p FROM Project as p WHERE p.projectModel = :projectModel", Project.class)
 					.setParameter("projectModel", projectModel)
 					.getResultList();
-			
+
 			// For each project get the value of the corresponding
 			// identification key
 			for (Project project : projects) {
 				final String valueString = (String) getFlexibleElementValue(flexibleElement, project);
-				
+
 				if (valueString != null && valueString.equals(keyValue)) {
-				
+
 					final List<ElementExtractedValue> correspondances = getCorrespondancesVariableFlexibleElement(
 							schemeModel.getVariableFlexibleElements(), project, lineNumber,
 							sheetName);
-				
+
 					final ProjectDTO projectDTO = mapper.map(project, new ProjectDTO());
 
 					if (project.getAmendmentState() != null && project.getAmendmentState() == AmendmentState.LOCKED) {
@@ -583,7 +629,7 @@ public abstract class Importer implements Iterator<ImportDetails> {
 				} else {
 					importEntity.setEntityStatus(ImportStatusCode.PROJECT_NOT_FOUND_CODE);
 					List<ElementExtractedValue> correspondances = getCorrespondancesVariableFlexibleElement(
-									schemeModel.getVariableFlexibleElements(), null, lineNumber, sheetName);
+							schemeModel.getVariableFlexibleElements(), null, lineNumber, sheetName);
 					ProjectDTO p = new ProjectDTO();
 					p.setId(0);
 					entityCorrespondances.put(p, correspondances);
@@ -800,12 +846,109 @@ public abstract class Importer implements Iterator<ImportDetails> {
 				
 					switch (type.toDefaultContactFlexibleElementType()) {
 						case COUNTRY:
+							if (value instanceof String) {
+								try {
+									final int countryId = Integer.parseInt(stringValue);
+									value = countryId;
+								} catch( NumberFormatException e) {
+									// Ignored.
+								}
+
+								// Searching by code ISO and by name.
+								final TypedQuery<Country> query = em().createQuery("SELECT c FROM Country c WHERE LOWER(c.codeISO) = :value OR LOWER(c.name) = :value", Country.class);
+								query.setParameter("value", stringValue.toLowerCase());
+
+								final List<Country> results = query.getResultList();
+
+								if (!results.isEmpty()) {
+									// Selecting the first result.
+									formattedValue = results.get(0).getId();
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+								}
+							}
+							if (value instanceof Integer) {
+								// Searching by ID.
+								final int countryId = (Integer) value;
+								final Country country = em().getReference(Country.class, countryId);
+								if (country != null) {
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+									formattedValue = countryId;
+								}
+							}
+							if (formattedValue == null) {
+								statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+							}
+							break;
 						case DIRECT_MEMBERSHIP:
+							if (value instanceof String) {
+								try {
+									final int contactId = Integer.parseInt(stringValue);
+									value = contactId;
+								} catch( NumberFormatException e) {
+									// Ignored.
+								}
+
+								// Searching by code and by name.
+								final Query query = em().createNativeQuery("SELECT c.* FROM Contact c LEFT JOIN organization o ON c.id_organization = o.id_organization WHERE LOWER(c.name) = :value OR LOWER(o.name) = :value", Contact.class);
+								query.setParameter("value", stringValue.toLowerCase());
+
+								final List<Contact> results = query.getResultList();
+
+								if (!results.isEmpty()) {
+									// Selecting the first result.
+									formattedValue = results.get(0).getId();
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+								}
+							}
+							if (value instanceof Integer) {
+								// Searching by ID.
+								final int contactId = (Integer) value;
+								final Contact contact = em().getReference(Contact.class, contactId);
+								if (contact != null) {
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+									formattedValue = contactId;
+								}
+							}
+							if (formattedValue == null) {
+								statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+							}
+							break;
 						case MAIN_ORG_UNIT:
-						case ORGANIZATION_NAME:
 						case SECONDARY_ORG_UNITS:
+							if (value instanceof String) {
+								try {
+									final int orgUnitId = Integer.parseInt(stringValue);
+									value = orgUnitId;
+								} catch( NumberFormatException e) {
+									// Ignored.
+								}
+
+								// Searching by code and by name.
+								final TypedQuery<OrgUnit> query = em().createQuery("SELECT o FROM OrgUnit o WHERE LOWER(o.name) = :value OR LOWER(o.fullName) = :value", OrgUnit.class);
+								query.setParameter("value", stringValue.toLowerCase());
+
+								final List<OrgUnit> results = query.getResultList();
+
+								if (!results.isEmpty()) {
+									// Selecting the first result.
+									formattedValue = results.get(0).getId();
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+								}
+							}
+							if (value instanceof Integer) {
+								// Searching by ID.
+								final int orgUnitId = (Integer) value;
+								final OrgUnit orgUnit = em().getReference(OrgUnit.class, orgUnitId);
+								if (orgUnit != null) {
+									statusCode = ElementExtractedValueStatus.VALID_VALUE;
+									formattedValue = orgUnitId;
+								}
+							}
+							if (formattedValue == null) {
+								statusCode = ElementExtractedValueStatus.INVALID_NUMBER_VALUE;
+							}
+							break;
 						case CREATION_DATE:
-							// fall through
 						case TOP_MEMBERSHIP:
 							// Do not import it, it will be computed
 							break;
@@ -1011,13 +1154,7 @@ public abstract class Importer implements Iterator<ImportDetails> {
 	 * @return
 	 */
 	public Boolean getCheckboxValue(final ValueResult valueResult, final FlexibleElement element) {
-		Boolean value = false;
-		if (valueResult != null && valueResult.getValueObject() != null) {
-			if (((String) valueResult.getValueObject()).equalsIgnoreCase("true"))
-				value = true;
-
-		}
-		return value;
+		return (valueResult != null && valueResult.getValueObject() != null && (valueResult.getValueObject()).equalsIgnoreCase("true"));
 	}
 
 	public HashSet<Integer> getContactListValue(ValueResult valueResult) {
@@ -1119,6 +1256,9 @@ public abstract class Importer implements Iterator<ImportDetails> {
 			} else {
 				dto = new DefaultFlexibleElementDTO(type.toDefaultFlexibleElementType());
 			}
+			break;
+		case DEFAULT_CONTACT:
+			dto = new DefaultContactFlexibleElementDTO(type.toDefaultContactFlexibleElementType());
 			break;
 		case FILES_LIST:
 			dto = new FilesListElementDTO();

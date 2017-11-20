@@ -49,6 +49,7 @@ public final class LayoutGroupJS extends JavaScriptObject {
 		layoutGroupJS.setRow(layoutGroupDTO.getRow());
 		layoutGroupJS.setColumn(layoutGroupDTO.getColumn());
 		layoutGroupJS.setHasIterations(layoutGroupDTO.getHasIterations());
+		layoutGroupJS.setIterationType(layoutGroupDTO.getIterationType());
 		layoutGroupJS.setParentLayout(layoutGroupDTO.getParentLayout());
 		layoutGroupJS.setConstraints(layoutGroupDTO.getConstraints());
 		
@@ -63,6 +64,7 @@ public final class LayoutGroupJS extends JavaScriptObject {
 		layoutGroupDTO.setRow(getRow());
 		layoutGroupDTO.setColumn(getColumn());
 		layoutGroupDTO.setHasIterations(getHasIterations());
+		layoutGroupDTO.setIterationType(getIterationType());
 		
 		final JsArray<LayoutConstraintJS> layoutConstraints = getConstraints();
 		if(layoutConstraints != null) {
@@ -84,6 +86,14 @@ public final class LayoutGroupJS extends JavaScriptObject {
 	
 	public native void setHasIterations(boolean hasIterations) /*-{
 		this.hasIterations = hasIterations;
+	}-*/;
+
+	public native String getIterationType() /*-{
+		return this.iterationType;
+	}-*/;
+
+	public native void setIterationType(String iterationType) /*-{
+		this.iterationType = iterationType;
 	}-*/;
 	
 	public native int getId() /*-{

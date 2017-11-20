@@ -22,6 +22,8 @@ package org.sigmah.shared.dto.element;
  * #L%
  */
 
+import java.util.List;
+
 import com.extjs.gxt.ui.client.widget.Component;
 import com.extjs.gxt.ui.client.widget.form.Field;
 import com.extjs.gxt.ui.client.widget.form.Validator;
@@ -117,7 +119,9 @@ public class ComputationElementDTO extends FlexibleElementDTO {
 	 * @return A new <code>Computation</code> object.
 	 */
 	public Computation getComputationForModel(IsModel model) {
-		return Computations.parse(getRule(), model.getAllElements());
+		List<FlexibleElementDTO> allElements = model.getAllElements();
+		// Call model.getAllElements() to have a value returned by getGroup()
+		return Computations.parse(getRule(), getGroup() == null ? null : getGroup().getId(), allElements);
 	}
 	
 	/**

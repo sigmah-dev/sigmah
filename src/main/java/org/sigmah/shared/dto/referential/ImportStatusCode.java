@@ -56,6 +56,21 @@ public enum ImportStatusCode implements Serializable {
 	SEVERAL_PROJECTS_FOUND_CODE,
 
 	/**
+	 * The contact is not found
+	 */
+	CONTACT_NOT_FOUND_CODE,
+
+	/**
+	 * The contact is found
+	 */
+	CONTACT_FOUND_CODE,
+
+	/**
+	 * Several contacts are found
+	 */
+	SEVERAL_CONTACTS_FOUND_CODE,
+
+	/**
 	 * The org unit is not found
 	 */
 	ORGUNIT_NOT_FOUND_CODE,
@@ -99,17 +114,23 @@ public enum ImportStatusCode implements Serializable {
 				return I18N.CONSTANTS.importProjectCoreLocked();
 			case PROJECT_NOT_FOUND_CODE:
 				return I18N.CONSTANTS.importProjectNotFound();
+			case CONTACT_FOUND_CODE:
+				return I18N.CONSTANTS.importContactFound();
+			case CONTACT_NOT_FOUND_CODE:
+				return I18N.CONSTANTS.importContactNotFound();
 			case SEVERAL_ORGUNITS_FOUND_CODE:
 				return I18N.CONSTANTS.importSeveralOrgUnitsFound();
 			case SEVERAL_PROJECTS_FOUND_CODE:
 				return I18N.CONSTANTS.importSeveralProjectsFound();
+			case SEVERAL_CONTACTS_FOUND_CODE:
+				return I18N.CONSTANTS.importSeveralContactsFound();
 			default:
 				return code.name();
 		}
 	}
 
 	public static boolean isFound(final ImportStatusCode entityStatus) {
-		return ORGUNIT_FOUND_CODE.equals(entityStatus) || PROJECT_FOUND_CODE.equals(entityStatus);
+		return ORGUNIT_FOUND_CODE.equals(entityStatus) || PROJECT_FOUND_CODE.equals(entityStatus) || CONTACT_FOUND_CODE.equals(entityStatus);
 	}
 
 }

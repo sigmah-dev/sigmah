@@ -22,7 +22,9 @@ package org.sigmah.client.ui.presenter.contact.dashboardlist;
  * #L%
  */
 
+import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedList;
@@ -105,6 +107,8 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 
 		void addContact(DashboardContact contact);
 
+		void addContacts(List<DashboardContact> contacts);
+
 		void clearContacts();
 
 		void refreshToolbar();
@@ -116,6 +120,16 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 		Button getImportButton();
 
 		Button getExportButton();
+
+		/**
+		 * Display the given date as the last refreshed date.
+		 *
+		 * @param date
+		 *          The last refreshed date.
+		 */
+		void updateRefreshingDate(Date date);
+
+		Button getRefreshButton();
 
 		void syncSize();
 	}
@@ -136,6 +150,11 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 	 * The GetContacts command which will be executed for the next refresh.
 	 */
 	private GetContacts command;
+
+	/**
+	 * Has the contact grid already been loaded once?
+	 */
+	private boolean loaded;
 
 	/**
 	 * Builds a new contact list panel with default values.
@@ -296,6 +315,10 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 							view.addContact(new DashboardContact(createdContact, lastChange));
 						}
 					});
+				} else if (event.concern(UpdateEvent.CONTACT_DELETE)) {
+					// On contact delete event.
+					// Will force contacts list to reload on next refresh.
+					loaded = false;
 				}
 			}
 		}));
@@ -340,6 +363,19 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 		});
 
 		// --
+		// Refresh button selection listener.
+		// --
+
+		view.getRefreshButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
+
+			@Override
+			public void componentSelected(ButtonEvent ce) {
+				// Explicit refresh.
+				refreshContactGrid(command);
+			}
+		});
+
+		// --
 		// Contact name click handler.
 		// --
 
@@ -356,7 +392,7 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 	/**
 	 * Asks for a refresh of the contacts list.
 	 */
-	public void refresh(final boolean mainOrgUnitOnly) {
+	public void refresh(final boolean mainOrgUnitOnly, final boolean forceRefresh) {
 
 		// Updates toolbar.
 		final boolean addEnabled = ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_VISIBLE_CONTACTS);
@@ -369,15 +405,45 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 
 		// Builds the next refresh command.
 		command = new GetContacts();
-		Set<Integer> orgUnitsIds = new HashSet<Integer>();
+		final Set<Integer> orgUnitsIds = new HashSet<Integer>();
 		if(mainOrgUnitOnly) {
 			orgUnitsIds.add(auth().getMainOrgUnitId());
 		} else {
 			orgUnitsIds.addAll(auth().getOrgUnitIds());
 		}
-		command.setOrgUnitsIds(orgUnitsIds);
 
-		refreshContactGrid(command);
+		dispatch.execute(new GetOrgUnits(orgUnitsIds, OrgUnitDTO.Mode.BASE),
+				new CommandResultHandler<ListResult<OrgUnitDTO>>() {
+					@Override
+					protected void onCommandSuccess(ListResult<OrgUnitDTO> result) {
+						for (OrgUnitDTO child : result.getList()) {
+							orgUnitsIds.addAll(computeChildren(child));
+
+							command.setOrgUnitsIds(orgUnitsIds);
+
+							if (forceRefresh || !loaded) {
+								refreshContactGrid(command);
+								loaded = true;
+							}
+						}
+					}
+				});
+	}
+
+	private List<Integer> computeChildren(OrgUnitDTO orgUnitDTO) {
+		List<Integer> ids = new ArrayList<Integer>();
+		ids.add(orgUnitDTO.getId());
+		if (!orgUnitDTO.getChildrenOrgUnits().isEmpty()) {
+			for (OrgUnitDTO child : orgUnitDTO.getChildrenOrgUnits()) {
+				for (Integer childId : computeChildren(child)) {
+					if (ids.contains(childId)) {
+						continue;
+					}
+					ids.add(childId);
+				}
+			}
+		}
+		return ids;
 	}
 
 	// ---------------------------------------------------------------------------------------------------------
@@ -435,20 +501,23 @@ public class ContactsListWidget extends AbstractPresenter<ContactsListWidget.Vie
 					Log.error("Error while getting contacts by chunks.", error);
 				}
 
+				view.updateRefreshingDate(new Date());
 				applyContactFilters();
 				N10N.warn(I18N.CONSTANTS.error(), I18N.CONSTANTS.refreshContactListError());
 			}
 
 			@Override
-			public void chunkRetrieved(final DashboardContact contact) {
-				view.addContact(contact);
-				Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Chunk #" + (chunk++) + " loaded.");
+			public void chunkRetrieved(final List<DashboardContact> contacts) {
+				view.addContacts(contacts);
+				chunk = chunk + contacts.size();
+				Profiler.INSTANCE.markCheckpoint(Scenario.LOGIN, "Chunk #" + (chunk) + " loaded.");
 			}
 
 			@Override
 			public void ended() {
 				applyContactFilters();
 				view.getContactsPanel().layout();
+				view.updateRefreshingDate(new Date());
 
 				currentlyLoading = false;
 				// Try to execute the next loader

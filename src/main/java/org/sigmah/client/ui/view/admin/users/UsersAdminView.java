@@ -27,6 +27,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Map.Entry;
 
+import org.sigmah.client.dispatch.DispatchAsync;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.admin.users.UsersAdminPresenter;
@@ -35,6 +36,7 @@ import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.base.AbstractView;
 import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.client.ui.widget.button.Button;
+import org.sigmah.client.ui.widget.contact.ContactPicker;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.ui.widget.layout.Layouts.Margin;
@@ -47,6 +49,7 @@ import org.sigmah.shared.dto.UserDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.profile.PrivacyGroupDTO;
 import org.sigmah.shared.dto.profile.ProfileDTO;
+import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.dto.referential.PrivacyGroupPermissionEnum;
 
@@ -64,9 +67,7 @@ import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.LayoutContainer;
 import com.extjs.gxt.ui.client.widget.Text;
 import com.extjs.gxt.ui.client.widget.Window;
-import com.extjs.gxt.ui.client.widget.form.ComboBox;
 import com.extjs.gxt.ui.client.widget.form.Field;
-import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -77,7 +78,6 @@ import com.extjs.gxt.ui.client.widget.grid.GridSelectionModel;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.LabelToolItem;
 import com.google.gwt.i18n.client.DateTimeFormat;
-import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.inject.Singleton;
 
 /**
@@ -230,33 +230,32 @@ public class UsersAdminView extends AbstractView implements UsersAdminPresenter.
 	}
 
 	@Override
-	public void buildAddUserByEmailWindow(List<ContactDTO> availableContacts, final UsersAdminPresenter.AddUserByEmailHandler handler) {
+	public void buildAddUserByEmailWindow(DispatchAsync dispatch, final UsersAdminPresenter.AddUserByEmailHandler handler) {
 		final Window window = new Window();
-		window.setHeadingText(I18N.CONSTANTS.adminContactAddUserByEmail());
 		window.setPlain(true);
 		window.setModal(true);
 		window.setBlinkModal(true);
 		window.setLayout(new FitLayout());
-		window.setSize(650, 150);
+		window.setSize(700, 300);
+		window.setHeadingHtml(I18N.CONSTANTS.selectContactDialogTitle());
 
-		final ComboBox<ContactDTO> combobox = Forms.combobox(I18N.CONSTANTS.email(), true, ContactDTO.ID, ContactDTO.EMAIL_WITH_FULLNAME);
-		combobox.getStore().add(availableContacts);
-		combobox.setEditable(true);
-		Button button = Forms.button(I18N.CONSTANTS.addUser());
-		button.addSelectionListener(new SelectionListener<ButtonEvent>() {
+		final ContactPicker contactPicker = new ContactPicker(ContactModelType.INDIVIDUAL, true, null, null, null, dispatch);
+
+		final org.sigmah.client.ui.widget.form.FormPanel formPanel = Forms.panel(500);
+		formPanel.add(contactPicker);
+		formPanel.getButtonBar().add(Forms.button(I18N.CONSTANTS.addUser(), IconImageBundle.ICONS.add(), new SelectionListener<ButtonEvent>() {
 			@Override
 			public void componentSelected(ButtonEvent ce) {
-				handler.handleSubmit(combobox.getValue());
+				ContactDTO value = contactPicker.getSelectedItem();
+				if (value == null) {
+					return;
+				}
+				handler.handleSubmit(value);
 				window.hide();
 			}
-		});
-
-		FormPanel formPanel = new FormPanel();
-		formPanel.setHeaderVisible(false);
-		formPanel.setLayout(Forms.layout(100, 500));
-		formPanel.add(combobox);
-		formPanel.getButtonBar().add(button);
+		}));
 		window.add(formPanel);
+
 		window.show();
 	}
 

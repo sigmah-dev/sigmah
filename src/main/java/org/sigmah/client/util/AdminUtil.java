@@ -84,6 +84,7 @@ public final class AdminUtil {
 	public static final String PROP_FX_CONTACT_LIST_ALLOWED_MODEL_IDS = "FlexibleElementContactListAllowedModelIds";
 	public static final String PROP_FX_CONTACT_LIST_LIMIT = "FlexibleElementContactListLimit";
 	public static final String PROP_FX_CONTACT_LIST_IS_MEMBER = "FlexibleElementContactListIsMember";
+	public static final String PROP_FX_CONTACT_LIST_CHECKBOX_ELEMENT = "FlexibleElementContactListCheckboxElement";
 
 	public static final String PROP_FX_NAME = "name";
 	public static final String PROP_FX_CODE = "code";

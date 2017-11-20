@@ -30,24 +30,30 @@ import java.util.Set;
 import org.sigmah.server.dao.ContactDAO;
 import org.sigmah.server.dao.ContactModelDAO;
 import org.sigmah.server.dao.OrgUnitDAO;
+import org.sigmah.server.dao.ValueDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.domain.Contact;
 import org.sigmah.server.domain.ContactModel;
+import org.sigmah.server.domain.element.FlexibleElement;
+import org.sigmah.server.domain.value.Value;
 import org.sigmah.server.service.base.AbstractEntityService;
 import org.sigmah.server.service.util.PropertyMap;
 import org.sigmah.shared.dispatch.CommandException;
 import org.sigmah.shared.dto.ContactDTO;
+import org.sigmah.shared.dto.referential.ProjectModelStatus;
 
 public class ContactService extends AbstractEntityService<Contact, Integer, ContactDTO> {
   private final ContactDAO contactDAO;
   private final ContactModelDAO contactModelDAO;
   private final OrgUnitDAO orgUnitDAO;
+  private final ValueDAO valueDAO;
 
   @Inject
-  public ContactService(ContactDAO contactDAO, ContactModelDAO contactModelDAO, OrgUnitDAO orgUnitDAO) {
+  public ContactService(ContactDAO contactDAO, ContactModelDAO contactModelDAO, OrgUnitDAO orgUnitDAO, ValueDAO valueDAO) {
     this.contactDAO = contactDAO;
     this.contactModelDAO = contactModelDAO;
     this.orgUnitDAO = orgUnitDAO;
+    this.valueDAO = valueDAO;
   }
 
   @Override
@@ -57,7 +63,26 @@ public class ContactService extends AbstractEntityService<Contact, Integer, Cont
       return null;
     }
 
-    return contactDAO.persist(contact, context.getUser());
+    // Contact model.
+    ContactModel model = em().getReference(ContactModel.class, properties.get(ContactDTO.CONTACT_MODEL));
+    if (ProjectModelStatus.READY.equals(model.getStatus())) {
+      model.setStatus(ProjectModelStatus.USED);
+    }
+    em().merge(model);
+
+    // Contact and CheckboxElementToSetToTrue
+    Contact persistedContact = contactDAO.persist(contact, context.getUser());
+    if (properties.containsKey(ContactDTO.CHECKBOX_ELEMENT_TO_SET_TO_TRUE)) {
+      Value value = new Value();
+      value.setContainerId(contact.getId());
+      value.setValue("true");
+      value.setElement(em().find(FlexibleElement.class, properties.get(ContactDTO.CHECKBOX_ELEMENT_TO_SET_TO_TRUE)));
+      value.setLastModificationAction('C');
+      value.setLastModificationDate(new Date());
+      value.setLastModificationUser(context.getUser());
+      valueDAO.persist(value, context.getUser());
+    }
+    return persistedContact;
   }
 
   public Contact createVirtual(PropertyMap properties, UserDispatch.UserExecutionContext context) throws CommandException {

@@ -82,20 +82,27 @@ public class Computation {
      * @param loadables
      *          Element to mask during the computation.
      */
-    public void computeValueWithModificationsAndResolver(final FlexibleElementContainer container, final List<ValueEvent> modifications, 
-            final ValueResolver resolver, final AsyncCallback<String> callback, final Loadable... loadables) {
+    public void computeValueWithModificationsAndResolver(final FlexibleElementContainer container, Integer iterationId, final List<ValueEvent> modifications,
+        final ValueResolver resolver, final AsyncCallback<String> callback, final Loadable... loadables) {
 
         final HashSet<Dependency> dependencies = new HashSet<Dependency>(getDependencies());
 
         final HashMap<Dependency, ComputedValue> variables = new HashMap<Dependency, ComputedValue>();
         for (final ValueEvent modification : modifications) {
+          // Ignore modifications in other iterations
+          if (iterationId == null && modification.getIterationId() != null) {
+	          continue;
+          }
+          if (iterationId != null && modification.getIterationId() != null && !iterationId.equals(modification.getIterationId())) {
+            continue;
+          }
             final FlexibleElementDTO source = modification.getSourceElement();
 			final Dependency dependency = new SingleDependency(source);
             variables.put(dependency, ComputedValues.from(modification.getSingleValue()));
             dependencies.remove(dependency);
         }
 
-        computeValueWithVariablesDependenciesAndResolver(container.getId(), variables, dependencies, resolver, callback, loadables);
+        computeValueWithVariablesDependenciesAndResolver(container.getId(), iterationId, variables, dependencies, resolver, callback, loadables);
     }
 
     /**
@@ -110,7 +117,7 @@ public class Computation {
 	 * @param callback
      *          Called when the value has been computed.
      */
-    public void computeValueWithWrappersAndResolver(final int containerId, final List<ValueEventWrapper> modifications, 
+    public void computeValueWithWrappersAndResolver(final int containerId, final Integer iterationId, final List<ValueEventWrapper> modifications, 
             final ValueResolver resolver, final AsyncCallback<String> callback) {
         
         final HashSet<Dependency> dependencies = new HashSet<Dependency>(getDependencies());
@@ -118,12 +125,15 @@ public class Computation {
         final HashMap<Dependency, ComputedValue> variables = new HashMap<Dependency, ComputedValue>();
         for (final ValueEventWrapper modification : modifications) {
             final FlexibleElementDTO source = modification.getSourceElement();
+            if (source.getGroup() != null && source.getGroup().getHasIterations()) {
+              continue;
+            }
 			final Dependency dependency = new SingleDependency(source);
             variables.put(dependency, ComputedValues.from(modification.getSingleValue()));
             dependencies.remove(dependency);
         }
 
-        computeValueWithVariablesDependenciesAndResolver(containerId, variables, dependencies, resolver, callback);
+        computeValueWithVariablesDependenciesAndResolver(containerId, iterationId, variables, dependencies, resolver, callback);
     }
 
     /**
@@ -136,8 +146,8 @@ public class Computation {
 	 * @param callback
      *          Called when the value has been computed.
      */
-    public void computeValueWithResolver(final int containerId, final ValueResolver resolver, final AsyncCallback<String> callback) {
-        computeValueWithVariablesDependenciesAndResolver(containerId, new HashMap<Dependency, ComputedValue>(), getDependencies(), resolver, callback);
+    public void computeValueWithResolver(final int containerId, Integer iterationId, final ValueResolver resolver, final AsyncCallback<String> callback) {
+        computeValueWithVariablesDependenciesAndResolver(containerId, iterationId, new HashMap<Dependency, ComputedValue>(), getDependencies(), resolver, callback);
     }
     
     /**
@@ -160,7 +170,7 @@ public class Computation {
      * @param loadables
      *          Element to mask during the computation.
      */
-    private void computeValueWithVariablesDependenciesAndResolver(final int containerId, final Map<Dependency, ComputedValue> variables, 
+    private void computeValueWithVariablesDependenciesAndResolver(final int containerId, final Integer layoutGroupIterationId, final Map<Dependency, ComputedValue> variables, 
             final Set<Dependency> dependencies, final ValueResolver resolver, final AsyncCallback<String> callback, final Loadable... loadables) {
         
         if (dependencies.isEmpty()) {
@@ -169,7 +179,7 @@ public class Computation {
             setLoading(false, loadables);
         } else {
             // Resolving values.
-            resolver.resolve(dependencies, containerId, new AsyncCallback<Map<Dependency, ComputedValue>>() {
+            resolver.resolve(dependencies, containerId, layoutGroupIterationId, new AsyncCallback<Map<Dependency, ComputedValue>>() {
 
                 @Override
                 public void onFailure(Throwable caught) {

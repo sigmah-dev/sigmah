@@ -21,8 +21,10 @@ package org.sigmah.server.dao.impl;
  * #L%
  */
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
@@ -60,6 +62,12 @@ public class ContactModelHibernateDAO extends AbstractDAO<ContactModel, Integer>
     }
     if (onlyAvailable) {
       predicates.add(contactModelRoot.get("status").in(Arrays.asList(ProjectModelStatus.READY, ProjectModelStatus.USED)));
+
+      predicates.add(
+          criteriaBuilder.or(contactModelRoot.get("dateMaintenance").isNull(),
+            criteriaBuilder.greaterThan(contactModelRoot.get("dateMaintenance").as(Timestamp.class), new Timestamp(new Date().getTime()))
+          )
+      );
     }
     criteriaQuery.where(predicates.toArray(new Predicate[predicates.size()]));
     criteriaQuery.select(contactModelRoot);

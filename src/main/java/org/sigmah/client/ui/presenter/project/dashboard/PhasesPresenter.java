@@ -662,7 +662,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 					for (final LayoutGroupIterationDTO iteration : result.getList()) {
 
 						final IterableGroupItem tab = new IterableGroupItem(tabPanel, iteration.getId(),
-								iteration.getName());
+								iteration.getName(), iteration.getLayoutGroup().getIterationType());
 						tabPanel.addIterationTab(tab);
 
 						Layout tabLayout = Layouts.fitLayout();
@@ -823,7 +823,7 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 
 			// Generates element component (with the value).
 			elementDTO.init();
-			final Component elementComponent = getElementComponent(elementDTO, valueResult);
+			final Component elementComponent = elementDTO.getElementComponent(valueResult);
 
 			if (elementDTO.getAmendable() && projectPresenter.projectIsLocked()
 					&& projectPresenter.canUnlockProject()
@@ -851,7 +851,8 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 
 			// Adds a value change handler if this element is a
 			// dependency of a ComputationElementDTO.
-			computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
+			Integer iterationId = tabItem == null ? null : tabItem.getIterationId();
+			computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges, iterationId);
 
 			// Adds a value change handler to this element.
 			elementDTO.addValueHandler(new ValueHandler() {
@@ -969,20 +970,6 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 			activePhaseRequiredElements.putSaved(iterationId, elementDTO.getId(),
 					elementDTO.isFilledIn());
 		}
-	}
-
-	/**
-	 * Return elementComponent
-	 * 
-	 */
-	private Component getElementComponent(final FlexibleElementDTO elementDTO, final ValueResult valueResult) {
-		if (elementDTO instanceof ContactListElementDTO) {
-			// EventBus use to enable/disable contact element component when it
-			// goes offline/online
-			// Spécific to ContactList
-			return ((ContactListElementDTO) elementDTO).getElementComponent(valueResult, eventBus);
-		}
-		return elementDTO.getElementComponent(valueResult);
 	}
 
 	/**

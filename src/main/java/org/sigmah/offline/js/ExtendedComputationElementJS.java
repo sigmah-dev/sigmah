@@ -57,7 +57,7 @@ public final class ExtendedComputationElementJS extends JavaScriptObject {
 		final JsArrayString dependencies = Values.createJavaScriptArray(JsArrayString.class);
 		int contribution = 0;
 		
-		final Computation computation = Computations.parse(computationElement.getRule(), Collections.<FlexibleElementDTO>emptyList());
+		final Computation computation = Computations.parse(computationElement.getRule(), computationElement.getGroup().getId(), Collections.<FlexibleElementDTO>emptyList());
 		for (final Dependency dependency : computation.getDependencies()) {
 			if (dependency instanceof CollectionDependency) {
 				dependencies.push(((CollectionDependency) dependency).flexibleElementString());

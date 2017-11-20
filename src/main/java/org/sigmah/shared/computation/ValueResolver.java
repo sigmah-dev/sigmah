@@ -43,6 +43,6 @@ public interface ValueResolver {
 	 * @param containerId Identifier of the container (project or orgunit).
 	 * @param callback To be called when every value has been retrieved.
 	 */
-	void resolve(Collection<Dependency> elements, int containerId, AsyncCallback<Map<Dependency, ComputedValue>> callback);
+	void resolve(Collection<Dependency> elements, int containerId, Integer layoutGroupIterationId, AsyncCallback<Map<Dependency, ComputedValue>> callback);
 	
 }

@@ -41,6 +41,7 @@ import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.ui.widget.popup.PopupWidget;
+import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.ImportDetails;
 import org.sigmah.shared.dto.ProjectDTO;
 import org.sigmah.shared.dto.base.EntityDTO;
@@ -199,6 +200,9 @@ public class ImportDetailsPopup extends PopupWidget implements HasGrid<ImportDet
 					} else if(entity instanceof OrgUnitDTO) {
 						final OrgUnitDTO orgUnit = (OrgUnitDTO) entity;
 						return orgUnit.getName();
+					} else if (entity instanceof ContactDTO) {
+						final ContactDTO contact = (ContactDTO) entity;
+						return contact.getEmail();
 					}
 				}
 				return null;
@@ -225,6 +229,9 @@ public class ImportDetailsPopup extends PopupWidget implements HasGrid<ImportDet
 					} else if(entity instanceof OrgUnitDTO) {
 						final OrgUnitDTO orgUnit = (OrgUnitDTO) entity;
 						return orgUnit.getFullName();
+					} else if (entity instanceof ContactDTO) {
+						final ContactDTO contact = (ContactDTO) entity;
+						return contact.getName();
 					}
 				}
 				return null;

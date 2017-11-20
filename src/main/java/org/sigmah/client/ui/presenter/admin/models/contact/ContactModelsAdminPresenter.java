@@ -40,6 +40,7 @@ import org.sigmah.client.ui.notif.ConfirmCallback;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.admin.models.FlexibleElementsAdminPresenter;
 import org.sigmah.client.ui.presenter.admin.models.base.AbstractModelsAdminPresenter;
+import org.sigmah.client.ui.presenter.admin.models.importer.ImportationSchemeModelsAdminPresenter;
 import org.sigmah.client.ui.view.admin.models.contact.ContactModelsAdminView;
 import org.sigmah.client.util.AdminUtil;
 import org.sigmah.client.util.EnumModel;
@@ -65,8 +66,8 @@ public class ContactModelsAdminPresenter extends AbstractModelsAdminPresenter<Co
   }
 
   @Inject
-  protected ContactModelsAdminPresenter(ContactModelsAdminPresenter.View view, Injector injector, Provider<FlexibleElementsAdminPresenter<ContactModelDTO>> flexibleElementsProvider) {
-    super(view, injector, flexibleElementsProvider.get());
+  protected ContactModelsAdminPresenter(ContactModelsAdminPresenter.View view, Injector injector, Provider<FlexibleElementsAdminPresenter<ContactModelDTO>> flexibleElementsProvider, final Provider<ImportationSchemeModelsAdminPresenter<ContactModelDTO>> importationSchemeModelsAdminPresenterProvider) {
+    super(view, injector, flexibleElementsProvider.get(), importationSchemeModelsAdminPresenterProvider.get());
   }
 
   @Override

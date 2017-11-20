@@ -100,7 +100,7 @@ public class ServerValueResolverTest extends AbstractDaoTest {
 		final Computation computation = Computations.parse("12*(neuf-1) + 3.14/(quarante_2+2) + zero", allElements);
 		Assert.assertEquals("Computation has not been parsed correctly.", "12 × (neuf - 1) + 3.14 ÷ (quarante_2 + 2) + zero", computation.toHumanReadableString());
 		
-		computation.computeValueWithResolver(projectId, instance, new AsyncCallback<String>() {
+		computation.computeValueWithResolver(projectId, null, instance, new AsyncCallback<String>() {
 
 			@Override
 			public void onFailure(Throwable caught) {
@@ -136,7 +136,7 @@ public class ServerValueResolverTest extends AbstractDaoTest {
 			modifications.add(wrapper);
 		}
 		
-		computation.computeValueWithWrappersAndResolver(projectId, modifications, null, new AsyncCallback<String>() {
+		computation.computeValueWithWrappersAndResolver(projectId, null, modifications, null, new AsyncCallback<String>() {
 
 			@Override
 			public void onFailure(Throwable caught) {

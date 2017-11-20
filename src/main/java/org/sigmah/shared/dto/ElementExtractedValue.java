@@ -85,6 +85,29 @@ public class ElementExtractedValue extends BaseModel implements Serializable, DT
 				}
 				break;
 
+			case DEFAULT_CONTACT:
+				switch (type.toDefaultContactFlexibleElementType()) {
+					case CREATION_DATE:
+						return new ValueEvent(element, dateToString(newValue));
+
+					case FAMILY_NAME:
+					case FIRST_NAME:
+					case ORGANIZATION_NAME:
+					case MAIN_ORG_UNIT:
+					case SECONDARY_ORG_UNITS:
+					case LOGIN:
+					case EMAIL_ADDRESS:
+					case PHONE_NUMBER:
+					case POSTAL_ADDRESS:
+					case PHOTO:
+					case COUNTRY:
+					case DIRECT_MEMBERSHIP:
+					case TOP_MEMBERSHIP:
+					  return new ValueEvent(element, String.valueOf(newValue));
+
+					default:
+						break;
+				}
 			case DEFAULT:
 				switch (type.toDefaultFlexibleElementType()) {
 					case BUDGET:

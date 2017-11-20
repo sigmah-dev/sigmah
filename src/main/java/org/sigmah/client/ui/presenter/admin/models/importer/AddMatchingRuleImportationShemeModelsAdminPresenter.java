@@ -35,6 +35,7 @@ import org.sigmah.client.ui.view.admin.models.importer.AddMatchingRuleImportatio
 import org.sigmah.client.ui.view.base.ViewPopupInterface;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
+import org.sigmah.shared.dto.element.DefaultContactFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
 import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
 import org.sigmah.shared.dto.importation.VariableDTO;
@@ -71,7 +72,7 @@ import org.sigmah.shared.dto.referential.BudgetSubFieldType;
 
 /**
  * Popup to add or edit a matching rule on a link between an importation scheme
- * and a project model/org unit model.
+ * and a project model/org unit model/contact model.
  * 
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
  * @author Raphaël Calabro (rcalabro@ideia.fr)
@@ -198,8 +199,11 @@ public class AddMatchingRuleImportationShemeModelsAdminPresenter extends Abstrac
 		} else if(currentImportationScheme.getOrgUnitModelDTO() != null) {
 			allElements = currentImportationScheme.getOrgUnitModelDTO().getAllElements();
 			
+		} else if(currentImportationScheme.getContactModelDTO() != null) {
+			allElements = currentImportationScheme.getContactModelDTO().getAllElements();
+
 		} else {
-			throw new IllegalArgumentException("Current importation scheme is not linked to a project model nor to an org unit model.");
+			throw new IllegalArgumentException("Current importation scheme is not linked to a project/org unit/contact model.");
 		}
 		
 		view.getFlexibleElementStore().removeAll();
@@ -216,6 +220,10 @@ public class AddMatchingRuleImportationShemeModelsAdminPresenter extends Abstrac
 					initializeBudgetFlexTable((BudgetElementDTO) flexibleElement, currentImportationScheme.getImportationSchemeDTO().getVariables());
 				}
 				
+			} else if (flexibleElement instanceof DefaultContactFlexibleElementDTO) {
+				final DefaultContactFlexibleElementDTO defaultFlexibleElement = (DefaultContactFlexibleElementDTO)flexibleElement;
+				defaultFlexibleElement.setLabel(defaultFlexibleElement.getFormattedLabel());
+				view.getFlexibleElementStore().add(defaultFlexibleElement);
 			} else if(!(flexibleElement instanceof MessageElementDTO)) {
 				view.getFlexibleElementStore().add(flexibleElement);
 			} 

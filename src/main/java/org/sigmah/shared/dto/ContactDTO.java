@@ -62,6 +62,7 @@ public class ContactDTO extends AbstractModelDataEntityDTO<Integer> implements D
   public static final String DATE_CREATED = "dateCreated";
   public static final String EMAIL_WITH_FULLNAME = "emailWithFullname";
   public static final String TYPE = "type";
+  public static final String CHECKBOX_ELEMENT_TO_SET_TO_TRUE = "checkboxElementIdToSetToTrue";
 
   public enum Mode implements IsMappingMode {
     BASIC_INFORMATION(new MappingField(MAIN_ORG_UNIT), new MappingField(SECONDARY_ORG_UNITS), new MappingField(COUNTRY),

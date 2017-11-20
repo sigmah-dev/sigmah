@@ -915,7 +915,9 @@ public final class ExporterUtil {
 				if (hasValue) {
 					orgUnitId = Integer.parseInt(valueResult.getValueObject());
 				} else {
-					orgUnitId = contact.getMainOrgUnit().getId();
+					if (contact.getMainOrgUnit() != null) {
+						orgUnitId = contact.getMainOrgUnit().getId();
+					}
 				}
 				OrgUnit orgUnit = entityManager.find(OrgUnit.class, orgUnitId);
 				if (orgUnit != null) {

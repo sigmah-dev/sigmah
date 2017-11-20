@@ -292,7 +292,7 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 					for (final LayoutGroupIterationDTO iteration : result.getList()) {
 
 						final IterableGroupItem tab = new IterableGroupItem(tabPanel, iteration.getId(),
-								iteration.getName());
+								iteration.getName(), groupLayout.getIterationType());
 						tabPanel.addIterationTab(tab);
 
 						Layout tabLayout = Layouts.fitLayout();
@@ -445,7 +445,7 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 
 			// Generates element component (with the value).
 			elementDTO.init();
-			Component elementComponent = getElementComponent(elementDTO, valueResult);
+			Component elementComponent = elementDTO.getElementComponent(valueResult);
 
 			if (elementDTO.getAmendable() && projectPresenter.projectIsLocked()
 					&& projectPresenter.canUnlockProject()
@@ -473,7 +473,8 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 
 			// Adds a value change handler if this element is a
 			// dependency of a ComputationElementDTO.
-			computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
+			Integer iterationId = tabItem == null ? null : tabItem.getIterationId();
+			computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges, iterationId);
 
 			// Adds a value change handler to this element.
 			elementDTO.addValueHandler(new ValueHandler() {
@@ -506,20 +507,6 @@ public class ProjectDetailsPresenter extends AbstractProjectPresenter<ProjectDet
 			}
 		}
 
-	}
-
-	/**
-	 * Return elementComponent
-	 * 
-	 */
-	private Component getElementComponent(final FlexibleElementDTO elementDTO, final ValueResult valueResult) {
-		if (elementDTO instanceof ContactListElementDTO) {
-			// EventBus use to enable/disable contact element component when it
-			// goes offline/online
-			// Spécific to ContactList
-			return ((ContactListElementDTO) elementDTO).getElementComponent(valueResult, eventBus);
-		}
-		return elementDTO.getElementComponent(valueResult);
 	}
 
 	/**

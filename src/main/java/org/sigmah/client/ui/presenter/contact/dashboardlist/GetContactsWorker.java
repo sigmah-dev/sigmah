@@ -35,6 +35,7 @@ import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.view.contact.dashboardlist.DashboardContact;
 import org.sigmah.shared.command.GetContactHistory;
 import org.sigmah.shared.command.GetContacts;
+import org.sigmah.shared.command.GetContactsLatestHistory;
 import org.sigmah.shared.command.result.ContactHistory;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.dto.ContactDTO;
@@ -60,10 +61,10 @@ final class GetContactsWorker {
 		/**
 		 * Method called when a chunk is retrieved.
 		 *
-		 * @param contact
+		 * @param contacts
 		 *          The chunk.
 		 */
-		void chunkRetrieved(DashboardContact contact);
+		void chunkRetrieved(List<DashboardContact> contacts);
 
 		/**
 		 * Method called after the last chunk has been retrieved.
@@ -106,6 +107,8 @@ final class GetContactsWorker {
 	 * The async monitor.
 	 */
 	private ProgressMask monitor;
+
+	private static final int BATCH_SIZE = 5000;
 
 	/**
 	 * Builds a new worker.
@@ -182,11 +185,24 @@ final class GetContactsWorker {
 			return;
 		}
 
-		// Store the next ids to retrieve.
-		final ContactDTO nextContact = contactsList.remove(0);
+		// Load history for BATCH_SIZE contacts
+		final List<ContactDTO> contactSubList = new ArrayList<ContactDTO>();
+		final List<Integer> contactIdSubList = new ArrayList<Integer>();
+		for (int i = 0; i < BATCH_SIZE; i++) {
+			if (contactsList.isEmpty()) {
+				break;
+			}
+			ContactDTO contactDTO = contactsList.remove(0);
+			contactSubList.add(contactDTO);
+			contactIdSubList.add(contactDTO.getId());
+		}
+		if (contactSubList.isEmpty()) {
+			fireEnded();
+			return;
+		}
 
 		// Retrieves these contacts.
-		dispatch.execute(new GetContactHistory(nextContact.getId()), new CommandResultHandler<ListResult<ContactHistory>>() {
+		dispatch.execute(new GetContactsLatestHistory(contactIdSubList), new CommandResultHandler<ListResult<ContactHistory>>() {
 
 			@Override
 			public void onCommandFailure(final Throwable e) {
@@ -200,18 +216,33 @@ final class GetContactsWorker {
 			@Override
 			public void onCommandSuccess(final ListResult<ContactHistory> result) {
 
+				List<DashboardContact> dashboardContactList = new ArrayList<DashboardContact>();
+				List<ContactHistory> histories = result.getList();
+
+				for(ContactDTO contactDTO : contactSubList) {
+					ContactHistory history = getHistoryForContact(contactDTO.getId(), histories);
+					dashboardContactList.add(new DashboardContact(contactDTO, history));
+				}
+
 				// Updates the monitor.
-				monitor.increment(1);
+				monitor.increment(contactSubList.size());
 
 				// Fires event.
-				ContactHistory lastChange = result.isEmpty() ? new ContactHistory() : result.getList().get(0);
-				DashboardContact contact = new DashboardContact(nextContact, lastChange);
-				fireChunkRetrieved(contact);
+				fireChunkRetrieved(dashboardContactList);
 
 				// Next chunk.
 				chunk();
 			}
 		}, monitor);
+	}
+
+	private ContactHistory getHistoryForContact(Integer contactId, List<ContactHistory> histories) {
+		for(ContactHistory history: histories) {
+			if (history.getContactId().equals(contactId)){
+				return history;
+			}
+		}
+		return new ContactHistory();
 	}
 
 	/**
@@ -229,12 +260,12 @@ final class GetContactsWorker {
 	/**
 	 * Method called when a chunk is retrieved.
 	 * 
-	 * @param contact
+	 * @param contacts
 	 *          The chunk.
 	 */
-	protected void fireChunkRetrieved(final DashboardContact contact) {
+	protected void fireChunkRetrieved(final List<DashboardContact> contacts) {
 		for (final WorkerListener listener : listeners) {
-			listener.chunkRetrieved(contact);
+			listener.chunkRetrieved(contacts);
 		}
 	}
 

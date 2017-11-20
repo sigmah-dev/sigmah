@@ -26,7 +26,11 @@ import com.google.inject.Inject;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.sigmah.server.dao.ContactDAO;
 import org.sigmah.server.dao.FlexibleElementDAO;
@@ -42,6 +46,7 @@ import org.sigmah.server.domain.element.DefaultContactFlexibleElement;
 import org.sigmah.server.domain.element.FlexibleElement;
 import org.sigmah.server.domain.layout.LayoutConstraint;
 import org.sigmah.server.domain.layout.LayoutGroup;
+import org.sigmah.server.domain.util.EntityConstants;
 import org.sigmah.server.i18n.I18nServer;
 import org.sigmah.shared.Language;
 import org.sigmah.shared.command.result.ContactHistory;
@@ -70,11 +75,13 @@ public class ContactHistoryService {
     this.modelPropertyService = modelPropertyService;
   }
 
-  public List<ContactHistory> findHistory(Integer contactId, Language language) {
-    Contact contact = contactDAO.findById(contactId);
+  public List<ContactHistory> findHistory(Integer contactId, Language language, boolean lastOnly) {
+    return findHistory(contactDAO.findById(contactId), language, lastOnly);
+  }
+  public List<ContactHistory> findHistory(Contact contact, Language language, boolean lastOnly) {
     List<ContactHistory> contactHistories = new ArrayList<ContactHistory>();
-    contactHistories.addAll(generateHistoryFromContactValues(contact, language));
-    contactHistories.addAll(generateHistoryFromInboundRelationships(contact, language));
+    contactHistories.addAll(generateHistoryFromContactValues(contact, language, lastOnly));
+    contactHistories.addAll(generateHistoryFromInboundRelationships(contact, language, lastOnly));
 
     // Let's sort all these items by their date
     Collections.sort(contactHistories, new Comparator<ContactHistory>() {
@@ -84,64 +91,95 @@ public class ContactHistoryService {
       }
     });
 
+    if (lastOnly && !contactHistories.isEmpty()) {
+      contactHistories = new ArrayList<ContactHistory>(contactHistories.subList(contactHistories.size()-1, contactHistories.size()));
+    }
+
     return contactHistories;
   }
 
-  private List<ContactHistory> generateHistoryFromContactValues(Contact contact, Language language) {
+  public List<ContactHistory> findLatestHistory(List<Integer> contactsId, Language language) {
+    Set<Integer> ids = new HashSet<Integer>();
+    ids.addAll(contactsId);
+
     List<ContactHistory> contactHistories = new ArrayList<ContactHistory>();
-    for (LayoutGroup layoutGroup : contact.getContactModel().getDetails().getLayout().getGroups()) {
-      for (LayoutConstraint layoutConstraint : layoutGroup.getConstraints()) {
-        FlexibleElement flexibleElement = layoutConstraint.getElement();
-
-        List<HistoryToken> historyTokens = historyTokenDAO.findByContainerIdAndFlexibleElementId(contact.getId(), flexibleElement.getId());
-        for (HistoryToken historyToken : historyTokens) {
-          ContactHistory contactHistory = new ContactHistory();
-          contactHistory.setId(historyToken.getId());
-          contactHistory.setComment(historyToken.getComment());
-          contactHistory.setUpdatedAt(historyToken.getDate());
-
-          if (historyToken.getUser() != null) {
-            contactHistory.setUserFullName(historyToken.getUser().getFullName());
-          }
-          if (flexibleElement instanceof ContactListElement) {
-            contactHistory.setFormattedChangeType(getRelationshipFormatter("Contact", historyToken.getType(), language));
-            Contact relatedContact = contactDAO.findById(Integer.parseInt(historyToken.getValue()));
-            contactHistory.setSubject(relatedContact.getFullName());
-            contactHistory.setFormattedValue(flexibleElement.getLabel());
-            contactHistory.setValueType(ContactHistory.ValueType.STRING);
-          } else {
-            contactHistory.setFormattedChangeType(i18nServer.t(language, "contactHistoryChangeTypeUpdatedProperty"));
-            contactHistory.setFormattedValue(modelPropertyService.getFormattedValue(flexibleElement, historyToken.getValue(), language));
-
-            if (flexibleElement instanceof DefaultContactFlexibleElement) {
-              contactHistory.setSubject(modelPropertyService.getDefaultContactPropertyLabel(((DefaultContactFlexibleElement) flexibleElement).getType(), language));
-
-              if (((DefaultContactFlexibleElement) flexibleElement).getType() == DefaultContactFlexibleElementType.PHOTO) {
-                contactHistory.setValueType(ContactHistory.ValueType.IMAGE);
-              } else {
-                contactHistory.setValueType(ContactHistory.ValueType.STRING);
-              }
-            } else {
-              contactHistory.setSubject(flexibleElement.getLabel());
-              contactHistory.setValueType(ContactHistory.ValueType.STRING);
-            }
-          }
-          contactHistories.add(contactHistory);
-        }
+    List<Contact> contacts = contactDAO.findByIds(ids);
+    for(Contact contact : contacts) {
+      List<ContactHistory> histories = findHistory(contact, language, true);
+      if(!histories.isEmpty()) {
+        ContactHistory history = histories.get(0);
+        history.setContactId(contact.getId());
+        contactHistories.add(history);
       }
     }
     return contactHistories;
   }
 
-  private List<ContactHistory> generateHistoryFromInboundRelationships(Contact contact, Language language) {
+  private List<ContactHistory> generateHistoryFromContactValues(Contact contact, Language language, boolean lastOnly) {
     List<ContactHistory> contactHistories = new ArrayList<ContactHistory>();
-    List<HistoryToken> historyTokens = historyTokenDAO.findByIdInSerializedValue(contact.getId());
+    for (LayoutGroup layoutGroup : contact.getContactModel().getDetails().getLayout().getGroups()) {
+      Map<Integer, FlexibleElement> flexibleElementMap = new HashMap<Integer, FlexibleElement>();
+      List<Integer> flexibleElementIds = new ArrayList<Integer>();
+      List<LayoutConstraint> layoutConstraints = layoutGroup.getConstraints();
+      // if there is no constraint, it means there is no element, so no history
+      if (layoutConstraints.isEmpty()) {
+        return Collections.emptyList();
+      }
+      for (LayoutConstraint layoutConstraint : layoutGroup.getConstraints()) {
+        FlexibleElement flexibleElement = layoutConstraint.getElement();
+        flexibleElementIds.add(flexibleElement.getId());
+        flexibleElementMap.put(flexibleElement.getId(), flexibleElement);
+      }
+      List<HistoryToken> historyTokens = historyTokenDAO.findByContainerIdAndFlexibleElementId(contact.getId(), flexibleElementIds, lastOnly);
+      for (HistoryToken historyToken : historyTokens) {
+        FlexibleElement flexibleElement = flexibleElementMap.get(historyToken.getElementId());
+        ContactHistory contactHistory = new ContactHistory();
+        contactHistory.setId(historyToken.getId());
+        contactHistory.setComment(historyToken.getComment());
+        contactHistory.setUpdatedAt(historyToken.getDate());
+
+        if (historyToken.getUser() != null) {
+          contactHistory.setUserFullName(historyToken.getUser().getFullName());
+        }
+        if (flexibleElement instanceof ContactListElement) {
+          contactHistory.setFormattedChangeType(getRelationshipFormatter("Contact", historyToken.getType(), language));
+          Contact relatedContact = contactDAO.findById(Integer.parseInt(historyToken.getValue()));
+          contactHistory.setSubject(relatedContact.getFullName());
+          contactHistory.setFormattedValue(flexibleElement.getLabel());
+          contactHistory.setValueType(ContactHistory.ValueType.STRING);
+        } else {
+          contactHistory.setFormattedChangeType(i18nServer.t(language, "contactHistoryChangeTypeUpdatedProperty"));
+          contactHistory.setFormattedValue(modelPropertyService.getFormattedValue(flexibleElement, historyToken.getValue(), language));
+
+          if (flexibleElement instanceof DefaultContactFlexibleElement) {
+            contactHistory.setSubject(modelPropertyService.getDefaultContactPropertyLabel(((DefaultContactFlexibleElement) flexibleElement).getType(), language));
+
+            if (((DefaultContactFlexibleElement) flexibleElement).getType() == DefaultContactFlexibleElementType.PHOTO) {
+              contactHistory.setValueType(ContactHistory.ValueType.IMAGE);
+            } else {
+              contactHistory.setValueType(ContactHistory.ValueType.STRING);
+            }
+          } else {
+            contactHistory.setSubject(flexibleElement.getLabel());
+            contactHistory.setValueType(ContactHistory.ValueType.STRING);
+          }
+        }
+        contactHistories.add(contactHistory);
+      }
+    }
+    return contactHistories;
+  }
+
+  private List<ContactHistory> generateHistoryFromInboundRelationships(Contact contact, Language language, boolean lastOnly) {
+    List<ContactHistory> contactHistories = new ArrayList<ContactHistory>();
+    List<HistoryToken> historyTokens = historyTokenDAO.findByIdInSerializedValueAndElementType(contact.getId(), EntityConstants.CONTACT_LIST_ELEMENT_TABLE, lastOnly);
     for (HistoryToken historyToken : historyTokens) {
       FlexibleElement flexibleElement = flexibleElementDAO.findById(historyToken.getElementId());
       // We are looking here for relationships going on the current contact
       // The flexible element must be a contact list element
+      // This should have already been filtered by the request.
       if (!(flexibleElement instanceof ContactListElement)) {
-        continue;
+        throw new IllegalStateException("FlexibleElement is instance of " + flexibleElement.getClass().getSimpleName() + " instead of ContactListElement");
       }
 
       ContactHistory contactHistory = new ContactHistory();

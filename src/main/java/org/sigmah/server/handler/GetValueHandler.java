@@ -32,6 +32,7 @@ import javax.persistence.Query;
 import javax.persistence.TypedQuery;
 
 import org.apache.commons.lang3.StringUtils;
+import org.sigmah.server.dao.LayoutGroupDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch.UserExecutionContext;
 import org.sigmah.server.domain.Amendment;
 import org.sigmah.server.domain.HistoryToken;
@@ -39,6 +40,7 @@ import org.sigmah.server.domain.Project;
 import org.sigmah.server.domain.element.ComputationElement;
 import org.sigmah.server.domain.element.DefaultFlexibleElement;
 import org.sigmah.server.domain.element.FlexibleElement;
+import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.file.FileStorageProvider;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.server.service.ComputationService;
@@ -92,6 +94,9 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 	 */
 	@Inject
 	private ComputationService computationService;
+
+	@Inject
+	private LayoutGroupDAO layoutGroupDAO;
 
 	/**
 	 * Gets a flexible element value from the database.
@@ -161,8 +166,8 @@ public class GetValueHandler extends AbstractCommandHandler<GetValue, ValueResul
 			if (ComputationElementDTO.ENTITY_NAME.equals(cmd.getElementEntityName())) {
 				final ComputationElement computationElement = em().find(ComputationElement.class, cmd.getElementId());
 				final Project project = em().find(Project.class, cmd.getProjectId());
-				
-				final ComputedValue computedValue = computationService.computeValueForProject(computationElement, project);
+				final LayoutGroup layoutGroup = layoutGroupDAO.getByElementId(cmd.getElementId());
+				final ComputedValue computedValue = computationService.computeValueForProject(computationElement, layoutGroup.getId(), cmd.getIterationId(), project);
 				valueResult.setValueObject(computedValue.toString());
 			}
 			

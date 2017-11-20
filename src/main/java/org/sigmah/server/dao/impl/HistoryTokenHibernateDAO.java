@@ -23,35 +23,46 @@ package org.sigmah.server.dao.impl;
 
 import java.util.List;
 
+import javax.persistence.Query;
+import javax.persistence.TypedQuery;
+
 import org.sigmah.server.dao.HistoryTokenDAO;
 import org.sigmah.server.dao.base.AbstractDAO;
 import org.sigmah.server.domain.HistoryToken;
-import org.sigmah.server.domain.value.Value;
+import org.sigmah.server.domain.util.EntityConstants;
 
 public class HistoryTokenHibernateDAO extends AbstractDAO<HistoryToken, Integer> implements HistoryTokenDAO {
+
   @Override
-  public List<HistoryToken> findByContainerIdAndFlexibleElementId(Integer containerId, Integer flexibleElementId) {
-    return em().createQuery("" +
+  public List<HistoryToken> findByContainerIdAndFlexibleElementId(Integer containerId, List<Integer> flexibleElementIds, boolean lastOnly) {
+    TypedQuery<HistoryToken> q = em().createQuery("" +
         "SELECT h " +
         "FROM HistoryToken h " +
         "WHERE h.projectId = :containerId " +
-        "AND h.elementId = :elementId " +
-        "ORDER BY h.date ASC", HistoryToken.class)
+        "AND h.elementId in :elementIds " +
+        "ORDER BY h.date DESC", HistoryToken.class)
         .setParameter("containerId", containerId)
-        .setParameter("elementId", flexibleElementId)
-        .getResultList();
+        .setParameter("elementIds", flexibleElementIds);
+    if (lastOnly) {
+      q = q.setMaxResults(1);
+    }
+    return q.getResultList();
   }
 
   @Override
   @SuppressWarnings("unchecked")
-  public List<HistoryToken> findByIdInSerializedValue(Integer id) {
-    return em().createNativeQuery("" +
+  public List<HistoryToken> findByIdInSerializedValueAndElementType(Integer id, String elementTypeTableName, boolean lastOnly) {
+    Query q = em().createNativeQuery("" +
         "SELECT ht.* " +
-        "FROM history_token ht " +
-        "WHERE ht.value = :id " +
-        "OR ht.value ~ ('^(.*~)?'||:id||'(~.*)?$') " +
-        "ORDER BY ht.id_element ", HistoryToken.class)
-        .setParameter("id", String.valueOf(id))
-        .getResultList();
+        "FROM " + EntityConstants.HISTORY_TOKEN_TABLE + " ht " +
+        "WHERE (ht." + EntityConstants.HISTORY_TOKEN_COLUMN_VALUE + " = :id " +
+        "OR ht." + EntityConstants.HISTORY_TOKEN_COLUMN_VALUE + " ~ ('^(.*~)?'||:id||'(~.*)?$') ) " +
+        (elementTypeTableName == null ? "" : "AND EXISTS (SELECT * FROM " + elementTypeTableName + ") ") +
+        "ORDER BY ht." + EntityConstants.HISTORY_TOKEN_COLUMN_DATE + " DESC", HistoryToken.class)
+        .setParameter("id", String.valueOf(id));
+    if (lastOnly) {
+      q = q.setMaxResults(1);
+    }
+    return q.getResultList();
   }
 }

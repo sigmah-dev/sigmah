@@ -24,6 +24,7 @@ package org.sigmah.client.ui.view.contact.dashboardlist;
 
 import java.util.Arrays;
 import java.util.Date;
+import java.util.List;
 
 import com.extjs.gxt.ui.client.Style;
 import com.extjs.gxt.ui.client.data.BaseFilterPagingLoadConfig;
@@ -32,7 +33,7 @@ import com.extjs.gxt.ui.client.data.PagingLoadResult;
 import com.extjs.gxt.ui.client.data.PagingLoader;
 import com.extjs.gxt.ui.client.store.ListStore;
 import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Html;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
 import com.extjs.gxt.ui.client.widget.grid.ColumnModel;
@@ -42,6 +43,7 @@ import com.extjs.gxt.ui.client.widget.grid.filters.DateFilter;
 import com.extjs.gxt.ui.client.widget.grid.filters.GridFilters;
 import com.extjs.gxt.ui.client.widget.grid.filters.StringFilter;
 import com.extjs.gxt.ui.client.widget.toolbar.PagingToolBar;
+import com.extjs.gxt.ui.client.widget.toolbar.SeparatorToolItem;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
 import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
@@ -68,12 +70,21 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 	// CSS style names.
 	private static final String STYLE_IMPORTANT_LABEL = "important-label";
 	private static final String STYLE_CONTACT_GRID_NAME = "contact-grid-name";
+	private static final String STYLE_CONTACT_REFRESH_BUTTON = "contact-refresh-button";
+
+	/**
+	 * Refresh time format.
+	 */
+	private static final DateTimeFormat REFRESH_TIME_FORMAT = DateTimeFormat.getFormat("HH:mm");
 
 	private ContentPanel contactTreePanel;
 	private Grid<DashboardContact> contactTreeGrid;
 	private GridFilters gridFilters;
 
 	private ToolBar toolbar;
+	private SeparatorToolItem refreshSeparator;
+	private Button refreshButton;
+	private Label refreshDateLabel;
 	private PagingToolBar pagingToolBar;
 	private PagingContactsProxy proxy;
 	private PagingLoader<PagingLoadResult<DashboardContact>> pagingLoader;
@@ -102,7 +113,7 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 		};
 		pagingLoader.setRemoteSort(true);
 
-		pagingToolBar = new PagingToolBar(10);
+		pagingToolBar = new NoRefreshPagingToolBar(10);
 		pagingToolBar.bind(pagingLoader);
 
 		// Store.
@@ -124,6 +135,15 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 		initGridFilters();
 
 		contactTreeGrid.addPlugin(gridFilters);
+
+		// Refresh button.
+		refreshButton = new Button(I18N.CONSTANTS.refreshContactList(), IconImageBundle.ICONS.refresh());
+		refreshButton.setToolTip(I18N.CONSTANTS.refreshContactListDetails());
+		refreshButton.addStyleName(STYLE_CONTACT_REFRESH_BUTTON);
+
+		// Refresh date.
+		refreshDateLabel = new Label();
+		refreshSeparator = new SeparatorToolItem();
 
 		toolbar = new ToolBar();
 		addContactButton = new Button(I18N.CONSTANTS.addContact());
@@ -216,6 +236,25 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 	 * {@inheritDoc}
 	 */
 	@Override
+	public void updateRefreshingDate(final Date date) {
+
+		if (date == null) {
+			return;
+		}
+		refreshDateLabel.setHtml('(' + REFRESH_TIME_FORMAT.format(date) + ')');
+	}
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
+	public Button getRefreshButton() {
+		return refreshButton;
+	}
+
+	/**
+	 * {@inheritDoc}
+	 */
+	@Override
 	public Grid<DashboardContact> getGrid() {
 		return contactTreeGrid;
 	}
@@ -223,6 +262,11 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 	@Override
 	public void addContact(DashboardContact contact) {
 		proxy.addContact(contact);
+		pagingToolBar.refresh();
+	}
+	@Override
+	public void addContacts(List<DashboardContact> contacts) {
+		proxy.addContacts(contacts);
 		pagingToolBar.refresh();
 	}
 
@@ -257,6 +301,10 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 	 */
 	@Override
 	public void updateToolbar(final boolean addContact, final boolean importContact, final boolean exportContact) {
+
+		toolbar.insert(refreshSeparator, 0);
+		toolbar.insert(refreshDateLabel, 0);
+		toolbar.insert(refreshButton, 0);
 
 		toolbar.remove(addContactButton);
 		toolbar.remove(importButton);
@@ -312,7 +360,7 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 					typeLabel = I18N.CONSTANTS.contactTypeOrganizationLabel();
 				}
 
-				return createContactGridText(typeLabel);
+				return typeLabel;
 			}
 		});
 
@@ -352,131 +400,44 @@ public class ContactsListView extends AbstractView implements ContactsListWidget
 
 		// Firstname
 		final ColumnConfig firstnameColumn = new ColumnConfig(ContactDTO.FIRSTNAME, I18N.CONSTANTS.contactFirstName(), 75);
-		firstnameColumn.setRenderer(new GridCellRenderer<DashboardContact>() {
-
-			@Override
-			public Object render(final DashboardContact model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-					final ListStore<DashboardContact> store, final Grid<DashboardContact> grid) {
-				return createContactGridText((String) model.get(property));
-			}
-		});
 
 		// Change type
 		final ColumnConfig changeTypeColumn = new ColumnConfig(ContactHistory.FORMATTED_CHANGE_TYPE, I18N.CONSTANTS.contactChangeType(), 100);
-		firstnameColumn.setRenderer(new GridCellRenderer<DashboardContact>() {
-
-			@Override
-			public Object render(final DashboardContact model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-													 final ListStore<DashboardContact> store, final Grid<DashboardContact> grid) {
-				return createContactGridText((String) model.get(property));
-			}
-		});
 
 		// Change subject
 		final ColumnConfig changeSubjectColumn = new ColumnConfig(ContactHistory.SUBJECT, I18N.CONSTANTS.contactChangeSubject(), 75);
-		firstnameColumn.setRenderer(new GridCellRenderer<DashboardContact>() {
-
-			@Override
-			public Object render(final DashboardContact model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-													 final ListStore<DashboardContact> store, final Grid<DashboardContact> grid) {
-				return createContactGridText((String) model.get(property));
-			}
-		});
 
 		// Change value
 		final ColumnConfig changeValueColumn = new ColumnConfig(ContactHistory.FORMATTED_VALUE, I18N.CONSTANTS.contactChangeValue(), 75);
-		firstnameColumn.setRenderer(new GridCellRenderer<DashboardContact>() {
-
-			@Override
-			public Object render(final DashboardContact model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-													 final ListStore<DashboardContact> store, final Grid<DashboardContact> grid) {
-				return createContactGridText((String) model.get(property));
-			}
-		});
 
 		// Email
 		final ColumnConfig emailColumn = new ColumnConfig(ContactDTO.EMAIL, I18N.CONSTANTS.contactEmailAddress(), 150);
-		emailColumn.setRenderer(new GridCellRenderer<DashboardContact>() {
-
-			@Override
-			public Object render(final DashboardContact model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-													 final ListStore<DashboardContact> store, final Grid<DashboardContact> grid) {
-				return createContactGridText((String) model.get(property));
-			}
-		});
 		emailColumn.setHidden(true);
 
 		// Id
 		final ColumnConfig idColumn = new ColumnConfig(ContactDTO.ID, I18N.CONSTANTS.contactId(), 100);
-		emailColumn.setRenderer(new GridCellRenderer<DashboardContact>() {
-
-			@Override
-			public Object render(final DashboardContact model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-													 final ListStore<DashboardContact> store, final Grid<DashboardContact> grid) {
-				return createContactGridText((String) model.get(property));
-			}
-		});
 		idColumn.setHidden(true);
 
 		// Organization
 		final ColumnConfig organizationColumn = new ColumnConfig(DashboardContact.PARENT_NAME, I18N.CONSTANTS.contactDirectMembership(), 100);
-		organizationColumn.setRenderer(new GridCellRenderer<DashboardContact>() {
-
-			@Override
-			public Object render(final DashboardContact model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-					final ListStore<DashboardContact> store, final Grid<DashboardContact> grid) {
-				return createContactGridText((String)model.get(property));
-			}
-		});
 		organizationColumn.setHidden(true);
 
 		// Root organization
 		final ColumnConfig rootOrganizationColumn = new ColumnConfig(DashboardContact.ROOT_NAME, I18N.CONSTANTS.contactTopMembership(), 100);
-		rootOrganizationColumn.setRenderer(new GridCellRenderer<DashboardContact>() {
-
-			@Override
-			public Object render(final DashboardContact model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-													 final ListStore<DashboardContact> store, final Grid<DashboardContact> grid) {
-				return createContactGridText((String)model.get(property));
-			}
-		});
 		rootOrganizationColumn.setHidden(true);
 
 		// Change date
 		final ColumnConfig changeDateColumn = new ColumnConfig(ContactHistory.UPDATED_AT, I18N.CONSTANTS.contactChangeDate(), 100);
 		changeDateColumn.setDateTimeFormat(format);
-		firstnameColumn.setRenderer(new GridCellRenderer<DashboardContact>() {
-
-			@Override
-			public Object render(final DashboardContact model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-													 final ListStore<DashboardContact> store, final Grid<DashboardContact> grid) {
-				final Date d = model.get(property);
-				return createContactGridText(d != null ? format.format(d) : "");
-			}
-		});
 		changeDateColumn.setHidden(true);
 
 		// Change comment
 		final ColumnConfig changeCommentColumn = new ColumnConfig(ContactHistory.COMMENT, I18N.CONSTANTS.contactChangeComment(), 100);
-		firstnameColumn.setRenderer(new GridCellRenderer<DashboardContact>() {
 
-			@Override
-			public Object render(final DashboardContact model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-													 final ListStore<DashboardContact> store, final Grid<DashboardContact> grid) {
-				return createContactGridText((String) model.get(property));
-			}
-		});
 		changeCommentColumn.setHidden(true);
 
 		return new ColumnModel(Arrays.asList(typeColumn, nameColumn, firstnameColumn, changeTypeColumn, changeSubjectColumn,
 				changeValueColumn, emailColumn, idColumn, organizationColumn, rootOrganizationColumn, changeDateColumn, changeCommentColumn));
-	}
-
-	private static Widget createContactGridText(final String content) {
-
-		final Html label = new Html(content);
-
-		return label;
 	}
 
 	/**

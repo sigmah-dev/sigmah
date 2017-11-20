@@ -310,7 +310,7 @@ public class FlexibleElementsAdminPresenter<E extends IsModel> extends AbstractP
 			if (other instanceof ComputationElementDTO) {
 				final ComputationElementDTO computationElement = (ComputationElementDTO) other;
 
-				final Computation computation = Computations.parse(computationElement.getRule(), allElements);
+				final Computation computation = Computations.parse(computationElement.getRule(), computationElement.getGroup().getId(), allElements);
 				final List<FlexibleElementDTO> dependencies = Collections.map(computation.getDependencies(), new Collections.OptionnalMapper<Dependency, FlexibleElementDTO>() {
 					
 					@Override

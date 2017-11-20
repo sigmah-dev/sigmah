@@ -75,10 +75,12 @@ import org.sigmah.shared.command.AutomatedImport;
 import org.sigmah.shared.command.BatchCommand;
 import org.sigmah.shared.command.GetImportInformation;
 import org.sigmah.shared.command.GetImportationSchemes;
+import org.sigmah.shared.command.UpdateContact;
 import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.command.result.ImportInformationResult;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.Result;
+import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.ElementExtractedValue;
 import org.sigmah.shared.dto.ImportDetails;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -234,10 +236,12 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 			public Widget renderActionsForModel(ImportDetails model) {
 				switch(model.getEntityStatus()) {
 					case PROJECT_NOT_FOUND_CODE:
+					case CONTACT_NOT_FOUND_CODE:
 						return renderCreateButton(model);
 						
 					case PROJECT_FOUND_CODE:
 					case ORGUNIT_FOUND_CODE:
+					case CONTACT_FOUND_CODE:
 						addAllChanges(model);
 						popup.addModelToSelection(model);
 						return renderConfirmButton(model);
@@ -247,6 +251,7 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 						
 					case SEVERAL_ORGUNITS_FOUND_CODE:
 					case SEVERAL_PROJECTS_FOUND_CODE:
+					case SEVERAL_CONTACTS_FOUND_CODE:
 						return renderChoosePanel(model);
 						
 					default:
@@ -663,14 +668,14 @@ public class ImportationPresenter extends AbstractPagePresenter<ImportationPrese
 					// Save the name of the project (to notify that this project has been updated).
 					if (selectedEntity instanceof ProjectDTO) {
 						names.add(((ProjectDTO)selectedEntity).getFullName());
-						
+						updates.add(new UpdateProject(selectedEntity.getId(), values, "Imported from file '" + fileName + "'."));
 					} else if(selectedEntity instanceof OrgUnitDTO) {
 						names.add(((OrgUnitDTO)selectedEntity).getFullName());
+						updates.add(new UpdateProject(selectedEntity.getId(), values, "Imported from file '" + fileName + "'."));
+					} else if(selectedEntity instanceof ContactDTO) {
+						names.add(((ContactDTO)selectedEntity).getFullName());
+						updates.add(new UpdateContact(selectedEntity.getId(), values, "Imported from file '" + fileName + "'."));
 					}
-					
-					// Add the update project to the batch.
-					// TODO: I18N
-					updates.add(new UpdateProject(selectedEntity.getId(), values, "Imported from file '" + fileName + "'."));
 				}
 			}
 			

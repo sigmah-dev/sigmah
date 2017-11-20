@@ -56,6 +56,7 @@ public final class Instructions {
 		put(map, new FundedProjects(), "fundedProjects");
 		put(map, new Average(), "avg");
 		put(map, new Sum(), "sum");
+		put(map, new Pick(), "pick");
 		
 		INSTRUCTIONS = map;
 	}

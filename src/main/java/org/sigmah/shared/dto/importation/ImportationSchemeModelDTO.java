@@ -25,6 +25,7 @@ package org.sigmah.shared.dto.importation;
 
 import java.util.List;
 
+import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.base.AbstractModelDataEntityDTO;
@@ -45,6 +46,7 @@ public class ImportationSchemeModelDTO extends AbstractModelDataEntityDTO<Intege
 	public static final String IMPORTATION_SCHEME = "importationSchemeDTO";
 	public static final String PROJECT_MODEL = "projectModelDTO";
 	public static final String ORGUNIT_MODEL = "orgUnitModelDTO";
+	public static final String CONTACT_MODEL = "contactModelDTO";
 	public static final String VARIABLES = "variableFlexibleElementsDTO";
 
 	/**
@@ -86,6 +88,14 @@ public class ImportationSchemeModelDTO extends AbstractModelDataEntityDTO<Intege
 
 	public void setOrgUnitModelDTO(OrgUnitModelDTO orgUnitModelDTO) {
 		set("orgUnitModelDTO", orgUnitModelDTO);
+	}
+
+	public ContactModelDTO getContactModelDTO() {
+		return get("contactModelDTO");
+	}
+
+	public void setContactModelDTO(ContactModelDTO contactModelDTO) {
+		set("contactModelDTO", contactModelDTO);
 	}
 
 	public List<VariableFlexibleElementDTO> getVariableFlexibleElementsDTO() {

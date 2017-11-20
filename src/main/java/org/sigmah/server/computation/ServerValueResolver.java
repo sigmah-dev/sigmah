@@ -58,12 +58,13 @@ public class ServerValueResolver extends EntityManagerProvider implements ValueR
 	 * {@inheritDoc}
 	 */
 	@Override
-	public void resolve(final Collection<Dependency> dependencies, final int containerId, final AsyncCallback<Map<Dependency, ComputedValue>> callback) {
+	public void resolve(final Collection<Dependency> dependencies, final int containerId, final Integer layoutGroupIterationId, final AsyncCallback<Map<Dependency, ComputedValue>> callback) {
 		final HashMap<Dependency, ComputedValue> values = new HashMap<>();
 		
-		final TypedQuery<String> query = em().createQuery("SELECT v.value FROM Value v WHERE v.containerId = :containerId AND v.element.id = :elementId", String.class);
+		final TypedQuery<String> query = em().createQuery("SELECT v.value FROM Value v WHERE v.containerId = :containerId AND v.element.id = :elementId AND (v.layoutGroupIteration.id = :layoutGroupIterationId OR v.layoutGroupIteration.id is NULL)", String.class);
 		query.setParameter("containerId", containerId);
-		
+		query.setParameter("layoutGroupIterationId", layoutGroupIterationId);
+
 		for (final Dependency dependency : dependencies) {
 			dependency.accept(new DependencyVisitor() {
 				@Override

@@ -347,7 +347,7 @@ public class UpdateEntityAsyncHandler implements AsyncCommandHandler<UpdateEntit
 	 */
 	private void updateComputationValueForProject(final ComputationElementDTO computationElement, final Computation computation, final ProjectDTO project, final RequestManager<VoidResult> requestManager) {
 		
-		computation.computeValueWithResolver(project.getId(), valueResolver, new RequestManagerCallback<VoidResult, String>(requestManager) {
+		computation.computeValueWithResolver(project.getId(), null, valueResolver, new RequestManagerCallback<VoidResult, String>(requestManager) {
 
 			@Override
 			public void onRequestSuccess(String result) {

@@ -44,11 +44,12 @@ import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.GetImportationSchemes;
 import org.sigmah.shared.command.result.CreateResult;
 import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.ContactModelDTO;
+import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
 import org.sigmah.shared.dto.base.EntityDTO;
 import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 import org.sigmah.shared.dto.importation.ImportationSchemeModelDTO;
-import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 
 import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.Events;
@@ -107,7 +108,7 @@ public class AddImportationSchemeModelsAdminPresenter extends AbstractPagePresen
 
 		view.clearForm();
 
-		LoadImportationScheme(model);
+		loadImportationScheme(model);
 
 		setPageTitle(I18N.CONSTANTS.adminAddImportationSchemeModel());
 
@@ -136,10 +137,14 @@ public class AddImportationSchemeModelsAdminPresenter extends AbstractPagePresen
 				Map<String, Object> newImportationSchemeModelProperties = new HashMap<String, Object>();
 				newImportationSchemeModelProperties.put(AdminUtil.ADMIN_SCHEMA, view.getSchemasCombo().getValue());
 
-				if (model instanceof ProjectModelDTO) {
-					newImportationSchemeModelProperties.put(AdminUtil.ADMIN_PROJECT_MODEL, model);
-				} else {
+				if (model instanceof OrgUnitModelDTO) {
 					newImportationSchemeModelProperties.put(AdminUtil.ADMIN_ORG_UNIT_MODEL, model);
+				} else if (model instanceof ProjectModelDTO) {
+					newImportationSchemeModelProperties.put(AdminUtil.ADMIN_PROJECT_MODEL, model);
+				} else if (model instanceof ContactModelDTO) {
+					newImportationSchemeModelProperties.put(AdminUtil.ADMIN_CONTACT_MODEL, model);
+				} else {
+					throw new IllegalArgumentException("Invalid model type");
 				}
 
 				newImportationSchemeModelProperties.put(AdminUtil.ADMIN_IMPORTATION_SCHEME_MODEL, new ImportationSchemeModelDTO());
@@ -180,20 +185,20 @@ public class AddImportationSchemeModelsAdminPresenter extends AbstractPagePresen
 	 * 
 	 * @param model
 	 */
-	public void LoadImportationScheme(EntityDTO<Integer> model) {
+	public void loadImportationScheme(EntityDTO<Integer> model) {
 
 		GetImportationSchemes cmd = new GetImportationSchemes();
 
 		cmd.setExcludeExistent(true);
 
-		if (model instanceof OrgUnitDTO) {
-
+		if (model instanceof OrgUnitModelDTO) {
 			cmd.setOrgUnitModelId(model.getId());
-
-		} else {
-
+		} else if (model instanceof ProjectModelDTO) {
 			cmd.setProjectModelId(model.getId());
-
+		} else if (model instanceof ContactModelDTO) {
+			cmd.setContactModelId(model.getId());
+		} else {
+			throw new IllegalArgumentException("Invalid model type");
 		}
 
 		dispatch.execute(cmd, new CommandResultHandler<ListResult<ImportationSchemeDTO>>() {

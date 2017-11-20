@@ -35,6 +35,8 @@ import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
 import com.extjs.gxt.ui.client.event.SelectionListener;
 import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.store.StoreEvent;
+import com.extjs.gxt.ui.client.store.StoreListener;
 import com.extjs.gxt.ui.client.widget.Dialog;
 import com.extjs.gxt.ui.client.widget.MessageBox;
 import com.extjs.gxt.ui.client.widget.Text;
@@ -69,6 +71,7 @@ import org.sigmah.client.ui.view.admin.models.EditFlexibleElementAdminView;
 import org.sigmah.client.ui.view.base.ViewPopupInterface;
 import org.sigmah.client.ui.widget.HasGrid;
 import org.sigmah.client.ui.widget.button.Button;
+import org.sigmah.client.ui.widget.form.ClearableField;
 import org.sigmah.client.ui.widget.form.FormPanel;
 import org.sigmah.client.ui.widget.form.ListComboBox;
 import org.sigmah.client.util.AdminUtil;
@@ -96,6 +99,7 @@ import org.sigmah.shared.dto.category.CategoryTypeDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
+import org.sigmah.shared.dto.element.CheckboxElementDTO;
 import org.sigmah.shared.dto.element.ComputationElementDTO;
 import org.sigmah.shared.dto.element.ContactListElementDTO;
 import org.sigmah.shared.dto.element.FilesListElementDTO;
@@ -241,6 +245,10 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		TextField<Number> getContactListLimit();
 
 		CheckBox getContactIsMember();
+
+		ComboBox<CheckboxElementDTO> getContactListCheckboxElementFilter();
+
+		ClearableField<CheckboxElementDTO> getContactListClearableCheckboxElement();
 
 		// --
 		// Methods.
@@ -427,22 +435,36 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 				view.getLayoutGroupField().disable();
 
 				if (selectedContainer != null) {
-					List<LayoutGroupDTO> groups = selectedContainer.getGroups();
-					if(flexibleElement != null && (flexibleElement.getElementType() == ElementTypeEnum.DEFAULT || flexibleElement.getElementType() == ElementTypeEnum.DEFAULT_CONTACT)) {
-						// iterative groups are not available for default fields
-						Iterator<LayoutGroupDTO> it = groups.iterator();
-						while(it.hasNext()) {
-							LayoutGroupDTO group = it.next();
-							if(group.getHasIterations()) {
-								it.remove();
-							}
+					List<LayoutGroupDTO> groups = new ArrayList<LayoutGroupDTO>();
+					// iterative groups are not available for default fields or when editing an element when model is under maintenance
+					for (LayoutGroupDTO layoutGroupDTO : selectedContainer.getGroups()) {
+						if(flexibleElement != null && (
+								(flexibleElement.getElementType() == ElementTypeEnum.DEFAULT
+								|| flexibleElement.getElementType() == ElementTypeEnum.DEFAULT_CONTACT
+								|| currentModel.isUnderMaintenance())
+								&& layoutGroupDTO.getHasIterations())) {
+							continue;
 						}
+						groups.add(layoutGroupDTO);
 					}
 					view.getLayoutGroupField().getStore().add(groups);
 					view.getLayoutGroupField().getStore().commitChanges();
 					view.getLayoutGroupField().setValue(view.getLayoutGroupField().getStore().getAt(0));
 					view.getLayoutGroupField().enable();
+					updateAvailableNumberFields();
 				}
+			}
+		});
+
+		// --
+		// LayoutGroup field change handler.
+		// --
+
+		view.getLayoutGroupField().addListener(Events.Select, new Listener<BaseEvent>() {
+
+			@Override
+			public void handleEvent(final BaseEvent be) {
+				updateAvailableNumberFields();
 			}
 		});
 
@@ -546,7 +568,9 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 					return null;
 				}
 
-				final Computation computation = Computations.parse(value, otherElements);
+				ComboBox<LayoutGroupDTO> layoutGroupField = view.getLayoutGroupField();
+				LayoutGroupDTO flexibleElementGroup = flexibleElement == null ? null : flexibleElement.getGroup();
+				final Computation computation = Computations.parse(value, layoutGroupField.getValue() == null ? (flexibleElementGroup == null ? null : flexibleElementGroup.getId()) : layoutGroupField.getValue().getId(), otherElements);
 
 				if (computation != null && !computation.isBadFormula()) {
 					final Set<String> badReferences = computation.getBadReferences();
@@ -591,6 +615,18 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 				});
 			}
 		});
+	}
+
+	private void updateAvailableNumberFields() {
+		LogicalElementType type = TypeModel.getType(view.getTypeField().getValue());
+		if (type == ElementTypeEnum.COMPUTATION) {
+			// Related flexible elements code grid.
+			addNumberTypeToStore(view.getLayoutGroupField().getValue().getId(), view.getStore());
+			view.getFormulaField().validate();
+		}
+		if (type == DefaultFlexibleElementType.BUDGET_RATIO) {
+			addNumberTypeToStore(view.getLayoutGroupField().getValue().getId(), view.getBudgetSubFieldSpentStore(), view.getBudgetSubFieldPlannedStore());
+		}
 	}
 
 	/**
@@ -689,6 +725,9 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 
 		view.getCodeField().setValue("field" + otherElements.size());
 
+		view.getContainerField().enable();
+		view.getLayoutGroupField().setEnabled(view.getContainerField().getValue() != null);
+
 		if (flexibleElement != null) {
 
 			// --
@@ -705,11 +744,45 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			view.getBannerField().setValue(bannerConstraint != null); // Updates the bannerPosition field.
 			view.getBannerPositionField().setSimpleValue(bannerConstraint != null ? bannerConstraint.getSortOrder() : null);
 
+			final LayoutDTO selectedContainer = EditLayoutGroupAdminPresenter.getLayout(flexibleElement.getContainerModel());
+
+			view.getLayoutGroupField().getStore().removeAll();
+			view.getLayoutGroupField().disable();
+
+			if (selectedContainer != null) {
+				List<LayoutGroupDTO> groups = new ArrayList<LayoutGroupDTO>();
+				// iterative groups are not available for default fields or when editing an element when model is under maintenance
+				for (LayoutGroupDTO layoutGroupDTO : selectedContainer.getGroups()) {
+					if(flexibleElement != null && (
+							(flexibleElement.getElementType() == ElementTypeEnum.DEFAULT
+									|| flexibleElement.getElementType() == ElementTypeEnum.DEFAULT_CONTACT
+									|| currentModel.isUnderMaintenance())
+									&& layoutGroupDTO.getHasIterations())) {
+						continue;
+					}
+					groups.add(layoutGroupDTO);
+				}
+				view.getLayoutGroupField().getStore().add(groups);
+				view.getLayoutGroupField().getStore().commitChanges();
+			}
+
 			// Layout constraint.
 			final LayoutConstraintDTO constraint = flexibleElement.getConstraint();
 			view.getContainerField().setValue(flexibleElement.getContainerModel());
-			view.getLayoutGroupField().setValue(constraint != null ? constraint.getParentLayoutGroup() : null);
-			view.getOrderField().setValue(constraint != null ? constraint.getSortOrder() : null);
+			view.getContainerField().enable();
+			view.getLayoutGroupField().enable();
+
+			if (constraint != null) {
+				if (constraint.getParentLayoutGroup().getHasIterations() && currentModel.isUnderMaintenance()) {
+					view.getContainerField().disable();
+					view.getLayoutGroupField().disable();
+				}
+				view.getLayoutGroupField().setValue(constraint.getParentLayoutGroup());
+				view.getOrderField().setValue(constraint.getSortOrder());
+			} else {
+				view.getLayoutGroupField().setValue(null);
+				view.getOrderField().setValue(null);
+			}
 
 			if (currentModel.getModelType().canHaveMandatoryFields()) {
 				view.getMandatoryField().setValue(flexibleElement.getValidates());
@@ -768,7 +841,6 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	 *          The element type, may be {@code null}.
 	 */
 	private void loadFlexibleElementSpecificFields(final FlexibleElementDTO flexibleElement, final LogicalElementType type) {
-
 		// clear specific element for bubget
 		view.getBudgetFields().setVisible(false);
 		view.getAnchorAddSubField().setVisible(false);
@@ -906,23 +978,22 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			final ComputationElementDTO computationElement = (ComputationElementDTO) flexibleElement;
 
 			// Computation rule.
-			final String formattedRule = Computations.formatRuleForEdition(computationElement.getRule(), otherElements);
+			final String formattedRule = Computations.formatRuleForEdition(computationElement.getRule(), computationElement.getGroup().getId(), otherElements);
 			view.getFormulaField().setValue(formattedRule);
 
 			// Minimum and maximum value.
 			view.getMinLimitField().setValue(ComputedValues.from(computationElement.getMinimumValue(), false).get());
 			view.getMaxLimitField().setValue(ComputedValues.from(computationElement.getMaximumValue(), false).get());
 
-		}
+			addNumberTypeToStore(flexibleElement.getGroup() == null ? null : flexibleElement.getGroup().getId(), view.getStore());
+			view.getFormulaField().validate();
 
-		if (type == ElementTypeEnum.COMPUTATION) {
-			// Related flexible elements code grid.
-			addNumberTypeToStore(view.getStore());
-		} else if (type == ElementTypeEnum.CONTACT_LIST) {
+		}
+		if (type == ElementTypeEnum.CONTACT_LIST) {
 			loadContactListOptions((ContactListElementDTO) flexibleElement);
 		}
 		if (type == DefaultFlexibleElementType.BUDGET_RATIO) {
-			addNumberTypeToStore(view.getBudgetSubFieldSpentStore(), view.getBudgetSubFieldPlannedStore());
+			addNumberTypeToStore(flexibleElement.getGroup() == null ? null : flexibleElement.getGroup().getId(), view.getBudgetSubFieldSpentStore(), view.getBudgetSubFieldPlannedStore());
 		}
 		if (flexibleElement instanceof BudgetRatioElementDTO) {
 			
@@ -941,13 +1012,14 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		}
 	}
 	
-	private void addNumberTypeToStore(ListStore<FlexibleElementDTO>... stores){
+	private void addNumberTypeToStore(Integer currentLayoutGroup, ListStore<FlexibleElementDTO>... stores){
 		for (ListStore<FlexibleElementDTO> store : stores) {
 			store.removeAll();
 		}
 		for (final FlexibleElementDTO otherElement : otherElements) {
-				// fields in iterative groups cannot be part of formula
-				if(otherElement.getGroup().getHasIterations()) {
+				// for iterative groups, only fields in the iterative group containing this computed field can be part of formula
+				if(otherElement.getGroup().getHasIterations() &&
+						(currentLayoutGroup == null || !currentLayoutGroup.equals(otherElement.getGroup().getId()))) {
 					continue;
 				}
 
@@ -955,7 +1027,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			final ElementTypeEnum otherElementType = otherType.toElementTypeEnum();
 
 			if ((otherElementType == ElementTypeEnum.TEXT_AREA && otherType.toTextAreaType() == TextAreaType.NUMBER)
-					|| otherElementType == ElementTypeEnum.COMPUTATION) {
+					|| (otherElementType == ElementTypeEnum.COMPUTATION && !otherElement.getId().equals(flexibleElement == null ? null : flexibleElement.getId()))) {
 				for (ListStore<FlexibleElementDTO> store : stores) {
 					store.add(otherElement);
 				}
@@ -1242,10 +1314,58 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		});
 	}
 
+	private void refreshContactListCheckboxElementField(ContactListElementDTO contactListElementDTO) {
+		ListStore<ContactModelDTO> contactModels = view.getContactListModelsFilter().getListStore();
+		ComboBox<CheckboxElementDTO> checkboxElementFilter = view.getContactListCheckboxElementFilter();
+		ClearableField<CheckboxElementDTO> clearableCheckboxElement = view.getContactListClearableCheckboxElement();
+		if (contactModels == null || contactModels.getCount() != 1) {
+			clearableCheckboxElement.hide();
+			checkboxElementFilter.setValue(null);
+		} else {
+			clearableCheckboxElement.show();
+			checkboxElementFilter.getStore().removeAll();
+			ContactModelDTO contactModel = contactModels.getAt(0);
+			CheckboxElementDTO valueToSelect = null;
+			for (FlexibleElementDTO flexibleElementDTO : contactModel.getAllElements()) {
+				if (flexibleElementDTO.getElementType() != ElementTypeEnum.CHECKBOX || flexibleElementDTO.isDisabled()
+						|| flexibleElementDTO.getGroup().getHasIterations()
+						) {
+					continue;
+				}
+				checkboxElementFilter.getStore().add((CheckboxElementDTO) flexibleElementDTO);
+				if (contactListElementDTO.getCheckboxElement() != null &&
+						contactListElementDTO.getCheckboxElement().getId().equals(flexibleElementDTO.getId())) {
+					valueToSelect = (CheckboxElementDTO) flexibleElementDTO;
+				}
+			}
+			if (valueToSelect != null) {
+				checkboxElementFilter.setValue(valueToSelect);
+			} else {
+				checkboxElementFilter.setValue(null);
+			}
+		}
+	}
+
 	public void loadContactListOptions(final ContactListElementDTO flexibleElement) {
 		view.getContactListModelsFilter().getListStore().removeAll();
 		view.getContactListModelsFilter().getAvailableValuesStore().removeAll();
-		dispatch.execute(new GetContactModels(null, true), new AsyncCallback<ListResult<ContactModelDTO>>() {
+		view.getContactListModelsFilter().getListStore().addStoreListener(new StoreListener<ContactModelDTO>() {
+			@Override public void handleEvent(StoreEvent<ContactModelDTO> e) {
+				refreshContactListCheckboxElementField(flexibleElement);
+			}
+		});
+
+
+		// Show getContactListCheckboxElementFilter if exactly one allowedModelId is selected
+		if (flexibleElement != null && flexibleElement.getAllowedModelIds() != null && flexibleElement.getAllowedModelIds().size() == 1) {
+			view.getContactListClearableCheckboxElement().show();
+			view.getContactListCheckboxElementFilter().setValue(flexibleElement.getCheckboxElement());
+		} else {
+			view.getContactListClearableCheckboxElement().hide();
+			view.getContactListCheckboxElementFilter().setValue(null);
+		}
+
+		dispatch.execute(new GetContactModels(null, true, true), new AsyncCallback<ListResult<ContactModelDTO>>() {
 			@Override
 			public void onFailure(Throwable caught) {
 				Log.error("Error while getting available contact models.", caught);
@@ -1288,6 +1408,8 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			@Override
 			public void selectionChanged(final SelectionChangedEvent<EnumModel<ContactModelType>> event) {
 				view.getContactListModelsFilter().getListStore().removeAll();
+				view.getContactListClearableCheckboxElement().hide();
+				view.getContactListCheckboxElementFilter().setValue(null);
 				filterContactListModels(event.getSelectedItem());
 				if (event.getSelectedItem() != null && event.getSelectedItem().getEnum() == ContactModelType.ORGANIZATION) {
 					view.getContactIsMember().show();
@@ -1457,17 +1579,13 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		// + a core field cannot be in an iterative group
 		LayoutGroupDTO groupToTest = group == null ? flexibleElement.getGroup() : group;
 		if(groupToTest != null && groupToTest.getHasIterations() != null && groupToTest.getHasIterations()) {
-			if(type == ElementTypeEnum.COMPUTATION) {
-				N10N.warn(I18N.CONSTANTS.cannotAddComputationElementToIterativeGroup());
-				return;
-			}
-
 			if(amendable) {
 				N10N.warn(I18N.CONSTANTS.cannotAddCoreElementToIterativeGroup());
 				return;
 			}
 
-			Collection<ComputationElementDTO> computationFields = getComputationElementsUsingField(flexibleElement);
+			// - on ne devrait pas pouvoir, le champ a été utilisé ailleur que dans le groupe (donc sans pick() ou avec pick() mais dans un autre groupe)
+			Collection<ComputationElementDTO> computationFields = getComputationElementsUsingField(flexibleElement, groupToTest);
 			if(!computationFields.isEmpty()) {
 				N10N.warn(I18N.MESSAGES.cannotAddComputationElementFormulaFieldToIterativeGroup(
 						Collections.join(computationFields, new Collections.Mapper<ComputationElementDTO, String>() {
@@ -1506,7 +1624,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		final FlexibleElementDTO budgetPlanned = view.getBudgetSubFieldPlannedCombo().getValue();
 		
 		
-		final String computationRule = Computations.formatRuleForServer(view.getFormulaField().getValue(), otherElements);
+		final String computationRule = Computations.formatRuleForServer(view.getFormulaField().getValue(), groupToTest.getId(), otherElements);
 
 		final Number contactListLimit = view.getContactListLimit().getValue();
 		final boolean contactListIsMember = view.getContactIsMember().getValue();
@@ -1516,6 +1634,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		for (ContactModelDTO contactModelDTO : view.getContactListModelsFilter().getListStore().getModels()) {
 			contactListModelIds.add(contactModelDTO.getId());
 		}
+		CheckboxElementDTO checkboxElementDTO = view.getContactListCheckboxElementFilter().getValue();
 
 		// --
 		// Initializing 'NEW' properties map.
@@ -1590,6 +1709,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 		newFieldProperties.put(AdminUtil.PROP_FX_CONTACT_LIST_ALLOWED_TYPE, contactListType);
 		newFieldProperties.put(AdminUtil.PROP_FX_CONTACT_LIST_ALLOWED_MODEL_IDS, contactListModelIds);
 		newFieldProperties.put(AdminUtil.PROP_FX_CONTACT_LIST_IS_MEMBER, contactListIsMember);
+		newFieldProperties.put(AdminUtil.PROP_FX_CONTACT_LIST_CHECKBOX_ELEMENT, checkboxElementDTO);
 
 		// --
 		// Logging old/new properties & filtering actual modifications.
@@ -1733,9 +1853,11 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 	 *
 	 * @param flexibleElement
 	 *          Flexible element.
+	 * @param layoutGroup
+	 *          Layout group containing the element
 	 * @return A collection of every computation element using the given element.
 	 */
-	private Collection<ComputationElementDTO> getComputationElementsUsingField(final FlexibleElementDTO flexibleElement) {
+	private Collection<ComputationElementDTO> getComputationElementsUsingField(final FlexibleElementDTO flexibleElement, final LayoutGroupDTO layoutGroup) {
 		
 		// FIXME: Should also search in the database since other project models may reference the given element.
 
@@ -1748,7 +1870,7 @@ public class EditFlexibleElementAdminPresenter extends AbstractPagePresenter<Edi
 			if (other instanceof ComputationElementDTO) {
 				final ComputationElementDTO computationElement = (ComputationElementDTO) other;
 
-				final Computation computation = Computations.parse(computationElement.getRule(), allElements);
+				final Computation computation = Computations.parse(computationElement.getRule(), layoutGroup.getId(), allElements);
 				if (computation.getDependencies().contains(dependency)) {
 					computationElements.add(computationElement);
 				}

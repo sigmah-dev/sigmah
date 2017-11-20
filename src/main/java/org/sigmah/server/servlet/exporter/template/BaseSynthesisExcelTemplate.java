@@ -264,7 +264,11 @@ public abstract class BaseSynthesisExcelTemplate implements ExportTemplate {
 		// headers
 		List<String> headers = new ArrayList<>();
 
-		headers.add(i18nTranslator.t(language, "iterationName"));
+		if (group.getIterationType() == null) {
+			headers.add(i18nTranslator.t(language, "iterationName"));
+		} else {
+			headers.add(i18nTranslator.t(language, "iterationNameMessage", group.getIterationType()));
+		}
 
 		for (LayoutConstraint constraint : constraints) {
 			FlexibleElement element = constraint.getElement();

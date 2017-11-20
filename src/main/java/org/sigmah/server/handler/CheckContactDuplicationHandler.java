@@ -50,7 +50,7 @@ public class CheckContactDuplicationHandler extends AbstractCommandHandler<Check
 
     List<ContactDTO> contactDTOs = new ArrayList<>();
     for (Contact contact : contacts) {
-      if (!contact.isDeleted() && contact.getContactModel().getId() == command.getContactModelDTO().getId()) {
+      if (!contact.isDeleted() && contact.getContactModel().getId().equals(command.getContactModelDTO().getId())) {
         contactDTOs.add(mapper().map(contact, new ContactDTO()));
       }
     }

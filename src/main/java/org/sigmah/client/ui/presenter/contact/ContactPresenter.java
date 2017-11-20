@@ -27,9 +27,8 @@ import com.google.gwt.user.client.rpc.AsyncCallback;
 import com.google.gwt.user.client.ui.Widget;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Header;
 
 import java.util.Arrays;
 import java.util.Comparator;
@@ -37,6 +36,7 @@ import java.util.List;
 import java.util.TreeSet;
 
 import org.sigmah.client.dispatch.monitor.LoadingMask;
+import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
 import org.sigmah.client.page.PageRequest;
@@ -46,6 +46,7 @@ import org.sigmah.client.ui.presenter.base.Presenter;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.contact.ContactView;
 import org.sigmah.client.ui.zone.Zone;
+import org.sigmah.client.util.DateUtils;
 import org.sigmah.client.util.ImageProvider;
 import org.sigmah.shared.command.GetContact;
 import org.sigmah.shared.dto.ContactDTO;
@@ -59,9 +60,11 @@ import org.sigmah.shared.dto.referential.ContactModelType;
 import com.allen_sauer.gwt.log.client.Log;
 
 public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.View> {
+  private static final String ALERT_STYLE = "header-alert";
+
   @ImplementedBy(ContactView.class)
   public interface View extends ViewInterface {
-    Component getMainComponent();
+    ContentPanel getMainComponent();
 
     void setAvatarUrl(String url);
 
@@ -126,12 +129,7 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
   }
 
   private void loadContact(final Integer contactId, final PageRequest pageRequest) {
-    if (contactDTO != null && contactDTO.getId().equals(contactId)) {
-      // Already loaded
-      onContactLoaded(pageRequest);
-      return;
-    }
-
+    // Reload from server to have info up to date (contact datas and maintenance infos)
     dispatch.execute(new GetContact(contactId, ContactDTO.Mode.ALL), new AsyncCallback<ContactDTO>() {
       @Override
       public void onFailure(Throwable caught) {
@@ -151,6 +149,7 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
     // Updates the tab title.
     eventBus.updateZoneRequest(Zone.MENU_BANNER.requestWith(RequestParameter.REQUEST, request).addData(RequestParameter.HEADER, contactDTO.getFullName()));
     view.setHeaderText(contactDTO.getFullName());
+    updateMaintenanceInfo();
 
     // By calling following refresh methods without deferring, all card labels will be placed at the same position.
     // Its mainly due to the fact that GXT overuse absolute positioning and calculate once at runtime the position of
@@ -163,6 +162,22 @@ public class ContactPresenter extends AbstractPagePresenter<ContactPresenter.Vie
         refreshTabs();
       }
     });
+  }
+
+  private void updateMaintenanceInfo() {
+    // Maintenance alert
+    final Header header = view.getMainComponent().getHeader();
+
+    if (contactDTO.getContactModel().isUnderMaintenance()) {
+      header.addStyleName(ALERT_STYLE);
+      header.setHtml(header.getHtml() + " - " + I18N.MESSAGES.contactMaintenanceMessage());
+    } else if (contactDTO.getContactModel().getDateMaintenance() != null) {
+      header.addStyleName(ALERT_STYLE);
+      String maintenanceDate = DateUtils.DATE_TIME_SHORT.format(contactDTO.getContactModel().getDateMaintenance());
+      header.setHtml(header.getHtml() + " - " + I18N.MESSAGES.contactMaintenanceScheduledMessage(maintenanceDate));
+    } else {
+      header.removeStyleName(ALERT_STYLE);
+    }
   }
 
   private void refreshCard() {

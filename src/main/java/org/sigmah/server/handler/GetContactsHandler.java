@@ -24,11 +24,19 @@ package org.sigmah.server.handler;
 import com.google.inject.Inject;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 import org.sigmah.server.dao.ContactDAO;
+import org.sigmah.server.dao.OrgUnitDAO;
 import org.sigmah.server.dispatch.impl.UserDispatch;
 import org.sigmah.server.domain.Contact;
+import org.sigmah.server.domain.ContactUnit;
+import org.sigmah.server.domain.OrgUnit;
 import org.sigmah.server.handler.base.AbstractCommandHandler;
 import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.result.ListResult;
@@ -37,9 +45,11 @@ import org.sigmah.shared.dto.ContactDTO;
 
 public class GetContactsHandler extends AbstractCommandHandler<GetContacts, ListResult<ContactDTO>> {
   private final ContactDAO contactDAO;
+  private final OrgUnitDAO orgUnitDAO;
 
-  @Inject GetContactsHandler(ContactDAO contactDAO) {
+  @Inject GetContactsHandler(ContactDAO contactDAO, OrgUnitDAO orgUnitDAO) {
     this.contactDAO = contactDAO;
+    this.orgUnitDAO = orgUnitDAO;
   }
 
   @Override
@@ -48,16 +58,63 @@ public class GetContactsHandler extends AbstractCommandHandler<GetContacts, List
     List<Contact> contacts;
     if (command.getContactIds() == null || command.getContactIds().isEmpty()) {
       contacts = contactDAO.findContactsByTypeAndContactModels(organizationId, command.getType(),
-          command.getContactModelIds(), command.isOnlyContactWithoutUser(), command.isWithEmailNotNull(), command.getOrgUnitsIds());
+          command.getContactModelIds(), command.isOnlyContactWithoutUser(), command.isWithEmailNotNull(), command.getOrgUnitsIds(), command.getCheckboxElementId());
     } else {
       contacts = contactDAO.findByIds(command.getContactIds());
     }
 
-    List<ContactDTO> contactDTOs = new ArrayList<>();
+    List<Integer> contactIds = new ArrayList<Integer>();
     for (Contact contact : contacts) {
       if (!contact.isDeleted()) {
-        contactDTOs.add(mapper().map(contact, new ContactDTO()));
+        contactIds.add(contact.getId());
       }
+    }
+
+    // if there is no available contact, no need to go further
+    if (contactIds.isEmpty()) {
+      return new ListResult<ContactDTO>(Collections.<ContactDTO>emptyList());
+    }
+
+    // Explicitly secondary OrgUnit (to avoid a query for each contact)
+    // Load ContactUnit (relation between Contact and OrgUnit)
+    List<ContactUnit> contactOrgUnit = orgUnitDAO.getContactUnit(contactIds);
+    Set<Integer> orgUnitIds = new HashSet<Integer>();
+    Map<Integer, List<Integer>> orgUnitIdsByContactId = new HashMap<Integer, List<Integer>>();
+
+    for (ContactUnit contactUnit : contactOrgUnit) {
+      orgUnitIds.add(contactUnit.getIdOrgUnit());
+      List<Integer> ids = orgUnitIdsByContactId.get(contactUnit.getIdContact());
+      if (ids == null) {
+        ids = new ArrayList<Integer>();
+        orgUnitIdsByContactId.put(contactUnit.getIdContact(), ids);
+      }
+      ids.add(contactUnit.getIdOrgUnit());
+    }
+    // Load OrgUnit
+    List<OrgUnit> orgUnits = orgUnitDAO.findByIds(orgUnitIds);
+    Map<Integer, OrgUnit> orgUnitsById = new HashMap<Integer, OrgUnit>();
+    for (OrgUnit orgUnit : orgUnits) {
+      orgUnitsById.put(orgUnit.getId(), orgUnit);
+    }
+
+    // Set secondaryOrgUnit for each contact and map it as ContactDTO
+    List<ContactDTO> contactDTOs = new ArrayList<>();
+    for (Contact contact : contacts) {
+      if (contact.isDeleted()) {
+        continue;
+      }
+      List<OrgUnit> secondaryOrgUnits = new ArrayList<OrgUnit>();
+      if (orgUnitIdsByContactId.get(contact.getId()) != null) {
+        for (Integer orgUnitId : orgUnitIdsByContactId.get(contact.getId())) {
+          OrgUnit orgUnit = orgUnitsById.get(orgUnitId);
+          if (orgUnit != null) {
+            secondaryOrgUnits.add(orgUnit);
+          }
+        }
+      }
+      contact.setSecondaryOrgUnits(secondaryOrgUnits);
+
+      contactDTOs.add(mapper().map(contact, new ContactDTO()));
     }
 
     // FIXME: Add ContactDTO.Mode.MAIN_INFORMATION when dozer 5.5.2 will be ready

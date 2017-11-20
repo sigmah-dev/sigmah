@@ -51,7 +51,7 @@ public class GetImportationSchemeModelsHandler extends AbstractCommandHandler<Ge
 
 		final TypedQuery<ImportationSchemeModel> query;
 
-		if (cmd.getImportationSchemeId() == null && cmd.getProjectModelId() == null && cmd.getOrgUnitModelId() == null) {
+		if (cmd.getImportationSchemeId() == null && cmd.getProjectModelId() == null && cmd.getOrgUnitModelId() == null && cmd.getContactModelId() == null) {
 			query = em().createQuery("FROM ImportationSchemeModel", ImportationSchemeModel.class);
 
 		} else {
@@ -64,6 +64,8 @@ public class GetImportationSchemeModelsHandler extends AbstractCommandHandler<Ge
 				builder.append(" sm.projectModel.id = ").append(cmd.getProjectModelId());
 			} else if (cmd.getOrgUnitModelId() != null) {
 				builder.append(" sm.orgUnitModel.id = ").append(cmd.getOrgUnitModelId());
+			} else if (cmd.getContactModelId() != null) {
+				builder.append(" sm.contactModel.id = ").append(cmd.getContactModelId());
 			}
             
             builder.append(" and sm.importationScheme.dateDeleted is null "

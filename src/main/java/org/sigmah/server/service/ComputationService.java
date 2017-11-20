@@ -97,12 +97,11 @@ public class ComputationService extends EntityManagerProvider {
 		return null;
 	}
 	
-	public ComputedValue computeValueForProject(final ComputationElement computationElement, final Project project) {
-		
-		final Computation computation = Computations.parse(computationElement.getRule(), ServerComputations.getAllElementsFromModel(project.getProjectModel()));
+	public ComputedValue computeValueForProject(final ComputationElement computationElement, final Integer layoutGroupId, final Integer iteration, final Project project) {
+		final Computation computation = Computations.parse(computationElement.getRule(), layoutGroupId, ServerComputations.getAllElementsFromModel(project.getProjectModel()));
 		
 		final Future<String> computedValue = new Future<>();
-		computation.computeValueWithResolver(project.getId(), valueResolver, computedValue.defer());
+		computation.computeValueWithResolver(project.getId(), iteration, valueResolver, computedValue.defer());
 
 		try {
 			return ComputedValues.from(computedValue.getOrThrow());
@@ -124,7 +123,7 @@ public class ComputationService extends EntityManagerProvider {
 	public void updateComputationValueForProject(final ComputationElement computationElement, final Project project, final User user) {
 		
 		try {
-			final ComputedValue value = computeValueForProject(computationElement, project);
+			final ComputedValue value = computeValueForProject(computationElement, null, null, project);
 			valueService.saveValue(value.toString(), computationElement, project.getId(), null, user);
 		} catch (IllegalArgumentException e) {
 			LOGGER.error("An error occured when computing the formula of the element '" + computationElement.getId() + "' for project '" + project.getId() + "'.", e);

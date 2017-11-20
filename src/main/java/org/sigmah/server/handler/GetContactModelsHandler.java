@@ -47,6 +47,9 @@ public class GetContactModelsHandler extends AbstractCommandHandler<GetContactMo
     Integer organizationId = context.getUser().getOrganization().getId();
     List<ContactModel> contactModels = contactModelDAO.findByOrganizationAndTypeAndIds(organizationId,
         command.getType(), command.getAllowedIds(), command.isOnlyAvailable());
+    if (command.isWithLayout()) {
+      return new ListResult<>(mapper().mapCollection(contactModels, ContactModelDTO.class));
+    }
     return new ListResult<>(mapper().mapCollection(contactModels, ContactModelDTO.class, ContactModelDTO.Mode.WITHOUT_LAYOUTS));
   }
 }

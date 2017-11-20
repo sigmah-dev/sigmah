@@ -443,3 +443,6 @@ ul.x-tab-strip {
 .contact-details-container .x-box-inner {
   overflow: auto !important;
 }
+.contact-refresh-button button {
+  font-weight: bold;
+}

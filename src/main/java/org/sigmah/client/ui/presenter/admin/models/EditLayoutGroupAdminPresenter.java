@@ -25,6 +25,7 @@ package org.sigmah.client.ui.presenter.admin.models;
 import java.util.HashMap;
 import java.util.Map;
 
+import com.extjs.gxt.ui.client.event.FieldEvent;
 import com.extjs.gxt.ui.client.widget.form.CheckBox;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.event.UpdateEvent;
@@ -95,6 +96,9 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		SimpleComboBox<Integer> getRowField();
 
 		CheckBox getHasIterationsField();
+
+		Field<String> getIterationTypeField();
+
 		Button getSaveButton();
 
 		Button getDeleteButton();
@@ -171,6 +175,17 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 				onDelete();
 			}
 		});
+
+		// --
+		// HasIterations checkbox listener.
+		// --
+		view.getHasIterationsField().addListener(Events.Change, new Listener<FieldEvent>() {
+			@Override
+			public void handleEvent(FieldEvent event) {
+				view.getIterationTypeField().setEnabled((Boolean) event.getValue());
+			}
+		});
+
 	}
 
 	/**
@@ -210,14 +225,28 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		// --
 
 //		view.getDeleteButton().setVisible(flexibleElement != null);
-		
+
+		view.getHasIterationsField().enable();
+
 		if (flexibleElement != null) {
 			layoutGroup = flexibleElement.getGroup();
+
+			// if we're editing a group of a flexible element in maintenance we cannot change iterative status
+			if (currentModel.isUnderMaintenance()) {
+				view.getHasIterationsField().disable();
+			}
 
 			view.getNameField().setValue(layoutGroup.getTitle());
 			view.getContainerField().setValue(flexibleElement.getContainerModel());
 			setRowFieldValues(flexibleElement.getContainerModel(), layoutGroup.getRow());
 			view.getHasIterationsField().setValue(layoutGroup.getHasIterations());
+			view.getIterationTypeField().setValue(layoutGroup.getIterationType());
+
+			// --
+			// Dis/en-able iteration type input
+			// --
+			view.getIterationTypeField().setEnabled(layoutGroup.getHasIterations());
+
 		} else {
 			layoutGroup = null;
 		}
@@ -311,6 +340,7 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		final Integer row = view.getRowField().getSimpleValue();
 		final Integer column = 0;
 		final Boolean hasIterations = view.getHasIterationsField().getValue();
+		final String iterationType = view.getIterationTypeField().getValue();
 		final LayoutDTO container = getLayout(view.getContainerField().getValue());
 
   	// iterative groups cannot contain default fields nor core fields
@@ -334,6 +364,8 @@ public class EditLayoutGroupAdminPresenter extends AbstractPagePresenter<EditLay
 		layoutGroupDTO.setColumn(column);
 		layoutGroupDTO.setHasIterations(hasIterations);
 		layoutGroupDTO.setParentLayout(container);
+		// Force null value for iterationType if not hasIterations
+		layoutGroupDTO.setIterationType(hasIterations ? iterationType : null);
 
 		final Map<String, Object> newGroupProperties = new HashMap<String, Object>();
 		newGroupProperties.put(AdminUtil.PROP_NEW_GROUP_LAYOUT, layoutGroupDTO);

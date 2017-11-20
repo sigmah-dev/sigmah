@@ -268,8 +268,8 @@ public class Realizer {
 			} else {
 				elements = Collections.<FlexibleElementDTO>emptyList();
 			}
-			
-			destinationValue = Computations.formatRuleForEdition(((ComputationElement) source).getRule(), elements);
+			FlexibleElementDTO flexibleElementDTO = ServerComputations.getElementWithCodeInModel(((ComputationElement) source).getCode(), (ProjectModel) parent);
+			destinationValue = Computations.formatRuleForEdition(((ComputationElement) source).getRule(), flexibleElementDTO.getGroup().getId(), elements);
 
 		} else {
 			destinationValue = realize(sourceValue, alreadyRealizedObjects, ignoredFields, ignores, parent);

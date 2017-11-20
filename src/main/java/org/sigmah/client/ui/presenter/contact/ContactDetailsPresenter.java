@@ -241,7 +241,7 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
 
           for(final LayoutGroupIterationDTO iteration : result.getList()) {
 
-            final IterableGroupItem tab = new IterableGroupItem(tabPanel, iteration.getId(), iteration.getName());
+            final IterableGroupItem tab = new IterableGroupItem(tabPanel, iteration.getId(), iteration.getName(), groupLayout.getIterationType());
             tabPanel.addIterationTab(tab);
 
             Layout tabLayout = Layouts.fitLayout();
@@ -518,7 +518,8 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
           // --
 
           // Adds a value change handler if this element is a dependency of a ComputationElementDTO.
-          computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges);
+          Integer iterationId = tabItem == null ? null : tabItem.getIterationId();
+          computationTriggerManager.listenToValueChangesOfElement(elementDTO, elementComponent, valueChanges, iterationId);
 
           // Adds a value change handler to this element.
           elementDTO.addValueHandler(new ValueHandler() {

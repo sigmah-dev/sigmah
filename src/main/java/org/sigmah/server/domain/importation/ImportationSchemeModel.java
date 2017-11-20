@@ -43,6 +43,7 @@ import javax.validation.constraints.NotNull;
 
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.hibernate.annotations.Filter;
+import org.sigmah.server.domain.ContactModel;
 import org.sigmah.server.domain.OrgUnitModel;
 import org.sigmah.server.domain.ProjectModel;
 import org.sigmah.server.domain.base.AbstractEntityId;
@@ -94,6 +95,10 @@ public class ImportationSchemeModel extends AbstractEntityId<Integer> implements
 	@ManyToOne
 	@JoinColumn(name = EntityConstants.ORG_UNIT_MODEL_COLUMN_ID, updatable = false)
 	private OrgUnitModel orgUnitModel;
+
+	@ManyToOne
+	@JoinColumn(name = EntityConstants.CONTACT_MODEL_COLUMN_ID, updatable = false)
+	private ContactModel contactModel;
 
 	@OneToMany(mappedBy = "importationSchemeModel", cascade = CascadeType.ALL)
 	@Filter(name = EntityFilters.HIDE_DELETED, condition = EntityFilters.IMPORTATION_SCHEME_MODEL_HIDE_DELETED_CONDITION)
@@ -168,6 +173,14 @@ public class ImportationSchemeModel extends AbstractEntityId<Integer> implements
 	 */
 	public void setOrgUnitModel(OrgUnitModel orgUnitModel) {
 		this.orgUnitModel = orgUnitModel;
+	}
+
+	public ContactModel getContactModel() {
+		return contactModel;
+	}
+
+	public void setContactModel(ContactModel contactModel) {
+		this.contactModel = contactModel;
 	}
 
 	public List<VariableFlexibleElement> getVariableFlexibleElements() {

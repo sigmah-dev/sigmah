@@ -238,12 +238,13 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 			view.getOrgUnitsTreeGrid().getDisplayOnlyMainOrgUnitCheckbox().setVisible(false);
 		} else {
 			view.getOrgUnitsTreeGrid().getDisplayOnlyMainOrgUnitCheckbox().setValue(true);
+			view.getOrgUnitsTreeGrid().getDisplayOnlyMainOrgUnitCheckbox().setVisible(true);
 			view.getOrgUnitsTreeGrid().getDisplayOnlyMainOrgUnitCheckbox().addListener(Events.Change, new Listener<BaseEvent>() {
 				@Override
 				public void handleEvent(BaseEvent event) {
 					loadReminders();
 					loadMonitoredPoints();
-					loadContacts();
+					loadContacts(true);
 					loadProjects(true);
 					loadOrgUnits();
 				}
@@ -276,7 +277,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 					 view.getContactsList().getView().refreshToolbar();
 					 enableContact = false;
 				 } else {
-					 loadContacts();
+					 loadContacts(true);
 				 }
 				 view.getContactsList().getView().getAddButton().setEnabled(enableContact);
 				 view.getContactsList().getView().getExportButton().setEnabled(enableContact);
@@ -304,7 +305,7 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		loadOrgUnits();
 
 		// Reloads contacts.
-		loadContacts();
+		loadContacts(false);
 
 		// Reloads projects.
 		loadProjects(false);
@@ -525,9 +526,9 @@ public class DashboardPresenter extends AbstractPagePresenter<DashboardPresenter
 		}
 	}
 
-	private void loadContacts() {
+	private void loadContacts(boolean forceRefresh) {
 		if (view.getContactsList() != null) {
-			view.getContactsList().refresh(view.getOrgUnitsTreeGrid().getDisplayOnlyMainOrgUnitCheckbox().getValue());
+			view.getContactsList().refresh(view.getOrgUnitsTreeGrid().getDisplayOnlyMainOrgUnitCheckbox().getValue(), forceRefresh);
 		}
 	}
 

@@ -25,6 +25,7 @@ package org.sigmah.shared.command;
 
 import org.sigmah.shared.command.base.AbstractCommand;
 import org.sigmah.shared.command.result.ListResult;
+import org.sigmah.shared.dto.ContactModelDTO;
 import org.sigmah.shared.dto.IsModel;
 import org.sigmah.shared.dto.OrgUnitModelDTO;
 import org.sigmah.shared.dto.ProjectModelDTO;
@@ -38,6 +39,7 @@ public class GetImportationSchemeModels extends AbstractCommand<ListResult<Impor
 	private Integer importationSchemeId;
 	private Integer projectModelId;
 	private Integer orgUnitModelId;
+	private Integer contactModelId;
 
 	public GetImportationSchemeModels() {
 		// Serialization.
@@ -49,6 +51,8 @@ public class GetImportationSchemeModels extends AbstractCommand<ListResult<Impor
 			
 		} else if(model instanceof OrgUnitModelDTO) {
 			this.orgUnitModelId = model.getId();
+		} else if(model instanceof ContactModelDTO) {
+			this.contactModelId = model.getId();
 		}
 	}
 
@@ -88,6 +92,14 @@ public class GetImportationSchemeModels extends AbstractCommand<ListResult<Impor
 
 	public void setOrgUnitModelId(Integer orgUnitModelId) {
 		this.orgUnitModelId = orgUnitModelId;
+	}
+
+	public Integer getContactModelId() {
+		return contactModelId;
+	}
+
+	public void setContactModelId(Integer contactModelId) {
+		this.contactModelId = contactModelId;
 	}
 
 }
