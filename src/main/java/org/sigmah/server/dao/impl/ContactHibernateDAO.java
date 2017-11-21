@@ -257,7 +257,7 @@ public class ContactHibernateDAO extends AbstractDAO<Contact, Integer> implement
     }
 
     if (allowedModelIds != null && !allowedModelIds.isEmpty()) {
-      andPredicates.add(criteriaBuilder.in(contactModelJoin.get("id").in(allowedModelIds)));
+      andPredicates.add(contactModelJoin.get("id").in(allowedModelIds));
     }
 
     if (allowedType != null) {
