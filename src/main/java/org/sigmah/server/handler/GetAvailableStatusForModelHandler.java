@@ -150,6 +150,10 @@ public class GetAvailableStatusForModelHandler extends AbstractCommandHandler<Ge
 				query = em().createQuery("SELECT COUNT(o) FROM OrgUnit o WHERE o.orgUnitModel.id = :modelId", Number.class);
 				break;
 
+			case ContactModel:
+				query = em().createQuery("SELECT COUNT(c) FROM Contact c WHERE c.contactModel.id = :modelId", Number.class);
+				break;
+
 			default:
 				throw new UnsupportedOperationException("Invalid model type.");
 		}
