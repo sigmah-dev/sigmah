@@ -322,6 +322,18 @@ public final class ServletConstants {
 		EXPORT_CONTACT_GLOBAL("exportContactGlobal"),
 
 		/**
+		 * <p> Global Export Contacts. </p>
+		 * <p>
+		 * Expected request parameter(s):
+		 * <ul>
+		 * <li>{@link RequestParameter#ID} : Container id.</li>
+		 * <li>{@link RequestParameter#ITERATION_ID} : Iteration id.</li>
+		 * <li>{@link RequestParameter#CONTACT_LIST_ID} : ContactList field id.</li>
+		 * </ul>
+		 */
+		EXPORT_CONTACT_LIST("exportContactList"),
+
+		/**
 		 * <p> Model Gategory Export.</p>
 		 * <p>
 		 * Expected request parameter(s):

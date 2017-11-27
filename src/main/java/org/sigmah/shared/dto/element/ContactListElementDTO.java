@@ -21,11 +21,14 @@ package org.sigmah.shared.dto.element;
  * #L%
  */
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.Image;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
@@ -49,14 +52,11 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Image;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.DispatchQueue;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
@@ -64,6 +64,7 @@ import org.sigmah.client.event.OfflineEvent;
 import org.sigmah.client.event.handler.OfflineHandler;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.Page;
+import org.sigmah.client.page.PageManager;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.widget.FlexibleGrid;
@@ -73,6 +74,7 @@ import org.sigmah.client.ui.widget.contact.DedupeContactDialog;
 import org.sigmah.client.ui.widget.form.FormPanel;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.form.ListComboBox;
+import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.profiler.Profiler;
 import org.sigmah.client.util.profiler.Scenario;
 import org.sigmah.offline.status.ApplicationState;
@@ -97,9 +99,9 @@ import org.sigmah.shared.dto.history.HistoryTokenListDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.dto.referential.ValueEventChangeType;
+import org.sigmah.shared.servlet.ServletConstants;
+import org.sigmah.shared.servlet.ServletUrlBuilder;
 import org.sigmah.shared.util.ValueResultUtils;
-
-import com.allen_sauer.gwt.log.client.Log;
 
 public class ContactListElementDTO extends FlexibleElementDTO {
   private static final long serialVersionUID = 646913359144175456L;
@@ -113,6 +115,10 @@ public class ContactListElementDTO extends FlexibleElementDTO {
   public static final String CHECKBOX_ELEMENT = "checkboxElement";
 
   private static final String STYLE_CONTACT_GRID_NAME = "contact-grid-name";
+
+  protected transient PageManager pageManager;
+  protected transient Integer layoutGroupId;
+  protected transient Integer iterationId;
 
   private static class OrgUnitSelectionChangedListener extends SelectionChangedListener<OrgUnitDTO> {
     private final AdapterField secondaryOrgUnitsFieldAdapter;
@@ -294,6 +300,21 @@ public class ContactListElementDTO extends FlexibleElementDTO {
         showContactSelector(store);
       }
     }));
+
+    actionsToolBar.add(Forms.button(I18N.CONSTANTS.exportAll(), IconImageBundle.ICONS.excel(),
+        new SelectionListener<ButtonEvent>() {
+          @Override
+          public void componentSelected(ButtonEvent buttonEvent) {
+            final ServletUrlBuilder urlBuilder = new ServletUrlBuilder(authenticationProvider, pageManager, ServletConstants.Servlet.EXPORT, ServletConstants.ServletMethod.EXPORT_CONTACT_LIST);
+
+            urlBuilder.addParameter(RequestParameter.ID, currentContainerDTO.getId());
+            urlBuilder.addParameter(RequestParameter.LAYOUT_GROUP_ID, layoutGroupId);
+            urlBuilder.addParameter(RequestParameter.ITERATION_ID, iterationId!=null?iterationId:-1);
+            urlBuilder.addParameter(RequestParameter.CONTACT_LIST_ID, getId());
+
+            ClientUtils.launchDownload(urlBuilder.toString());
+          }
+        }));
 
     final Label offlineLabel = new Label(I18N.CONSTANTS.sigmahContactsOfflineUnavailable());
     actionsToolBar.add(offlineLabel);
@@ -709,6 +730,18 @@ public class ContactListElementDTO extends FlexibleElementDTO {
 
   public void setCheckboxElement(CheckboxElementDTO checkboxElement) {
     set(CHECKBOX_ELEMENT, checkboxElement);
+  }
+
+  public void setPageManager(PageManager pageManager) {
+    this.pageManager = pageManager;
+  }
+
+  public void setLayoutGroupId(Integer layoutGroupId) {
+    this.layoutGroupId = layoutGroupId;
+  }
+
+  public void setIterationId(Integer iterationId) {
+    this.iterationId = iterationId;
   }
 
 

@@ -95,6 +95,7 @@ import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.country.CountryDTO;
+import org.sigmah.shared.dto.element.ContactListElementDTO;
 import org.sigmah.shared.dto.element.DefaultContactFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementContainer;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
@@ -426,7 +427,7 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
   }
 
   @Override
-  public FieldSet createGroupLayoutFieldSet(FlexibleElementContainer container, LayoutGroupDTO groupLayout, DispatchQueue queue, final Integer iterationId, final IterableGroupPanel tabPanel, final IterableGroupItem tabItem) {
+  public FieldSet createGroupLayoutFieldSet(FlexibleElementContainer container, final LayoutGroupDTO groupLayout, DispatchQueue queue, final Integer iterationId, final IterableGroupPanel tabPanel, final IterableGroupItem tabItem) {
     final ContactDTO contact = (ContactDTO)container;
 
     // Creates the fieldset and positions it.
@@ -495,6 +496,13 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
             ((DefaultContactFlexibleElementDTO) elementDTO).setFormPanel(formPanel);
           }
           elementDTO.setTabPanel(tabPanel);
+
+          if (elementDTO instanceof ContactListElementDTO) {
+            ContactListElementDTO contactListElement = (ContactListElementDTO)elementDTO;
+            contactListElement.setPageManager(injector.getPageManager());
+            contactListElement.setLayoutGroupId(groupLayout.getId());
+            contactListElement.setIterationId(iterationId);
+          }
 
           // Generates element component (with the value).
           elementDTO.init();

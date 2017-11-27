@@ -28,10 +28,26 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
+import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
+import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.Layout;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.google.gwt.user.client.ui.Grid;
+import com.google.gwt.user.client.ui.Widget;
+import com.google.inject.ImplementedBy;
+import com.google.inject.Inject;
+import com.google.inject.Singleton;
+import org.sigmah.client.computation.ComputationTriggerManager;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.DispatchQueue;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
+import org.sigmah.client.event.UpdateEvent;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.inject.Injector;
 import org.sigmah.client.page.Page;
@@ -46,7 +62,6 @@ import org.sigmah.client.ui.widget.form.IterableGroupPanel.IterableGroupItem;
 import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.profiler.Profiler;
-import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.shared.command.GetLayoutGroupIterations;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.UpdateLayoutGroupIterations;
@@ -58,6 +73,7 @@ import org.sigmah.shared.command.result.VoidResult;
 import org.sigmah.shared.dto.OrgUnitDetailsDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetSubFieldDTO;
+import org.sigmah.shared.dto.element.ContactListElementDTO;
 import org.sigmah.shared.dto.element.DefaultFlexibleElementDTO;
 import org.sigmah.shared.dto.element.FlexibleElementContainer;
 import org.sigmah.shared.dto.element.FlexibleElementDTO;
@@ -76,23 +92,6 @@ import org.sigmah.shared.servlet.ServletConstants.ServletMethod;
 import org.sigmah.shared.servlet.ServletUrlBuilder;
 import org.sigmah.shared.util.ProfileUtils;
 import org.sigmah.shared.util.ValueResultUtils;
-
-import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.Label;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
-import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.google.gwt.user.client.ui.Grid;
-import com.google.gwt.user.client.ui.Widget;
-import com.google.inject.ImplementedBy;
-import com.google.inject.Inject;
-import com.google.inject.Singleton;
-import org.sigmah.client.computation.ComputationTriggerManager;
-import org.sigmah.client.event.UpdateEvent;
 
 /**
  * OrgUnit Details Presenter.
@@ -340,7 +339,7 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 	}
 
 	@Override
-	public FieldSet createGroupLayoutFieldSet(FlexibleElementContainer container, LayoutGroupDTO groupLayout,
+	public FieldSet createGroupLayoutFieldSet(FlexibleElementContainer container, final LayoutGroupDTO groupLayout,
 			DispatchQueue queue, final Integer iterationId, final IterableGroupPanel tabPanel,
 			final IterableGroupItem tabItem) {
 		final OrgUnitDTO orgUnit = (OrgUnitDTO) container;
@@ -375,7 +374,7 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 
 			getValue = new GetValue(orgUnit.getId(), elementDTO.getId(), elementDTO.getEntityName(), null, iterationId);
 
-			queue.add(getValue, new ElementCommandResultHandler(elementDTO, fieldSet, orgUnit, tabPanel, tabItem),
+			queue.add(getValue, new ElementCommandResultHandler(elementDTO, fieldSet, orgUnit, tabPanel, tabItem, groupLayout, iterationId),
 					new LoadingMask(view.getContentOrgUnitDetailsPanel()));
 		}
 
@@ -394,14 +393,19 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 		private OrgUnitDTO orgUnit;
 		private IterableGroupPanel tabPanel;
 		private IterableGroupItem tabItem;
+		private LayoutGroupDTO layoutGroup;
+		private Integer iterationId;
 
 		public ElementCommandResultHandler(FlexibleElementDTO elementDTO, FieldSet fieldSet, OrgUnitDTO orgUnit,
-																			 IterableGroupPanel tabPanel, IterableGroupItem tabItem) {
+																			 IterableGroupPanel tabPanel, IterableGroupItem tabItem,
+																			 LayoutGroupDTO layoutGroup, Integer iterationId) {
 			this.elementDTO = elementDTO;
 			this.fieldSet = fieldSet;
 			this.orgUnit = orgUnit;
 			this.tabPanel = tabPanel;
 			this.tabItem = tabItem;
+			this.layoutGroup = layoutGroup;
+			this.iterationId = iterationId;
 		}
 
 		@Override
@@ -433,6 +437,13 @@ public class OrgUnitDetailsPresenter extends AbstractOrgUnitPresenter<OrgUnitDet
 			elementDTO.setTransfertManager(injector.getTransfertManager());
 			elementDTO.assignValue(valueResult);
 			elementDTO.setTabPanel(tabPanel);
+
+			if (elementDTO instanceof ContactListElementDTO) {
+				ContactListElementDTO contactListElement = (ContactListElementDTO)elementDTO;
+				contactListElement.setPageManager(injector.getPageManager());
+				contactListElement.setLayoutGroupId(layoutGroup.getId());
+				contactListElement.setIterationId(iterationId);
+			}
 
 			// Generates element component (with the value).
 			elementDTO.init();

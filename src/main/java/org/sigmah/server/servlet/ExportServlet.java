@@ -28,12 +28,16 @@ import javax.persistence.EntityManager;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import com.google.inject.Inject;
+import com.google.inject.Injector;
+import com.google.inject.Singleton;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.server.servlet.base.AbstractServlet;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
 import org.sigmah.server.servlet.exporter.ContactSynthesisExporter;
 import org.sigmah.server.servlet.exporter.GlobalContactExportExporter;
 import org.sigmah.server.servlet.exporter.GlobalExportExporter;
+import org.sigmah.server.servlet.exporter.IndicatorEntryExporter;
 import org.sigmah.server.servlet.exporter.LogFrameExporter;
 import org.sigmah.server.servlet.exporter.OrgUnitSynthesisExporter;
 import org.sigmah.server.servlet.exporter.ProjectReportExporter;
@@ -45,14 +49,10 @@ import org.sigmah.server.servlet.exporter.models.ModelHandler;
 import org.sigmah.server.servlet.exporter.models.OrgUnitModelHandler;
 import org.sigmah.server.servlet.exporter.models.ProjectModelHandler;
 import org.sigmah.server.servlet.exporter.models.ProjectReportModelHandler;
+import org.sigmah.server.servlet.exporter.ContactListExporter;
 import org.sigmah.shared.servlet.ServletConstants.ServletMethod;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import com.google.inject.Inject;
-import com.google.inject.Injector;
-import com.google.inject.Singleton;
-import org.sigmah.server.servlet.exporter.IndicatorEntryExporter;
 
 /**
  * File upload and download servlet.
@@ -97,6 +97,23 @@ public class ExportServlet extends AbstractServlet {
 	protected void exportContactGlobal(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context) throws Exception {
 
 		executeExport(new GlobalContactExportExporter(injector, request, context), request, response);
+
+	}
+
+	/**
+	 * See {@link ServletMethod#EXPORT_CONTACT_LIST} for JavaDoc.
+	 *
+	 * @param request
+	 *          The HTTP request containing the file id parameter.
+	 * @param response
+	 *          The HTTP response on which the file content is written.
+	 * @param context
+	 *          The execution context.
+	 * @throws Exception
+	 */
+	protected void exportContactList(final HttpServletRequest request, final HttpServletResponse response, final ServletExecutionContext context) throws Exception {
+
+		executeExport(new ContactListExporter(injector, request, context), request, response);
 
 	}
 
