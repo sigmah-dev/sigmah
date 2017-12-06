@@ -46,7 +46,6 @@ import org.sigmah.shared.dto.ContactDTO;
 public class ContactListImportResultPopup extends PopupWidget {
 
 	private Grid<ContactDTO> grid;
-	private Button closeButton;
 
 	public ContactListImportResultPopup() {
 		super(true, Layouts.fitLayout());
@@ -70,7 +69,7 @@ public class ContactListImportResultPopup extends PopupWidget {
 		grid = new Grid<ContactDTO>(new ListStore<ContactDTO>(), createColumnModel());
 		
 		// Creating the OK button.
-		closeButton = Forms.button(I18N.CONSTANTS.ok(), new SelectionListener<ButtonEvent>() {
+		Button closeButton = Forms.button(I18N.CONSTANTS.ok(), new SelectionListener<ButtonEvent>() {
       @Override
       public void componentSelected(ButtonEvent buttonEvent) {
         hide();

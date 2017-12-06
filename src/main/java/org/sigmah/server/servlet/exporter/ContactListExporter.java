@@ -37,7 +37,6 @@ import org.odftoolkit.simple.SpreadsheetDocument;
 import org.sigmah.client.page.RequestParameter;
 import org.sigmah.server.servlet.base.ServletExecutionContext;
 import org.sigmah.server.servlet.exporter.base.Exporter;
-import org.sigmah.server.servlet.exporter.data.ProjectSynthesisData;
 import org.sigmah.server.servlet.exporter.template.ExportTemplate;
 import org.sigmah.server.servlet.exporter.utils.ContactsSynthesisCalcTemplate;
 import org.sigmah.server.servlet.exporter.utils.ContactsSynthesisExcelTemplate;

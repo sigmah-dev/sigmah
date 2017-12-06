@@ -61,7 +61,6 @@ import org.sigmah.client.ui.widget.form.IterableGroupPanel.IterableGroupItem;
 import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.profiler.Profiler;
-import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.shared.command.GetLayoutGroupIterations;
 import org.sigmah.shared.command.GetOrgUnit;
 import org.sigmah.shared.command.GetValue;
