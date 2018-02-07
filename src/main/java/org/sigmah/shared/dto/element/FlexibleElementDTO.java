@@ -517,8 +517,8 @@ public abstract class FlexibleElementDTO extends AbstractModelDataEntityDTO<Inte
 	}
 
 	protected boolean userCanPerformChangeTypeOnContact(ValueEventChangeType changeType, ContactDTO contact) {
-		// TODO: Verify the future permission EDIT_CONTACT
-		return !contact.getContactModel().isUnderMaintenance();
+		return !contact.getContactModel().isUnderMaintenance() &&
+			ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_VISIBLE_CONTACTS);
 	}
 
 	/**
