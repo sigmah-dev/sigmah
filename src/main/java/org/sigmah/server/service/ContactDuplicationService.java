@@ -61,10 +61,10 @@ public class ContactDuplicationService {
       for (LayoutConstraint layoutConstraint : group.getConstraints()) {
         FlexibleElement element = layoutConstraint.getElement();
 
-        String serializedNewValue;
-        String serializedOldValue;
-        String formattedNewValue;
-        String formattedOldValue;
+        String serializedNewValue = null;
+        String serializedOldValue = null;
+        String formattedNewValue = null;
+        String formattedOldValue = null;
         ContactDuplicatedProperty.ValueType valueType = ContactDuplicatedProperty.ValueType.STRING;
 
         if (element instanceof DefaultContactFlexibleElement) {
@@ -80,10 +80,14 @@ public class ContactDuplicationService {
           Value newValue = valueDAO.getValueByElementAndContainer(element.getId(), newContact.getId());
           Value oldValue = valueDAO.getValueByElementAndContainer(element.getId(), oldContact.getId());
 
-          serializedNewValue = newValue.getValue();
-          serializedOldValue = oldValue.getValue();
-          formattedNewValue = modelPropertyService.getFormattedValue(element, newValue.getValue(), language);
-          formattedOldValue = modelPropertyService.getFormattedValue(element, oldValue.getValue(), language);
+          if (newValue != null) {
+            serializedNewValue = newValue.getValue();
+            formattedNewValue = modelPropertyService.getFormattedValue(element, newValue.getValue(), language);
+          }
+          if (oldValue != null) {
+            serializedOldValue = oldValue.getValue();
+            formattedOldValue = modelPropertyService.getFormattedValue(element, oldValue.getValue(), language);
+          }
         }
 
         if (serializedOldValue != null && serializedOldValue.isEmpty()) {

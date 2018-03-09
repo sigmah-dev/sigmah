@@ -955,9 +955,11 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 		elementDTO.setGroup(groupLayout);
 
 		elementDTO.setConstraint(constraintDTO);
+		// If layout group is related to the current phase (#1115), adds the element to the tmp list for sorting
+		if(getCurrentDisplayedPhase().getPhaseModel().getLayout().getGroups().contains(groupLayout)) {
+			requiredElementsSet.add(elementDTO);
+		}
 
-		// Adds the element to the tmp list for sorting
-		requiredElementsSet.add(elementDTO);
 
 		// Clear the store
 		view.getGridRequiredElements().getStore().removeAll();

@@ -357,6 +357,8 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
         });
       }
     });
+    view.getSaveButton().setEnabled(canEditContact());
+    view.getSaveButton().setVisible(canEditContact());
 
     view.getDeleteButton().removeAllListeners();
     view.getDeleteButton().addSelectionListener(new SelectionListener<ButtonEvent>() {
@@ -828,6 +830,15 @@ public class ContactDetailsPresenter extends AbstractPresenter<ContactDetailsPre
    */
   private boolean canDeleteContact() {
     return ProfileUtils.isGranted(auth(), GlobalPermissionEnum.DELETE_VISIBLE_CONTACTS);
+  }
+
+  /**
+   * Returns if the current authenticated user is authorized to edit a contact.
+   *
+   * @return {@code true} if the current authenticated user is authorized to edit a contact.
+   */
+  private boolean canEditContact() {
+    return ProfileUtils.isGranted(auth(), GlobalPermissionEnum.EDIT_VISIBLE_CONTACTS);
   }
 
   /**
