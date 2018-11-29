@@ -1,3 +1,8 @@
+Maintenance discontinued
+====
+*Note:* Sigmah maintenance from Groupe URD and its partners is now discontinued. If you want to access the archives of the technical documentation of the project, please visit http://sigmah-dev.github.io/ .
+
+
 [![Build Status](https://travis-ci.org/sigmah-dev/sigmah.svg?branch=master)](https://travis-ci.org/sigmah-dev/sigmah)
 
 Sigmah
