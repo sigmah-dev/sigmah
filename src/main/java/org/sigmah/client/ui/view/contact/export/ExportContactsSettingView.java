@@ -54,6 +54,7 @@ import com.google.gwt.event.dom.client.ClickEvent;
 import com.google.gwt.event.dom.client.ClickHandler;
 import com.google.gwt.user.client.ui.FlexTable;
 import com.google.gwt.user.client.ui.HasVerticalAlignment;
+import com.google.gwt.user.client.ui.ScrollPanel;
 import com.google.inject.Singleton;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.ui.presenter.contact.export.ExportContactsSettingPresenter;
@@ -94,6 +95,7 @@ public class ExportContactsSettingView extends AbstractPopupView<PopupWidget> im
 	private ComboBox<SimpleComboBoxData> exportMonthlySchedulesBox;
 	private ListStore<SimpleComboBoxData> exportWeeklyScheduleStore;
 	private ComboBox<SimpleComboBoxData> exportWeeklySchedulesBox;
+	private ScrollPanel scrollPanel;
 
 	public ExportContactsSettingView() {
 		super(new PopupWidget(true), 550);
@@ -163,8 +165,13 @@ public class ExportContactsSettingView extends AbstractPopupView<PopupWidget> im
 
 		fieldsTable.getFlexCellFormatter().setVerticalAlignment(0, 0, HasVerticalAlignment.ALIGN_TOP);
 
+		scrollPanel = new ScrollPanel();
+		scrollPanel.setSize("100%", "240px");
+		scrollPanel.add( elementsGrid );
+		scrollPanel.setAlwaysShowScrollBars(true);
+
 		fieldsTable.setWidget(0, 1, pModelsGrid);
-		fieldsTable.setWidget(0, 2, elementsGrid);
+		fieldsTable.setWidget(0, 2, scrollPanel );
 		fieldsTable.getFlexCellFormatter().setVerticalAlignment(0, 1, HasVerticalAlignment.ALIGN_TOP);
 		fieldsTable.getFlexCellFormatter().setVerticalAlignment(0, 2, HasVerticalAlignment.ALIGN_TOP);
 		panel.add(fieldsTable);
