@@ -187,6 +187,19 @@ public class UsersAdminView extends AbstractView implements UsersAdminPresenter.
 
 		add(mainContainer);
 	}
+    
+    /**
+     * Update users panel title with latest active users count
+     */
+    public void updateUsersPanelTitle() {
+        int activeUsersCount = 0;
+        for(int i=0; i<usersGrid.getStore().getCount(); i++ ) {            
+            if (usersGrid.getStore().getAt(i).getActive())
+                activeUsersCount++;
+        }
+        this.usersListPanel.setHeadingText(I18N.CONSTANTS.adminUsersPanel()
+                + " (" + activeUsersCount + " " + I18N.CONSTANTS.adminUsersActiveUsers() + ")");
+    }
 
 	/**
 	 * {@inheritDoc}
