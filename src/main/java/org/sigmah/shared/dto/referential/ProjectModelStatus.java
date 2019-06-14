@@ -122,7 +122,7 @@ public enum ProjectModelStatus implements Result {
 	 */
 	public static Pair<Boolean, String> isValidStatusChange(final ProjectModelStatus currentStatus, final ProjectModelStatus targetStatus) {
 
-		if (currentStatus == ProjectModelStatus.DRAFT && targetStatus != ProjectModelStatus.READY) {
+		if (currentStatus == ProjectModelStatus.DRAFT && targetStatus != ProjectModelStatus.READY && targetStatus != ProjectModelStatus.USED) {
 			// "DRAFT" status is only allowed to shift to "READY" status.
 			return new Pair<Boolean, String>(false, I18N.CONSTANTS.draftModelStatusChangeError());
 
