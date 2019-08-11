@@ -33,7 +33,32 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import com.allen_sauer.gwt.log.client.Log;
+import com.extjs.gxt.ui.client.event.BaseEvent;
+import com.extjs.gxt.ui.client.event.BoxComponentEvent;
+import com.extjs.gxt.ui.client.event.ButtonEvent;
+import com.extjs.gxt.ui.client.event.ComponentEvent;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.Listener;
+import com.extjs.gxt.ui.client.event.MenuEvent;
+import com.extjs.gxt.ui.client.event.SelectionListener;
+import com.extjs.gxt.ui.client.store.ListStore;
+import com.extjs.gxt.ui.client.widget.Component;
+import com.extjs.gxt.ui.client.widget.ContentPanel;
 import com.extjs.gxt.ui.client.widget.Layout;
+import com.extjs.gxt.ui.client.widget.LayoutContainer;
+import com.extjs.gxt.ui.client.widget.TabItem;
+import com.extjs.gxt.ui.client.widget.TabPanel;
+import com.extjs.gxt.ui.client.widget.form.FieldSet;
+import com.extjs.gxt.ui.client.widget.layout.FitLayout;
+import com.extjs.gxt.ui.client.widget.layout.FormData;
+import com.extjs.gxt.ui.client.widget.menu.Menu;
+import com.extjs.gxt.ui.client.widget.menu.MenuItem;
+import com.google.gwt.user.client.Window;
+import com.google.gwt.user.client.ui.Grid;
+import com.google.inject.ImplementedBy;
+import com.google.inject.Inject;
+import org.sigmah.client.computation.ComputationTriggerManager;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.DispatchQueue;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
@@ -43,15 +68,19 @@ import org.sigmah.client.inject.Injector;
 import org.sigmah.client.ui.notif.ConfirmCallback;
 import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.presenter.base.AbstractPresenter;
+import org.sigmah.client.ui.presenter.project.ProjectPresenter;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
 import org.sigmah.client.ui.view.base.ViewInterface;
 import org.sigmah.client.ui.view.project.dashboard.PhasesView;
+import org.sigmah.client.ui.widget.Loadable;
 import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.form.IterableGroupPanel;
 import org.sigmah.client.ui.widget.form.IterableGroupPanel.IterableGroupItem;
 import org.sigmah.client.ui.widget.layout.Layouts;
 import org.sigmah.client.util.ClientUtils;
+import org.sigmah.client.util.profiler.Profiler;
+import org.sigmah.client.util.profiler.Scenario;
 import org.sigmah.shared.command.ChangePhase;
 import org.sigmah.shared.command.GetLayoutGroupIterations;
 import org.sigmah.shared.command.GetValue;
@@ -61,6 +90,7 @@ import org.sigmah.shared.command.UpdateProject;
 import org.sigmah.shared.command.result.ListResult;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.command.result.VoidResult;
+import org.sigmah.shared.dispatch.FunctionalException;
 import org.sigmah.shared.dto.PhaseDTO;
 import org.sigmah.shared.dto.PhaseModelDTO;
 import org.sigmah.shared.dto.ProjectDTO;
@@ -83,38 +113,6 @@ import org.sigmah.shared.dto.layout.LayoutGroupIterationDTO;
 import org.sigmah.shared.dto.referential.GlobalPermissionEnum;
 import org.sigmah.shared.util.ProfileUtils;
 import org.sigmah.shared.util.ValueResultUtils;
-
-import com.allen_sauer.gwt.log.client.Log;
-import com.extjs.gxt.ui.client.event.BaseEvent;
-import com.extjs.gxt.ui.client.event.BoxComponentEvent;
-import com.extjs.gxt.ui.client.event.ButtonEvent;
-import com.extjs.gxt.ui.client.event.ComponentEvent;
-import com.extjs.gxt.ui.client.event.Events;
-import com.extjs.gxt.ui.client.event.Listener;
-import com.extjs.gxt.ui.client.event.MenuEvent;
-import com.extjs.gxt.ui.client.event.SelectionListener;
-import com.extjs.gxt.ui.client.store.ListStore;
-import com.extjs.gxt.ui.client.widget.Component;
-import com.extjs.gxt.ui.client.widget.ContentPanel;
-import com.extjs.gxt.ui.client.widget.LayoutContainer;
-import com.extjs.gxt.ui.client.widget.TabItem;
-import com.extjs.gxt.ui.client.widget.TabPanel;
-import com.extjs.gxt.ui.client.widget.form.FieldSet;
-import com.extjs.gxt.ui.client.widget.layout.FitLayout;
-import com.extjs.gxt.ui.client.widget.layout.FormData;
-import com.extjs.gxt.ui.client.widget.menu.Menu;
-import com.extjs.gxt.ui.client.widget.menu.MenuItem;
-import com.google.gwt.user.client.Window;
-import com.google.gwt.user.client.ui.Grid;
-import com.google.inject.ImplementedBy;
-import com.google.inject.Inject;
-import org.sigmah.client.computation.ComputationTriggerManager;
-import org.sigmah.client.ui.presenter.project.ProjectPresenter;
-import org.sigmah.client.ui.widget.Loadable;
-import org.sigmah.client.util.profiler.Profiler;
-import org.sigmah.client.util.profiler.Scenario;
-import org.sigmah.offline.status.ApplicationState;
-import org.sigmah.shared.dispatch.FunctionalException;
 
 /**
  * Phases presenter.
@@ -818,6 +816,13 @@ public class PhasesPresenter extends AbstractPresenter<PhasesPresenter.View> imp
 			elementDTO.setTransfertManager(injector.getTransfertManager());
 			elementDTO.assignValue(valueResult);
 			elementDTO.setTabPanel(tabPanel);
+
+			if (elementDTO instanceof ContactListElementDTO) {
+				ContactListElementDTO contactListElement = (ContactListElementDTO)elementDTO;
+				contactListElement.setPageManager(injector.getPageManager());
+				contactListElement.setLayoutGroupId(groupLayout.getId());
+				contactListElement.setIterationId(iterationId);
+			}
 
 			final ProjectPresenter projectPresenter = injector.getProjectPresenter();
 

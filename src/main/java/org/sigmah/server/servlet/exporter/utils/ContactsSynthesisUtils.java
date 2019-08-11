@@ -125,6 +125,33 @@ public class ContactsSynthesisUtils {
 		return sheets;
 	}
 
+  /**
+   * only used for direct contact list export
+   */
+  public static List<ContactSheetData> createContactListData(final Integer projectId, final Integer layoutGroupId,
+      final Integer contactListId, final Integer iterationId,
+      final Exporter exporter, final I18nServer i18nTranslator,
+      final Language language) throws Throwable {
+
+    final List<ContactSheetData> sheets = new ArrayList<>();
+
+    final ProjectDTO project = exporter.execute(new GetProject(projectId, null));
+
+    for (LayoutGroupDTO layoutGroup : project.getProjectModel().getProjectDetails().getLayout().getGroups()) {
+
+      if (layoutGroup.getId().equals(layoutGroupId)) {
+        for (LayoutConstraintDTO constraint : layoutGroup.getConstraints()) {
+          if (constraint.getFlexibleElementDTO().getId().equals(contactListId) && constraint.getFlexibleElementDTO() instanceof ContactListElementDTO) {
+            sheets.add(createContactListSimpleTab(projectId, layoutGroup, (ContactListElementDTO)constraint.getFlexibleElementDTO(),
+                iterationId, exporter, i18nTranslator, language, false));
+          }
+        }
+      }
+    }
+
+    return sheets;
+  }
+
 	public static ContactSheetData createContactListTab(final Integer projectId, final LayoutGroupDTO layoutGroup,
 																					final ContactListElementDTO contactListElement, final Exporter exporter,
 																					final I18nServer i18nTranslator, final Language language) throws Throwable  {
@@ -132,7 +159,7 @@ public class ContactsSynthesisUtils {
 		if (layoutGroup.getHasIterations()) {
 			return createContactListTabWithIterations(projectId, layoutGroup, contactListElement, exporter, i18nTranslator, language);
 		} else {
-			return createContactListSimpleTab(projectId, layoutGroup, contactListElement, exporter, i18nTranslator, language);
+			return createContactListSimpleTab(projectId, layoutGroup, contactListElement, -1, exporter, i18nTranslator, language, true);
 		}
 	}
 
@@ -166,7 +193,7 @@ public class ContactsSynthesisUtils {
 				try {
 					ValueResult iterationValueResult = exporter.execute(new GetValue(projectId, element.getId(), element.getEntityName(), null, iteration.getId()));
 
-					if (element == contactListElement) {
+					if (element.equals(contactListElement)) {
 						Set<Integer> contactIds = new HashSet(ValueResultUtils.splitValuesAsInteger(iterationValueResult.getValueObject()));
 						if (!contactIds.isEmpty()) {
 							contacts = exporter.execute(new GetContacts(contactIds)).getList();
@@ -175,7 +202,7 @@ public class ContactsSynthesisUtils {
 						if (isFirst) {
 							iterationHeaders.add(new ExportStringCell(ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language)));
 						}
-						iterationValues.add(valueResultToDataCell(element, iterationValueResult, i18nTranslator, language));
+						iterationValues.add(valueResultToDataCell(element, iterationValueResult, i18nTranslator, language, true, exporter));
 					}
 				} catch(Exception e) {
 					// no value found in database : empty cells
@@ -226,32 +253,29 @@ public class ContactsSynthesisUtils {
 	}
 
 	public static ContactSheetData createContactListSimpleTab(final Integer projectId, final LayoutGroupDTO layoutGroup,
-																												final ContactListElementDTO contactListElement, final Exporter exporter,
-																												final I18nServer i18nTranslator, final Language language) throws Throwable {
+			final ContactListElementDTO contactListElement, final Integer iterationId,
+			final Exporter exporter, final I18nServer i18nTranslator,
+			final Language language, final boolean withLinks) throws Throwable {
 
 		ContactSheetData result = new ContactSheetData(contactListElement.getLabel());
 
 		boolean isFirst = true;
 
-		List<ExportDataCell> iterationHeaders = new ArrayList<>();
 		List<ExportDataCell> values = new ArrayList<>();
 		List<ContactDTO> contacts = null;
 
 		for (LayoutConstraintDTO constraint : layoutGroup.getConstraints()) {
 			FlexibleElementDTO element = constraint.getFlexibleElementDTO();
 
-			ValueResult valueResult = exporter.execute(new GetValue(projectId, element.getId(), "element." + element.getClass().getSimpleName(), null, null));
+			ValueResult valueResult = exporter.execute(new GetValue(projectId, element.getId(), "element." + element.getClass().getSimpleName(), null, iterationId));
 
-			if (element == contactListElement) {
+			if (element.equals(contactListElement)) {
 				Set<Integer> contactIds = new HashSet(ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject()));
 				if (!contactIds.isEmpty()) {
 					contacts = exporter.execute(new GetContacts(contactIds)).getList();
 				}
 			} else {
-				if (isFirst) {
-					iterationHeaders.add(new ExportStringCell(ExporterUtil.getFlexibleElementLabel(element, i18nTranslator, language)));
-				}
-				values.add(valueResultToDataCell(element, valueResult, i18nTranslator, language));
+				values.add(valueResultToDataCell(element, valueResult, i18nTranslator, language, withLinks, exporter));
 			}
 		}
 
@@ -285,8 +309,6 @@ public class ContactsSynthesisUtils {
 
 			isFirst = false;
 		}
-
-		result.addHeaders(iterationHeaders);
 
 		return result;
 	}
@@ -428,7 +450,8 @@ public class ContactsSynthesisUtils {
 	}
 
 	private static ExportDataCell valueResultToDataCell(final FlexibleElementDTO element, final ValueResult valueResult,
-																											final I18nServer i18nTranslator, final Language language) {
+																											final I18nServer i18nTranslator, final Language language,
+																											final boolean withLinks, final Exporter exporter) {
 		ExportDataCell val = null;
 
 		String elementName = element.getEntityName();
@@ -443,7 +466,11 @@ public class ContactsSynthesisUtils {
 		} else /* CHOICE */if (elementName.equals("element.QuestionElement")) {
 			val = new ExportStringCell(getChoiceValue(valueResult, (QuestionElementDTO) element));
 		} else /* CONTACT_LIST */if (elementName.equals("element.ContactListElement")) {
-			val = new ExportLinkCell(String.valueOf(ExporterUtil.getContactListCount(valueResult)), ExportConstants.CONTACT_SHEET_PREFIX + element.getLabel());
+			if (withLinks) {
+				val = new ExportLinkCell(String.valueOf(ExporterUtil.getContactListCount(valueResult)), ExportConstants.CONTACT_SHEET_PREFIX + element.getLabel());
+			} else {
+				val = new ExportStringCell(ExporterUtil.getContactListFormatedValue(valueResult, exporter));
+			}
 		}
 
 		return val;

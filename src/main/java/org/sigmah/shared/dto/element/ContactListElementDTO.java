@@ -21,14 +21,21 @@ package org.sigmah.shared.dto.element;
  * #L%
  */
 
-import com.google.gwt.event.dom.client.ClickEvent;
-import com.google.gwt.event.dom.client.ClickHandler;
-import com.google.gwt.user.client.rpc.AsyncCallback;
-import com.google.gwt.user.client.ui.Anchor;
-import com.google.gwt.user.client.ui.Image;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+
+import com.allen_sauer.gwt.log.client.Log;
 import com.extjs.gxt.ui.client.Style.HorizontalAlignment;
+import com.extjs.gxt.ui.client.data.BaseModelData;
+import com.extjs.gxt.ui.client.event.BaseEvent;
 import com.extjs.gxt.ui.client.event.ButtonEvent;
 import com.extjs.gxt.ui.client.event.EventType;
+import com.extjs.gxt.ui.client.event.Events;
+import com.extjs.gxt.ui.client.event.FormEvent;
 import com.extjs.gxt.ui.client.event.Listener;
 import com.extjs.gxt.ui.client.event.SelectionChangedEvent;
 import com.extjs.gxt.ui.client.event.SelectionChangedListener;
@@ -42,6 +49,8 @@ import com.extjs.gxt.ui.client.widget.Label;
 import com.extjs.gxt.ui.client.widget.Window;
 import com.extjs.gxt.ui.client.widget.form.AdapterField;
 import com.extjs.gxt.ui.client.widget.form.ComboBox;
+import com.extjs.gxt.ui.client.widget.form.FileUploadField;
+import com.extjs.gxt.ui.client.widget.form.FormPanel;
 import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.extjs.gxt.ui.client.widget.grid.ColumnConfig;
 import com.extjs.gxt.ui.client.widget.grid.ColumnData;
@@ -49,14 +58,12 @@ import com.extjs.gxt.ui.client.widget.grid.Grid;
 import com.extjs.gxt.ui.client.widget.grid.GridCellRenderer;
 import com.extjs.gxt.ui.client.widget.layout.FitLayout;
 import com.extjs.gxt.ui.client.widget.toolbar.ToolBar;
-
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
-
+import com.google.gwt.event.dom.client.ClickEvent;
+import com.google.gwt.event.dom.client.ClickHandler;
+import com.google.gwt.http.client.Response;
+import com.google.gwt.user.client.rpc.AsyncCallback;
+import com.google.gwt.user.client.ui.Anchor;
+import com.google.gwt.user.client.ui.Image;
 import org.sigmah.client.dispatch.CommandResultHandler;
 import org.sigmah.client.dispatch.DispatchQueue;
 import org.sigmah.client.dispatch.monitor.LoadingMask;
@@ -64,23 +71,30 @@ import org.sigmah.client.event.OfflineEvent;
 import org.sigmah.client.event.handler.OfflineHandler;
 import org.sigmah.client.i18n.I18N;
 import org.sigmah.client.page.Page;
+import org.sigmah.client.page.PageManager;
 import org.sigmah.client.page.RequestParameter;
+import org.sigmah.client.ui.notif.N10N;
 import org.sigmah.client.ui.res.icon.IconImageBundle;
+import org.sigmah.client.ui.view.importation.ContactListImportResultPopup;
 import org.sigmah.client.ui.widget.FlexibleGrid;
 import org.sigmah.client.ui.widget.HistoryTokenText;
+import org.sigmah.client.ui.widget.button.Button;
 import org.sigmah.client.ui.widget.contact.ContactPicker;
 import org.sigmah.client.ui.widget.contact.DedupeContactDialog;
-import org.sigmah.client.ui.widget.form.FormPanel;
 import org.sigmah.client.ui.widget.form.Forms;
 import org.sigmah.client.ui.widget.form.ListComboBox;
+import org.sigmah.client.util.ClientUtils;
 import org.sigmah.client.util.profiler.Profiler;
 import org.sigmah.client.util.profiler.Scenario;
+import org.sigmah.offline.fileapi.Blob;
 import org.sigmah.offline.status.ApplicationState;
 import org.sigmah.offline.sync.SuccessCallback;
+import org.sigmah.shared.command.AutomatedImport;
 import org.sigmah.shared.command.CheckContactDuplication;
 import org.sigmah.shared.command.CreateEntity;
 import org.sigmah.shared.command.DedupeContact;
 import org.sigmah.shared.command.GetContactDuplicatedProperties;
+import org.sigmah.shared.command.GetContactImportationSchemes;
 import org.sigmah.shared.command.GetContactModels;
 import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.GetOrgUnits;
@@ -94,12 +108,14 @@ import org.sigmah.shared.dto.element.event.RequiredValueEvent;
 import org.sigmah.shared.dto.element.event.ValueEvent;
 import org.sigmah.shared.dto.history.HistoryTokenDTO;
 import org.sigmah.shared.dto.history.HistoryTokenListDTO;
+import org.sigmah.shared.dto.importation.ImportationSchemeDTO;
 import org.sigmah.shared.dto.orgunit.OrgUnitDTO;
 import org.sigmah.shared.dto.referential.ContactModelType;
 import org.sigmah.shared.dto.referential.ValueEventChangeType;
+import org.sigmah.shared.dto.value.FileUploadUtils;
+import org.sigmah.shared.servlet.ServletConstants;
+import org.sigmah.shared.servlet.ServletUrlBuilder;
 import org.sigmah.shared.util.ValueResultUtils;
-
-import com.allen_sauer.gwt.log.client.Log;
 
 public class ContactListElementDTO extends FlexibleElementDTO {
   private static final long serialVersionUID = 646913359144175456L;
@@ -113,6 +129,10 @@ public class ContactListElementDTO extends FlexibleElementDTO {
   public static final String CHECKBOX_ELEMENT = "checkboxElement";
 
   private static final String STYLE_CONTACT_GRID_NAME = "contact-grid-name";
+
+  protected transient PageManager pageManager;
+  protected transient Integer layoutGroupId;
+  protected transient Integer iterationId;
 
   private static class OrgUnitSelectionChangedListener extends SelectionChangedListener<OrgUnitDTO> {
     private final AdapterField secondaryOrgUnitsFieldAdapter;
@@ -295,6 +315,29 @@ public class ContactListElementDTO extends FlexibleElementDTO {
       }
     }));
 
+    actionsToolBar.add(Forms.button(I18N.CONSTANTS.exportAll(), IconImageBundle.ICONS.excel(),
+        new SelectionListener<ButtonEvent>() {
+          @Override
+          public void componentSelected(ButtonEvent buttonEvent) {
+            final ServletUrlBuilder urlBuilder = new ServletUrlBuilder(authenticationProvider, pageManager, ServletConstants.Servlet.EXPORT, ServletConstants.ServletMethod.EXPORT_CONTACT_LIST);
+
+            urlBuilder.addParameter(RequestParameter.ID, currentContainerDTO.getId());
+            urlBuilder.addParameter(RequestParameter.LAYOUT_GROUP_ID, layoutGroupId);
+            urlBuilder.addParameter(RequestParameter.ITERATION_ID, iterationId!=null?iterationId:-1);
+            urlBuilder.addParameter(RequestParameter.CONTACT_LIST_ID, getId());
+
+            ClientUtils.launchDownload(urlBuilder.toString());
+          }
+        }));
+
+    actionsToolBar.add(Forms.button(I18N.CONSTANTS.importContact(), IconImageBundle.ICONS.excel(),
+        new SelectionListener<ButtonEvent>() {
+          @Override
+          public void componentSelected(ButtonEvent buttonEvent) {
+            showContactListImporter(store);
+          }
+        }));
+
     final Label offlineLabel = new Label(I18N.CONSTANTS.sigmahContactsOfflineUnavailable());
     actionsToolBar.add(offlineLabel);
 
@@ -343,7 +386,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     typeColumn.setRenderer(new GridCellRenderer<ContactDTO>() {
       @Override
       public Object render(final ContactDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-                           final ListStore<ContactDTO> store, final Grid<ContactDTO> grid) {
+          final ListStore<ContactDTO> store, final Grid<ContactDTO> grid) {
 
         ContactModelType type = model.get(property);
 
@@ -363,7 +406,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
 
       @Override
       public Object render(final ContactDTO model, final String property, final ColumnData config, final int rowIndex, final int colIndex,
-                           final ListStore<ContactDTO> store, final Grid<ContactDTO> grid) {
+          final ListStore<ContactDTO> store, final Grid<ContactDTO> grid) {
 
         final Anchor nameLink = new Anchor((String) model.get(property));
 
@@ -402,7 +445,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
 
     if (!enabled) {
       return new ColumnConfig[] {
-              typeColumn, nameColumn, firstnameColumn, emailColumn, idColumn
+          typeColumn, nameColumn, firstnameColumn, emailColumn, idColumn
       };
     }
 
@@ -416,7 +459,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
 
       @Override
       public Object render(final ContactDTO model, String property, ColumnData config, int rowIndex, int colIndex, final ListStore<ContactDTO> store,
-                           Grid<ContactDTO> grid) {
+          Grid<ContactDTO> grid) {
 
         final Image image = IconImageBundle.ICONS.deleteIcon().createImage();
         image.setTitle(I18N.CONSTANTS.remove());
@@ -434,7 +477,7 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     });
 
     return new ColumnConfig[] {
-            typeColumn, nameColumn, firstnameColumn, emailColumn, idColumn, removeColumn
+        typeColumn, nameColumn, firstnameColumn, emailColumn, idColumn, removeColumn
     };
   }
 
@@ -484,6 +527,126 @@ public class ContactListElementDTO extends FlexibleElementDTO {
     window.add(formPanel);
 
     window.show();
+  }
+
+  private void showContactListImporter(final ListStore<ContactDTO> store) {
+    // Window
+    final Window window = new Window();
+    window.setPlain(true);
+    window.setModal(true);
+    window.setBlinkModal(true);
+    window.setLayout(new FitLayout());
+    window.setSize(350, 180);
+    window.setHeadingHtml(I18N.CONSTANTS.importContact());
+
+    // Scheme field
+    final ComboBox<ImportationSchemeDTO> schemeField = Forms.combobox(I18N.CONSTANTS.adminImportationScheme(), true, ImportationSchemeDTO.ID, ImportationSchemeDTO.NAME);
+    schemeField.setName(FileUploadUtils.DOCUMENT_ID);
+
+    dispatch.execute(new GetContactImportationSchemes(getAllowedModelIds()), new CommandResultHandler<ListResult<ImportationSchemeDTO>>() {
+      @Override
+      protected void onCommandSuccess(ListResult<ImportationSchemeDTO> result) {
+        schemeField.getStore().add(result.getList());
+      }
+    });
+
+    // File field
+    final FileUploadField fileField = Forms.upload(I18N.CONSTANTS.adminFileImport());
+    fileField.setName(FileUploadUtils.DOCUMENT_CONTENT);
+
+    // Button
+    final Button importButton = Forms.button(I18N.CONSTANTS.IMPORT_BUTTON(), IconImageBundle.ICONS.add());
+
+    schemeField.addListener(Events.Select, new Listener<BaseEvent>() {
+      @Override
+      public void handleEvent(BaseEvent be) {
+        importButton.setEnabled(schemeField.getValue() != null);
+      }
+    });
+
+    // Form
+    final FormPanel form = Forms.panel();
+    form.add(schemeField);
+    form.add(fileField);
+    form.getButtonBar().add(importButton);
+
+    form.setEncoding(FormPanel.Encoding.MULTIPART);
+    form.setMethod(FormPanel.Method.POST);
+
+    importButton.addSelectionListener(new SelectionListener<ButtonEvent>() {
+      @Override
+      public void componentSelected(ButtonEvent ce) {
+        if (form.isValid()) {
+          ServletUrlBuilder servletUrlBuilder = new ServletUrlBuilder(authenticationProvider, pageManager, ServletConstants.Servlet.IMPORT, ServletConstants.ServletMethod.IMPORT_STORE_FILE);
+          form.setAction(servletUrlBuilder.toString());
+          form.submit();
+        } else {
+          N10N.warn(I18N.CONSTANTS.createFormIncomplete());
+        }
+      }});
+
+    form.addListener(Events.Submit, new Listener<FormEvent>() {
+      @Override
+      public void handleEvent(FormEvent be) {
+        submitContactListImport(be.getResultHtml(), Blob.getBlobFromInputFileElement(fileField.getFileInput()).getName(), schemeField.getValue(), importButton, store, window);
+      }
+    });
+
+    window.add(form);
+    window.show();
+  }
+
+  private void submitContactListImport(String result, String fileName, ImportationSchemeDTO scheme, final Button button, final ListStore<ContactDTO> store, final Window window) {
+    switch (ServletConstants.getErrorCode(result)) {
+      case Response.SC_OK:
+        dispatch.execute(new AutomatedImport(result, fileName, scheme, false, false, false),
+            new AsyncCallback<ListResult<BaseModelData>>() {
+              @Override
+              public void onSuccess(ListResult<BaseModelData> results) {
+                computeImportResults(results, store, window);
+              }
+              @Override
+              public void onFailure(Throwable throwable) {
+                Log.error("Error while importing contacts", throwable);
+              }
+            }, button, new LoadingMask(window));
+        break;
+      default:
+        N10N.error(I18N.CONSTANTS.createFormIncomplete(), I18N.MESSAGES.importFormIncompleteDetails(""));
+        break;
+    }
+  }
+
+  private void computeImportResults(ListResult<BaseModelData> results, final ListStore<ContactDTO> store, final Window window) {
+    Set<Integer> contactIds = new HashSet<Integer>(results.getSize());
+    for (BaseModelData baseModelData : results.getList()) {
+      contactIds.add((Integer) baseModelData.get("id"));
+    }
+    dispatch.execute(new GetContacts(contactIds),
+        new AsyncCallback<ListResult<ContactDTO>>() {
+          @Override
+          public void onSuccess(ListResult<ContactDTO> contactDTOListResult) {
+            List<ContactDTO> exclusions = new ArrayList<ContactDTO>();
+            for (ContactDTO contact : contactDTOListResult.getList()) {
+              if (store.contains(contact) ||
+                  (getAllowedType() != null && !getAllowedType().equals(contact.getContactModel().getType())) ||
+                  (!getAllowedModelIds().isEmpty() && !getAllowedModelIds().contains(contact.getContactModel().getId()))) {
+                exclusions.add(contact);
+              } else {
+                store.add(contact);
+              }
+            }
+            if (!exclusions.isEmpty()) {
+              ContactListImportResultPopup a = new ContactListImportResultPopup(exclusions);
+              a.show();
+            }
+            window.hide();
+          }
+          @Override
+          public void onFailure(Throwable throwable) {
+            Log.error("Error while adding contacts", throwable);
+          }
+        }, new LoadingMask(window));
   }
 
   private void showContactCreator(final ListStore<ContactDTO> store) {
@@ -537,8 +700,8 @@ public class ContactListElementDTO extends FlexibleElementDTO {
         }
 
         handleContactCreation(store, contactModelComboBox.getValue(), emailField.getValue(),
-                firstNameField.getValue(), familyNameField.getValue(), organizationNameField.getValue(),
-                mainOrgUnitComboBox.getValue(), secondaryOrgUnitsComboBox.getListStore().getModels());
+            firstNameField.getValue(), familyNameField.getValue(), organizationNameField.getValue(),
+            mainOrgUnitComboBox.getValue(), secondaryOrgUnitsComboBox.getListStore().getModels());
         window.hide();
       }
     });
@@ -709,6 +872,18 @@ public class ContactListElementDTO extends FlexibleElementDTO {
 
   public void setCheckboxElement(CheckboxElementDTO checkboxElement) {
     set(CHECKBOX_ELEMENT, checkboxElement);
+  }
+
+  public void setPageManager(PageManager pageManager) {
+    this.pageManager = pageManager;
+  }
+
+  public void setLayoutGroupId(Integer layoutGroupId) {
+    this.layoutGroupId = layoutGroupId;
+  }
+
+  public void setIterationId(Integer iterationId) {
+    this.iterationId = iterationId;
   }
 
 

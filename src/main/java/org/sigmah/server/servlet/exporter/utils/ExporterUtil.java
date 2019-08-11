@@ -24,6 +24,7 @@ package org.sigmah.server.servlet.exporter.utils;
 
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -54,6 +55,7 @@ import org.sigmah.server.domain.layout.Layout;
 import org.sigmah.server.domain.layout.LayoutConstraint;
 import org.sigmah.server.domain.layout.LayoutGroup;
 import org.sigmah.server.i18n.I18nServer;
+import org.sigmah.server.servlet.exporter.base.Exporter;
 import org.sigmah.server.servlet.exporter.data.BaseSynthesisData;
 import org.sigmah.server.servlet.exporter.data.ExportData;
 import org.sigmah.server.servlet.exporter.data.cells.ExportDataCell;
@@ -63,12 +65,15 @@ import org.sigmah.server.servlet.exporter.data.columns.GlobalExportDataColumn;
 import org.sigmah.server.servlet.exporter.data.columns.GlobalExportFlexibleElementColumn;
 import org.sigmah.server.servlet.exporter.data.columns.GlobalExportIterativeGroupColumn;
 import org.sigmah.shared.Language;
+import org.sigmah.shared.command.GetContacts;
 import org.sigmah.shared.command.GetValue;
 import org.sigmah.shared.command.result.ValueResult;
 import org.sigmah.shared.computation.value.ComputationError;
 import org.sigmah.shared.computation.value.ComputedValue;
 import org.sigmah.shared.computation.value.ComputedValues;
 import org.sigmah.shared.dispatch.CommandException;
+import org.sigmah.shared.dispatch.DispatchException;
+import org.sigmah.shared.dto.ContactDTO;
 import org.sigmah.shared.dto.element.BudgetElementDTO;
 import org.sigmah.shared.dto.element.BudgetRatioElementDTO;
 import org.sigmah.shared.dto.element.CheckboxElementDTO;
@@ -570,6 +575,38 @@ public final class ExporterUtil {
 		}
 
 		return new ValueLabel(element.getLabel(), value, lines);
+	}
+
+	public static String getContactListFormatedValue(final ValueResult valueResult, final Exporter exporter) {
+
+		String value = null;
+		int lines = 1;
+
+		if (valueResult != null && valueResult.isValueDefined()) {
+
+			// Retrieving list values from database.
+			final List<ContactDTO> contacts;
+			try {
+				contacts = exporter.execute(new GetContacts(new HashSet<Integer>(ValueResultUtils.splitValuesAsInteger(valueResult.getValueObject())))).getList();
+			} catch (DispatchException e) {
+				return null;
+			}
+
+			final StringBuilder builder = new StringBuilder();
+			for (final ContactDTO contact : contacts) {
+				builder.append(" - ")
+						.append(contact.getFullName())
+						.append("\n");
+				lines++;
+			}
+
+			if (lines > 1) {
+				value = builder.substring(0, builder.length() - 1);
+				lines--;
+			}
+		}
+
+		return value;
 	}
 
 	@Deprecated
