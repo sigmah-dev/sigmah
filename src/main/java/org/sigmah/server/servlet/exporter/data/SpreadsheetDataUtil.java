@@ -81,7 +81,10 @@ public final class SpreadsheetDataUtil {
         for (final IndicatorDTO indicator : indicators.getData()) {
 			final PivotTableElement pivot = composer.fixIndicator(indicator.getId());
 			final PivotContent content = exporter.execute(new GenerateElement<PivotContent>(pivot));
-			data.getEntryMap().put(indicator.getId(), content.getData());			
+			data.getEntryMap().put(indicator.getId(), content.getData());
+            final PivotTableElement pivotyear = composer.YearExcel(indicator.getId());
+            final PivotContent contentyear = exporter.execute(new GenerateElement<PivotContent>(pivotyear));
+            data.getEntryMap().put(indicator.getId()+1, contentyear.getData());
         }
       
         // Put ungrouped indicators
