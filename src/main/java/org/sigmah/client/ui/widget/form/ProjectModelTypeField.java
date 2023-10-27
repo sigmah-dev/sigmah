@@ -27,6 +27,7 @@ import java.util.Map.Entry;
 
 import org.sigmah.client.ui.res.icon.dashboard.funding.FundingIconProvider;
 import org.sigmah.client.ui.res.icon.dashboard.funding.FundingIconProvider.IconSize;
+import org.sigmah.client.ui.presenter;
 import org.sigmah.client.util.ClientUtils;
 import org.sigmah.shared.dto.referential.ProjectModelType;
 
@@ -104,7 +105,7 @@ public class ProjectModelTypeField extends MultiField<ProjectModelType> {
 			icon.getElement().getStyle().setMarginTop(-2, Unit.PX);
 			icon.getElement().getStyle().setPaddingRight(6, Unit.PX);
 
-			radio.setBoxLabel(icon.toString() + ProjectModelType.getName(projectModelType));
+			radio.setBoxLabel(icon.toString() + ProjectModelType.getName(projectModelType) + "(" + ProjectModelType.counter + ")");
 
 			radioGroup.add(radio);
 			radios.put(projectModelType, radio);

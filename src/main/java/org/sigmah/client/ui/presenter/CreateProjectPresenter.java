@@ -86,6 +86,9 @@ import com.google.inject.Singleton;
  */
 @Singleton
 public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectPresenter.View> {
+	public NGO.counter=0;
+	public FUNDING.counter=0;
+	public LOCAL_PARTNER.counter=0;
 
 	/**
 	 * View interface.
@@ -433,6 +436,11 @@ public class CreateProjectPresenter extends AbstractPagePresenter<CreateProjectP
 			}
 
 		});
+		
+		if(type==NGO){NGO.counter++; }
+		else if(type==FUNDING){FUNDING.counter++;}
+		else if(type==LOCAL_PARTNER){LOCAL_PARTNER.counter++;}
+		else{}
 
 	}
 
