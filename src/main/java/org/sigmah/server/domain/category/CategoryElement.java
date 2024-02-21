@@ -72,7 +72,10 @@ public class CategoryElement extends AbstractEntityId<Integer> {
 	@NotNull
 	@Size(max = EntityConstants.CATEGORY_ELEMENT_COLOR_HEX_MAX_LENGTH)
 	private String color;
-
+    
+    @Column(name = EntityConstants.IS_DISABLED, nullable = false)
+    @NotNull
+	private Boolean isdisabled = false;
 	// --------------------------------------------------------------------------------
 	//
 	// FOREIGN KEYS.
@@ -194,4 +197,15 @@ public class CategoryElement extends AbstractEntityId<Integer> {
 	public void setOrganization(Organization organization) {
 		this.organization = organization;
 	}
+    
+    	public boolean getisDisabled() {
+        if(isdisabled == null){
+            return false;
+        }
+		return isdisabled;
+	}
+
+	public void setisDisabled(boolean isdisabled) {
+		  this.isdisabled = isdisabled;
+	}  
 }

@@ -220,19 +220,19 @@ public class ProjectMapper extends EntityManagerProvider {
 			List<Integer> values = ValueResultUtils.splitValuesAsInteger(value.getValue());
 			if (!values.isEmpty()) {
 
-				final TypedQuery<QuestionChoiceElement> choicesQuery =
-						em().createQuery("SELECT c FROM QuestionChoiceElement c WHERE c.id IN (:ids)", QuestionChoiceElement.class);
+				final TypedQuery<CategoryElement> choicesQuery =
+						em().createQuery("SELECT c FROM CategoryElement c WHERE c.id IN (:ids)", CategoryElement.class);
 				choicesQuery.setParameter("ids", ValueResultUtils.splitValuesAsInteger(value.getValue()));
 
-				for (final QuestionChoiceElement choice : choicesQuery.getResultList()) {
+				for (final CategoryElement choice : choicesQuery.getResultList()) {
 
-					final CategoryType parent = choice.getCategoryElement().getParentType();
+					final CategoryType parent = choice.getParentType();
 					final CategoryTypeDTO parentDTO = new CategoryTypeDTO();
 					parentDTO.setId(parent.getId());
 					parentDTO.setLabel(parent.getLabel());
 					parentDTO.setIcon(parent.getIcon());
 
-					final CategoryElement element = choice.getCategoryElement();
+					final CategoryElement element = choice;
 					final CategoryElementDTO elementDTO = new CategoryElementDTO();
 					elementDTO.setId(element.getId());
 					elementDTO.setLabel(element.getLabel());

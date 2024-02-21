@@ -142,6 +142,7 @@ final class AccessRights {
 		sperm(commandToken(DeactivateUsers.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.MANAGE_USERS);
 		sperm(commandToken(DedupeContact.class), GrantType.AUTHENTICATED_ONLY, GlobalPermissionEnum.VIEW_VISIBLE_CONTACTS);
 		sperm(commandToken(DisableFlexibleElements.class), GrantType.AUTHENTICATED_ONLY);
+        	sperm(commandToken(DisableCategoryElements.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(DeleteCategories.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(DeleteFlexibleElements.class), GrantType.AUTHENTICATED_ONLY);
 		sperm(commandToken(Delete.class), GrantType.AUTHENTICATED_ONLY);

@@ -36,6 +36,9 @@ public class CategoryElementDTO extends AbstractModelDataEntityDTO<Integer> {
 	 * Serial version UID.
 	 */
 	private static final long serialVersionUID = 7879245182808843730L;
+    
+	private static final String STYLE_LABEL_SMALL = "label-small";
+
 
 	/**
 	 * {@inheritDoc}
@@ -89,5 +92,32 @@ public class CategoryElementDTO extends AbstractModelDataEntityDTO<Integer> {
 	public String getIconHtml() {
 		return get("iconHtml");
 	}
+    
+  public boolean getisDisabled() {
+		return get("isdisabled");
+	}
 
+	public void setisDisabled(boolean isdisabled) {
+		set("isdisabled", isdisabled);
+	}  
+
+    public String renderDisabled(final String value) {
+
+		// Renders direct HTML to improve performances.
+		final StringBuilder builder = new StringBuilder();
+		builder.append("<div class=\"").append(STYLE_LABEL_SMALL).append(" x-component\" style=\"text-decoration: line-through;\">");
+		builder.append(value != null ? String.valueOf(value) : "").append("</div>");
+
+		return builder.toString();
+	}
+    
+    public String renderText(final String value) {
+
+		// Renders direct HTML to improve performances.
+		final StringBuilder builder = new StringBuilder();
+		builder.append("<div class=\"").append(STYLE_LABEL_SMALL).append(" x-component\">");
+		builder.append(value != null ? String.valueOf(value) : "").append("</div>");
+
+		return builder.toString();
+	}
 }
