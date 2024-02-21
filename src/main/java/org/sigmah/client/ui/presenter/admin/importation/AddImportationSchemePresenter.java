@@ -56,6 +56,7 @@ import com.extjs.gxt.ui.client.widget.form.TextField;
 import com.google.inject.ImplementedBy;
 import com.google.inject.Inject;
 import com.google.inject.Singleton;
+import org.sigmah.client.util.MessageType;
 
 /**
  * @author Mehdi Benabdeslam (mehdi.benabdeslam@netapsys.fr)
@@ -192,7 +193,7 @@ public class AddImportationSchemePresenter extends AbstractPagePresenter<AddImpo
 
 					@Override
 					protected void onCommandSuccess(CreateResult result) {
-						N10N.infoNotif(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.adminImportationSchemeUpdateConfirm());
+						N10N.message(I18N.CONSTANTS.infoConfirmation(), I18N.CONSTANTS.adminImportationSchemeUpdateConfirm(),MessageType.INFO);
 
 						hideView();
 						eventBus.fireEvent(new UpdateEvent(UpdateEvent.IMPORTATION_SCHEME_UPDATE));
